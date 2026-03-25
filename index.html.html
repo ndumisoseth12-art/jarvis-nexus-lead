@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS NEXUS — Review Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #020b18;
+    --navy2: #041428;
+    --navy3: #071e36;
+    --blue: #0a84ff;
+    --blue2: #38b6ff;
+    --cyan: #00e5ff;
+    --white: #f0f6ff;
+    --muted: #6a8aaa;
+    --border: rgba(10,132,255,0.2);
+    --glow: 0 0 20px rgba(10,132,255,0.3);
+    --glow2: 0 0 40px rgba(0,229,255,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(10,132,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,132,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Radial glow top */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 500px;
+    background: radial-gradient(ellipse, rgba(10,132,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    padding: 32px 0 24px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo-block {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-icon {
+    width: 44px;
+    height: 44px;
+    border: 1.5px solid var(--blue);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--glow);
+    animation: pulse-border 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-border {
+    0%, 100% { box-shadow: 0 0 10px rgba(10,132,255,0.3); }
+    50% { box-shadow: 0 0 25px rgba(10,132,255,0.6); }
+  }
+
+  .logo-icon svg { width: 22px; height: 22px; }
+
+  .logo-text {
+    font-family: 'Orbitron', monospace;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--white);
+  }
+
+  .logo-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--blue2);
+    letter-spacing: 2px;
+    margin-top: 2px;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(10,132,255,0.08);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--cyan);
+    letter-spacing: 1px;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--cyan);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  /* HERO */
+  .hero {
+    padding: 48px 0 40px;
+    text-align: center;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--blue2);
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.2s;
+  }
+
+  .hero-tag::before, .hero-tag::after {
+    content: '';
+    width: 30px;
+    height: 1px;
+    background: var(--blue);
+    opacity: 0.5;
+  }
+
+  .hero h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(26px, 4vw, 40px);
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.35s;
+  }
+
+  .hero h1 span {
+    color: var(--blue);
+    text-shadow: 0 0 30px rgba(10,132,255,0.5);
+  }
+
+  .hero p {
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.7;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.5s;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* FORM CARD */
+  .form-card {
+    background: var(--navy2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.65s;
+  }
+
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--blue), var(--cyan), transparent);
+  }
+
+  .form-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .form-card-header h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--blue2);
+  }
+
+  .form-card-header-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  input, textarea, select {
+    background: var(--navy3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(10,132,255,0.12);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: rgba(106,138,170,0.5);
+  }
+
+  select option { background: var(--navy2); }
+
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.6;
+  }
+
+  /* Star rating */
+  .star-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .star-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--border);
+    transition: color 0.15s, transform 0.15s;
+    line-height: 1;
+  }
+
+  .star-btn:hover, .star-btn.active {
+    color: #ffd60a;
+    transform: scale(1.15);
+  }
+
+  .star-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  /* Submit button */
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--blue), #005fcb);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.5s;
+  }
+
+  .submit-btn:hover::before { left: 100%; }
+
+  .submit-btn:hover {
+    box-shadow: 0 8px 30px rgba(10,132,255,0.4);
+    transform: translateY(-1px);
+  }
+
+  .submit-btn:active { transform: translateY(0); }
+
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* SUCCESS STATE */
+  .success-state {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .success-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 2px solid var(--cyan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 0 30px rgba(0,229,255,0.3);
+    font-size: 28px;
+  }
+
+  .success-state h3 {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px;
+    letter-spacing: 2px;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+
+  .success-state p {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* INTELLIGENCE FEED */
+  .feed-section {
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.8s;
+  }
+
+  .feed-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .feed-header h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--blue2);
+  }
+
+  .feed-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--cyan);
+    background: rgba(0,229,255,0.08);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 100px;
+    padding: 3px 10px;
+    letter-spacing: 1px;
+  }
+
+  .feed-line { flex: 1; height: 1px; background: var(--border); }
+
+  .feed-item {
+    background: var(--navy2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: start;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feed-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 0 2px 2px 0;
+  }
+
+  .feed-item.positive::before { background: #30d158; }
+  .feed-item.neutral::before { background: #ffd60a; }
+  .feed-item.negative::before { background: #ff453a; }
+
+  .feed-item:hover {
+    border-color: rgba(10,132,255,0.35);
+    box-shadow: var(--glow);
+  }
+
+  .feed-rating {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .feed-stars {
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  .feed-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .feed-body { min-width: 0; }
+
+  .feed-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+
+  .feed-name {
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--white);
+  }
+
+  .feed-business {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--blue2);
+    letter-spacing: 1px;
+    background: rgba(10,132,255,0.08);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .feed-review {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .feed-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .feed-tone {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    border: 1px solid;
+  }
+
+  .feed-tone.Positive { color: #30d158; border-color: rgba(48,209,88,0.3); background: rgba(48,209,88,0.06); }
+  .feed-tone.Apologetic { color: #ffd60a; border-color: rgba(255,214,10,0.3); background: rgba(255,214,10,0.06); }
+  .feed-tone.Negative { color: #ff453a; border-color: rgba(255,69,58,0.3); background: rgba(255,69,58,0.06); }
+  .feed-tone.Neutral { color: var(--blue2); border-color: var(--border); background: rgba(10,132,255,0.06); }
+
+  .feed-time {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: rgba(106,138,170,0.5);
+    letter-spacing: 1px;
+  }
+
+  /* Loading feed */
+  .feed-loading {
+    text-align: center;
+    padding: 40px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  .feed-loading::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--blue);
+    margin-left: 8px;
+    animation: blink 1s infinite;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 0;
+    margin-top: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-brand {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+
+  .footer-brand span { color: var(--blue); }
+
+  .footer-copy {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: rgba(106,138,170,0.4);
+    letter-spacing: 1px;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--navy2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    z-index: 100;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    max-width: 320px;
+  }
+
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .toast.success { border-color: rgba(48,209,88,0.3); }
+  .toast.error { border-color: rgba(255,69,58,0.3); }
+
+  .toast-icon { font-size: 18px; }
+  .toast-msg { font-family: 'DM Sans', sans-serif; color: var(--white); line-height: 1.4; }
+
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-card { padding: 24px 20px; }
+    .feed-item { grid-template-columns: auto 1fr; }
+    .feed-right { display: none; }
+    .header-inner { flex-direction: column; gap: 16px; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="logo-block">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#0a84ff" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="#0a84ff" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="#38b6ff" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="logo-text">JARVIS NEXUS</div>
+          <div class="logo-sub">REVIEW INTELLIGENCE SYSTEM</div>
+        </div>
+      </div>
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        SYSTEM ONLINE
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">AI-POWERED REVIEW MANAGEMENT</div>
+    <h1>Submit a Review for<br><span>AI Processing</span></h1>
+    <p>Our system analyzes the review, drafts a professional response, and logs it instantly. You receive the response by email within seconds.</p>
+  </div>
+
+  <!-- FORM -->
+  <div class="form-card" id="formCard">
+    <div class="form-card-header">
+      <h2>// INPUT PARAMETERS</h2>
+      <div class="form-card-header-line"></div>
+    </div>
+
+    <form id="reviewForm">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Business Name</label>
+          <input type="text" id="businessName" placeholder="e.g. Cape Town Sneakers" required />
+        </div>
+        <div class="form-group">
+          <label>Reviewer Name</label>
+          <input type="text" id="reviewerName" placeholder="e.g. John Dube" required />
+        </div>
+        <div class="form-group">
+          <label>Your Email Address</label>
+          <input type="email" id="ownerEmail" placeholder="you@yourbusiness.co.za" required />
+        </div>
+        <div class="form-group">
+          <label>Star Rating</label>
+          <div class="star-row">
+            <button type="button" class="star-btn" data-val="1">★</button>
+            <button type="button" class="star-btn" data-val="2">★</button>
+            <button type="button" class="star-btn" data-val="3">★</button>
+            <button type="button" class="star-btn" data-val="4">★</button>
+            <button type="button" class="star-btn" data-val="5">★</button>
+            <span class="star-label" id="starLabel">Select rating</span>
+          </div>
+          <input type="hidden" id="starRating" required />
+        </div>
+        <div class="form-group full">
+          <label>Paste Review Here</label>
+          <textarea id="reviewText" placeholder="Paste the customer's review exactly as written..." required></textarea>
+        </div>
+      </div>
+      <button type="submit" class="submit-btn" id="submitBtn">
+        PROCESS REVIEW →
+      </button>
+    </form>
+
+    <div class="success-state" id="successState">
+      <div class="success-icon">✓</div>
+      <h3>REVIEW PROCESSED</h3>
+      <p>Your AI-drafted response has been sent to your email.<br>Check your inbox in the next 30 seconds.</p>
+    </div>
+  </div>
+
+  <!-- INTELLIGENCE FEED -->
+  <div class="feed-section">
+    <div class="feed-header">
+      <h2>// LIVE INTELLIGENCE FEED</h2>
+      <div class="feed-badge">LAST 5 ENTRIES</div>
+      <div class="feed-line"></div>
+    </div>
+    <div id="feedContainer">
+      <div class="feed-loading">FETCHING INTELLIGENCE DATA</div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-brand">JARVIS <span>NEXUS</span></div>
+    <div class="footer-copy">POWERED BY AI AUTOMATION // ZA</div>
+  </footer>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon"></span>
+  <span class="toast-msg" id="toastMsg"></span>
+</div>
+
+<script>
+  // ── CONFIG ──────────────────────────────────────────────
+  const WEBHOOK_URL = 'https://n8n-production-71d9.up.railway.app/webhook/review-responder';
+  // For the feed, paste your Google Sheets published CSV URL below
+  // Sheet → File → Share → Publish to web → CSV → copy link
+  const SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTstcXy-MNKzJCh6DmgljW-VQLEDe6tyUJ1GKLH4pRZSZcBUgR_dbGk2baSGFvyxPzShC2Aeb4uEKXM/pub?gid=0&single=true&output=csv';
+  // ────────────────────────────────────────────────────────
+
+  // Star rating
+  let selectedRating = 0;
+  const stars = document.querySelectorAll('.star-btn');
+  const starLabel = document.getElementById('starLabel');
+  const labels = ['', 'Terrible', 'Poor', 'Okay', 'Good', 'Excellent'];
+
+  stars.forEach(star => {
+    star.addEventListener('click', () => {
+      selectedRating = parseInt(star.dataset.val);
+      document.getElementById('starRating').value = selectedRating;
+      starLabel.textContent = labels[selectedRating];
+      stars.forEach(s => {
+        s.classList.toggle('active', parseInt(s.dataset.val) <= selectedRating);
+      });
+    });
+    star.addEventListener('mouseenter', () => {
+      const val = parseInt(star.dataset.val);
+      stars.forEach(s => s.style.color = parseInt(s.dataset.val) <= val ? '#ffd60a' : '');
+    });
+    star.addEventListener('mouseleave', () => {
+      stars.forEach(s => s.style.color = '');
+    });
+  });
+
+  // Form submit
+  document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!selectedRating) { showToast('error', '⚠', 'Please select a star rating.'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'PROCESSING...';
+
+    const payload = {
+      businessName: document.getElementById('businessName').value,
+      reviewerName: document.getElementById('reviewerName').value,
+      ownerEmail: document.getElementById('ownerEmail').value,
+      starRating: selectedRating,
+      reviewText: document.getElementById('reviewText').value
+    };
+
+    try {
+      await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        mode: 'no-cors'
+      });
+
+      document.getElementById('reviewForm').style.display = 'none';
+      document.getElementById('successState').style.display = 'block';
+      showToast('success', '✓', 'Review submitted! Check your email shortly.');
+      setTimeout(() => loadFeed(), 3000);
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'PROCESS REVIEW →';
+      showToast('error', '✗', 'Submission failed. Please try again.');
+    }
+  });
+
+  // Toast
+  function showToast(type, icon, msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastIcon').textContent = icon;
+    document.getElementById('toastMsg').textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.className = 'toast', 4000);
+  }
+
+  // Feed — parses published Google Sheets CSV
+  async function loadFeed() {
+    const container = document.getElementById('feedContainer');
+    if (SHEETS_CSV_URL === 'YOUR_GOOGLE_SHEETS_CSV_URL_HERE') {
+      container.innerHTML = renderDemoFeed();
+      return;
+    }
+    try {
+      const res = await fetch(SHEETS_CSV_URL);
+      const text = await res.text();
+      const rows = parseCSV(text);
+      if (rows.length < 2) { container.innerHTML = '<div class="feed-loading">NO DATA YET</div>'; return; }
+      const headers = rows[0];
+      const data = rows.slice(1).reverse().slice(0, 5);
+      container.innerHTML = data.map(row => {
+        const obj = {};
+        headers.forEach((h, i) => obj[h.trim()] = (row[i] || '').trim());
+        return renderFeedItem(obj);
+      }).join('');
+    } catch {
+      container.innerHTML = renderDemoFeed();
+    }
+  }
+
+  function renderFeedItem(d) {
+    const rating = parseInt(d['Star Rating']) || 0;
+    const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+    const tone = d['Tone'] || 'Positive';
+    const sentiment = rating >= 4 ? 'positive' : rating === 3 ? 'neutral' : 'negative';
+    const time = d['Timestamp'] ? new Date(d['Timestamp']).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+    return `
+      <div class="feed-item ${sentiment}">
+        <div class="feed-rating">
+          <div class="feed-num">${rating}</div>
+          <div class="feed-stars">${stars}</div>
+        </div>
+        <div class="feed-body">
+          <div class="feed-meta">
+            <span class="feed-name">${d['Reviewer Name'] || 'Anonymous'}</span>
+            <span class="feed-business">${d['Business Name'] || ''}</span>
+          </div>
+          <div class="feed-review">${d['Review Text'] || 'No review text'}</div>
+        </div>
+        <div class="feed-right">
+          <span class="feed-tone ${tone}">${tone.toUpperCase()}</span>
+          <span class="feed-time">${time}</span>
+        </div>
+      </div>`;
+  }
+
+  function renderDemoFeed() {
+    const demo = [
+      { 'Star Rating': 5, 'Reviewer Name': 'Happy Sipho', 'Business Name': 'Cape Town Sneakers', 'Review Text': 'So happy with my new sneakers, absolutely love them!', 'Tone': 'Positive', 'Timestamp': new Date().toISOString() },
+      { 'Star Rating': 1, 'Reviewer Name': 'Tee^Do', 'Business Name': 'Cape Town Sneakers', 'Review Text': 'Terrible service. Products arrived two days late without any communication.', 'Tone': 'Apologetic', 'Timestamp': new Date(Date.now() - 86400000).toISOString() },
+      { 'Star Rating': 3, 'Reviewer Name': 'Kelesedi Kubheka', 'Business Name': 'Cape Town Sneakers', 'Review Text': 'Customer service wasn\'t great but products arrived on time.', 'Tone': 'Neutral', 'Timestamp': new Date(Date.now() - 172800000).toISOString() },
+    ];
+    return demo.map(renderFeedItem).join('') + `<div style="text-align:center;padding:16px;font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(106,138,170,0.4);letter-spacing:2px;">DEMO DATA — ADD SHEETS CSV URL TO ACTIVATE LIVE FEED</div>`;
+  }
+
+  function parseCSV(text) {
+    return text.trim().split('\n').map(line => {
+      const result = []; let cur = ''; let inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        if (line[i] === '"') { inQ = !inQ; }
+        else if (line[i] === ',' && !inQ) { result.push(cur); cur = ''; }
+        else { cur += line[i]; }
+      }
+      result.push(cur);
+      return result;
+    });
+  }
+
+  loadFeed();
+</script>
+</body>
+</html>
