@@ -568,6 +568,48 @@ footer{
   </div>
 </main>
 
+<!-- QUICK SUBMIT SECTION -->
+<div style="margin-bottom: 60px;">
+  <div class="section-row">
+    <span class="section-label">// QUICK SUBMIT</span>
+    <div class="section-rule"></div>
+  </div>
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 40px; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent);"></div>
+    <p style="font-size: 15px; color: var(--muted); margin-bottom: 24px; line-height: 1.7;">Not sure which tool to use? Just tell us what you need and our AI will route it to the right system automatically.</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+      <input type="text" id="qs-name" placeholder="Your name" style="background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; width: 100%;" />
+      <input type="email" id="qs-email" placeholder="Your email" style="background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; width: 100%;" />
+    </div>
+    <textarea id="qs-message" placeholder="Tell us what you need help with..." style="background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; width: 100%; min-height: 100px; resize: vertical; margin-bottom: 16px; display: block;"></textarea>
+    <button onclick="quickSubmit()" style="width: 100%; padding: 15px; background: var(--accent); border: none; border-radius: 10px; color: var(--bg); font-family: var(--font-display); font-size: 18px; letter-spacing: 3px; cursor: pointer;" id="qs-btn">SUBMIT & LET AI ROUTE →</button>
+    <div id="qs-success" style="display:none; text-align:center; padding: 24px; color: var(--accent); font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px;">✓ RECEIVED — AI IS ROUTING YOUR REQUEST</div>
+  </div>
+</div>
+
+<script>
+async function quickSubmit() {
+  const name = document.getElementById('qs-name').value.trim();
+  const email = document.getElementById('qs-email').value.trim();
+  const message = document.getElementById('qs-message').value.trim();
+  if (!name || !email || !message) { alert('Please fill in all fields.'); return; }
+  const btn = document.getElementById('qs-btn');
+  btn.textContent = 'ROUTING...'; btn.disabled = true;
+  try {
+    await fetch('https://n8n-production-71d9.up.railway.app/webhook/master-router', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, message })
+    });
+    document.getElementById('qs-btn').style.display = 'none';
+    document.getElementById('qs-success').style.display = 'block';
+  } catch {
+    btn.disabled = false; btn.textContent = 'SUBMIT & LET AI ROUTE →';
+    alert('Submission failed. Please try again.');
+  }
+}
+</script>
+  
 <footer>
   <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;width:100%;">
     <div class="footer-brand">JARVIS <b>NEXUS</b></div>
