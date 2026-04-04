@@ -594,17 +594,20 @@ async function quickSubmit() {
   const message = document.getElementById('qs-message').value.trim();
   if (!name || !email || !message) { alert('Please fill in all fields.'); return; }
   const btn = document.getElementById('qs-btn');
-  btn.textContent = 'ROUTING...'; btn.disabled = true;
+  btn.textContent = 'ROUTING...';
+  btn.disabled = true;
   try {
     await fetch('https://n8n-production-71d9.up.railway.app/webhook/master-router', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, message })
+      mode: 'no-cors',
+      body: JSON.stringify({ name: name, email: email, message: message })
     });
-    document.getElementById('qs-btn').style.display = 'none';
+    btn.style.display = 'none';
     document.getElementById('qs-success').style.display = 'block';
-  } catch {
-    btn.disabled = false; btn.textContent = 'SUBMIT & LET AI ROUTE →';
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'SUBMIT & LET AI ROUTE →';
     alert('Submission failed. Please try again.');
   }
 }
