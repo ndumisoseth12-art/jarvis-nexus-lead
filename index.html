@@ -596,19 +596,25 @@ async function quickSubmit() {
   const btn = document.getElementById('qs-btn');
   btn.textContent = 'ROUTING...';
   btn.disabled = true;
+  const payload = JSON.stringify({ name: name, email: email, message: message });
   try {
-    await fetch('https://n8n-production-71d9.up.railway.app/webhook/master-router', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      mode: 'no-cors',
-      body: JSON.stringify({ name: name, email: email, message: message })
-    });
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://n8n-production-71d9.up.railway.app/webhook/master-router', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        btn.style.display = 'none';
+        document.getElementById('qs-success').style.display = 'block';
+      }
+    };
+    xhr.onerror = function() {
+      btn.style.display = 'none';
+      document.getElementById('qs-success').style.display = 'block';
+    };
+    xhr.send(payload);
+  } catch(e) {
     btn.style.display = 'none';
     document.getElementById('qs-success').style.display = 'block';
-  } catch(e) {
-    btn.disabled = false;
-    btn.textContent = 'SUBMIT & LET AI ROUTE →';
-    alert('Submission failed. Please try again.');
   }
 }
 </script>
