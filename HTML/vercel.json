@@ -1,0 +1,10 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/leads", "destination": "/leads.html" },
+    { "source": "/reviews", "destination": "/reviews.html" },
+    { "source": "/support", "destination": "/support.html" },
+    { "source": "/airbnb", "destination": "/airbnb.html" }
+  ]
+}
