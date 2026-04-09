@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jarvis Nexus — AI Automation for SA Businesses</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.cdnfonts.com/css/clash-display" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#020208;--bg2:#07070f;
+  --surface:rgba(255,255,255,0.025);--surface2:rgba(255,255,255,0.05);
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#ffffff;--text2:#e8e8ff;
+  --muted:rgba(200,200,235,0.5);--muted2:rgba(200,200,235,0.22);
+  --v:#8b5cf6;--v2:#6d28d9;--c:#22d3ee;--c2:#06b6d4;
+  --g:linear-gradient(135deg,#8b5cf6 0%,#3b82f6 50%,#22d3ee 100%);
+  --gh:linear-gradient(135deg,#a855f7 0%,#6366f1 40%,#22d3ee 100%);
+  --glow:rgba(139,92,246,0.35);--glow2:rgba(139,92,246,0.15);
+  --em:#10b981;--rose:#f43f5e;--amber:#f59e0b;
+}
+html{scroll-behavior:smooth;scroll-padding-top:80px;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text2);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+
+/* BG */
+.orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0;}
+.o1{width:700px;height:700px;background:radial-gradient(circle,rgba(139,92,246,0.18) 0%,transparent 70%);top:-200px;right:-150px;animation:d1 14s ease-in-out infinite;}
+.o2{width:600px;height:600px;background:radial-gradient(circle,rgba(34,211,238,0.11) 0%,transparent 70%);bottom:-150px;left:-150px;animation:d2 18s ease-in-out infinite;}
+.o3{width:400px;height:400px;background:radial-gradient(circle,rgba(99,102,241,0.09) 0%,transparent 70%);top:45%;left:35%;animation:d3 22s ease-in-out infinite;}
+@keyframes d1{0%,100%{transform:translate(0,0)}33%{transform:translate(-40px,50px)}66%{transform:translate(30px,-30px)}}
+@keyframes d2{0%,100%{transform:translate(0,0)}50%{transform:translate(50px,-40px)}}
+@keyframes d3{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-45%,-55%) scale(1.2)}}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.04;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");}
+.gridlines{position:fixed;inset:0;z-index:1;pointer-events:none;background-size:72px 72px;background-image:linear-gradient(rgba(255,255,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.018) 1px,transparent 1px);}
+
+.wrap{max-width:1100px;margin:0 auto;padding:0 32px;position:relative;z-index:10;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:18px 0;border-bottom:1px solid transparent;transition:all 0.3s;}
+nav.on{background:rgba(2,2,8,0.88);backdrop-filter:blur(24px);border-bottom-color:var(--border);}
+.ni{display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.logo{display:flex;align-items:center;gap:13px;text-decoration:none;}
+.gem{width:42px;height:42px;border-radius:14px;position:relative;background:var(--g);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px var(--glow);}
+.gem::before{content:'';position:absolute;inset:1px;border-radius:13px;background:var(--bg2);z-index:0;}
+.gem svg{position:relative;z-index:1;width:20px;height:20px;}
+.ln{font-family:'Clash Display',sans-serif;font-size:17px;font-weight:600;letter-spacing:1px;color:var(--text);}
+.ls{font-size:8px;letter-spacing:3px;font-weight:600;text-transform:uppercase;background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-top:3px;}
+.nc{display:flex;align-items:center;gap:4px;}
+.nl{font-size:12px;font-weight:500;color:var(--muted);text-decoration:none;padding:7px 14px;border-radius:8px;transition:all 0.2s;}
+.nl:hover{color:var(--text);background:var(--surface2);}
+.nr{display:flex;align-items:center;gap:10px;}
+.live-b{display:flex;align-items:center;gap:7px;border:1px solid rgba(16,185,129,0.3);border-radius:100px;padding:6px 14px;background:rgba(16,185,129,0.05);}
+.ldot{width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;animation:lp 2s ease-in-out infinite;}
+.lt{font-size:10px;font-weight:700;letter-spacing:2px;color:#10b981;text-transform:uppercase;}
+@keyframes lp{0%,100%{opacity:1}50%{opacity:0.3}}
+.ncta{font-size:12px;font-weight:700;background:var(--g);color:#fff;border:none;padding:9px 20px;border-radius:10px;cursor:pointer;box-shadow:0 0 20px var(--glow2);transition:all 0.2s;text-decoration:none;display:inline-block;}
+.ncta:hover{box-shadow:0 0 30px var(--glow);transform:translateY(-1px);}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding:140px 0 100px;}
+.hg{display:grid;grid-template-columns:1.15fr 0.85fr;gap:80px;align-items:center;width:100%;}
+.hl{}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;margin-bottom:32px;opacity:0;animation:ru 0.9s cubic-bezier(0.16,1,0.3,1) forwards 0.1s;}
+.ep{background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.25);border-radius:100px;padding:6px 14px;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--v);text-transform:uppercase;display:flex;align-items:center;gap:7px;}
+.ep::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--v);box-shadow:0 0 8px var(--v);}
+.eline{width:40px;height:1px;background:linear-gradient(90deg,var(--v),transparent);}
+.hh{font-family:'Clash Display',sans-serif;font-size:clamp(54px,6vw,84px);font-weight:700;line-height:0.93;letter-spacing:-2.5px;margin-bottom:24px;opacity:0;animation:ru 0.9s cubic-bezier(0.16,1,0.3,1) forwards 0.2s;}
+.hh .r1{display:block;color:var(--text);}
+.hh .r2{display:block;background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hh .r3{display:block;color:var(--text);}
+.hh .r3::after{content:'';display:block;width:100px;height:3px;margin-top:10px;background:var(--gh);border-radius:2px;}
+.hb{font-size:16px;color:var(--muted);line-height:1.8;max-width:440px;margin-bottom:36px;opacity:0;animation:ru 0.9s cubic-bezier(0.16,1,0.3,1) forwards 0.35s;}
+.hb strong{color:var(--text2);font-weight:600;}
+.ctarow{display:flex;align-items:center;gap:14px;flex-wrap:wrap;opacity:0;animation:ru 0.9s cubic-bezier(0.16,1,0.3,1) forwards 0.5s;}
+.btn-g{display:inline-flex;align-items:center;gap:10px;background:var(--g);color:#fff;font-size:14px;font-weight:700;padding:15px 30px;border-radius:13px;border:none;cursor:pointer;text-decoration:none;transition:all 0.3s;box-shadow:0 0 40px var(--glow),inset 0 1px 0 rgba(255,255,255,0.2);position:relative;overflow:hidden;}
+.btn-g::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.18),transparent 60%);opacity:0;transition:opacity 0.3s;}
+.btn-g:hover{transform:translateY(-2px);box-shadow:0 8px 50px var(--glow);}
+.btn-g:hover::before{opacity:1;}
+.barrow{width:22px;height:22px;border-radius:6px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:12px;transition:transform 0.2s;}
+.btn-g:hover .barrow{transform:translate(3px,-3px);}
+.btn-o{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--border2);color:var(--text2);font-size:14px;font-weight:600;padding:15px 26px;border-radius:13px;cursor:pointer;text-decoration:none;transition:all 0.3s;}
+.btn-o:hover{background:var(--surface2);border-color:rgba(139,92,246,0.4);transform:translateY(-2px);}
+.trust{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:32px;opacity:0;animation:ru 0.9s cubic-bezier(0.16,1,0.3,1) forwards 0.65s;}
+.ti{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);font-weight:500;}
+.tsep{width:1px;height:14px;background:var(--border2);}
+
+/* HERO RIGHT — DASHBOARD */
+.hr{position:relative;opacity:0;animation:ru 0.9s cubic-bezier(0.16,1,0.3,1) forwards 0.45s;}
+.dash{background:rgba(10,10,20,0.8);border:1px solid var(--border2);border-radius:24px;padding:26px;backdrop-filter:blur(30px);box-shadow:0 40px 80px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.06);position:relative;overflow:hidden;}
+.dash::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--gh);opacity:0.8;}
+.dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+.dt{font-family:'Clash Display',sans-serif;font-size:14px;font-weight:600;color:var(--text);}
+.ds{font-size:11px;color:var(--muted);}
+.dstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.dstat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
+.dsv{font-family:'Clash Display',sans-serif;font-size:22px;font-weight:700;background:var(--g);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:3px;}
+.dsl{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.dlabel{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.ditem{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;margin-bottom:6px;background:var(--surface);border:1px solid var(--border);opacity:0;animation:di 0.5s ease forwards;}
+.ditem:nth-child(1){animation-delay:1.2s;}
+.ditem:nth-child(2){animation-delay:1.5s;}
+.ditem:nth-child(3){animation-delay:1.8s;}
+@keyframes di{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+.ddot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ddot.h{background:#ef4444;box-shadow:0 0 8px #ef4444;}
+.ddot.p{background:#10b981;box-shadow:0 0 8px #10b981;}
+.ddot.w{background:#f59e0b;box-shadow:0 0 8px #f59e0b;}
+.din{flex:1;min-width:0;}
+.dname{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dmeta{font-size:10px;color:var(--muted);margin-top:1px;}
+.dbadge{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:6px;flex-shrink:0;}
+.dbadge.h{background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.2);}
+.dbadge.p{background:rgba(16,185,129,0.12);color:#10b981;border:1px solid rgba(16,185,129,0.2);}
+.dbadge.w{background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.2);}
+.fc{position:absolute;background:rgba(10,10,20,0.92);border:1px solid var(--border2);border-radius:16px;padding:16px 18px;backdrop-filter:blur(20px);box-shadow:0 20px 40px rgba(0,0,0,0.5);}
+.fc1{top:-28px;right:-36px;width:148px;animation:mf1 5s ease-in-out infinite;}
+.fc2{bottom:-18px;left:-44px;width:156px;animation:mf2 6s ease-in-out infinite 1s;}
+@keyframes mf1{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(0deg)}}
+@keyframes mf2{0%,100%{transform:translateY(0) rotate(2deg)}50%{transform:translateY(-8px) rotate(0deg)}}
+.fcl{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.fcv{font-family:'Clash Display',sans-serif;font-size:26px;font-weight:700;background:var(--g);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.fcs{font-size:10px;color:var(--muted);margin-top:3px;}
+
+/* STATS BAR */
+.sbar{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin:80px 0;}
+.sbi{padding:34px 24px;text-align:center;border-right:1px solid var(--border);transition:background 0.3s;}
+.sbi:last-child{border-right:none;}
+.sbi:hover{background:var(--surface);}
+.sbv{font-family:'Clash Display',sans-serif;font-size:50px;font-weight:700;line-height:1;margin-bottom:8px;background:var(--g);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sbl{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+
+/* SECTION */
+.seceye{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.set{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.sel{flex:1;height:1px;background:var(--border);}
+.seb{font-size:10px;font-weight:700;letter-spacing:1px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);border-radius:100px;padding:4px 12px;color:var(--v);white-space:nowrap;}
+.sech{font-family:'Clash Display',sans-serif;font-size:clamp(36px,4.5vw,58px);font-weight:700;line-height:1;letter-spacing:-1.5px;margin-bottom:14px;color:var(--text);}
+.sech .gr{background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.secsub{font-size:16px;color:var(--muted);line-height:1.75;max-width:480px;margin-bottom:52px;}
+
+/* TOOLS */
+.tgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:100px;}
+.tool{display:block;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:36px;position:relative;overflow:hidden;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);}
+.tool::before{content:'';position:absolute;inset:0;border-radius:22px;padding:1px;background:var(--gh);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity 0.4s;}
+.tool::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at center,rgba(139,92,246,0.06) 0%,transparent 60%);opacity:0;transition:opacity 0.4s;}
+.tool:hover{transform:translateY(-6px);box-shadow:0 30px 60px rgba(0,0,0,0.5),0 0 80px var(--glow2);border-color:rgba(139,92,246,0.2);}
+.tool:hover::before{opacity:1;}
+.tool:hover::after{opacity:1;}
+.ttop{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;position:relative;z-index:1;}
+.tic{width:54px;height:54px;border-radius:16px;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:26px;transition:all 0.4s;}
+.tool:hover .tic{background:rgba(139,92,246,0.12);border-color:rgba(139,92,246,0.3);box-shadow:0 0 24px var(--glow2);transform:scale(1.05);}
+.tarr{width:36px;height:36px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--muted);transition:all 0.3s;}
+.tool:hover .tarr{background:var(--g);border-color:transparent;color:#fff;transform:translate(3px,-3px);}
+.tn{font-family:'Clash Display',sans-serif;font-size:24px;font-weight:700;letter-spacing:-0.5px;color:var(--text);margin-bottom:10px;position:relative;z-index:1;}
+.td{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:24px;position:relative;z-index:1;}
+.tchips{display:flex;gap:6px;flex-wrap:wrap;position:relative;z-index:1;}
+.tchip{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);border:1px solid var(--border);border-radius:7px;padding:3px 10px;transition:all 0.3s;}
+.tool:hover .tchip{border-color:rgba(139,92,246,0.2);color:rgba(139,92,246,0.7);}
+
+/* HOW */
+.hgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:100px;}
+.hcard{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:36px;position:relative;overflow:hidden;transition:all 0.3s;}
+.hcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--gh);opacity:0;transition:opacity 0.3s;}
+.hcard:hover{border-color:var(--border2);transform:translateY(-4px);}
+.hcard:hover::before{opacity:1;}
+.hn{font-family:'Clash Display',sans-serif;font-size:70px;font-weight:700;line-height:1;background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0.18;margin-bottom:18px;}
+.ht{font-size:19px;font-weight:700;color:var(--text);margin-bottom:10px;}
+.hb{font-size:14px;color:var(--muted);line-height:1.7;}
+
+/* PRICING */
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:100px;}
+.pcard{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:36px;position:relative;overflow:hidden;transition:all 0.3s;}
+.pcard.featured{background:rgba(139,92,246,0.08);border-color:rgba(139,92,246,0.35);box-shadow:0 0 60px var(--glow2);}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--gh);opacity:0.4;}
+.pcard.featured::before{opacity:1;}
+.ptag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:100px;margin-bottom:20px;}
+.ptag.rec{background:rgba(139,92,246,0.2);color:var(--v);border:1px solid rgba(139,92,246,0.3);}
+.ptag.std{background:var(--surface2);color:var(--muted);border:1px solid var(--border2);}
+.pname{font-family:'Clash Display',sans-serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.pprice{margin:20px 0;}
+.psetup{font-size:12px;color:var(--muted);margin-bottom:4px;}
+.pamount{font-family:'Clash Display',sans-serif;font-size:42px;font-weight:700;background:var(--g);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.pmonth{font-size:13px;color:var(--muted);margin-top:4px;}
+.pdivider{height:1px;background:var(--border);margin:20px 0;}
+.pfeats{}
+.pfeat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-bottom:10px;font-weight:400;}
+.pfeat::before{content:'✓';font-size:11px;font-weight:700;color:var(--em);width:18px;height:18px;border-radius:50%;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(16,185,129,0.2);}
+.pbtn{display:flex;align-items:center;justify-content:center;width:100%;padding:14px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.3s;text-decoration:none;margin-top:24px;border:none;}
+.pbtn.main{background:var(--g);color:#fff;box-shadow:0 0 30px var(--glow2);}
+.pbtn.main:hover{box-shadow:0 0 50px var(--glow);transform:translateY(-2px);}
+.pbtn.ghost{background:transparent;color:var(--muted);border:1px solid var(--border2);}
+.pbtn.ghost:hover{border-color:rgba(139,92,246,0.3);color:var(--v);}
+.guarantee{text-align:center;font-size:12px;color:var(--muted);margin-top:16px;padding:12px;background:rgba(16,185,129,0.04);border:1px solid rgba(16,185,129,0.1);border-radius:10px;}
+.guarantee strong{color:var(--em);}
+
+/* QUICK SUBMIT */
+.qscard{background:var(--surface);border:1px solid var(--border);border-radius:28px;padding:56px;position:relative;overflow:hidden;margin-bottom:100px;backdrop-filter:blur(20px);}
+.qscard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--gh);}
+.qscard::after{content:'';position:absolute;top:-200px;right:-200px;width:500px;height:500px;background:radial-gradient(circle,rgba(139,92,246,0.08) 0%,transparent 70%);pointer-events:none;}
+.qsi{position:relative;z-index:1;}
+.qsh{font-family:'Clash Display',sans-serif;font-size:clamp(30px,3.5vw,46px);font-weight:700;letter-spacing:-1px;color:var(--text);margin-bottom:10px;}
+.qssub{font-size:16px;color:var(--muted);line-height:1.7;margin-bottom:36px;max-width:520px;}
+.qsrow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.qsf{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:13px;padding:15px 18px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;width:100%;transition:all 0.2s;}
+.qsf:focus{border-color:rgba(139,92,246,0.5);box-shadow:0 0 0 3px rgba(139,92,246,0.08);}
+.qsf::placeholder{color:var(--muted2);}
+textarea.qsf{resize:vertical;min-height:120px;line-height:1.6;display:block;margin-bottom:16px;}
+.qssucc{display:none;text-align:center;padding:24px;color:var(--em);font-size:14px;font-weight:600;letter-spacing:1px;}
+
+/* WHATSAPP FLOAT */
+.wa-float{position:fixed;bottom:28px;right:28px;z-index:150;display:flex;align-items:center;gap:10px;background:#25d366;color:#fff;font-size:13px;font-weight:700;padding:13px 20px;border-radius:100px;text-decoration:none;box-shadow:0 8px 32px rgba(37,211,102,0.4);transition:all 0.3s;animation:ru 1s cubic-bezier(0.16,1,0.3,1) forwards 2s;opacity:0;}
+.wa-float:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(37,211,102,0.5);}
+.wa-icon{font-size:18px;}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:40px 0;}
+.fi{display:flex;align-items:flex-start;justify-content:space-between;gap:40px;}
+.fb{font-family:'Clash Display',sans-serif;font-size:20px;font-weight:700;background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;}
+.fsub{font-size:12px;color:var(--muted);max-width:220px;line-height:1.6;}
+.flinks{display:flex;gap:40px;}
+.fgroup{}
+.fgtitle{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.flink{display:block;font-size:13px;color:var(--muted2);text-decoration:none;margin-bottom:8px;transition:color 0.2s;}
+.flink:hover{color:var(--text);}
+.fnote{font-size:11px;color:var(--muted2);margin-top:32px;padding-top:24px;border-top:1px solid var(--border);text-align:center;}
+
+/* ANIMATIONS */
+@keyframes ru{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(32px);transition:opacity 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1);}
+.reveal.in{opacity:1;transform:translateY(0);}
+.rd1{transition-delay:0.05s;}.rd2{transition-delay:0.15s;}.rd3{transition-delay:0.25s;}.rd4{transition-delay:0.35s;}
+
+@media(max-width:960px){.hg{grid-template-columns:1fr;}.hr{display:none;}.tgrid{grid-template-columns:1fr;}.hgrid{grid-template-columns:1fr;}.pgrid{grid-template-columns:1fr;}.sbar{grid-template-columns:repeat(2,1fr);}.nc{display:none;}.qsrow{grid-template-columns:1fr;}.fi{flex-direction:column;gap:28px;}.flinks{flex-direction:column;gap:20px;}}
+@media(max-width:600px){.wrap{padding:0 20px;}.hero{padding:120px 0 80px;}.qscard{padding:36px 24px;}.sbar{grid-template-columns:1fr 1fr;}.trust{flex-direction:column;align-items:flex-start;gap:10px;}.tsep{display:none;}.wa-float span{display:none;}.wa-float{padding:13px;}}
+</style>
+</head>
+<body>
+
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+<div class="grain"></div><div class="gridlines"></div>
+
+<!-- WHATSAPP FLOAT -->
+<a href="https://wa.me/27670994163?text=Hi%20Seth%2C%20I%20saw%20Jarvis%20Nexus%20and%20I%27d%20like%20to%20learn%20more" class="wa-float" target="_blank">
+  <span class="wa-icon">💬</span>
+  <span>WhatsApp Us</span>
+</a>
+
+<nav id="nav">
+  <div class="wrap"><div class="ni">
+    <a href="/" class="logo">
+      <div class="gem"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 7v10l8 5 8-5V7L12 2Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 2v14M4 7l8 5 8-5" stroke="white" stroke-width="1" opacity="0.5" stroke-linejoin="round"/></svg></div>
+      <div><div class="ln">JARVIS NEXUS</div><div class="ls">AI Automation Platform</div></div>
+    </a>
+    <div class="nc">
+      <a href="#tools" class="nl">Tools</a>
+      <a href="#pricing" class="nl">Pricing</a>
+      <a href="#how" class="nl">How It Works</a>
+    </div>
+    <div class="nr">
+      <div class="live-b"><div class="ldot"></div><span class="lt">Live</span></div>
+      <a href="https://calendly.com/ndumisoseth12/30min" target="_blank" class="ncta">Book Demo →</a>
+    </div>
+  </div></div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap"><div class="hg">
+    <div class="hl">
+      <div class="eyebrow"><div class="ep">🇿🇦 Built for South Africa</div><div class="eline"></div></div>
+      <h1 class="hh"><span class="r1">Your Business</span><span class="r2">Runs Itself.</span><span class="r3">You Win.</span></h1>
+      <p class="hb">AI tools that respond to your customers, qualify your leads and protect your reviews — <strong>automatically, 24/7</strong>, while you focus on what actually grows your business.</p>
+      <div class="ctarow">
+        <a href="#tools" class="btn-g">Explore the Tools <div class="barrow">↗</div></a>
+        <a href="https://calendly.com/ndumisoseth12/30min" target="_blank" class="btn-o">Book Free Demo</a>
+      </div>
+      <div class="trust">
+        <div class="ti">⚡ 10 second AI response</div><div class="tsep"></div>
+        <div class="ti">🔒 100% response rate</div><div class="tsep"></div>
+        <div class="ti">🌍 Made in SA, for SA</div>
+      </div>
+    </div>
+    <div class="hr">
+      <div class="fc fc1"><div class="fcl">Response Time</div><div class="fcv">10s</div><div class="fcs">avg across all bots</div></div>
+      <div class="fc fc2"><div class="fcl">Lead Score</div><div class="fcv">9.2</div><div class="fcs">🔥 HOT — call now</div></div>
+      <div class="dash">
+        <div class="dh"><div class="dt">Live Activity</div><div class="ds">Today · Real-time</div></div>
+        <div class="dstats">
+          <div class="dstat"><div class="dsv">24</div><div class="dsl">Reviews</div></div>
+          <div class="dstat"><div class="dsv">8</div><div class="dsl">Leads</div></div>
+          <div class="dstat"><div class="dsv">100%</div><div class="dsl">Rate</div></div>
+        </div>
+        <div class="dlabel">Recent Submissions</div>
+        <div class="ditem"><div class="ddot h"></div><div class="din"><div class="dname">Nkosi Properties</div><div class="dmeta">Lead Qualifier · 2 min ago</div></div><div class="dbadge h">Hot</div></div>
+        <div class="ditem"><div class="ddot p"></div><div class="din"><div class="dname">Cape Town Sneakers</div><div class="dmeta">Review Responder · 5 min ago</div></div><div class="dbadge p">5⭐</div></div>
+        <div class="ditem"><div class="ddot w"></div><div class="din"><div class="dname">Sunset Villa Host</div><div class="dmeta">Host Intelligence · 8 min ago</div></div><div class="dbadge w">Warm</div></div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- STATS -->
+<div class="wrap">
+  <div class="sbar reveal">
+    <div class="sbi"><div class="sbv">10s</div><div class="sbl">AI Response Time</div></div>
+    <div class="sbi"><div class="sbv">4</div><div class="sbl">AI Tools</div></div>
+    <div class="sbi"><div class="sbv">100%</div><div class="sbl">Response Rate</div></div>
+    <div class="sbi"><div class="sbv">24/7</div><div class="sbl">Always Running</div></div>
+  </div>
+</div>
+
+<!-- TOOLS -->
+<section id="tools" style="padding:40px 0;">
+  <div class="wrap">
+    <div class="seceye reveal"><div class="set">What We Build</div><div class="sel"></div><div class="seb">4 Tools Available</div></div>
+    <h2 class="sech reveal">Everything You Need<br><span class="gr">to Respond Faster.</span></h2>
+    <p class="secsub reveal">Pick the tool that solves your biggest problem today. Each one runs automatically — no technical knowledge needed.</p>
+    <div class="tgrid">
+      <a href="/leads.html" class="tool reveal rd1">
+        <div class="ttop"><div class="tic">🎯</div><div class="tarr">↗</div></div>
+        <div class="tn">Lead Qualifier</div>
+        <p class="td">Stop guessing which leads are worth your time. Our AI scores every enquiry instantly — Hot, Warm or Cold — so you always follow up with the right people first.</p>
+        <div class="tchips"><span class="tchip">Lead Scoring</span><span class="tchip">Hot/Warm/Cold</span><span class="tchip">Auto Follow-Up</span></div>
+      </a>
+      <a href="/reviews.html" class="tool reveal rd2">
+        <div class="ttop"><div class="tic">⭐</div><div class="tarr">↗</div></div>
+        <div class="tn">Review Responder</div>
+        <p class="td">Never leave a Google review unanswered again. Paste any review and get a professional response in under 10 seconds — for any sentiment.</p>
+        <div class="tchips"><span class="tchip">Sentiment Analysis</span><span class="tchip">Urgent Alerts</span><span class="tchip">Auto Draft</span></div>
+      </a>
+      <a href="/support.html" class="tool reveal rd3">
+        <div class="ttop"><div class="tic">🎧</div><div class="tarr">↗</div></div>
+        <div class="tn">Support Triage</div>
+        <p class="td">Every complaint, question and refund request gets a professional response within minutes — automatically, even at 2am. No missed messages. No frustrated customers.</p>
+        <div class="tchips"><span class="tchip">Ticket Triage</span><span class="tchip">Urgency Scoring</span><span class="tchip">Auto Response</span></div>
+      </a>
+      <a href="/airbnb.html" class="tool reveal rd4">
+        <div class="ttop"><div class="tic">🏠</div><div class="tarr">↗</div></div>
+        <div class="tn">Host Intelligence</div>
+        <p class="td">Airbnb hosts who respond to every guest review get more bookings. Our AI writes Superhost-quality responses instantly — protecting your rating and filling your calendar.</p>
+        <div class="tchips"><span class="tchip">Guest Response</span><span class="tchip">Superhost Tips</span><span class="tchip">Rating Guard</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" style="padding:20px 0;">
+  <div class="wrap">
+    <div class="seceye reveal"><div class="set">The Process</div><div class="sel"></div></div>
+    <h2 class="sech reveal">Three Steps.<br><span class="gr">Ten Seconds. Done.</span></h2>
+    <p class="secsub reveal">No tech knowledge needed. If you can send a WhatsApp, you can use Jarvis Nexus.</p>
+    <div class="hgrid">
+      <div class="hcard reveal rd1"><div class="hn">01</div><div class="ht">Submit</div><p class="hb">Fill in the form for your chosen tool. Takes under 60 seconds on any device.</p></div>
+      <div class="hcard reveal rd2"><div class="hn">02</div><div class="ht">AI Analyses</div><p class="hb">Our AI reads your submission instantly, scores urgency and drafts a professional response.</p></div>
+      <div class="hcard reveal rd3"><div class="hn">03</div><div class="ht">You Respond</div><p class="hb">A ready-to-use response lands in your inbox within 10 seconds. Copy, paste, done.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" style="padding:20px 0;">
+  <div class="wrap">
+    <div class="seceye reveal"><div class="set">Simple Pricing</div><div class="sel"></div></div>
+    <h2 class="sech reveal">No Lock-In.<br><span class="gr">Cancel Anytime.</span></h2>
+    <p class="secsub reveal">Pick the plan that fits your business today. Upgrade whenever you're ready.</p>
+    <div class="pgrid">
+      <div class="pcard reveal rd1">
+        <div class="ptag std">Starter</div>
+        <div class="pname">The Responder</div>
+        <div class="pprice">
+          <div class="psetup">R2,500 once-off setup</div>
+          <div class="pamount">R1,500</div>
+          <div class="pmonth">per month · cancel anytime</div>
+        </div>
+        <div class="pdivider"></div>
+        <div class="pfeats">
+          <div class="pfeat">1 AI bot of your choice</div>
+          <div class="pfeat">Monthly performance report</div>
+          <div class="pfeat">Telegram alerts</div>
+          <div class="pfeat">Portal access</div>
+          <div class="pfeat">Email support</div>
+        </div>
+        <a href="https://calendly.com/ndumisoseth12/30min" target="_blank" class="pbtn ghost">Get Started →</a>
+      </div>
+      <div class="pcard featured reveal rd2">
+        <div class="ptag rec">⭐ Most Popular</div>
+        <div class="pname">The Operator</div>
+        <div class="pprice">
+          <div class="psetup">R4,500 once-off setup</div>
+          <div class="pamount">R3,000</div>
+          <div class="pmonth">per month · cancel anytime</div>
+        </div>
+        <div class="pdivider"></div>
+        <div class="pfeats">
+          <div class="pfeat">2 AI bots of your choice</div>
+          <div class="pfeat">Lead follow-up sequence</div>
+          <div class="pfeat">Monthly performance report</div>
+          <div class="pfeat">Telegram alerts</div>
+          <div class="pfeat">Priority support</div>
+          <div class="pfeat">Quarterly strategy call</div>
+        </div>
+        <a href="https://calendly.com/ndumisoseth12/30min" target="_blank" class="pbtn main">Get Started →</a>
+        <div class="guarantee"><strong>30-Day Guarantee</strong> — 100% response rate or your money back</div>
+      </div>
+      <div class="pcard reveal rd3">
+        <div class="ptag std">Pro</div>
+        <div class="pname">The Full System</div>
+        <div class="pprice">
+          <div class="psetup">R8,500 once-off setup</div>
+          <div class="pamount">R5,500</div>
+          <div class="pmonth">per month · cancel anytime</div>
+        </div>
+        <div class="pdivider"></div>
+        <div class="pfeats">
+          <div class="pfeat">All 4 AI bots</div>
+          <div class="pfeat">Custom brand voice config</div>
+          <div class="pfeat">Monthly strategy call</div>
+          <div class="pfeat">WhatsApp support channel</div>
+          <div class="pfeat">First-priority response</div>
+          <div class="pfeat">Everything in Operator</div>
+        </div>
+        <a href="https://calendly.com/ndumisoseth12/30min" target="_blank" class="pbtn ghost">Get Started →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK SUBMIT -->
+<section id="submit" style="padding:20px 0;">
+  <div class="wrap">
+    <div class="qscard reveal">
+      <div class="qsi">
+        <div class="seceye" style="margin-bottom:18px;"><div class="set">Not Sure Where to Start</div><div class="sel"></div></div>
+        <h2 class="qsh">Tell Us What You Need.</h2>
+        <p class="qssub">Describe your problem in plain English and our AI will route it to the right system — automatically.</p>
+        <div class="qsrow">
+          <input type="text" id="qs-name" class="qsf" placeholder="Your name" />
+          <input type="email" id="qs-email" class="qsf" placeholder="Your email" />
+        </div>
+        <textarea id="qs-message" class="qsf" placeholder="Tell us what's happening in your business and what you'd like to fix..."></textarea>
+        <button onclick="quickSubmit()" id="qs-btn" class="btn-g" style="width:100%;justify-content:center;font-size:15px;padding:17px 32px;">
+          Submit — Let AI Route It <div class="barrow">→</div>
+        </button>
+        <div class="qssucc" id="qs-success">✓ Received — our AI is routing your request. Check your inbox shortly.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fi">
+      <div>
+        <div class="fb">JARVIS NEXUS</div>
+        <div class="fsub">AI automation for South African businesses. Built to save you time and win you customers.</div>
+      </div>
+      <div class="flinks">
+        <div class="fgroup">
+          <div class="fgtitle">Tools</div>
+          <a href="/leads.html" class="flink">Lead Qualifier</a>
+          <a href="/reviews.html" class="flink">Review Responder</a>
+          <a href="/support.html" class="flink">Support Triage</a>
+          <a href="/airbnb.html" class="flink">Host Intelligence</a>
+        </div>
+        <div class="fgroup">
+          <div class="fgtitle">Get Started</div>
+          <a href="https://calendly.com/ndumisoseth12/30min" target="_blank" class="flink">Book a Demo</a>
+          <a href="https://wa.me/27670994163" target="_blank" class="flink">WhatsApp Us</a>
+          <a href="#pricing" class="flink">Pricing</a>
+        </div>
+      </div>
+    </div>
+    <div class="fnote">© 2026 Jarvis Nexus · AI Automation · South Africa · All rights reserved</div>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('on',window.scrollY>50));
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');obs.unobserve(x.target);}});},{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+async function quickSubmit(){
+  const name=document.getElementById('qs-name').value.trim();
+  const email=document.getElementById('qs-email').value.trim();
+  const message=document.getElementById('qs-message').value.trim();
+  if(!name||!email||!message){alert('Please fill in all fields.');return;}
+  const btn=document.getElementById('qs-btn');
+  btn.innerHTML='Routing... <div class="barrow">⟳</div>';btn.disabled=true;
+  try{
+    const xhr=new XMLHttpRequest();
+    xhr.open('POST','https://n8n-production-71d9.up.railway.app/webhook/master-router',true);
+    xhr.setRequestHeader('Content-Type','application/json');
+    xhr.onreadystatechange=function(){if(xhr.readyState===4){btn.style.display='none';document.getElementById('qs-success').style.display='block';}};
+    xhr.onerror=function(){btn.style.display='none';document.getElementById('qs-success').style.display='block';};
+    xhr.send(JSON.stringify({name,email,message}));
+  }catch(e){btn.style.display='none';document.getElementById('qs-success').style.display='block';}
+}
+</script>
+</body>
+</html>
