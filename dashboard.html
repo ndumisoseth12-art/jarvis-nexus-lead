@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command Centre — Jarvis Nexus</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.cdnfonts.com/css/clash-display" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#020208;--bg2:#07070f;--surface:rgba(255,255,255,0.025);--surface2:rgba(255,255,255,0.05);
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#ffffff;--text2:#e8e8ff;--muted:rgba(200,200,235,0.5);--muted2:rgba(200,200,235,0.22);
+  --v:#8b5cf6;--c:#22d3ee;--em:#10b981;--amber:#f59e0b;--rose:#f43f5e;
+  --g:linear-gradient(135deg,#8b5cf6,#3b82f6,#22d3ee);
+  --gh:linear-gradient(135deg,#a855f7,#6366f1,#22d3ee);
+  --glow:rgba(139,92,246,0.3);--glow2:rgba(139,92,246,0.12);
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text2);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0;}
+.o1{width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,0.12) 0%,transparent 70%);top:-150px;right:-100px;animation:d1 14s ease-in-out infinite;}
+.o2{width:500px;height:500px;background:radial-gradient(circle,rgba(34,211,238,0.08) 0%,transparent 70%);bottom:-100px;left:-100px;animation:d2 18s ease-in-out infinite;}
+@keyframes d1{0%,100%{transform:translate(0,0)}50%{transform:translate(-20px,30px)}}
+@keyframes d2{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-20px)}}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.04;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");}
+.gridlines{position:fixed;inset:0;z-index:1;pointer-events:none;background-size:72px 72px;background-image:linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);}
+
+.wrap{max-width:1100px;margin:0 auto;padding:0 28px;position:relative;z-index:10;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:16px 0;background:rgba(2,2,8,0.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+.ni{display:flex;align-items:center;justify-content:space-between;}
+.logo{display:flex;align-items:center;gap:13px;text-decoration:none;}
+.gem{width:38px;height:38px;border-radius:12px;position:relative;background:var(--g);display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px var(--glow);}
+.gem::before{content:'';position:absolute;inset:1px;border-radius:11px;background:var(--bg2);z-index:0;}
+.gem svg{position:relative;z-index:1;width:18px;height:18px;}
+.ln{font-family:'Clash Display',sans-serif;font-size:16px;font-weight:600;letter-spacing:1px;color:var(--text);}
+.ls{font-size:8px;letter-spacing:3px;font-weight:600;text-transform:uppercase;background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-top:2px;}
+.nav-pills{display:flex;align-items:center;gap:6px;}
+.npill{font-size:11px;font-weight:600;color:var(--muted);text-decoration:none;padding:6px 14px;border-radius:8px;transition:all 0.2s;letter-spacing:0.3px;}
+.npill:hover{color:var(--text);background:var(--surface2);}
+.nav-r{display:flex;align-items:center;gap:10px;}
+.live-b{display:flex;align-items:center;gap:7px;border:1px solid rgba(16,185,129,0.3);border-radius:100px;padding:5px 12px;background:rgba(16,185,129,0.05);}
+.ldot{width:5px;height:5px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;animation:lp 2s ease-in-out infinite;}
+.lt{font-size:9px;font-weight:700;letter-spacing:2px;color:#10b981;text-transform:uppercase;}
+@keyframes lp{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* HEADER */
+.header{padding:100px 0 40px;}
+.header-inner{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.h-left{}
+.h-kicker{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--v);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.h-kicker::before{content:'';width:16px;height:1px;background:var(--v);}
+.h-title{font-family:'Clash Display',sans-serif;font-size:clamp(38px,5vw,60px);font-weight:700;line-height:0.95;letter-spacing:-1.5px;color:var(--text);margin-bottom:10px;}
+.h-title span{background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.h-sub{font-size:14px;color:var(--muted);max-width:400px;line-height:1.6;}
+.h-time{font-size:12px;color:var(--muted2);text-align:right;}
+.h-date{font-size:20px;font-weight:700;color:var(--text);margin-top:4px;}
+
+/* SECTION */
+.sec-eye{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.sec-eye-txt{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.sec-eye-line{flex:1;height:1px;background:var(--border);}
+.sec-eye-badge{font-size:9px;font-weight:700;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);border-radius:100px;padding:3px 10px;color:var(--v);white-space:nowrap;}
+
+/* STATUS GRID */
+.status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:40px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden;transition:all 0.3s;}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.green::before{background:linear-gradient(90deg,var(--em),transparent);}
+.stat-card.purple::before{background:linear-gradient(90deg,var(--v),transparent);}
+.stat-card.amber::before{background:linear-gradient(90deg,var(--amber),transparent);}
+.stat-card.cyan::before{background:linear-gradient(90deg,var(--c),transparent);}
+.sc-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.sc-val{font-family:'Clash Display',sans-serif;font-size:36px;font-weight:700;line-height:1;margin-bottom:4px;}
+.sc-val.green{color:var(--em);}
+.sc-val.purple{background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sc-val.amber{color:var(--amber);}
+.sc-val.cyan{color:var(--c);}
+.sc-sub{font-size:11px;color:var(--muted2);}
+
+/* TOOL CARDS */
+.tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:40px;}
+.tool-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:all 0.3s;position:relative;overflow:hidden;}
+.tool-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--gh);opacity:0;transition:opacity 0.3s;}
+.tool-card:hover{border-color:rgba(139,92,246,0.25);transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,0.4);}
+.tool-card:hover::before{opacity:1;}
+.tc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.tc-icon{width:44px;height:44px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:20px;transition:all 0.3s;}
+.tool-card:hover .tc-icon{background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.25);box-shadow:0 0 16px var(--glow2);}
+.tc-status{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;}
+.tc-dot{width:5px;height:5px;border-radius:50%;}
+.tc-status.live .tc-dot{background:var(--em);box-shadow:0 0 6px var(--em);}
+.tc-status.live{color:var(--em);}
+.tc-status.internal .tc-dot{background:var(--amber);box-shadow:0 0 6px var(--amber);}
+.tc-status.internal{color:var(--amber);}
+.tc-name{font-family:'Clash Display',sans-serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:-0.3px;}
+.tc-desc{font-size:12px;color:var(--muted);line-height:1.6;flex:1;margin-bottom:16px;}
+.tc-link{font-size:10px;font-weight:700;color:var(--v);letter-spacing:0.5px;display:flex;align-items:center;gap:6px;transition:gap 0.2s;}
+.tool-card:hover .tc-link{gap:10px;}
+
+/* LINK SECTIONS */
+.links-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:40px;}
+.link-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;position:relative;overflow:hidden;}
+.link-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--gh);opacity:0.5;}
+.lc-title{font-family:'Clash Display',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.lc-icon{font-size:18px;}
+.link-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;gap:12px;transition:all 0.2s;}
+.link-row:hover{border-color:rgba(139,92,246,0.2);background:rgba(139,92,246,0.04);}
+.lr-left{}
+.lr-name{font-size:12px;font-weight:600;color:var(--text);}
+.lr-url{font-size:10px;color:var(--muted2);margin-top:2px;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px;}
+.lr-actions{display:flex;gap:6px;flex-shrink:0;}
+.btn-copy{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:5px 10px;font-size:10px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;}
+.btn-copy:hover{border-color:rgba(139,92,246,0.3);color:var(--v);}
+.btn-copy.copied{border-color:rgba(16,185,129,0.3);color:var(--em);}
+.btn-open{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:5px 10px;font-size:10px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.2s;text-decoration:none;white-space:nowrap;}
+.btn-open:hover{border-color:rgba(139,92,246,0.3);color:var(--v);}
+
+/* WORKFLOW STATUS */
+.wf-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:40px;}
+.wf-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;}
+.wf-title{font-family:'Clash Display',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.wf-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.wf-item:last-child{border-bottom:none;}
+.wf-name{font-size:13px;font-weight:600;color:var(--text2);}
+.wf-path{font-size:10px;color:var(--muted2);margin-top:2px;font-family:monospace;}
+.wf-badge{font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 9px;border-radius:6px;text-transform:uppercase;white-space:nowrap;}
+.wf-badge.live{background:rgba(16,185,129,0.1);color:var(--em);border:1px solid rgba(16,185,129,0.2);}
+.wf-badge.schedule{background:rgba(245,158,11,0.1);color:var(--amber);border:1px solid rgba(245,158,11,0.2);}
+.wf-badge.internal{background:rgba(139,92,246,0.1);color:var(--v);border:1px solid rgba(139,92,246,0.2);}
+
+/* CREDENTIALS */
+.creds-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;margin-bottom:40px;position:relative;overflow:hidden;}
+.creds-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--gh);opacity:0.4;}
+.creds-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.cred-item{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.cred-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.cred-val{font-size:13px;font-weight:600;color:var(--text2);font-family:monospace;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.cred-masked{letter-spacing:2px;color:var(--muted);}
+.cred-reveal{font-size:9px;font-weight:600;color:var(--v);cursor:pointer;border:1px solid rgba(139,92,246,0.2);border-radius:5px;padding:2px 6px;transition:all 0.2s;background:none;font-family:'Plus Jakarta Sans',sans-serif;}
+.cred-reveal:hover{background:rgba(139,92,246,0.1);}
+
+/* QUICK ACTIONS */
+.actions-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:60px;}
+.action-btn{display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 16px;text-decoration:none;color:inherit;transition:all 0.3s;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+.action-btn:hover{border-color:rgba(139,92,246,0.25);transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,0.4);}
+.ab-icon{width:48px;height:48px;border-radius:14px;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:22px;transition:all 0.3s;}
+.action-btn:hover .ab-icon{background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.25);}
+.ab-name{font-size:12px;font-weight:700;color:var(--text);text-align:center;}
+.ab-desc{font-size:10px;color:var(--muted);text-align:center;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:rgba(7,7,15,0.96);border:1px solid var(--border2);border-radius:12px;padding:12px 18px;display:flex;align-items:center;gap:10px;box-shadow:0 20px 60px rgba(0,0,0,0.6);z-index:300;transform:translateY(80px);opacity:0;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);max-width:300px;backdrop-filter:blur(20px);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{border-color:rgba(16,185,129,0.3);}
+.toast-msg{font-size:12px;color:var(--text2);font-weight:500;}
+
+footer{border-top:1px solid var(--border);padding:24px 0;}
+.fi{display:flex;align-items:center;justify-content:space-between;}
+.fb{font-family:'Clash Display',sans-serif;font-size:15px;font-weight:700;background:var(--gh);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.fn{font-size:10px;color:var(--muted2);}
+
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1),transform 0.7s cubic-bezier(0.16,1,0.3,1);}
+.reveal.in{opacity:1;transform:translateY(0);}
+
+@media(max-width:960px){.status-grid{grid-template-columns:repeat(2,1fr);}.tools-grid{grid-template-columns:repeat(2,1fr);}.nav-pills{display:none;}.creds-grid{grid-template-columns:repeat(2,1fr);}.actions-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:640px){.wrap{padding:0 18px;}.tools-grid{grid-template-columns:1fr;}.links-grid{grid-template-columns:1fr;}.wf-grid{grid-template-columns:1fr;}.status-grid{grid-template-columns:1fr 1fr;}.actions-grid{grid-template-columns:repeat(2,1fr);}.creds-grid{grid-template-columns:1fr;}.fi{flex-direction:column;gap:8px;text-align:center;}}
+</style>
+</head>
+<body>
+
+<div class="orb o1"></div><div class="orb o2"></div>
+<div class="grain"></div><div class="gridlines"></div>
+
+<nav>
+  <div class="wrap"><div class="ni">
+    <a href="/" class="logo">
+      <div class="gem"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 7v10l8 5 8-5V7L12 2Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 2v14M4 7l8 5 8-5" stroke="white" stroke-width="1" opacity="0.5" stroke-linejoin="round"/></svg></div>
+      <div><div class="ln">JARVIS NEXUS</div><div class="ls">Command Centre</div></div>
+    </a>
+    <div class="nav-pills">
+      <a href="#tools" class="npill">Tools</a>
+      <a href="#links" class="npill">Links</a>
+      <a href="#workflows" class="npill">Workflows</a>
+      <a href="#credentials" class="npill">Credentials</a>
+    </div>
+    <div class="nav-r">
+      <div class="live-b"><div class="ldot"></div><span class="lt">All Systems Live</span></div>
+    </div>
+  </div></div>
+</nav>
+
+<!-- HEADER -->
+<section class="header">
+  <div class="wrap">
+    <div class="header-inner">
+      <div class="h-left">
+        <div class="h-kicker">Internal Command Centre</div>
+        <h1 class="h-title">Everything In<br><span>One Place.</span></h1>
+        <p class="h-sub">Every link, webhook, tool, credential and workflow status — always available, no searching needed.</p>
+      </div>
+      <div class="h-time">
+        <div style="font-size:11px;color:var(--muted);letter-spacing:1px;">CURRENT TIME</div>
+        <div class="h-date" id="clock">--:--:--</div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:4px;" id="dateStr">Loading...</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATUS STATS -->
+<div class="wrap" style="margin-bottom:40px;">
+  <div class="sec-eye reveal"><div class="sec-eye-txt">System Status</div><div class="sec-eye-line"></div><div class="sec-eye-badge">Live</div></div>
+  <div class="status-grid reveal">
+    <div class="stat-card green">
+      <div class="sc-label">Active Workflows</div>
+      <div class="sc-val green">7</div>
+      <div class="sc-sub">All running on n8n</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="sc-label">Portal Pages</div>
+      <div class="sc-val purple">8</div>
+      <div class="sc-sub">Live on Vercel</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="sc-label">Internal Tools</div>
+      <div class="sc-val amber">4</div>
+      <div class="sc-sub">Onboard · Invoice · Request · Proposal</div>
+    </div>
+    <div class="stat-card cyan">
+      <div class="sc-label">Google Sheets</div>
+      <div class="sc-val cyan">6</div>
+      <div class="sc-sub">CRMs and trackers</div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT TOOLS -->
+<div class="wrap" id="tools" style="margin-bottom:40px;">
+  <div class="sec-eye reveal"><div class="sec-eye-txt">Client-Facing Tools</div><div class="sec-eye-line"></div><div class="sec-eye-badge">4 Live</div></div>
+  <div class="tools-grid reveal">
+    <a href="/leads.html" class="tool-card">
+      <div class="tc-top"><div class="tc-icon">🎯</div><div class="tc-status live"><div class="tc-dot"></div>Live</div></div>
+      <div class="tc-name">Lead Qualifier</div>
+      <div class="tc-desc">Hot/Warm/Cold AI scoring. Sends follow-up sequence over 72 hours automatically.</div>
+      <div class="tc-link">Open Tool →</div>
+    </a>
+    <a href="/reviews.html" class="tool-card">
+      <div class="tc-top"><div class="tc-icon">⭐</div><div class="tc-status live"><div class="tc-dot"></div>Live</div></div>
+      <div class="tc-name">Review Responder</div>
+      <div class="tc-desc">Paste any Google review. AI drafts a professional response in 10 seconds.</div>
+      <div class="tc-link">Open Tool →</div>
+    </a>
+    <a href="/support.html" class="tool-card">
+      <div class="tc-top"><div class="tc-icon">🎧</div><div class="tc-status live"><div class="tc-dot"></div>Live</div></div>
+      <div class="tc-name">Support Triage</div>
+      <div class="tc-desc">Tickets auto-triaged by urgency. Complaints, questions, refunds handled instantly.</div>
+      <div class="tc-link">Open Tool →</div>
+    </a>
+    <a href="/airbnb.html" class="tool-card">
+      <div class="tc-top"><div class="tc-icon">🏠</div><div class="tc-status live"><div class="tc-dot"></div>Live</div></div>
+      <div class="tc-name">Host Intelligence</div>
+      <div class="tc-desc">Airbnb guest review responses. Superhost-quality replies in under 10 seconds.</div>
+      <div class="tc-link">Open Tool →</div>
+    </a>
+  </div>
+</div>
+
+<!-- INTERNAL TOOLS -->
+<div class="wrap" style="margin-bottom:40px;">
+  <div class="sec-eye reveal"><div class="sec-eye-txt">Internal Tools</div><div class="sec-eye-line"></div><div class="sec-eye-badge">4 Tools</div></div>
+  <div class="tools-grid reveal">
+    <a href="/onboarding.html" class="tool-card">
+      <div class="tc-top"><div class="tc-icon">🚀</div><div class="tc-status internal"><div class="tc-dot"></div>Internal</div></div>
+      <div class="tc-name">Client Onboarding</div>
+      <div class="tc-desc">Close a client → fill this form → 3 emails fire + CRM updated + Telegram alert.</div>
+      <div class="tc-link">Open Tool →</div>
+    </a>
+    <a href="/proposal.html" class="tool-card">
+      <div class="tc-top"><div class="tc-icon">📋</div><div class="tc-status internal"><div class="tc-dot"></div>Internal</div></div>
+      <div class="tc-name">Proposal Generator</div>
+      <div class="tc-desc">AI-personalised proposal sent to any lead in 30 seconds. Auto-fires on HOT leads.</div>
+      <div class="tc-link">Open Tool →</div>
+    </a>
+    <a href="/review-request.html" class="tool-card">
+      <div class="tc-top"><div class="tc-icon">⭐</div><div class="tc-status internal"><div class="tc-dot"></div>Internal</div></div>
+      <div class="tc-name">Review Request Bot</div>
+      <div class="tc-desc">Send AI-personalised review requests to happy customers. Logged in tracker.</div>
+      <div class="tc-link">Open Tool →</div>
+    </a>
+    <a href="https://n8n-production-71d9.up.railway.app" target="_blank" class="tool-card">
+      <div class="tc-top"><div class="tc-icon">⚙️</div><div class="tc-status live"><div class="tc-dot"></div>Live</div></div>
+      <div class="tc-name">n8n Dashboard</div>
+      <div class="tc-desc">Your automation engine. View all workflows, executions and logs here.</div>
+      <div class="tc-link">Open n8n →</div>
+    </a>
+  </div>
+</div>
+
+<!-- IMPORTANT LINKS -->
+<div class="wrap" id="links" style="margin-bottom:40px;">
+  <div class="sec-eye reveal"><div class="sec-eye-txt">Important Links</div><div class="sec-eye-line"></div></div>
+  <div class="links-grid reveal">
+
+    <div class="link-card">
+      <div class="lc-title"><span class="lc-icon">🌐</span> Portal Pages</div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Home Dashboard</div><div class="lr-url">jarvis-nexus-lead-jkon.vercel.app</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://jarvis-nexus-lead-jkon.vercel.app',this)">Copy</button>
+          <a href="https://jarvis-nexus-lead-jkon.vercel.app" target="_blank" class="btn-open">Open</a>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Lead Qualifier</div><div class="lr-url">jarvis-nexus-lead-jkon.vercel.app/leads.html</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://jarvis-nexus-lead-jkon.vercel.app/leads.html',this)">Copy</button>
+          <a href="https://jarvis-nexus-lead-jkon.vercel.app/leads.html" target="_blank" class="btn-open">Open</a>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Review Responder</div><div class="lr-url">jarvis-nexus-lead-jkon.vercel.app/reviews.html</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://jarvis-nexus-lead-jkon.vercel.app/reviews.html',this)">Copy</button>
+          <a href="https://jarvis-nexus-lead-jkon.vercel.app/reviews.html" target="_blank" class="btn-open">Open</a>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Support Triage</div><div class="lr-url">jarvis-nexus-lead-jkon.vercel.app/support.html</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://jarvis-nexus-lead-jkon.vercel.app/support.html',this)">Copy</button>
+          <a href="https://jarvis-nexus-lead-jkon.vercel.app/support.html" target="_blank" class="btn-open">Open</a>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Host Intelligence</div><div class="lr-url">jarvis-nexus-lead-jkon.vercel.app/airbnb.html</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://jarvis-nexus-lead-jkon.vercel.app/airbnb.html',this)">Copy</button>
+          <a href="https://jarvis-nexus-lead-jkon.vercel.app/airbnb.html" target="_blank" class="btn-open">Open</a>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Client Onboarding</div><div class="lr-url">jarvis-nexus-lead-jkon.vercel.app/onboarding.html</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://jarvis-nexus-lead-jkon.vercel.app/onboarding.html',this)">Copy</button>
+          <a href="https://jarvis-nexus-lead-jkon.vercel.app/onboarding.html" target="_blank" class="btn-open">Open</a>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Proposal Generator</div><div class="lr-url">jarvis-nexus-lead-jkon.vercel.app/proposal.html</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://jarvis-nexus-lead-jkon.vercel.app/proposal.html',this)">Copy</button>
+          <a href="https://jarvis-nexus-lead-jkon.vercel.app/proposal.html" target="_blank" class="btn-open">Open</a>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Review Request Bot</div><div class="lr-url">jarvis-nexus-lead-jkon.vercel.app/review-request.html</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://jarvis-nexus-lead-jkon.vercel.app/review-request.html',this)">Copy</button>
+          <a href="https://jarvis-nexus-lead-jkon.vercel.app/review-request.html" target="_blank" class="btn-open">Open</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="link-card">
+      <div class="lc-title"><span class="lc-icon">🔗</span> Webhooks & External</div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Lead Qualifier Webhook</div><div class="lr-url">n8n.../webhook/lead-qualifier</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://n8n-production-71d9.up.railway.app/webhook/lead-qualifier',this)">Copy</button>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Review Responder Webhook</div><div class="lr-url">n8n.../webhook/review-responder</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://n8n-production-71d9.up.railway.app/webhook/review-responder',this)">Copy</button>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Customer Support Webhook</div><div class="lr-url">n8n.../webhook/customer-support</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://n8n-production-71d9.up.railway.app/webhook/customer-support',this)">Copy</button>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Airbnb Webhook</div><div class="lr-url">n8n.../webhook/airbnb-review-responder</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://n8n-production-71d9.up.railway.app/webhook/airbnb-review-responder',this)">Copy</button>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Master Router Webhook</div><div class="lr-url">n8n.../webhook/master-router</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://n8n-production-71d9.up.railway.app/webhook/master-router',this)">Copy</button>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Client Onboarding Webhook</div><div class="lr-url">n8n.../webhook/client-onboarding</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://n8n-production-71d9.up.railway.app/webhook/client-onboarding',this)">Copy</button>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Invoice Webhook</div><div class="lr-url">n8n.../webhook/invoice</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://n8n-production-71d9.up.railway.app/webhook/invoice',this)">Copy</button>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Review Request Webhook</div><div class="lr-url">n8n.../webhook/review-request</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://n8n-production-71d9.up.railway.app/webhook/review-request',this)">Copy</button>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Proposal Webhook</div><div class="lr-url">n8n.../webhook/proposal</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://n8n-production-71d9.up.railway.app/webhook/proposal',this)">Copy</button>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">Book a Demo — Calendly</div><div class="lr-url">calendly.com/ndumisoseth12/30min</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://calendly.com/ndumisoseth12/30min',this)">Copy</button>
+          <a href="https://calendly.com/ndumisoseth12/30min" target="_blank" class="btn-open">Open</a>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">n8n Dashboard</div><div class="lr-url">n8n-production-71d9.up.railway.app</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://n8n-production-71d9.up.railway.app',this)">Copy</button>
+          <a href="https://n8n-production-71d9.up.railway.app" target="_blank" class="btn-open">Open</a>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">GitHub Repo</div><div class="lr-url">github.com/ndumisoseth12-art/jarvis-nexus-lead</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://github.com/ndumisoseth12-art/jarvis-nexus-lead',this)">Copy</button>
+          <a href="https://github.com/ndumisoseth12-art/jarvis-nexus-lead" target="_blank" class="btn-open">Open</a>
+        </div>
+      </div>
+
+      <div class="link-row">
+        <div class="lr-left"><div class="lr-name">WhatsApp Business</div><div class="lr-url">wa.me/27670994163</div></div>
+        <div class="lr-actions">
+          <button class="btn-copy" onclick="copyLink('https://wa.me/27670994163',this)">Copy</button>
+          <a href="https://wa.me/27670994163" target="_blank" class="btn-open">Open</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WORKFLOW STATUS -->
+<div class="wrap" id="workflows" style="margin-bottom:40px;">
+  <div class="sec-eye reveal"><div class="sec-eye-txt">Workflow Status</div><div class="sec-eye-line"></div><div class="sec-eye-badge">9 Built</div></div>
+  <div class="wf-grid reveal">
+    <div class="wf-card">
+      <div class="wf-title">🔗 Webhook Workflows</div>
+      <div class="wf-item"><div><div class="wf-name">Lead Qualifier Bot</div><div class="wf-path">/webhook/lead-qualifier</div></div><span class="wf-badge live">Live</span></div>
+      <div class="wf-item"><div><div class="wf-name">Review Responder</div><div class="wf-path">/webhook/review-responder</div></div><span class="wf-badge live">Live</span></div>
+      <div class="wf-item"><div><div class="wf-name">Customer Support Bot</div><div class="wf-path">/webhook/customer-support</div></div><span class="wf-badge live">Live</span></div>
+      <div class="wf-item"><div><div class="wf-name">Airbnb Host Intelligence</div><div class="wf-path">/webhook/airbnb-review-responder</div></div><span class="wf-badge live">Live</span></div>
+      <div class="wf-item"><div><div class="wf-name">Master Router</div><div class="wf-path">/webhook/master-router</div></div><span class="wf-badge live">Live</span></div>
+      <div class="wf-item"><div><div class="wf-name">Client Onboarding Bot</div><div class="wf-path">/webhook/client-onboarding</div></div><span class="wf-badge live">Live</span></div>
+      <div class="wf-item"><div><div class="wf-name">Invoice Bot</div><div class="wf-path">/webhook/invoice</div></div><span class="wf-badge live">Live</span></div>
+      <div class="wf-item"><div><div class="wf-name">Review Request Bot</div><div class="wf-path">/webhook/review-request</div></div><span class="wf-badge live">Live</span></div>
+      <div class="wf-item"><div><div class="wf-name">Proposal Generator</div><div class="wf-path">/webhook/proposal</div></div><span class="wf-badge live">Live</span></div>
+    </div>
+    <div class="wf-card">
+      <div class="wf-title">⏰ Scheduled Workflows</div>
+      <div class="wf-item"><div><div class="wf-name">Monthly Report Bot</div><div class="wf-path">1st of month · 09:00 SAST</div></div><span class="wf-badge schedule">Scheduled</span></div>
+      <div class="wf-item"><div><div class="wf-name">Client Acquisition Agent</div><div class="wf-path">Daily · 09:00 SAST</div></div><span class="wf-badge schedule">Scheduled</span></div>
+      <div class="wf-title" style="margin-top:24px;">📊 Google Sheets</div>
+      <div class="wf-item"><div><div class="wf-name">Review Bot Dashboard</div><div class="wf-path">W01 · Review Responder data</div></div><span class="wf-badge live">Active</span></div>
+      <div class="wf-item"><div><div class="wf-name">Lead Qualifier CRM</div><div class="wf-path">W02 · Lead scoring data</div></div><span class="wf-badge live">Active</span></div>
+      <div class="wf-item"><div><div class="wf-name">Client Acquisition Pipeline</div><div class="wf-path">W05 · Daily prospects</div></div><span class="wf-badge live">Active</span></div>
+      <div class="wf-item"><div><div class="wf-name">Client CRM</div><div class="wf-path">W08 · Onboarded clients</div></div><span class="wf-badge live">Active</span></div>
+      <div class="wf-item"><div><div class="wf-name">Invoice Tracker</div><div class="wf-path">W09 · All invoices sent</div></div><span class="wf-badge live">Active</span></div>
+      <div class="wf-item"><div><div class="wf-name">Proposal Tracker</div><div class="wf-path">W15 · All proposals sent</div></div><span class="wf-badge live">Active</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CREDENTIALS -->
+<div class="wrap" id="credentials" style="margin-bottom:40px;">
+  <div class="sec-eye reveal"><div class="sec-eye-txt">Key References</div><div class="sec-eye-line"></div></div>
+  <div class="creds-card reveal">
+    <div class="wf-title" style="margin-bottom:20px;">📌 Your Key Info</div>
+    <div class="creds-grid">
+      <div class="cred-item">
+        <div class="cred-label">Telegram Chat ID</div>
+        <div class="cred-val">6243464274 <button class="cred-reveal" onclick="copyLink('6243464274',this)">Copy</button></div>
+      </div>
+      <div class="cred-item">
+        <div class="cred-label">Gmail Account</div>
+        <div class="cred-val">ndumisoseth12@gmail.com <button class="cred-reveal" onclick="copyLink('ndumisoseth12@gmail.com',this)">Copy</button></div>
+      </div>
+      <div class="cred-item">
+        <div class="cred-label">WhatsApp Number</div>
+        <div class="cred-val">+27 67 099 4163 <button class="cred-reveal" onclick="copyLink('+27670994163',this)">Copy</button></div>
+      </div>
+      <div class="cred-item">
+        <div class="cred-label">n8n Base URL</div>
+        <div class="cred-val" style="font-size:11px;">n8n-production-71d9.up.railway.app <button class="cred-reveal" onclick="copyLink('https://n8n-production-71d9.up.railway.app',this)">Copy</button></div>
+      </div>
+      <div class="cred-item">
+        <div class="cred-label">Portal URL</div>
+        <div class="cred-val" style="font-size:11px;">jarvis-nexus-lead-jkon.vercel.app <button class="cred-reveal" onclick="copyLink('https://jarvis-nexus-lead-jkon.vercel.app',this)">Copy</button></div>
+      </div>
+      <div class="cred-item">
+        <div class="cred-label">AI Model (Groq)</div>
+        <div class="cred-val" style="font-size:11px;">llama-3.3-70b-versatile <button class="cred-reveal" onclick="copyLink('llama-3.3-70b-versatile',this)">Copy</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK ACTIONS -->
+<div class="wrap" style="margin-bottom:40px;">
+  <div class="sec-eye reveal"><div class="sec-eye-txt">Quick Actions</div><div class="sec-eye-line"></div></div>
+  <div class="actions-grid reveal">
+    <a href="/onboarding.html" class="action-btn">
+      <div class="ab-icon">🚀</div>
+      <div class="ab-name">Onboard Client</div>
+      <div class="ab-desc">Fire 3 emails instantly</div>
+    </a>
+    <a href="/proposal.html" class="action-btn">
+      <div class="ab-icon">📋</div>
+      <div class="ab-name">Send Proposal</div>
+      <div class="ab-desc">AI-personalised in 30s</div>
+    </a>
+    <a href="/review-request.html" class="action-btn">
+      <div class="ab-icon">⭐</div>
+      <div class="ab-name">Request Review</div>
+      <div class="ab-desc">Send to happy customer</div>
+    </a>
+    <a href="https://calendly.com/ndumisoseth12/30min" target="_blank" class="action-btn">
+      <div class="ab-icon">📅</div>
+      <div class="ab-name">Book Demo</div>
+      <div class="ab-desc">Open Calendly</div>
+    </a>
+    <a href="https://n8n-production-71d9.up.railway.app" target="_blank" class="action-btn">
+      <div class="ab-icon">⚙️</div>
+      <div class="ab-name">Open n8n</div>
+      <div class="ab-desc">View all workflows</div>
+    </a>
+    <a href="https://github.com/ndumisoseth12-art/jarvis-nexus-lead" target="_blank" class="action-btn">
+      <div class="ab-icon">💻</div>
+      <div class="ab-name">GitHub Repo</div>
+      <div class="ab-desc">Deploy portal updates</div>
+    </a>
+    <a href="https://wa.me/27670994163" target="_blank" class="action-btn">
+      <div class="ab-icon">💬</div>
+      <div class="ab-name">WhatsApp</div>
+      <div class="ab-desc">Open business chat</div>
+    </a>
+    <a href="https://jarvis-nexus-lead-jkon.vercel.app" target="_blank" class="action-btn">
+      <div class="ab-icon">🌐</div>
+      <div class="ab-name">Live Portal</div>
+      <div class="ab-desc">View as client sees it</div>
+    </a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap"><div class="fi">
+    <div class="fb">JARVIS NEXUS</div>
+    <div class="fn">Command Centre · Internal Only · 2026</div>
+  </div></div>
+</footer>
+
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<script>
+// Clock
+function updateClock(){
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('dateStr').textContent = now.toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+updateClock();setInterval(updateClock,1000);
+
+// Scroll reveal
+const obs = new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');obs.unobserve(x.target);}});},{threshold:0.06});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// Copy
+function copyLink(url, btn){
+  navigator.clipboard.writeText(url).then(()=>{
+    if(btn){const orig=btn.textContent;btn.textContent='Copied!';btn.classList.add('copied');setTimeout(()=>{btn.textContent=orig;btn.classList.remove('copied');},2000);}
+    toast('✓ Copied to clipboard');
+  }).catch(()=>{
+    // Fallback
+    const ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    toast('✓ Copied to clipboard');
+  });
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.className='toast ok show';
+  setTimeout(()=>t.className='toast',2500);
+}
+</script>
+</body>
+</html>
