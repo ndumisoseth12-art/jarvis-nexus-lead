@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Performance Bot — Jarvis Nexus</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.cdnfonts.com/css/clash-display" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#020208;--bg2:#07070f;--surface:rgba(255,255,255,0.025);--surface2:rgba(255,255,255,0.05);
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#ffffff;--text2:#f0f0ff;--muted:rgba(210,210,240,0.45);--muted2:rgba(210,210,240,0.2);
+  --accent:#6366f1;--accent2:#4f46e5;
+  --g-main:linear-gradient(135deg,#6366f1,#8b5cf6,#a855f7);
+  --g-hero:linear-gradient(135deg,#818cf8,#6366f1);
+  --glow:rgba(99,102,241,0.35);--glow2:rgba(99,102,241,0.15);
+  --flag:#f43f5e;--ok:#10b981;--amber:#f59e0b;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text2);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0;}
+.o1{width:700px;height:700px;background:radial-gradient(circle,rgba(99,102,241,0.14) 0%,transparent 70%);top:-200px;right:-150px;animation:d1 14s ease-in-out infinite;}
+.o2{width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,0.1) 0%,transparent 70%);bottom:-150px;left:-150px;animation:d2 18s ease-in-out infinite;}
+.o3{width:400px;height:400px;background:radial-gradient(circle,rgba(168,85,247,0.07) 0%,transparent 70%);top:45%;left:35%;animation:d3 22s ease-in-out infinite;}
+@keyframes d1{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,40px)}}
+@keyframes d2{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,-30px)}}
+@keyframes d3{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-45%,-55%) scale(1.2)}}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.04;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");}
+.gridlines{position:fixed;inset:0;z-index:1;pointer-events:none;background-size:72px 72px;background-image:linear-gradient(rgba(255,255,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.018) 1px,transparent 1px);}
+.wrap{max-width:860px;margin:0 auto;padding:0 32px;position:relative;z-index:10;}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:18px 0;border-bottom:1px solid transparent;transition:all 0.3s;}
+nav.on{background:rgba(2,2,8,0.88);backdrop-filter:blur(24px);border-bottom-color:var(--border);}
+.ni{display:flex;align-items:center;justify-content:space-between;}
+.logo{display:flex;align-items:center;gap:13px;text-decoration:none;}
+.gem{width:42px;height:42px;border-radius:14px;position:relative;background:var(--g-main);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px var(--glow);}
+.gem::before{content:'';position:absolute;inset:1px;border-radius:13px;background:var(--bg2);z-index:0;}
+.gem svg{position:relative;z-index:1;width:20px;height:20px;}
+.ln{font-family:'Clash Display',sans-serif;font-size:17px;font-weight:600;letter-spacing:1px;color:var(--text);}
+.ls{font-size:8px;letter-spacing:3px;font-weight:600;text-transform:uppercase;background:var(--g-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-top:3px;}
+.nav-r{display:flex;align-items:center;gap:10px;}
+.nav-back{font-size:11px;font-weight:600;color:var(--muted);text-decoration:none;letter-spacing:1px;text-transform:uppercase;padding:7px 16px;border:1px solid var(--border2);border-radius:10px;transition:all 0.2s;}
+.nav-back:hover{color:var(--text);border-color:rgba(99,102,241,0.3);}
+.live-b{display:flex;align-items:center;gap:7px;border:1px solid rgba(16,185,129,0.3);border-radius:100px;padding:6px 14px;background:rgba(16,185,129,0.05);}
+.ldot{width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;animation:lp 2s ease-in-out infinite;}
+.lt{font-size:10px;font-weight:700;letter-spacing:2px;color:#10b981;text-transform:uppercase;}
+@keyframes lp{0%,100%{opacity:1}50%{opacity:0.3}}
+.page-hero{padding:140px 0 56px;}
+.ph-pill{background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);border-radius:100px;padding:6px 14px;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;display:inline-flex;align-items:center;gap:7px;margin-bottom:28px;}
+.ph-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);}
+.ph-h{font-family:'Clash Display',sans-serif;font-size:clamp(44px,6vw,72px);font-weight:700;line-height:0.93;letter-spacing:-2px;margin-bottom:18px;color:var(--text);}
+.ph-h .gr{background:var(--g-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.ph-sub{font-size:16px;color:var(--muted);line-height:1.75;max-width:520px;margin-bottom:40px;}
+
+/* HOW IT WORKS */
+.how-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:48px;}
+.how-card{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;padding:22px;position:relative;overflow:hidden;}
+.how-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--g-main);}
+.how-icon{font-size:28px;margin-bottom:12px;}
+.how-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.how-desc{font-size:11px;color:var(--muted);line-height:1.6;}
+
+.form-card{background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:48px;margin-bottom:32px;position:relative;overflow:hidden;}
+.form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--g-hero);}
+.form-card::after{content:'';position:absolute;top:-150px;right:-150px;width:400px;height:400px;background:radial-gradient(circle,rgba(99,102,241,0.07) 0%,transparent 70%);pointer-events:none;}
+.card-eye{display:flex;align-items:center;gap:14px;margin-bottom:32px;}
+.card-eye-txt{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.card-eye-line{flex:1;height:1px;background:var(--border);}
+.section-div{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin:28px 0 18px;display:flex;align-items:center;gap:12px;}
+.section-div::after{content:'';flex:1;height:1px;background:rgba(99,102,241,0.2);}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;position:relative;z-index:1;}
+.field{display:flex;flex-direction:column;gap:8px;}
+.field.full{grid-column:1/-1;}
+label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+input,select,textarea{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:12px;padding:14px 18px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;width:100%;transition:all 0.2s;appearance:none;}
+input:focus,select:focus,textarea:focus{border-color:rgba(99,102,241,0.5);box-shadow:0 0 0 3px rgba(99,102,241,0.08);background:rgba(99,102,241,0.03);}
+input::placeholder,textarea::placeholder{color:var(--muted2);}
+textarea{resize:vertical;min-height:100px;line-height:1.6;}
+.sel-wrap{position:relative;}
+.sel-wrap::after{content:'▾';position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:12px;}
+select option{background:#07070f;color:#fff;}
+
+/* STAR RATING */
+.star-row{display:flex;gap:8px;}
+.star-btn{flex:1;padding:12px 6px;background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:11px;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:center;}
+.star-btn:hover,.star-btn.active{border-color:rgba(99,102,241,0.4);background:rgba(99,102,241,0.08);color:var(--accent);}
+
+/* RETURN CHIPS */
+.return-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.return-radio{display:none;}
+.return-card{border:1px solid var(--border2);border-radius:12px;padding:14px;cursor:pointer;transition:all 0.25s;background:rgba(255,255,255,0.03);text-align:center;font-family:'Plus Jakarta Sans',sans-serif;}
+.return-card:hover{border-color:rgba(99,102,241,0.3);}
+.return-radio:checked + .return-card{border-color:rgba(99,102,241,0.5);background:rgba(99,102,241,0.08);}
+.return-emoji{font-size:22px;margin-bottom:6px;}
+.return-label{font-size:12px;font-weight:600;color:var(--text);}
+.return-radio:checked + .return-card .return-label{background:var(--g-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+.btn-submit{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:17px 32px;background:var(--g-main);border:none;border-radius:14px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;margin-top:8px;box-shadow:0 0 40px var(--glow);}
+.btn-submit::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);opacity:0;transition:opacity 0.3s;}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 50px var(--glow);}
+.btn-submit:hover::before{opacity:1;}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.btn-arrow{width:24px;height:24px;border-radius:7px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:13px;transition:transform 0.2s;}
+.btn-submit:hover .btn-arrow{transform:translate(3px,-3px);}
+
+.success-panel{display:none;text-align:center;padding:64px 20px;position:relative;z-index:1;}
+.success-ring{width:100px;height:100px;border-radius:50%;background:var(--g-main);display:flex;align-items:center;justify-content:center;margin:0 auto 28px;font-size:44px;box-shadow:0 0 60px var(--glow);animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes popIn{from{transform:scale(0.4);opacity:0}to{transform:scale(1);opacity:1}}
+.success-h{font-family:'Clash Display',sans-serif;font-size:36px;font-weight:700;background:var(--g-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px;}
+.success-p{color:var(--muted);font-size:15px;line-height:1.7;max-width:440px;margin:0 auto 28px;}
+.success-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:24px;}
+.sg{background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:18px;text-align:center;}
+.sg-icon{font-size:24px;margin-bottom:8px;}
+.sg-label{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.sg-desc{font-size:10px;color:var(--muted);}
+.btn-ghost{margin-top:28px;padding:12px 28px;background:transparent;border:1px solid var(--border2);border-radius:12px;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.btn-ghost:hover{border-color:rgba(99,102,241,0.3);color:var(--accent);}
+
+.feed-wrap{margin-bottom:80px;}
+.feed-hdr{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+.feed-hdr-txt{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.feed-hdr-badge{font-size:10px;font-weight:700;color:var(--accent);background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:100px;padding:3px 10px;}
+.feed-hdr-line{flex:1;height:1px;background:var(--border);}
+.feed-item{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:18px 22px;margin-bottom:10px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;transition:all 0.3s;position:relative;overflow:hidden;}
+.feed-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.feed-item.ok::before{background:var(--ok);}
+.feed-item.flagged::before{background:var(--flag);}
+.feed-item:hover{transform:translateX(4px);}
+.fi-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.fi-detail{font-size:12px;color:var(--muted);}
+.fi-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+.fi-badge{font-size:10px;font-weight:700;border-radius:6px;padding:2px 8px;text-transform:uppercase;letter-spacing:0.5px;}
+.fi-badge.ok{color:var(--ok);background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);}
+.fi-badge.flagged{color:var(--flag);background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.2);}
+.fi-time{font-size:10px;color:var(--muted2);}
+.feed-empty{text-align:center;padding:48px;font-size:12px;font-weight:600;color:var(--muted2);letter-spacing:1.5px;text-transform:uppercase;border:1px dashed var(--border);border-radius:16px;}
+
+.toast{position:fixed;bottom:28px;right:28px;background:rgba(7,7,15,0.95);border:1px solid var(--border2);border-radius:14px;padding:14px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 20px 60px rgba(0,0,0,0.6);z-index:300;transform:translateY(80px);opacity:0;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);max-width:320px;backdrop-filter:blur(20px);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{border-color:rgba(16,185,129,0.3);}
+.toast.err{border-color:rgba(239,68,68,0.3);}
+.toast-msg{font-size:13px;color:var(--text2);line-height:1.4;font-weight:500;}
+footer{border-top:1px solid var(--border);padding:32px 0;margin-top:40px;}
+.foot-inner{display:flex;align-items:center;justify-content:space-between;}
+.foot-brand{font-family:'Clash Display',sans-serif;font-size:16px;font-weight:700;background:var(--g-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.foot-note{font-size:11px;color:var(--muted2);}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1),transform 0.7s cubic-bezier(0.16,1,0.3,1);}
+.reveal.in{opacity:1;transform:translateY(0);}
+@media(max-width:700px){.fg{grid-template-columns:1fr;}.form-card{padding:28px 20px;}.how-strip{grid-template-columns:1fr;}.success-grid{grid-template-columns:1fr;}.return-grid{grid-template-columns:1fr;}.wrap{padding:0 20px;}.foot-inner{flex-direction:column;gap:8px;text-align:center;}}
+</style>
+</head>
+<body>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+<div class="grain"></div><div class="gridlines"></div>
+
+<nav id="nav">
+  <div class="wrap"><div class="ni">
+    <a href="/" class="logo">
+      <div class="gem"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 7v10l8 5 8-5V7L12 2Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 2v14M4 7l8 5 8-5" stroke="white" stroke-width="1" opacity="0.5" stroke-linejoin="round"/></svg></div>
+      <div><div class="ln">JARVIS NEXUS</div><div class="ls">Staff Performance Bot</div></div>
+    </a>
+    <div class="nav-r">
+      <a href="/" class="nav-back">← Dashboard</a>
+      <div class="live-b"><div class="ldot"></div><span class="lt">Active</span></div>
+    </div>
+  </div></div>
+</nav>
+
+<section class="page-hero">
+  <div class="wrap">
+    <div class="ph-pill">AI Staff Intelligence</div>
+    <h1 class="ph-h">Know Your Best<br><span class="gr">And Worst Staff.</span></h1>
+    <p class="ph-sub">Customers submit feedback about specific staff members. AI scores each person, flags poor performance instantly and delivers a weekly ranking report to the business owner every Friday.</p>
+    <div class="how-strip reveal">
+      <div class="how-card"><div class="how-icon">📝</div><div class="how-title">Customer Submits Feedback</div><div class="how-desc">After their visit, customers fill in this form rating their specific staff member.</div></div>
+      <div class="how-card"><div class="how-icon">🤖</div><div class="how-title">AI Scores The Staff Member</div><div class="how-desc">Every submission gets an AI score out of 10 with a training tip. Flags fire instantly for poor scores.</div></div>
+      <div class="how-card"><div class="how-icon">📊</div><div class="how-title">Owner Gets Weekly Report</div><div class="how-desc">Every Friday at 16:00 the owner receives a full staff ranking with top performer and coaching insights.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="form-card reveal" id="formCard">
+    <div class="card-eye"><span class="card-eye-txt">Customer Feedback Form</span><div class="card-eye-line"></div></div>
+
+    <div class="section-div">Business Details</div>
+    <div class="fg">
+      <div class="field"><label>Business Name</label><input type="text" id="businessName" placeholder="e.g. Glow Beauty Salon" required /></div>
+      <div class="field"><label>Owner Alert Email</label><input type="email" id="ownerEmail" placeholder="owner@theirbusiness.co.za" required /></div>
+    </div>
+
+    <div class="section-div">Your Details</div>
+    <div class="fg">
+      <div class="field"><label>Your Name</label><input type="text" id="customerName" placeholder="e.g. Thabo Nkosi" required /></div>
+      <div class="field"><label>Staff Member You Saw</label><input type="text" id="staffMember" placeholder="e.g. Lerato" required /></div>
+      <div class="field full"><label>Service You Received</label><input type="text" id="service" placeholder="e.g. Hair colour and cut" required /></div>
+    </div>
+
+    <div class="section-div">Your Ratings</div>
+    <div class="fg">
+      <div class="field full">
+        <label>Overall Rating</label>
+        <div class="star-row">
+          <button type="button" class="star-btn" data-value="1">1 ⭐</button>
+          <button type="button" class="star-btn" data-value="2">2 ⭐</button>
+          <button type="button" class="star-btn" data-value="3">3 ⭐</button>
+          <button type="button" class="star-btn" data-value="4">4 ⭐</button>
+          <button type="button" class="star-btn active" data-value="5">5 ⭐</button>
+        </div>
+        <input type="hidden" id="overallRating" value="5" />
+      </div>
+      <div class="field full">
+        <label>Your Feedback About This Staff Member</label>
+        <textarea id="staffFeedback" placeholder="Tell us about your experience with this staff member. What did they do well? What could they improve?"></textarea>
+      </div>
+      <div class="field full">
+        <label>Would You Return?</label>
+        <div class="return-grid">
+          <input type="radio" name="return" id="r1" class="return-radio" value="Definitely yes" checked />
+          <label for="r1" class="return-card"><div class="return-emoji">😊</div><div class="return-label">Definitely Yes</div></label>
+          <input type="radio" name="return" id="r2" class="return-radio" value="Maybe" />
+          <label for="r2" class="return-card"><div class="return-emoji">🤔</div><div class="return-label">Maybe</div></label>
+          <input type="radio" name="return" id="r3" class="return-radio" value="Probably not" />
+          <label for="r3" class="return-card"><div class="return-emoji">😕</div><div class="return-label">Probably Not</div></label>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-submit" id="submitBtn" onclick="submitForm()">
+      Submit Feedback
+      <div class="btn-arrow">→</div>
+    </button>
+
+    <div class="success-panel" id="successState">
+      <div class="success-ring">⭐</div>
+      <div class="success-h">Thank You.</div>
+      <p class="success-p">Your feedback has been submitted and scored by our AI. The business owner will use this to improve their team.</p>
+      <div class="success-grid">
+        <div class="sg"><div class="sg-icon">🤖</div><div class="sg-label">AI Scored</div><div class="sg-desc">Staff member rated instantly</div></div>
+        <div class="sg"><div class="sg-icon">📊</div><div class="sg-label">Logged</div><div class="sg-desc">Added to performance tracker</div></div>
+        <div class="sg"><div class="sg-icon">📧</div><div class="sg-label">Owner Notified</div><div class="sg-desc">If flagged — immediate alert</div></div>
+      </div>
+      <button class="btn-ghost" onclick="resetForm()">Submit Another →</button>
+    </div>
+  </div>
+
+  <div class="feed-wrap reveal">
+    <div class="feed-hdr">
+      <span class="feed-hdr-txt">Submitted This Session</span>
+      <span class="feed-hdr-badge" id="feedBadge">0 Reviews</span>
+      <div class="feed-hdr-line"></div>
+    </div>
+    <div id="feedContainer"><div class="feed-empty">No feedback submitted yet this session</div></div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-inner">
+      <div class="foot-brand">JARVIS NEXUS</div>
+      <div class="foot-note">Staff Performance Bot · AI Intelligence · 2026</div>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"><span id="toastIcon"></span><span class="toast-msg" id="toastMsg"></span></div>
+
+<script>
+const WEBHOOK = 'https://n8n-production-71d9.up.railway.app/webhook/staff-feedback';
+let rating = 5, feed = [];
+
+window.addEventListener('scroll', () => document.getElementById('nav').classList.toggle('on', window.scrollY > 50));
+const obs = new IntersectionObserver(e => { e.forEach(x => { if (x.isIntersecting) { x.target.classList.add('in'); obs.unobserve(x.target); } }); }, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+document.querySelectorAll('.star-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    rating = parseInt(b.dataset.value);
+    document.getElementById('overallRating').value = rating;
+    document.querySelectorAll('.star-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+
+function getReturn() {
+  const c = document.querySelector('input[name="return"]:checked');
+  return c ? c.value : 'Definitely yes';
+}
+
+async function submitForm() {
+  const businessName  = document.getElementById('businessName').value.trim();
+  const ownerEmail    = document.getElementById('ownerEmail').value.trim();
+  const customerName  = document.getElementById('customerName').value.trim();
+  const staffMember   = document.getElementById('staffMember').value.trim();
+  const service       = document.getElementById('service').value.trim();
+  const staffFeedback = document.getElementById('staffFeedback').value.trim();
+  const wouldReturn   = getReturn();
+
+  if (!businessName || !ownerEmail || !customerName || !staffMember || !service || !staffFeedback) {
+    toast('err', '✗', 'Please fill in all required fields.');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = 'Submitting... <div class="btn-arrow">⟳</div>';
+
+  const payload = JSON.stringify({ businessName, ownerEmail, customerName, staffMember, service, overallRating: rating, staffFeedback, wouldReturn });
+
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', WEBHOOK, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        document.getElementById('submitBtn').style.display = 'none';
+        document.getElementById('successState').style.display = 'block';
+        toast('ok', '✓', 'Feedback submitted and scored!');
+        feed.unshift({ staffMember, businessName, rating, time: new Date() });
+        renderFeed();
+      }
+    };
+    xhr.onerror = function () { document.getElementById('submitBtn').style.display = 'none'; document.getElementById('successState').style.display = 'block'; };
+    xhr.send(payload);
+  } catch (e) {
+    btn.disabled = false;
+    btn.innerHTML = 'Submit Feedback <div class="btn-arrow">→</div>';
+    toast('err', '✗', 'Submission failed. Please try again.');
+  }
+}
+
+function resetForm() {
+  ['businessName', 'ownerEmail', 'customerName', 'staffMember', 'service', 'staffFeedback'].forEach(id => document.getElementById(id).value = '');
+  rating = 5;
+  document.getElementById('overallRating').value = 5;
+  document.querySelectorAll('.star-btn').forEach(b => { b.classList.remove('active'); if (parseInt(b.dataset.value) === 5) b.classList.add('active'); });
+  document.getElementById('r1').checked = true;
+  document.getElementById('submitBtn').style.display = 'flex';
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('submitBtn').innerHTML = 'Submit Feedback <div class="btn-arrow">→</div>';
+  document.getElementById('successState').style.display = 'none';
+}
+
+function renderFeed() {
+  const c = document.getElementById('feedContainer');
+  if (!feed.length) { c.innerHTML = '<div class="feed-empty">No feedback submitted yet this session</div>'; return; }
+  document.getElementById('feedBadge').textContent = feed.length + ' Reviews';
+  c.innerHTML = feed.slice(0, 5).map(d => {
+    const cls = d.rating >= 4 ? 'ok' : 'flagged';
+    const time = new Date(d.time).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' });
+    return `<div class="feed-item ${cls}">
+      <div><div class="fi-name">${d.staffMember} — ${d.businessName}</div><div class="fi-detail">${d.rating}/5 stars · Customer rating</div></div>
+      <div class="fi-right"><span class="fi-badge ${cls}">${cls === 'ok' ? 'OK' : 'Flagged'}</span><span class="fi-time">${time}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function toast(type, icon, msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastIcon').textContent = icon;
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = `toast ${type === 'ok' ? 'ok' : 'err'} show`;
+  setTimeout(() => t.className = 'toast', 4000);
+}
+</script>
+</body>
+</html>
