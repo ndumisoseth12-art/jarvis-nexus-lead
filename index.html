@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jarvis Nexus — AI that runs your business while you sleep</title>
+<meta name="description" content="Ten AI bots built for South African businesses. Catch leads, recover revenue, win back customers, protect your reviews — automatically, in Rand, on the channels your customers actually use.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  /* ========== INDIGO RANGE ========== */
+  --indigo-glow:    #818cf8;
+  --indigo:         #6366f1;
+  --indigo-deep:    #4f46e5;
+  --indigo-shadow:  rgba(99,102,241,0.40);
+  --indigo-soft:    rgba(99,102,241,0.10);
+  --indigo-faint:   rgba(99,102,241,0.04);
+
+  /* ========== SURFACE RANGE ========== */
+  --surface-0: #08080c;
+  --surface-1: #0e0e15;
+  --surface-2: #14141d;
+  --surface-3: #1c1c28;
+  --surface-4: #25253a;
+
+  /* ========== BORDER RANGE ========== */
+  --border-faint:  rgba(255,255,255,0.04);
+  --border-subtle: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.15);
+  --border-indigo: rgba(99,102,241,0.25);
+
+  /* ========== TEXT RANGE ========== */
+  --text-hi:    #f5f5fa;
+  --text-md:    #a8a8c2;
+  --text-lo:    #6b6b85;
+  --text-faint: #3a3a52;
+
+  /* ========== STATE ========== */
+  --ok:   #10b981;
+  --warn: #f59e0b;
+  --bad:  #f43f5e;
+  --info: #22d3ee;
+
+  /* ========== HIGH-IMPACT GRADIENTS ========== */
+  --grad-accent:   linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #4f46e5 100%);
+  --grad-shimmer:  linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
+  --grad-divider:  linear-gradient(90deg, transparent 0%, rgba(99,102,241,0.5) 50%, transparent 100%);
+
+  /* ========== METRICS ========== */
+  --bots-live:    "5";
+  --bots-build:   "6";
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--surface-0);
+  color: var(--text-hi);
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
+}
+
+.serif { font-family: 'Instrument Serif', serif; font-weight: 400; letter-spacing: -0.02em; }
+.italic { font-style: italic; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* ========== ATMOSPHERE — VERTICAL GRID ========== */
+.grid-lines {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: calc(100% / 12) 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+}
+.grid-lines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-left: 1px solid rgba(255,255,255,0.025);
+  border-right: 1px solid rgba(255,255,255,0.025);
+}
+
+/* ========== ATMOSPHERE — LAYERED INDIGO LIGHTS ========== */
+.atmos {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.atmos::before {
+  content: '';
+  position: absolute;
+  width: 1000px; height: 1000px;
+  border-radius: 50%;
+  top: -350px; left: -250px;
+  background: radial-gradient(circle, rgba(129,140,248,0.18) 0%, rgba(99,102,241,0.08) 35%, transparent 70%);
+  filter: blur(40px);
+}
+.atmos::after {
+  content: '';
+  position: absolute;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  top: 200px; right: -100px;
+  background: radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
+  filter: blur(60px);
+}
+.atmos-spot {
+  position: fixed;
+  width: 500px; height: 500px;
+  bottom: -100px; left: 30%;
+  background: radial-gradient(circle, rgba(79,70,229,0.06) 0%, transparent 60%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ========== ATMOSPHERE — FINE GRAIN ========== */
+.grain {
+  position: fixed; inset: 0; z-index: 1;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+main, nav, footer { position: relative; z-index: 2; }
+
+/* ========== NAV ========== */
+nav {
+  position: sticky; top: 0;
+  background: rgba(8,8,12,0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border-faint);
+  z-index: 100;
+}
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+.nav-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 72px;
+  gap: 32px;
+}
+.logo { display: flex; align-items: center; gap: 12px; text-decoration: none; flex-shrink: 0; }
+.logo-mark {
+  width: 32px; height: 32px;
+  background: var(--grad-accent);
+  border-radius: 8px;
+  display: grid; place-items: center;
+  position: relative;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset, 0 8px 24px var(--indigo-shadow);
+}
+.logo-mark::before {
+  content: ''; position: absolute; inset: 6px;
+  border: 1.5px solid rgba(255,255,255,0.92);
+  border-radius: 4px;
+  border-bottom-color: transparent;
+  border-right-color: transparent;
+  transform: rotate(45deg);
+}
+.logo-text { display: flex; flex-direction: column; line-height: 1.1; }
+.logo-name { font-weight: 800; font-size: 15px; color: var(--text-hi); letter-spacing: 0.02em; }
+.logo-tag { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--text-lo); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 2px; }
+
+.nav-center { display: flex; align-items: center; gap: 4px; flex: 1; justify-content: center; }
+.nav-link {
+  color: var(--text-md); text-decoration: none; font-size: 14px; font-weight: 500;
+  padding: 8px 14px; border-radius: 6px;
+  transition: color 150ms ease, background 150ms ease, font-weight 200ms ease;
+}
+.nav-link:hover { color: var(--text-hi); background: var(--surface-2); font-weight: 600; }
+
+.nav-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.status-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text-md);
+}
+.status-pill .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 8px var(--ok);
+  animation: pulse-ok 1.6s infinite;
+}
+.status-pill .build { color: var(--text-lo); }
+@keyframes pulse-ok { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.kbd-hint {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 5px 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-md);
+}
+
+/* ========== BUTTONS ========== */
+.btn {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  border: none;
+  overflow: hidden;
+  transition: transform 150ms ease, box-shadow 200ms ease, font-weight 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn .arrow { display: inline-block; transition: transform 200ms ease; }
+.btn:hover .arrow { transform: translateX(4px); }
+.btn:active { transform: translateY(1px) scale(0.99); }
+.btn::after {
+  content: '';
+  position: absolute; top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: var(--grad-shimmer);
+  transition: left 600ms ease;
+  pointer-events: none;
+}
+.btn:hover::after { left: 100%; }
+
+.btn-primary {
+  padding: 16px 26px;
+  font-size: 15px;
+  background: var(--grad-accent);
+  color: #fff;
+  border-radius: var(--r-sm);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.20),
+    0 1px 2px rgba(0,0,0,0.4),
+    0 0 0 0 var(--indigo-shadow);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    inset 0 -1px 0 rgba(0,0,0,0.20),
+    0 12px 32px var(--indigo-shadow);
+}
+
+.btn-primary-sm {
+  padding: 10px 16px;
+  font-size: 13.5px;
+  background: var(--grad-accent);
+  color: #fff;
+  border-radius: 7px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.20),
+    0 1px 2px rgba(0,0,0,0.3);
+}
+.btn-primary-sm:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    0 6px 18px var(--indigo-shadow);
+}
+
+.btn-secondary {
+  padding: 16px 26px;
+  font-size: 15px;
+  background: transparent;
+  color: var(--text-hi);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border-strong);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.btn-secondary:hover {
+  background: var(--surface-2);
+  border-color: var(--border-indigo);
+}
+.btn-secondary::after { display: none; }
+
+@media (max-width: 880px) {
+  .nav-center { display: none; }
+  .kbd-hint { display: none; }
+}
+@media (max-width: 540px) {
+  .status-pill { display: none; }
+}
+
+/* ========== HERO ========== */
+.hero { padding: 80px 0 100px; }
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+@media (max-width: 980px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 6px 14px;
+  background: var(--indigo-soft);
+  border: 1px solid var(--border-indigo);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--indigo-glow);
+  letter-spacing: 0.08em;
+  margin-bottom: 28px;
+  text-transform: uppercase;
+}
+.hero-eyebrow .pulse {
+  width: 6px; height: 6px;
+  background: var(--indigo-glow);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(129,140,248,0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(129,140,248,0); }
+  100% { box-shadow: 0 0 0 0 rgba(129,140,248,0); }
+}
+
+.hero-title {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(56px, 8vw, 104px);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  margin-bottom: 32px;
+  color: var(--text-hi);
+}
+.hero-title .accent {
+  font-style: italic;
+  background: var(--grad-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--text-md);
+  max-width: 540px;
+  margin-bottom: 36px;
+  font-weight: 400;
+}
+.hero-sub strong { color: var(--text-hi); font-weight: 600; }
+
+.hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 36px; }
+
+.trust-strip {
+  display: flex; align-items: center; gap: 28px; flex-wrap: wrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-lo);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.trust-strip .item { display: inline-flex; align-items: center; gap: 7px; }
+.trust-strip .item .ico { color: var(--indigo-glow); font-size: 12px; }
+
+/* ========== HERO DEMO CARD (parallax) ========== */
+.demo-card-wrap { perspective: 1000px; }
+.demo-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: transform 200ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  transform-style: preserve-3d;
+}
+.demo-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: var(--grad-divider);
+  opacity: 0.6;
+}
+.demo-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-lo);
+  margin-bottom: 20px;
+}
+.demo-head .live {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--ok);
+}
+.demo-head .live .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 6px var(--ok);
+  animation: pulse-ok 1.6s infinite;
+}
+
+.demo-stat {
+  margin-bottom: 18px;
+}
+.demo-stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-lo);
+  margin-bottom: 6px;
+}
+.demo-stat-val {
+  font-family: 'Instrument Serif', serif;
+  font-size: 56px;
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  background: var(--grad-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.demo-stat-val .unit { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: var(--text-md); -webkit-text-fill-color: var(--text-md); margin-left: 4px; vertical-align: top; line-height: 1; padding-top: 6px; display: inline-block; }
+.demo-stat-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 8px;
+  background: rgba(244,63,94,0.12);
+  color: var(--bad);
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  margin-top: 8px;
+  text-transform: uppercase;
+}
+
+.demo-divider { height: 1px; background: var(--border-faint); margin: 18px 0; }
+
+.demo-log-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-lo);
+  margin-bottom: 10px;
+}
+.demo-log-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-faint);
+}
+.demo-log-row:last-child { border-bottom: none; }
+.demo-log-name { font-size: 13px; color: var(--text-hi); font-weight: 500; }
+.demo-log-meta { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-lo); margin-top: 2px; }
+.demo-log-dot { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--text-md); padding: 3px 7px; border-radius: 4px; font-weight: 600; letter-spacing: 0.08em; }
+.dot-h { background: rgba(244,63,94,0.12); color: var(--bad); }
+.dot-w { background: rgba(245,158,11,0.12); color: var(--warn); }
+.dot-p { background: rgba(16,185,129,0.12); color: var(--ok); }
+
+/* ========== LIVE TICKER ========== */
+.ticker-section { padding: 0 0 100px; }
+.ticker {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.ticker::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: var(--grad-divider);
+}
+.ticker-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-lo);
+}
+.ticker-head .live {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--ok);
+}
+.ticker-head .live .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 8px var(--ok);
+  animation: pulse-ok 1.6s infinite;
+}
+.ticker-feed {
+  display: flex; flex-direction: column; gap: 8px;
+  min-height: 168px;
+}
+.tick-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--surface-3);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-faint);
+  animation: slide-in 400ms ease;
+}
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tick-time { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-lo); }
+.tick-msg { font-size: 13.5px; color: var(--text-hi); }
+.tick-msg .biz { color: var(--text-md); font-weight: 500; }
+.tick-tag {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.tag-ok   { background: rgba(16,185,129,0.12); color: var(--ok); }
+.tag-warn { background: rgba(245,158,11,0.12); color: var(--warn); }
+.tag-bad  { background: rgba(244,63,94,0.12);  color: var(--bad); }
+.tag-info { background: var(--indigo-soft);    color: var(--indigo-glow); }
+@media (max-width: 640px) {
+  .tick-row { grid-template-columns: 1fr auto; gap: 8px; }
+  .tick-time { display: none; }
+}
+
+/* ========== SECTION ========== */
+.section { padding: 100px 0; position: relative; }
+.section::before {
+  content: '';
+  position: absolute; top: 0; left: 5%; right: 5%; height: 1px;
+  background: var(--grad-divider);
+  opacity: 0;
+  transition: opacity 800ms ease;
+}
+.section.show::before { opacity: 1; }
+
+.section-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--indigo-glow);
+  margin-bottom: 16px;
+  position: sticky;
+  top: 88px;
+  display: inline-block;
+  padding: 4px 0;
+  z-index: 5;
+}
+.section-title {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(40px, 6vw, 68px);
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  margin-bottom: 20px;
+  max-width: 800px;
+  color: var(--text-hi);
+}
+.section-title .em { font-style: italic; color: var(--indigo-glow); }
+.section-sub {
+  font-size: 17px;
+  color: var(--text-md);
+  max-width: 600px;
+  margin-bottom: 56px;
+  line-height: 1.6;
+}
+
+/* ========== BOT GRID ========== */
+.bot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+.bot-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 26px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 220ms cubic-bezier(0.2, 0.8, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+.bot-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: var(--grad-divider);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+.bot-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-indigo);
+  background: var(--surface-3);
+}
+.bot-card:hover::before { opacity: 1; }
+.bot-card.coming { opacity: 0.5; pointer-events: none; }
+
+.bot-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+.bot-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--indigo-glow);
+  letter-spacing: 0.1em;
+  background: var(--indigo-soft);
+  padding: 4px 9px;
+  border-radius: 5px;
+}
+.bot-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 100px;
+}
+.status-live { background: rgba(16,185,129,0.12); color: var(--ok); }
+.status-soon { background: rgba(245,158,11,0.12); color: var(--warn); }
+
+.bot-name {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  color: var(--text-hi);
+}
+.bot-pitch {
+  font-size: 14px;
+  color: var(--text-md);
+  line-height: 1.6;
+  margin-bottom: 22px;
+  min-height: 66px;
+}
+.bot-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-faint);
+}
+.bot-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--text-lo);
+  letter-spacing: 0.05em;
+}
+.bot-arrow { font-size: 18px; color: var(--text-lo); transition: color 220ms ease, transform 220ms ease; }
+.bot-card:hover .bot-arrow { color: var(--indigo-glow); transform: translateX(3px); }
+
+/* ========== STATS BAND ========== */
+.stats-band {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-xl);
+  padding: 64px 48px;
+  margin: 48px 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.stats-band::before {
+  content: '';
+  position: absolute;
+  top: -200px; left: 50%;
+  transform: translateX(-50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse, var(--indigo-soft) 0%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+.stats-band > * { position: relative; z-index: 1; }
+.stats-quote {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.3;
+  color: var(--text-hi);
+  max-width: 780px;
+  margin: 0 auto 28px;
+  letter-spacing: -0.015em;
+}
+.stats-quote .punch {
+  background: var(--grad-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-style: normal;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+}
+.stats-attr {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-lo);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ========== HOW IT WORKS ========== */
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 32px;
+}
+.how-step {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 32px;
+  position: relative;
+}
+.how-num {
+  font-family: 'Instrument Serif', serif;
+  font-size: 64px;
+  font-style: italic;
+  line-height: 1;
+  color: var(--indigo-glow);
+  margin-bottom: 20px;
+}
+.how-title { font-size: 20px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.02em; color: var(--text-hi); }
+.how-text { font-size: 14px; color: var(--text-md); line-height: 1.65; }
+
+/* ========== ROUTER FORM ========== */
+.router-section { padding: 80px 0; }
+.router {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-xl);
+  padding: 56px 48px;
+  position: relative;
+  overflow: hidden;
+}
+.router::before {
+  content: '';
+  position: absolute;
+  top: -150px; right: -150px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, var(--indigo-soft) 0%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+}
+.router > * { position: relative; z-index: 1; }
+.router-head {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--indigo-glow);
+  margin-bottom: 16px;
+}
+.router-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(32px, 4.5vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin-bottom: 16px;
+  color: var(--text-hi);
+}
+.router-title .em { font-style: italic; color: var(--indigo-glow); }
+.router-sub {
+  font-size: 16px;
+  color: var(--text-md);
+  margin-bottom: 32px;
+  max-width: 560px;
+  line-height: 1.6;
+}
+.router-form { max-width: 720px; }
+.router-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+@media (max-width: 640px) { .router-fields { grid-template-columns: 1fr; } }
+.field {
+  background: var(--surface-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text-hi);
+  width: 100%;
+  transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+  outline: none;
+}
+.field::placeholder { color: var(--text-lo); }
+.field:focus {
+  border-color: var(--border-indigo);
+  background: var(--surface-2);
+  box-shadow: 0 0 0 4px var(--indigo-soft);
+}
+.field-textarea {
+  min-height: 120px;
+  resize: vertical;
+  margin-bottom: 16px;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+}
+.router-glow .field-textarea {
+  border-color: var(--border-indigo);
+  box-shadow: 0 0 0 4px var(--indigo-soft);
+  animation: glow-pulse 1200ms ease-out;
+}
+@keyframes glow-pulse {
+  0% { box-shadow: 0 0 0 0 var(--indigo-soft); }
+  50% { box-shadow: 0 0 0 8px var(--indigo-soft); }
+  100% { box-shadow: 0 0 0 4px var(--indigo-soft); }
+}
+.router-submit-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.router-note {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-lo);
+  letter-spacing: 0.04em;
+}
+.router-success {
+  display: none;
+  padding: 18px 22px;
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.25);
+  border-radius: var(--r-md);
+  color: var(--ok);
+  font-size: 14px;
+  margin-top: 16px;
+}
+.router-success.show { display: block; animation: slide-in 400ms ease; }
+.router-error {
+  display: none;
+  padding: 18px 22px;
+  background: rgba(244,63,94,0.08);
+  border: 1px solid rgba(244,63,94,0.25);
+  border-radius: var(--r-md);
+  color: var(--bad);
+  font-size: 14px;
+  margin-top: 16px;
+}
+.router-error.show { display: block; animation: slide-in 400ms ease; }
+
+/* ========== GUARANTEE BAND ========== */
+.guarantee-band {
+  text-align: center;
+  padding: 64px 32px 48px;
+  position: relative;
+}
+.guarantee-quote {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.25;
+  color: var(--text-hi);
+  max-width: 720px;
+  margin: 0 auto 14px;
+  letter-spacing: -0.015em;
+}
+.guarantee-quote .em {
+  background: var(--grad-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.guarantee-fine {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-lo);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ========== PRICING ========== */
+.price-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 32px;
+}
+.price-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 36px 32px;
+  position: relative;
+  display: flex; flex-direction: column;
+}
+.price-card.feature {
+  border-color: var(--border-indigo);
+  background: linear-gradient(180deg, rgba(99,102,241,0.06) 0%, var(--surface-2) 100%);
+}
+.price-card.feature::before {
+  content: 'MOST POPULAR · 30-DAY GUARANTEE';
+  position: absolute;
+  top: -10px; left: 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  background: var(--grad-accent);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px var(--indigo-shadow);
+}
+.price-tier {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  margin-bottom: 14px;
+}
+.price-name {
+  font-family: 'Instrument Serif', serif;
+  font-size: 28px;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  color: var(--text-hi);
+  margin-bottom: 16px;
+}
+.price-setup {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-lo);
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.price-amount { font-size: 48px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; margin-bottom: 4px; color: var(--text-hi); }
+.price-amount .currency { font-size: 22px; vertical-align: top; color: var(--text-md); margin-right: 4px; font-weight: 600; }
+.price-per { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-lo); letter-spacing: 0.04em; margin-top: 4px; }
+.price-pitch { font-size: 14px; color: var(--text-md); margin: 20px 0 24px; line-height: 1.55; }
+.price-list { list-style: none; padding: 0; margin: 0 0 32px; flex: 1; }
+.price-list li {
+  font-size: 13.5px;
+  padding: 8px 0;
+  color: var(--text-hi);
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.price-list li::before { content: '✓'; color: var(--indigo-glow); font-weight: 700; flex-shrink: 0; }
+.price-list li.muted { color: var(--text-lo); }
+.price-list li.muted::before { content: '–'; color: var(--text-faint); }
+
+.price-cta {
+  display: block; text-align: center;
+  padding: 14px;
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: all 200ms ease;
+}
+.price-cta::after {
+  content: '';
+  position: absolute; top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: var(--grad-shimmer);
+  transition: left 600ms ease;
+}
+.price-cta:hover::after { left: 100%; }
+.price-card:not(.feature) .price-cta {
+  background: var(--surface-3);
+  color: var(--text-hi);
+  border: 1px solid var(--border-strong);
+}
+.price-card:not(.feature) .price-cta:hover { background: var(--surface-4); border-color: var(--border-indigo); }
+.price-card.feature .price-cta {
+  background: var(--grad-accent);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 16px var(--indigo-shadow);
+}
+.price-card.feature .price-cta:hover { transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 12px 32px var(--indigo-shadow); }
+
+/* ========== CLOSER ========== */
+.closer {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-xl);
+  padding: 88px 48px;
+  text-align: center;
+  margin-bottom: 80px;
+  position: relative;
+  overflow: hidden;
+}
+.closer::before {
+  content: '';
+  position: absolute; top: -50%; left: 50%;
+  transform: translateX(-50%);
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, var(--indigo-soft) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+.closer > * { position: relative; z-index: 1; }
+.closer-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(36px, 5vw, 60px);
+  line-height: 1.08;
+  letter-spacing: -0.028em;
+  margin-bottom: 16px;
+  color: var(--text-hi);
+}
+.closer-title .em { font-style: italic; color: var(--indigo-glow); }
+.closer-sub { font-size: 17px; color: var(--text-md); max-width: 540px; margin: 0 auto 36px; line-height: 1.55; }
+
+/* ========== FOOTER ========== */
+footer { border-top: 1px solid var(--border-subtle); padding: 64px 0 32px; }
+.foot-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+@media (max-width: 768px) { .foot-grid { grid-template-columns: 1fr 1fr; } }
+.foot-col h4 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  margin-bottom: 16px;
+}
+.foot-col a {
+  display: block;
+  color: var(--text-md);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 6px 0;
+  transition: color 150ms ease, transform 150ms ease;
+}
+.foot-col a:hover { color: var(--text-hi); transform: translateX(2px); }
+.foot-bio { font-size: 14px; color: var(--text-md); line-height: 1.6; max-width: 320px; margin-top: 16px; }
+.foot-bottom {
+  padding-top: 32px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-lo);
+  letter-spacing: 0.04em;
+}
+.joburg-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--text-md);
+}
+.joburg-badge::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--indigo-glow);
+  box-shadow: 0 0 8px var(--indigo-shadow);
+}
+
+/* ========== WA FLOAT ========== */
+.wa-float {
+  position: fixed; bottom: 24px; right: 24px;
+  width: 56px; height: 56px;
+  background: #25D366;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(37,211,102,0.4);
+  z-index: 50;
+  transition: transform 200ms ease;
+}
+.wa-float:hover { transform: scale(1.08); }
+.wa-float svg { width: 28px; height: 28px; fill: #fff; }
+
+/* ========== REVEAL ========== */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity 700ms ease, transform 700ms ease; }
+.reveal.show { opacity: 1; transform: translateY(0); }
+.stagger > * { opacity: 0; transform: translateY(12px); transition: opacity 600ms ease, transform 600ms ease; }
+.stagger.show > * { opacity: 1; transform: translateY(0); }
+.stagger.show > *:nth-child(1) { transition-delay: 0ms; }
+.stagger.show > *:nth-child(2) { transition-delay: 60ms; }
+.stagger.show > *:nth-child(3) { transition-delay: 120ms; }
+.stagger.show > *:nth-child(4) { transition-delay: 180ms; }
+.stagger.show > *:nth-child(5) { transition-delay: 240ms; }
+.stagger.show > *:nth-child(6) { transition-delay: 300ms; }
+.stagger.show > *:nth-child(7) { transition-delay: 360ms; }
+.stagger.show > *:nth-child(8) { transition-delay: 420ms; }
+.stagger.show > *:nth-child(9) { transition-delay: 480ms; }
+.stagger.show > *:nth-child(10) { transition-delay: 540ms; }
+.stagger.show > *:nth-child(11) { transition-delay: 600ms; }
+
+/* ========== MOBILE ========== */
+@media (max-width: 768px) {
+  .wrap { padding: 0 20px; }
+  .hero { padding: 60px 0 60px; }
+  .section, .ticker-section { padding: 60px 0; }
+  .stats-band, .closer, .router { padding: 48px 24px; }
+  .hero-ctas { flex-direction: column; align-items: stretch; }
+  .btn-primary, .btn-secondary { justify-content: center; }
+  .section-eyebrow { position: relative; top: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="grid-lines"></div>
+<div class="atmos"></div>
+<div class="atmos-spot"></div>
+<div class="grain"></div>
+
+<nav>
+  <div class="wrap">
+    <div class="nav-inner">
+      <a href="/" class="logo">
+        <div class="logo-mark"></div>
+        <div class="logo-text">
+          <div class="logo-name">JARVIS NEXUS</div>
+          <div class="logo-tag">AI · Built in Joburg</div>
+        </div>
+      </a>
+      <div class="nav-center">
+        <a href="#bots" class="nav-link">Bots</a>
+        <a href="#how" class="nav-link">How it works</a>
+        <a href="#router" class="nav-link">Router</a>
+        <a href="#pricing" class="nav-link">Pricing</a>
+      </div>
+      <div class="nav-right">
+        <div class="status-pill">
+          <span class="dot"></span>
+          <span>5 LIVE</span>
+          <span class="build">· 5 IN BUILD</span>
+        </div>
+        <span class="kbd-hint">⌘ K</span>
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary-sm">Book demo <span class="arrow">→</span></a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-eyebrow">
+          <span class="pulse"></span>
+          <span>10 production bots · live across SA businesses</span>
+        </div>
+        <h1 class="hero-title">
+          Your business runs<br><span class="accent">while you sleep.</span>
+        </h1>
+        <p class="hero-sub">
+          Ten AI bots that catch your leads, recover your revenue, win back your customers and protect your reputation — <strong>automatically, in Rand, on the channels your customers actually use.</strong>
+        </p>
+        <div class="hero-ctas">
+          <a href="#bots" class="btn btn-primary">See the bots <span class="arrow">→</span></a>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-secondary">Book a 20-min demo</a>
+        </div>
+        <div class="trust-strip">
+          <span class="item"><span class="ico">⚡</span> 10s AI response</span>
+          <span class="item"><span class="ico">🛡</span> 30-day money-back</span>
+          <span class="item"><span class="ico">●</span> Built in Joburg</span>
+        </div>
+      </div>
+
+      <div class="demo-card-wrap">
+        <div class="demo-card" id="demoCard">
+          <div class="demo-head">
+            <span>// LEAD QUALIFIER</span>
+            <span class="live"><span class="dot"></span>LIVE</span>
+          </div>
+          <div class="demo-stat">
+            <div class="demo-stat-label">Lead score</div>
+            <div class="demo-stat-val" id="leadScore">0.0<span class="unit">/10</span></div>
+            <span class="demo-stat-tag">🔥 HOT · CALL NOW</span>
+          </div>
+          <div class="demo-divider"></div>
+          <div class="demo-log-label">Recent activity</div>
+          <div class="demo-log-row">
+            <div>
+              <div class="demo-log-name">Nkosi Properties</div>
+              <div class="demo-log-meta">Lead Qualifier · 2 min ago</div>
+            </div>
+            <span class="demo-log-dot dot-h">HOT</span>
+          </div>
+          <div class="demo-log-row">
+            <div>
+              <div class="demo-log-name">Cape Town Sneakers</div>
+              <div class="demo-log-meta">Review Pro · 5 min ago</div>
+            </div>
+            <span class="demo-log-dot dot-p">5★</span>
+          </div>
+          <div class="demo-log-row">
+            <div>
+              <div class="demo-log-name">Sunset Villa Host</div>
+              <div class="demo-log-meta">Airbnb Bot · 8 min ago</div>
+            </div>
+            <span class="demo-log-dot dot-w">WARM</span>
+          </div>
+          <div class="demo-divider"></div>
+          <div class="demo-log-label">Avg response time</div>
+          <div class="demo-stat-val" id="responseTime" style="font-size: 36px;">0<span class="unit">s</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE TICKER -->
+<section class="ticker-section">
+  <div class="wrap">
+    <div class="ticker">
+      <div class="ticker-head">
+        <span>// LIVE ACTIVITY FEED</span>
+        <span class="live"><span class="dot"></span>LIVE · ACROSS SA</span>
+      </div>
+      <div class="ticker-feed" id="tickerFeed"></div>
+    </div>
+  </div>
+</section>
+
+<!-- BOTS GRID -->
+<section class="section" id="bots">
+  <div class="wrap">
+    <div class="section-eyebrow">// THE SUITE</div>
+    <h2 class="section-title">Ten jobs. <span class="em">Ten bots.</span> Zero overtime.</h2>
+    <p class="section-sub">Each bot has one job. Pick the ones that solve your biggest problem today, add the rest as you grow.</p>
+
+    <div class="bot-grid stagger">
+
+      <a href="/leads" class="bot-card">
+        <div class="bot-head"><span class="bot-id">B1 · LEADS</span><span class="bot-status status-live">● Live</span></div>
+        <div class="bot-name">WhatsApp Lead Catcher</div>
+        <p class="bot-pitch">Auto-replies to every WhatsApp enquiry, qualifies the lead and books the meeting — even at 2am.</p>
+        <div class="bot-foot"><span class="bot-tag">qualify · book · alert</span><span class="bot-arrow">→</span></div>
+      </a>
+
+      <a href="/churn" class="bot-card">
+        <div class="bot-head"><span class="bot-id">B2 · CHURN</span><span class="bot-status status-live">● Live</span></div>
+        <div class="bot-name">Churn Radar</div>
+        <p class="bot-pitch">Spots customers about to leave before they do — and quietly wins them back with a personal message.</p>
+        <div class="bot-foot"><span class="bot-tag">predict · re-engage · recover</span><span class="bot-arrow">→</span></div>
+      </a>
+
+      <a href="#" class="bot-card coming">
+        <div class="bot-head"><span class="bot-id">B3 · NO-SHOW</span><span class="bot-status status-soon">○ Soon</span></div>
+        <div class="bot-name">No-Show Rescue</div>
+        <p class="bot-pitch">Smart reminders + one-tap rescheduling for salons, dentists, clinics. Recovers 20–40% of missed bookings.</p>
+        <div class="bot-foot"><span class="bot-tag">remind · reschedule · recover</span><span class="bot-arrow">→</span></div>
+      </a>
+
+      <a href="/recovery" class="bot-card">
+        <div class="bot-head"><span class="bot-id">B4 · RECOVERY</span><span class="bot-status status-live">● Live</span></div>
+        <div class="bot-name">Revenue Recovery</div>
+        <p class="bot-pitch">Auto-chases failed payments and overdue invoices on a polite-firm-final ladder until they pay.</p>
+        <div class="bot-foot"><span class="bot-tag">chase · escalate · collect</span><span class="bot-arrow">→</span></div>
+      </a>
+
+      <a href="#" class="bot-card coming">
+        <div class="bot-head"><span class="bot-id">B5 · REACTIVATE</span><span class="bot-status status-soon">○ Soon</span></div>
+        <div class="bot-name">Reactivation Bot</div>
+        <p class="bot-pitch">Wins back lapsed customers with personalised offers based on what they bought last.</p>
+        <div class="bot-foot"><span class="bot-tag">target · offer · convert</span><span class="bot-arrow">→</span></div>
+      </a>
+
+      <a href="#" class="bot-card coming">
+        <div class="bot-head"><span class="bot-id">B6 · SHIELD</span><span class="bot-status status-soon">○ Soon</span></div>
+        <div class="bot-name">Reputation Shield</div>
+        <p class="bot-pitch">Catches bad reviews privately before they go public — gives you a chance to fix it first.</p>
+        <div class="bot-foot"><span class="bot-tag">filter · resolve · protect</span><span class="bot-arrow">→</span></div>
+      </a>
+
+      <a href="#" class="bot-card coming">
+        <div class="bot-head"><span class="bot-id">B7 · REFERRAL</span><span class="bot-status status-soon">○ Soon</span></div>
+        <div class="bot-name">Referral Engine</div>
+        <p class="bot-pitch">Turns 5★ customers into a referral pipeline with tracked links and auto-issued rewards.</p>
+        <div class="bot-foot"><span class="bot-tag">track · reward · scale</span><span class="bot-arrow">→</span></div>
+      </a>
+
+      <a href="/support" class="bot-card">
+        <div class="bot-head"><span class="bot-id">B9 · SUPPORT</span><span class="bot-status status-live">● Live</span></div>
+        <div class="bot-name">Smart Support Triage</div>
+        <p class="bot-pitch">Sorts every customer message by urgency, drafts the reply, tracks SLA and escalates if you're slow.</p>
+        <div class="bot-foot"><span class="bot-tag">triage · draft · escalate</span><span class="bot-arrow">→</span></div>
+      </a>
+
+      <a href="/lifetime" class="bot-card">
+        <div class="bot-head"><span class="bot-id">B10 · LIFETIME</span><span class="bot-status status-live">● Live</span></div>
+        <div class="bot-name">Lifetime &amp; Next Action</div>
+        <p class="bot-pitch">Every Monday: your top 5 customers to act on this week and the exact offer for each one.</p>
+        <div class="bot-foot"><span class="bot-tag">rank · suggest · upsell</span><span class="bot-arrow">→</span></div>
+      </a>
+
+      <a href="/reviews" class="bot-card">
+        <div class="bot-head"><span class="bot-id">B11 · REVIEW PRO</span><span class="bot-status status-live">● Live</span></div>
+        <div class="bot-name">Review Pro</div>
+        <p class="bot-pitch">Asks happy customers for a public review and replies to every review across Google, Airbnb, Hello Peter.</p>
+        <div class="bot-foot"><span class="bot-tag">request · respond · monitor</span><span class="bot-arrow">→</span></div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAND -->
+<section>
+  <div class="wrap">
+    <div class="stats-band">
+      <div class="stats-quote">
+        Most SA businesses don't lose customers because their product is bad. They lose them because <span class="punch">nobody replied in time.</span>
+      </div>
+      <div class="stats-attr">— THE PROBLEM JARVIS NEXUS WAS BUILT TO SOLVE</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="section-eyebrow">// HOW IT WORKS</div>
+    <h2 class="section-title">From <span class="em">enquiry</span> to <span class="em">paid</span> — without you in the loop.</h2>
+    <p class="section-sub"><em>If you can send a WhatsApp, you can use these bots.</em> The setup we handle. After that, your business runs in the background.</p>
+
+    <div class="how-grid stagger">
+      <div class="how-step">
+        <div class="how-num">01</div>
+        <div class="how-title">A customer reaches out</div>
+        <div class="how-text">By WhatsApp, web form, email, voice note or review. Doesn't matter where — every channel funnels into Jarvis Nexus.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">02</div>
+        <div class="how-title">The right bot takes over</div>
+        <div class="how-text">A new lead? Lead Catcher qualifies and books. A bad review? Reputation Shield routes it private before it goes public. A late payment? Recovery starts the chase.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">03</div>
+        <div class="how-title">You get the brief</div>
+        <div class="how-text">Tomorrow at 7am, one WhatsApp summary lands on your phone. What happened, who needs you today, where the money moved. That's it. No dashboards to check.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROUTER FORM -->
+<section class="router-section" id="router">
+  <div class="wrap">
+    <div class="router" id="routerCard">
+      <div class="router-head">// THE AI ROUTER</div>
+      <h2 class="router-title">Not sure which bot? <span class="em">Tell us your headache.</span></h2>
+      <p class="router-sub">Describe the problem in plain English. The AI Router reads it, picks the right bot for you, and Seth follows up within 2 hours.</p>
+
+      <form class="router-form" id="routerForm">
+        <div class="router-fields">
+          <input type="text" class="field" name="name" id="routerName" placeholder="Your name" required>
+          <input type="email" class="field" name="email" id="routerEmail" placeholder="Your email" required>
+        </div>
+        <textarea class="field field-textarea" name="message" id="routerMessage" placeholder="e.g. 'Customers don't show up for their hair appointments and I lose half my Saturdays.' or 'I get loads of WhatsApp enquiries after hours and I can't reply fast enough.'" required></textarea>
+        <div class="router-submit-row">
+          <button type="submit" class="btn btn-primary" id="routerSubmit">Route my request <span class="arrow">→</span></button>
+          <span class="router-note">// SECURE · GOES STRAIGHT TO SETH</span>
+        </div>
+        <div class="router-success" id="routerSuccess">✓ Got it. The Router has classified your request — Seth will reply within 2 hours.</div>
+        <div class="router-error" id="routerError">Something went wrong. Please WhatsApp Seth directly: +27 67 099 4163</div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- GUARANTEE BAND -->
+<section>
+  <div class="wrap">
+    <div class="guarantee-band">
+      <div class="guarantee-quote">
+        If your bots don't deliver in 30 days, <span class="em">you don't pay.</span>
+      </div>
+      <div class="guarantee-fine">100% MONEY-BACK · NO QUESTIONS · CANCEL ANY TIME</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="wrap">
+    <div class="section-eyebrow">// PRICING</div>
+    <h2 class="section-title">Pay for the <span class="em">outcome.</span><br>Not the seat.</h2>
+    <p class="section-sub">Setup fee covers your custom bot configuration, brand voice and onboarding. After that, monthly. Cancel any time.</p>
+
+    <div class="price-grid stagger">
+
+      <div class="price-card">
+        <div class="price-tier">Tier 01</div>
+        <div class="price-name">Starter</div>
+        <div class="price-setup">R2,500 setup · once</div>
+        <div class="price-amount"><span class="currency">R</span>1,490</div>
+        <div class="price-per">PER MONTH · CANCEL ANY TIME</div>
+        <p class="price-pitch">For solo operators just starting to feel the chaos.</p>
+        <ul class="price-list">
+          <li>Pick any 2 bots</li>
+          <li>Up to 500 customer events / month</li>
+          <li>Owner Brief on WhatsApp</li>
+          <li>Email + Telegram alerts</li>
+          <li class="muted">Phone support</li>
+        </ul>
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="price-cta">Start with Starter →</a>
+      </div>
+
+      <div class="price-card feature">
+        <div class="price-tier">Tier 02 · MOST POPULAR</div>
+        <div class="price-name">Operator</div>
+        <div class="price-setup">R4,500 setup · once</div>
+        <div class="price-amount"><span class="currency">R</span>3,990</div>
+        <div class="price-per">PER MONTH · 30-DAY GUARANTEE</div>
+        <p class="price-pitch">For small teams that want to stop firefighting and start scaling.</p>
+        <ul class="price-list">
+          <li>Pick any 5 bots</li>
+          <li>Up to 5,000 customer events / month</li>
+          <li>Owner Brief on WhatsApp</li>
+          <li>Custom AI tone &amp; brand voice</li>
+          <li>Priority phone + WhatsApp support</li>
+        </ul>
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="price-cta">Choose Operator →</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-tier">Tier 03</div>
+        <div class="price-name">Command</div>
+        <div class="price-setup">R8,500 setup · once</div>
+        <div class="price-amount"><span class="currency">R</span>9,990</div>
+        <div class="price-per">PER MONTH · WHITE-GLOVE</div>
+        <p class="price-pitch">All 11 bots, all the data, full custom integration into your stack.</p>
+        <ul class="price-list">
+          <li>All 10 bots, unlimited usage</li>
+          <li>Custom integrations (Yoco, PayFast, Fresha, Stitch)</li>
+          <li>Bespoke Owner Brief format</li>
+          <li>Quarterly strategy session</li>
+          <li>Priority phone + WhatsApp + Slack</li>
+        </ul>
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="price-cta">Talk to Seth →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CLOSER -->
+<section>
+  <div class="wrap">
+    <div class="closer">
+      <h2 class="closer-title">Stop losing customers to <span class="em">slow replies.</span></h2>
+      <p class="closer-sub">A 20-minute demo. Your bots running on your own data within a week. Cancel any time.</p>
+      <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book your demo <span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <div class="logo" style="margin-bottom: 16px;">
+          <div class="logo-mark"></div>
+          <div class="logo-text">
+            <div class="logo-name">JARVIS NEXUS</div>
+            <div class="logo-tag">AI · Built in Joburg</div>
+          </div>
+        </div>
+        <p class="foot-bio">Ten AI bots designed for South African businesses. We build them, deploy them, run them. You focus on what actually grows your business.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Bots</h4>
+        <a href="/leads">Lead Catcher</a>
+        <a href="/churn">Churn Radar</a>
+        <a href="/recovery">Revenue Recovery</a>
+        <a href="/reviews">Review Pro</a>
+        <a href="/support">Smart Support</a>
+        <a href="/lifetime">Lifetime &amp; Next Action</a>
+      </div>
+      <div class="foot-col">
+        <h4>Company</h4>
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener">Book Demo</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#router">Get a Proposal</a>
+        <a href="#how">How it works</a>
+      </div>
+      <div class="foot-col">
+        <h4>Contact</h4>
+        <a href="mailto:ndumisoseth12@gmail.com">ndumisoseth12@gmail.com</a>
+        <a href="https://wa.me/27670994163" target="_blank" rel="noopener">WhatsApp Seth</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 JARVIS NEXUS · ALL RIGHTS RESERVED</span>
+      <span class="joburg-badge">PROUDLY BUILT IN JOHANNESBURG</span>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/27670994163?text=Hi%20Seth%2C%20I%20saw%20Jarvis%20Nexus%20and%20I%27d%20like%20to%20learn%20more" target="_blank" rel="noopener" class="wa-float" aria-label="WhatsApp Seth">
+  <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.7-.4-1.5-.7-2.4-1.6-.7-.6-1.1-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.2.3-.4.1-.2 0-.3 0-.4 0-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2 0 1.2.9 2.4 1 2.5.1.2 1.7 2.6 4.1 3.6 1.5.6 2.1.7 2.8.6.4-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1 0-.1-.2-.2-.5-.3z M12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z M12 20c-1.5 0-3-.4-4.3-1.1l-.3-.2-3.2.8.9-3.1-.2-.3C4.4 14.9 4 13.5 4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8z"/></svg>
+</a>
+
+<script>
+// ============ LIVE TICKER ============
+(function() {
+  const events = [
+    { time: 'just now',   msg: '<span class="biz">Sipho\'s Sneakers, Soweto</span> · review answered',          tag: 'tag-ok',   tagText: '5★' },
+    { time: '2 min ago',  msg: '<span class="biz">Khanyi Hair Studio, Sandton</span> · no-show recovered',     tag: 'tag-info', tagText: 'WON' },
+    { time: '4 min ago',  msg: '<span class="biz">Nkosi Properties, Pretoria</span> · hot lead booked',        tag: 'tag-info', tagText: 'HOT' },
+    { time: '7 min ago',  msg: '<span class="biz">Sea Point Sushi</span> · payment recovered · R1,250',        tag: 'tag-ok',   tagText: 'PAID' },
+    { time: '11 min ago', msg: '<span class="biz">Tshwane Dental</span> · negative review intercepted',         tag: 'tag-warn', tagText: 'PRIVATE' },
+    { time: '14 min ago', msg: '<span class="biz">Aisha\'s Bakery, Durban</span> · churn risk re-engaged',     tag: 'tag-info', tagText: 'WARM' },
+    { time: '18 min ago', msg: '<span class="biz">Pieter Coffee Roasters</span> · 5 new reviews answered',     tag: 'tag-ok',   tagText: 'AUTO' },
+    { time: '23 min ago', msg: '<span class="biz">Sandton Salon Co.</span> · referral converted · R890',       tag: 'tag-ok',   tagText: 'REF' },
+    { time: '27 min ago', msg: '<span class="biz">Cape Town Sneakers</span> · support ticket resolved',        tag: 'tag-info', tagText: 'SLA' },
+    { time: '31 min ago', msg: '<span class="biz">Boitumelo Beauty Bar</span> · lapsed customer won back',     tag: 'tag-ok',   tagText: 'BACK' },
+    { time: '35 min ago', msg: '<span class="biz">Joburg Pet Vets</span> · appointment rescheduled',           tag: 'tag-info', tagText: 'RESCHED' },
+    { time: '40 min ago', msg: '<span class="biz">Limpopo Logistics</span> · invoice chase escalated',         tag: 'tag-warn', tagText: 'STAGE 2' }
+  ];
+  const feed = document.getElementById('tickerFeed');
+  const visible = 4;
+  let cursor = visible;
+  function row(e) {
+    return `<div class="tick-row"><span class="tick-time">${e.time}</span><span class="tick-msg">${e.msg}</span><span class="tick-tag ${e.tag}">${e.tagText}</span></div>`;
+  }
+  feed.innerHTML = events.slice(0, visible).map(row).join('');
+  setInterval(() => {
+    const next = events[cursor % events.length]; cursor++;
+    const rows = feed.querySelectorAll('.tick-row');
+    if (rows.length >= visible) rows[rows.length - 1].remove();
+    feed.insertAdjacentHTML('afterbegin', row(next));
+  }, 4500);
+})();
+
+// ============ COUNT-UP NUMBERS ============
+function countUp(el, target, suffix, duration) {
+  const start = performance.now();
+  const isFloat = target % 1 !== 0;
+  function tick(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const val = target * eased;
+    el.firstChild.textContent = isFloat ? val.toFixed(1) : Math.round(val);
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// Trigger count-ups when demo card visible
+const countObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      countUp(document.getElementById('leadScore'), 9.2, '/10', 1400);
+      countUp(document.getElementById('responseTime'), 10, 's', 1200);
+      countObs.disconnect();
+    }
+  });
+}, { threshold: 0.4 });
+countObs.observe(document.getElementById('demoCard'));
+
+// ============ PARALLAX TILT ON DEMO CARD ============
+(function() {
+  const card = document.getElementById('demoCard');
+  if (!card || window.matchMedia('(max-width: 768px)').matches) return;
+  let frame;
+  card.parentElement.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(() => {
+      card.style.transform = `rotateY(${x * 3}deg) rotateX(${-y * 3}deg) translateZ(0)`;
+    });
+  });
+  card.parentElement.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+  });
+})();
+
+// ============ REVEAL ON SCROLL ============
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal, .stagger, .section').forEach(el => obs.observe(el));
+
+// ============ ROUTER FORM AUTO-FOCUS GLOW ON SCROLL-IN ============
+const routerObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const card = document.getElementById('routerCard');
+      card.classList.add('router-glow');
+      setTimeout(() => card.classList.remove('router-glow'), 1400);
+      routerObs.disconnect();
+    }
+  });
+}, { threshold: 0.5 });
+routerObs.observe(document.getElementById('routerCard'));
+
+// ============ ROUTER FORM SUBMISSION ============
+document.getElementById('routerForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const submit = document.getElementById('routerSubmit');
+  const success = document.getElementById('routerSuccess');
+  const error = document.getElementById('routerError');
+  const name = document.getElementById('routerName').value.trim();
+  const email = document.getElementById('routerEmail').value.trim();
+  const message = document.getElementById('routerMessage').value.trim();
+
+  success.classList.remove('show');
+  error.classList.remove('show');
+
+  if (!name || !email || !message) return;
+
+  submit.disabled = true;
+  submit.innerHTML = 'Routing... <span class="arrow">→</span>';
+
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://n8n-production-71d9.up.railway.app/webhook/master-router', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+      submit.disabled = false;
+      submit.innerHTML = 'Route my request <span class="arrow">→</span>';
+      if (xhr.status >= 200 && xhr.status < 300) {
+        success.classList.add('show');
+        document.getElementById('routerForm').reset();
+      } else {
+        error.classList.add('show');
+      }
+    };
+    xhr.onerror = function() {
+      submit.disabled = false;
+      submit.innerHTML = 'Route my request <span class="arrow">→</span>';
+      error.classList.add('show');
+    };
+    xhr.send(JSON.stringify({
+      name: name,
+      email: email,
+      message: message,
+      source: 'index_router_form',
+      timestamp: new Date().toISOString()
+    }));
+  } catch (err) {
+    submit.disabled = false;
+    submit.innerHTML = 'Route my request <span class="arrow">→</span>';
+    error.classList.add('show');
+  }
+});
+</script>
+
+</body>
+</html>
