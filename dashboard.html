@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command Centre · Jarvis Nexus</title>
+<meta name="robots" content="noindex,nofollow">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --indigo-glow:#818cf8; --indigo:#6366f1; --indigo-deep:#4f46e5;
+  --indigo-shadow:rgba(99,102,241,0.40); --indigo-soft:rgba(99,102,241,0.10);
+  --indigo-faint:rgba(99,102,241,0.04);
+  --surface-0:#08080c; --surface-1:#0e0e15; --surface-2:#14141d;
+  --surface-3:#1c1c28; --surface-4:#25253a;
+  --border-faint:rgba(255,255,255,0.04); --border-subtle:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.15); --border-indigo:rgba(99,102,241,0.25);
+  --text-hi:#f5f5fa; --text-md:#a8a8c2; --text-lo:#6b6b85; --text-faint:#3a3a52;
+  --ok:#10b981; --warn:#f59e0b; --bad:#f43f5e; --info:#22d3ee;
+  --grad-accent:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);
+  --grad-divider:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.5) 50%,transparent 100%);
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--surface-0); color:var(--text-hi);
+  font-size:14px; line-height:1.55; font-weight:400;
+  letter-spacing:-0.005em; min-height:100vh;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+.serif { font-family:'Instrument Serif',serif; font-weight:400; letter-spacing:-0.02em; }
+.mono { font-family:'JetBrains Mono',monospace; }
+
+/* ============ GATE ============ */
+#gate {
+  position:fixed; inset:0; z-index:9999;
+  background:var(--surface-0);
+  display:grid; place-items:center;
+  padding:24px;
+}
+#gate.hidden { display:none; }
+.gate-card {
+  background:var(--surface-2);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg);
+  padding:48px 40px;
+  max-width:420px; width:100%;
+  text-align:center;
+  position:relative;
+  box-shadow:0 24px 64px rgba(0,0,0,0.5);
+}
+.gate-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider);
+}
+.gate-mark {
+  width:48px; height:48px; margin:0 auto 20px;
+  background:var(--grad-accent);
+  border-radius:12px;
+  display:grid; place-items:center;
+  position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset, 0 8px 24px var(--indigo-shadow);
+}
+.gate-mark::before {
+  content:''; position:absolute; inset:10px;
+  border:2px solid rgba(255,255,255,0.92);
+  border-radius:5px;
+  border-bottom-color:transparent; border-right-color:transparent;
+  transform:rotate(45deg);
+}
+.gate-eyebrow {
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px; color:var(--indigo-glow);
+  letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:12px;
+}
+.gate-title {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:32px; line-height:1.1; letter-spacing:-0.02em;
+  color:var(--text-hi); margin-bottom:10px;
+}
+.gate-sub { font-size:14px; color:var(--text-md); margin-bottom:28px; }
+.gate-input {
+  width:100%; padding:14px 16px;
+  background:var(--surface-3);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--r-md);
+  color:var(--text-hi); font-size:15px; font-family:'Inter',sans-serif;
+  margin-bottom:12px;
+  outline:none; transition:border-color 200ms ease, box-shadow 200ms ease;
+  text-align:center; letter-spacing:0.04em;
+}
+.gate-input:focus { border-color:var(--border-indigo); box-shadow:0 0 0 4px var(--indigo-soft); }
+.gate-btn {
+  width:100%; padding:14px;
+  background:var(--grad-accent); color:#fff;
+  border:none; border-radius:var(--r-md);
+  font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+  cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 16px var(--indigo-shadow);
+  transition:transform 150ms ease, box-shadow 200ms ease;
+}
+.gate-btn:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 8px 24px var(--indigo-shadow); }
+.gate-error {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--bad); margin-top:14px; min-height:14px;
+  letter-spacing:0.06em; text-transform:uppercase;
+}
+
+/* ============ GRID/ATMOS ============ */
+.grid-lines {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size:calc(100% / 12) 100%;
+  max-width:1400px; margin:0 auto;
+  left:50%; transform:translateX(-50%); width:100%;
+}
+.atmos {
+  position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+}
+.atmos::before {
+  content:''; position:absolute; width:900px; height:900px; border-radius:50%;
+  top:-300px; right:-200px;
+  background:radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
+  filter:blur(60px);
+}
+.grain {
+  position:fixed; inset:0; z-index:1; pointer-events:none;
+  opacity:0.05;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay;
+}
+
+main, nav { position:relative; z-index:2; }
+
+/* ============ NAV ============ */
+nav {
+  position:sticky; top:0;
+  background:rgba(8,8,12,0.85);
+  backdrop-filter:blur(24px) saturate(180%);
+  border-bottom:1px solid var(--border-faint);
+  z-index:100;
+}
+.wrap { max-width:1400px; margin:0 auto; padding:0 28px; }
+.nav-inner {
+  display:flex; align-items:center; justify-content:space-between;
+  height:64px; gap:24px;
+}
+.logo { display:flex; align-items:center; gap:10px; text-decoration:none; flex-shrink:0; }
+.logo-mark {
+  width:28px; height:28px; background:var(--grad-accent);
+  border-radius:7px; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset, 0 4px 12px var(--indigo-shadow);
+}
+.logo-mark::before {
+  content:''; position:absolute; inset:5px;
+  border:1.5px solid rgba(255,255,255,0.92);
+  border-radius:3px;
+  border-bottom-color:transparent; border-right-color:transparent;
+  transform:rotate(45deg);
+}
+.logo-text { display:flex; flex-direction:column; line-height:1.1; }
+.logo-name { font-weight:800; font-size:13px; color:var(--text-hi); letter-spacing:0.02em; }
+.logo-tag { font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--text-lo); letter-spacing:0.18em; text-transform:uppercase; margin-top:2px; }
+
+.nav-center { display:flex; gap:2px; flex:1; justify-content:center; }
+.nav-link {
+  color:var(--text-md); text-decoration:none; font-size:13px; font-weight:500;
+  padding:7px 12px; border-radius:6px;
+  transition:color 150ms ease, background 150ms ease;
+}
+.nav-link:hover { color:var(--text-hi); background:var(--surface-2); }
+
+.nav-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.cmd-trigger {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 12px;
+  background:var(--surface-2);
+  border:1px solid var(--border-subtle);
+  border-radius:7px;
+  font-family:'Inter',sans-serif; font-size:12px; color:var(--text-md);
+  cursor:pointer;
+  transition:border-color 150ms ease, color 150ms ease;
+}
+.cmd-trigger:hover { border-color:var(--border-indigo); color:var(--text-hi); }
+.cmd-trigger .kbd {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  background:var(--surface-3); padding:2px 5px; border-radius:4px;
+  border:1px solid var(--border-subtle);
+}
+
+.demo-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:5px 9px;
+  background:rgba(245,158,11,0.10); border:1px solid rgba(245,158,11,0.25);
+  border-radius:100px;
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  color:var(--warn); letter-spacing:0.12em; text-transform:uppercase;
+}
+.demo-badge .dot { width:5px; height:5px; border-radius:50%; background:var(--warn); }
+
+@media (max-width:880px) { .nav-center { display:none; } }
+
+/* ============ MORNING BRIEF HERO ============ */
+.brief-hero {
+  padding:32px 0 24px;
+  position:relative;
+}
+.brief-card {
+  background:var(--surface-1);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl);
+  padding:32px 36px;
+  position:relative;
+  overflow:hidden;
+}
+.brief-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider);
+}
+.brief-card::after {
+  content:''; position:absolute; top:-100px; right:-100px;
+  width:400px; height:400px;
+  background:radial-gradient(circle, var(--indigo-soft) 0%, transparent 70%);
+  filter:blur(50px); pointer-events:none;
+}
+.brief-grid {
+  display:grid; grid-template-columns:2fr 1fr; gap:36px; align-items:center;
+  position:relative; z-index:1;
+}
+@media (max-width:980px) { .brief-grid { grid-template-columns:1fr; gap:24px; } }
+.brief-eye {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px;
+  display:flex; align-items:center; gap:10px;
+}
+.brief-eye .pulse {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--ok); box-shadow:0 0 8px var(--ok);
+  animation:pulse-ok 1.6s infinite;
+}
+@keyframes pulse-ok { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+.brief-greeting {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:clamp(28px,4vw,42px); line-height:1.1; letter-spacing:-0.02em;
+  color:var(--text-hi); margin-bottom:16px;
+}
+.brief-greeting .em {
+  background:var(--grad-accent);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  font-style:italic;
+}
+.brief-line {
+  font-size:15px; color:var(--text-md); line-height:1.65;
+}
+.brief-line strong { color:var(--text-hi); font-weight:600; }
+.brief-line .num {
+  font-family:'JetBrains Mono',monospace; font-weight:600;
+  color:var(--text-hi);
+}
+
+.clock-block { text-align:right; }
+.clock-time {
+  font-family:'JetBrains Mono',monospace; font-weight:500;
+  font-size:36px; color:var(--text-hi); letter-spacing:-0.02em;
+  line-height:1; margin-bottom:6px;
+}
+.clock-date {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.12em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.eskom-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 14px;
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:100px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-md); letter-spacing:0.06em;
+}
+.eskom-badge .dot { width:6px; height:6px; border-radius:50%; }
+.eskom-stage-0 .dot { background:var(--ok); box-shadow:0 0 6px var(--ok); }
+.eskom-stage-2 .dot { background:var(--warn); box-shadow:0 0 6px var(--warn); }
+.eskom-stage-4 .dot { background:var(--bad); box-shadow:0 0 6px var(--bad); }
+
+/* ============ KPI BAND ============ */
+.kpi-band { padding:16px 0 32px; }
+.kpi-grid {
+  display:grid;
+  grid-template-columns:repeat(6, 1fr);
+  gap:12px;
+}
+@media (max-width:1100px) { .kpi-grid { grid-template-columns:repeat(3, 1fr); } }
+@media (max-width:560px)  { .kpi-grid { grid-template-columns:repeat(2, 1fr); } }
+.kpi-card {
+  background:var(--surface-2);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg);
+  padding:20px 22px;
+  position:relative;
+  transition:border-color 200ms ease, transform 200ms ease;
+}
+.kpi-card:hover { border-color:var(--border-indigo); transform:translateY(-2px); }
+.kpi-label {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  color:var(--text-lo); letter-spacing:0.16em; text-transform:uppercase;
+  margin-bottom:8px;
+}
+.kpi-value {
+  font-family:'JetBrains Mono',monospace; font-weight:600;
+  font-size:32px; line-height:1; color:var(--text-hi);
+  letter-spacing:-0.02em;
+  margin-bottom:6px;
+}
+.kpi-value.accent { color:var(--indigo-glow); }
+.kpi-value.ok { color:var(--ok); }
+.kpi-value.warn { color:var(--warn); }
+.kpi-value.bad { color:var(--bad); }
+.kpi-delta {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo);
+}
+.kpi-delta .up { color:var(--ok); }
+.kpi-delta .down { color:var(--bad); }
+
+/* ============ SECTION ============ */
+.section { padding:32px 0; }
+.section-head {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:18px;
+  flex-wrap:wrap; gap:12px;
+}
+.section-eyebrow {
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px; font-weight:500;
+  text-transform:uppercase; letter-spacing:0.18em;
+  color:var(--indigo-glow);
+}
+.section-meta {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.06em;
+}
+
+/* ============ BOT HEALTH + ATTENTION GRID ============ */
+.split-grid {
+  display:grid; grid-template-columns:1.4fr 1fr; gap:16px;
+}
+@media (max-width:980px) { .split-grid { grid-template-columns:1fr; } }
+
+.panel {
+  background:var(--surface-1);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg);
+  padding:24px 24px 20px;
+  position:relative;
+}
+.panel-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding-bottom:16px; margin-bottom:16px;
+  border-bottom:1px solid var(--border-faint);
+}
+.panel-title {
+  font-size:15px; font-weight:600; color:var(--text-hi);
+  letter-spacing:-0.01em;
+}
+.panel-tag {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--text-lo); letter-spacing:0.1em;
+}
+
+/* Bot health grid */
+.bot-mini-grid {
+  display:grid; grid-template-columns:repeat(2, 1fr); gap:10px;
+}
+@media (max-width:560px) { .bot-mini-grid { grid-template-columns:1fr; } }
+.bot-mini {
+  background:var(--surface-2);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--r-md);
+  padding:14px 16px;
+  display:flex; flex-direction:column; gap:6px;
+  transition:border-color 200ms ease;
+  text-decoration:none; color:inherit;
+}
+.bot-mini:hover { border-color:var(--border-indigo); }
+.bot-mini-top { display:flex; align-items:center; justify-content:space-between; }
+.bot-mini-id {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  font-weight:600; color:var(--indigo-glow); letter-spacing:0.1em;
+  background:var(--indigo-soft); padding:2px 7px; border-radius:4px;
+}
+.bot-mini-status {
+  display:inline-flex; align-items:center; gap:5px;
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  letter-spacing:0.12em; text-transform:uppercase;
+  padding:2px 7px; border-radius:100px;
+}
+.bot-mini-status .dot { width:5px; height:5px; border-radius:50%; }
+.status-live { background:rgba(16,185,129,0.10); color:var(--ok); }
+.status-live .dot { background:var(--ok); box-shadow:0 0 4px var(--ok); }
+.status-idle { background:rgba(255,255,255,0.04); color:var(--text-lo); }
+.status-idle .dot { background:var(--text-lo); }
+.status-error { background:rgba(244,63,94,0.10); color:var(--bad); }
+.status-error .dot { background:var(--bad); box-shadow:0 0 4px var(--bad); }
+.status-build { background:rgba(245,158,11,0.10); color:var(--warn); }
+.status-build .dot { background:var(--warn); }
+.bot-mini-name { font-size:13px; font-weight:600; color:var(--text-hi); }
+.bot-mini-stats {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-md);
+  display:flex; gap:14px;
+}
+.bot-mini-stats .num { color:var(--text-hi); font-weight:500; }
+
+/* Attention queue */
+.attn-list { display:flex; flex-direction:column; gap:10px; max-height:420px; overflow-y:auto; }
+.attn-list::-webkit-scrollbar { width:4px; }
+.attn-list::-webkit-scrollbar-track { background:transparent; }
+.attn-list::-webkit-scrollbar-thumb { background:var(--surface-4); border-radius:2px; }
+.attn-item {
+  background:var(--surface-2);
+  border:1px solid var(--border-subtle);
+  border-left:2px solid;
+  border-radius:var(--r-md);
+  padding:12px 14px;
+  display:flex; flex-direction:column; gap:6px;
+}
+.attn-bad { border-left-color:var(--bad); }
+.attn-warn { border-left-color:var(--warn); }
+.attn-info { border-left-color:var(--indigo-glow); }
+.attn-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.attn-tag {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  letter-spacing:0.12em; text-transform:uppercase;
+  padding:3px 7px; border-radius:4px; font-weight:600;
+}
+.tag-bad { background:rgba(244,63,94,0.12); color:var(--bad); }
+.tag-warn { background:rgba(245,158,11,0.12); color:var(--warn); }
+.tag-info { background:var(--indigo-soft); color:var(--indigo-glow); }
+.attn-time { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-lo); }
+.attn-msg { font-size:13px; color:var(--text-hi); line-height:1.5; }
+.attn-meta { font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-md); }
+.attn-empty {
+  text-align:center; padding:48px 16px;
+  font-family:'JetBrains Mono',monospace; font-size:12px;
+  color:var(--text-lo); letter-spacing:0.06em;
+}
+.attn-empty .big { font-family:'Instrument Serif',serif; font-style:italic; font-size:24px; color:var(--ok); margin-bottom:8px; letter-spacing:-0.01em; }
+
+/* ============ ACTIVITY STREAM ============ */
+.stream-controls {
+  display:flex; gap:6px; flex-wrap:wrap;
+}
+.stream-pill {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  padding:4px 10px; border-radius:100px;
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  color:var(--text-md); cursor:pointer;
+  letter-spacing:0.06em; text-transform:uppercase;
+  transition:all 150ms ease;
+}
+.stream-pill.active {
+  background:var(--indigo-soft); border-color:var(--border-indigo); color:var(--indigo-glow);
+}
+.stream-pill:hover { color:var(--text-hi); }
+
+.stream-feed { display:flex; flex-direction:column; gap:6px; }
+.stream-row {
+  display:grid;
+  grid-template-columns:90px 110px 1fr auto;
+  gap:14px;
+  align-items:center;
+  padding:10px 14px;
+  background:var(--surface-2);
+  border:1px solid var(--border-faint);
+  border-radius:var(--r-md);
+  transition:background 150ms ease, border-color 150ms ease;
+}
+.stream-row:hover { background:var(--surface-3); border-color:var(--border-subtle); }
+.stream-time { font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-lo); }
+.stream-bot {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  font-weight:600; letter-spacing:0.08em;
+  color:var(--indigo-glow);
+  background:var(--indigo-soft); padding:3px 8px; border-radius:4px;
+  text-align:center;
+}
+.stream-msg { font-size:13px; color:var(--text-hi); }
+.stream-msg .biz { color:var(--text-md); font-weight:500; }
+.stream-tag {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:600;
+  letter-spacing:0.1em; text-transform:uppercase;
+  padding:3px 8px; border-radius:100px;
+}
+@media (max-width:760px) {
+  .stream-row { grid-template-columns:1fr auto; gap:8px; }
+  .stream-time, .stream-bot { display:none; }
+}
+
+/* ============ CLIENT ROSTER ============ */
+.roster {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:10px;
+}
+.client-card {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:14px 16px;
+  display:flex; align-items:center; gap:12px;
+}
+.client-mark {
+  width:36px; height:36px; border-radius:8px;
+  background:var(--grad-accent);
+  display:grid; place-items:center;
+  font-family:'JetBrains Mono',monospace; font-weight:600;
+  font-size:13px; color:#fff;
+  flex-shrink:0;
+}
+.client-info { flex:1; min-width:0; }
+.client-name {
+  font-size:13px; font-weight:600; color:var(--text-hi);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.client-meta {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--text-lo); letter-spacing:0.04em; margin-top:2px;
+}
+.client-empty {
+  grid-column: 1 / -1;
+  background:var(--surface-2); border:1px dashed var(--border-subtle);
+  border-radius:var(--r-md); padding:32px;
+  text-align:center;
+}
+.client-empty .big {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:22px; color:var(--text-md); margin-bottom:6px;
+}
+.client-empty .small { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-lo); letter-spacing:0.08em; text-transform:uppercase; }
+
+/* ============ QUICK LINKS / TOOLS ============ */
+.links-list { display:flex; flex-direction:column; gap:6px; }
+.link-row {
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:12px;
+  align-items:center;
+  padding:10px 14px;
+  background:var(--surface-2);
+  border:1px solid var(--border-faint);
+  border-radius:var(--r-md);
+  transition:border-color 150ms ease;
+}
+.link-row:hover { border-color:var(--border-subtle); }
+.link-info { min-width:0; }
+.link-name { font-size:13px; font-weight:600; color:var(--text-hi); margin-bottom:3px; }
+.link-url { font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-lo); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.btn-mini {
+  padding:6px 12px;
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:600;
+  letter-spacing:0.08em; text-transform:uppercase;
+  background:var(--surface-3); color:var(--text-md);
+  border:1px solid var(--border-subtle); border-radius:6px;
+  cursor:pointer; text-decoration:none;
+  transition:all 150ms ease;
+}
+.btn-mini:hover { background:var(--surface-4); color:var(--text-hi); border-color:var(--border-indigo); }
+.btn-mini.copied { background:var(--indigo-soft); color:var(--indigo-glow); border-color:var(--border-indigo); }
+
+.tools-grid {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:10px;
+}
+.tool-card {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:16px;
+  text-decoration:none; color:inherit;
+  display:flex; flex-direction:column; gap:6px;
+  transition:all 150ms ease;
+}
+.tool-card:hover { border-color:var(--border-indigo); transform:translateY(-2px); }
+.tool-name { font-size:13px; font-weight:600; color:var(--text-hi); }
+.tool-desc { font-size:11.5px; color:var(--text-md); line-height:1.5; }
+
+/* ============ COMMAND PALETTE ============ */
+.cmd-overlay {
+  position:fixed; inset:0; z-index:1000;
+  background:rgba(8,8,12,0.75);
+  backdrop-filter:blur(6px);
+  display:none;
+  align-items:flex-start; justify-content:center;
+  padding-top:14vh;
+}
+.cmd-overlay.show { display:flex; }
+.cmd-panel {
+  width:100%; max-width:580px;
+  background:var(--surface-2);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,0,0,0.6);
+}
+.cmd-input-wrap {
+  padding:18px 20px;
+  border-bottom:1px solid var(--border-faint);
+  display:flex; align-items:center; gap:12px;
+}
+.cmd-icon { font-family:'JetBrains Mono',monospace; color:var(--indigo-glow); font-size:14px; }
+.cmd-input {
+  flex:1; background:transparent; border:none; outline:none;
+  color:var(--text-hi); font-family:'Inter',sans-serif; font-size:15px;
+  letter-spacing:-0.01em;
+}
+.cmd-input::placeholder { color:var(--text-lo); }
+.cmd-results { max-height:50vh; overflow-y:auto; padding:8px; }
+.cmd-results::-webkit-scrollbar { width:4px; }
+.cmd-results::-webkit-scrollbar-track { background:transparent; }
+.cmd-results::-webkit-scrollbar-thumb { background:var(--surface-4); border-radius:2px; }
+.cmd-row {
+  padding:10px 14px;
+  display:flex; align-items:center; justify-content:space-between;
+  border-radius:8px;
+  cursor:pointer;
+  transition:background 100ms ease;
+}
+.cmd-row:hover, .cmd-row.active { background:var(--indigo-soft); }
+.cmd-row-left { display:flex; align-items:center; gap:12px; min-width:0; }
+.cmd-row-tag {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:600;
+  letter-spacing:0.1em; padding:3px 7px; border-radius:4px;
+  background:var(--surface-3); color:var(--text-md);
+}
+.cmd-row-name { font-size:13.5px; color:var(--text-hi); font-weight:500; }
+.cmd-row-action {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--text-lo); letter-spacing:0.08em; text-transform:uppercase;
+}
+.cmd-empty {
+  padding:32px; text-align:center;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.08em;
+}
+.cmd-foot {
+  padding:10px 16px;
+  border-top:1px solid var(--border-faint);
+  display:flex; gap:14px;
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--text-lo); letter-spacing:0.06em;
+}
+.cmd-foot .kbd {
+  background:var(--surface-3); padding:1px 5px; border-radius:3px;
+  border:1px solid var(--border-subtle); margin-right:4px;
+}
+
+/* ============ FOOTER ============ */
+footer {
+  border-top:1px solid var(--border-subtle);
+  margin-top:48px; padding:24px 0;
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.08em;
+}
+.foot-line {
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:12px;
+}
+.foot-line .signout { color:var(--text-md); cursor:pointer; text-decoration:underline; text-decoration-color:var(--text-faint); }
+.foot-line .signout:hover { color:var(--bad); text-decoration-color:var(--bad); }
+
+@media (max-width:768px) {
+  .wrap { padding:0 16px; }
+  .brief-card { padding:24px 20px; }
+  .clock-block { text-align:left; }
+}
+</style>
+</head>
+<body>
+
+<!-- ========== ACCESS GATE ========== -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-mark"></div>
+    <div class="gate-eyebrow">// COMMAND CENTRE</div>
+    <div class="gate-title">Operator <span style="font-style:italic;color:var(--indigo-glow);">access only.</span></div>
+    <div class="gate-sub">This console contains live operations data. Enter your passphrase to continue.</div>
+    <input type="password" id="gateInput" class="gate-input" placeholder="Passphrase" autocomplete="off">
+    <button id="gateBtn" class="gate-btn">Unlock console →</button>
+    <div class="gate-error" id="gateError"></div>
+  </div>
+</div>
+
+<div class="grid-lines"></div>
+<div class="atmos"></div>
+<div class="grain"></div>
+
+<nav>
+  <div class="wrap">
+    <div class="nav-inner">
+      <a href="/" class="logo">
+        <div class="logo-mark"></div>
+        <div class="logo-text">
+          <div class="logo-name">JARVIS NEXUS</div>
+          <div class="logo-tag">Command Centre</div>
+        </div>
+      </a>
+      <div class="nav-center">
+        <a href="#brief" class="nav-link">Brief</a>
+        <a href="#bots" class="nav-link">Bots</a>
+        <a href="#stream" class="nav-link">Stream</a>
+        <a href="#links" class="nav-link">Links</a>
+        <a href="#tools" class="nav-link">Tools</a>
+      </div>
+      <div class="nav-right">
+        <span class="demo-badge"><span class="dot"></span>DEMO DATA</span>
+        <button class="cmd-trigger" id="cmdTrigger">
+          <span>Search</span>
+          <span class="kbd">⌘ K</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+<!-- ========== MORNING BRIEF ========== -->
+<section class="brief-hero" id="brief">
+  <div class="wrap">
+    <div class="brief-card">
+      <div class="brief-grid">
+        <div>
+          <div class="brief-eye"><span class="pulse"></span><span id="briefEyeText">SYSTEMS LIVE · OVERNIGHT BRIEF</span></div>
+          <h1 class="brief-greeting" id="briefGreeting">Good morning, <span class="em">Seth.</span></h1>
+          <div class="brief-line" id="briefLine">Loading overnight summary…</div>
+        </div>
+        <div class="clock-block">
+          <div class="clock-time" id="clockTime">--:--</div>
+          <div class="clock-date" id="clockDate">— · — · —</div>
+          <div class="eskom-badge" id="eskomBadge">
+            <span class="dot"></span>
+            <span id="eskomText">Loading load-shedding…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== KPI BAND ========== -->
+<section class="kpi-band">
+  <div class="wrap">
+    <div class="kpi-grid" id="kpiGrid"><!-- injected --></div>
+  </div>
+</section>
+
+<!-- ========== BOT HEALTH + ATTENTION ========== -->
+<section class="section" id="bots">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">// OPERATIONS</div>
+      <div class="section-meta" id="opsMeta">— bots monitored</div>
+    </div>
+    <div class="split-grid">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Bot health</div>
+          <div class="panel-tag" id="botCount">— LIVE / — TOTAL</div>
+        </div>
+        <div class="bot-mini-grid" id="botGrid"><!-- injected --></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Attention queue</div>
+          <div class="panel-tag" id="attnCount">— ITEMS</div>
+        </div>
+        <div class="attn-list" id="attnList"><!-- injected --></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ACTIVITY STREAM ========== -->
+<section class="section" id="stream">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">// LIVE ACTIVITY STREAM</div>
+      <div class="stream-controls" id="streamControls"><!-- injected --></div>
+    </div>
+    <div class="panel">
+      <div class="stream-feed" id="streamFeed"><!-- injected --></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CLIENT ROSTER ========== -->
+<section class="section" id="clients">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">// CLIENT ROSTER</div>
+      <div class="section-meta" id="clientMeta">— active</div>
+    </div>
+    <div class="roster" id="clientRoster"><!-- injected --></div>
+  </div>
+</section>
+
+<!-- ========== QUICK LINKS + INTERNAL TOOLS ========== -->
+<section class="section" id="links">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">// QUICK LINKS</div>
+      <div class="section-meta">Webhooks · sheets · n8n</div>
+    </div>
+    <div class="split-grid">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Webhook endpoints</div>
+          <div class="panel-tag">CLICK COPY</div>
+        </div>
+        <div class="links-list" id="webhookLinks"><!-- injected --></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Infrastructure</div>
+          <div class="panel-tag">EXTERNAL</div>
+        </div>
+        <div class="links-list" id="infraLinks"><!-- injected --></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="tools">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">// INTERNAL TOOLS</div>
+      <div class="section-meta">Operator only · not public</div>
+    </div>
+    <div class="tools-grid" id="toolsGrid"><!-- injected --></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-line">
+      <span>JARVIS NEXUS // COMMAND CENTRE // OPERATOR ACCESS // BUILT IN JOBURG</span>
+      <span><span class="signout" id="signout">SIGN OUT</span></span>
+    </div>
+  </div>
+</footer>
+
+<!-- ========== COMMAND PALETTE ========== -->
+<div class="cmd-overlay" id="cmdOverlay">
+  <div class="cmd-panel">
+    <div class="cmd-input-wrap">
+      <span class="cmd-icon">⌘</span>
+      <input type="text" id="cmdInput" class="cmd-input" placeholder="Search bots, links, webhooks, tools…">
+    </div>
+    <div class="cmd-results" id="cmdResults"></div>
+    <div class="cmd-foot">
+      <span><span class="kbd">↑</span><span class="kbd">↓</span> navigate</span>
+      <span><span class="kbd">↵</span> select</span>
+      <span><span class="kbd">esc</span> close</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// =============================================================
+// GATE + INIT — bulletproof version with logging
+// =============================================================
+const PASSPHRASE = 'LoveGod12';
+const STORAGE_KEY = 'jn_op_unlocked_v1';
+
+function _log(msg, ...args) { try { console.log('[JN]', msg, ...args); } catch(e) {} }
+function _err(label, e) { try { console.error('[JN] ' + label + ' failed:', e); } catch(_) {} }
+
+function safeRender(label, fn) {
+  try {
+    fn();
+    _log('✓ ' + label);
+  } catch (e) {
+    _err(label, e);
+  }
+}
+
+function unlockAndInit() {
+  try {
+    localStorage.setItem(STORAGE_KEY, '1');
+    const gate = document.getElementById('gate');
+    if (gate) gate.classList.add('hidden');
+    document.body.style.overflow = '';
+    initDashboard();
+  } catch (e) { _err('unlockAndInit', e); }
+}
+
+function showGateError(msg) {
+  const err = document.getElementById('gateError');
+  const input = document.getElementById('gateInput');
+  if (err) {
+    err.textContent = msg;
+    setTimeout(() => { if (err) err.textContent = ''; }, 2400);
+  }
+  if (input) { input.value = ''; input.focus(); }
+}
+
+function attemptUnlock() {
+  const input = document.getElementById('gateInput');
+  if (!input) return;
+  if (input.value === PASSPHRASE) unlockAndInit();
+  else showGateError('Wrong passphrase. Try again.');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  _log('DOM ready — wiring gate');
+  const gate = document.getElementById('gate');
+  const input = document.getElementById('gateInput');
+  const btn = document.getElementById('gateBtn');
+  const signout = document.getElementById('signout');
+
+  if (btn) btn.addEventListener('click', attemptUnlock);
+  if (input) input.addEventListener('keydown', function(e) { if (e.key === 'Enter') attemptUnlock(); });
+  if (signout) signout.addEventListener('click', function() {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  });
+
+  // If previously unlocked, hide gate and init
+  if (localStorage.getItem(STORAGE_KEY) === '1') {
+    _log('previously unlocked — hiding gate');
+    if (gate) gate.classList.add('hidden');
+    document.body.style.overflow = '';
+    initDashboard();
+  } else {
+    _log('locked — showing gate');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function() { if (input) input.focus(); }, 50);
+  }
+});
+
+// =============================================================
+// MOCK DATA — replace with fetch() to n8n endpoints later
+// =============================================================
+const N8N_BASE = 'https://n8n-production-71d9.up.railway.app';
+const VERCEL_BASE = location.origin;
+
+const mockData = {
+  // KPIs
+  kpi: [
+    { label: 'Events today',       value: '47',     accent: 'accent', delta: '+12 vs avg' },
+    { label: 'Recovered today',    value: 'R3,420', accent: 'ok',     delta: '+R890 vs yesterday' },
+    { label: 'At-risk customers',  value: '8',      accent: 'warn',   delta: '2 critical' },
+    { label: 'Manual queue',       value: '1',      accent: 'bad',    delta: 'awaiting action' },
+    { label: 'No-shows recovered', value: '3',      accent: 'ok',     delta: '+1 vs yesterday' },
+    { label: 'Errors (24h)',       value: '0',      accent: 'ok',     delta: 'all green' }
+  ],
+
+  // Bot health — 11 bots, real status reflects what's currently shipped
+  bots: [
+    { id: 'B1',  name: 'Lead Catcher',     status: 'live',  events: 12, lastRun: '2 min ago' },
+    { id: 'B2',  name: 'Churn Radar',      status: 'live',  events: 8,  lastRun: '14 min ago' },
+    { id: 'B3',  name: 'No-Show Rescue',   status: 'build', events: 0,  lastRun: '—' },
+    { id: 'B4',  name: 'Revenue Recovery', status: 'live',  events: 6,  lastRun: '4 min ago' },
+    { id: 'B5',  name: 'Reactivation',     status: 'build', events: 0,  lastRun: '—' },
+    { id: 'B6',  name: 'Reputation Shield',status: 'build', events: 0,  lastRun: '—' },
+    { id: 'B7',  name: 'Referral Engine',  status: 'build', events: 0,  lastRun: '—' },
+    { id: 'B8',  name: 'Owner Brief',      status: 'idle',  events: 1,  lastRun: '07:00 today' },
+    { id: 'B9',  name: 'Smart Support',    status: 'live',  events: 11, lastRun: '7 min ago' },
+    { id: 'B10', name: 'Lifetime & NA',    status: 'idle',  events: 0,  lastRun: 'Mon 8:00' },
+    { id: 'B11', name: 'Review Pro',       status: 'live',  events: 9,  lastRun: '11 min ago' }
+  ],
+
+  // Attention queue
+  attention: [
+    { tag: 'Manual',    severity: 'bad',  time: '2h ago',   msg: 'Invoice INV-2026-014 — final stage exhausted, no payment',     meta: 'B4 · Mokoena Properties · R8,500' },
+    { tag: 'Critical',  severity: 'bad',  time: '4h ago',   msg: 'Customer at Stage 3 — final email sent, waiting 7 days',         meta: 'B2 · Khanyi Hair Studio' },
+    { tag: 'Parse fail',severity: 'warn', time: '6h ago',   msg: 'AI returned non-JSON — fallback email used',                     meta: 'B2 · churn re-engagement' },
+    { tag: 'High risk', severity: 'warn', time: '18h ago',  msg: '3 customers crossed Critical threshold overnight',               meta: 'B2 · Sandton Salon Co.' },
+    { tag: 'Review',    severity: 'info', time: '22h ago',  msg: 'Negative review intercepted — owner action requested',           meta: 'B11 · Sea Point Sushi' }
+  ],
+
+  // Activity stream
+  stream: [
+    { time: 'just now', bot: 'B11', cat: 'Review', msg: '<span class="biz">Sipho\'s Sneakers, Soweto</span> · review answered',          tag: 'tag-info', tagText: '5★',     filter: 'reviews' },
+    { time: '2 min',    bot: 'B1',  cat: 'Lead',   msg: '<span class="biz">Nkosi Properties, Pretoria</span> · hot lead booked',         tag: 'tag-info', tagText: 'HOT',    filter: 'leads' },
+    { time: '4 min',    bot: 'B4',  cat: 'Pay',    msg: '<span class="biz">Sea Point Sushi</span> · payment recovered · R1,250',         tag: 'tag-info', tagText: 'PAID',   filter: 'pay' },
+    { time: '7 min',    bot: 'B9',  cat: 'Support',msg: '<span class="biz">Cape Town Sneakers</span> · support ticket resolved',         tag: 'tag-info', tagText: 'SLA',    filter: 'support' },
+    { time: '11 min',   bot: 'B11', cat: 'Review', msg: '<span class="biz">Tshwane Dental</span> · review reply drafted',                 tag: 'tag-info', tagText: '4★',     filter: 'reviews' },
+    { time: '14 min',   bot: 'B2',  cat: 'Churn',  msg: '<span class="biz">Aisha\'s Bakery, Durban</span> · churn risk re-engaged',       tag: 'tag-info', tagText: 'WARM',   filter: 'churn' },
+    { time: '18 min',   bot: 'B11', cat: 'Review', msg: '<span class="biz">Pieter Coffee Roasters</span> · 5 new reviews answered',       tag: 'tag-info', tagText: 'AUTO',   filter: 'reviews' },
+    { time: '23 min',   bot: 'B4',  cat: 'Pay',    msg: '<span class="biz">Sandton Salon Co.</span> · Stage 2 reminder sent · R3,200',   tag: 'tag-info', tagText: 'S2',     filter: 'pay' },
+    { time: '27 min',   bot: 'B2',  cat: 'Churn',  msg: '<span class="biz">Boitumelo Beauty Bar</span> · lapsed customer won back',       tag: 'tag-info', tagText: 'BACK',   filter: 'churn' },
+    { time: '31 min',   bot: 'B1',  cat: 'Lead',   msg: '<span class="biz">Joburg Pet Vets</span> · enquiry qualified · WARM',            tag: 'tag-info', tagText: 'WARM',   filter: 'leads' },
+    { time: '35 min',   bot: 'B4',  cat: 'Pay',    msg: '<span class="biz">Limpopo Logistics</span> · invoice chase escalated',          tag: 'tag-info', tagText: 'STAGE 2',filter: 'pay' },
+    { time: '40 min',   bot: 'B11', cat: 'Review', msg: '<span class="biz">Khanyi Hair Studio, Sandton</span> · review request sent',    tag: 'tag-info', tagText: 'ASK',    filter: 'reviews' }
+  ],
+
+  // Client roster — empty for now
+  clients: [
+    // Example shape:
+    // { initials: 'KH', name: 'Khanyi Hair Studio', meta: '3 BOTS · 14 EVENTS / 7D' }
+  ],
+
+  // Webhooks
+  webhooks: [
+    { name: 'Lead Qualifier',         path: '/webhook/lead-qualifier',          bot: 'B1' },
+    { name: 'Churn Radar — Add',      path: '/webhook/churn-add-customer',       bot: 'B2' },
+    { name: 'Revenue Recovery — Add', path: '/webhook/revenue-recovery',         bot: 'B4' },
+    { name: 'Recovery — Mark Paid',   path: '/webhook/recovery-mark-paid',       bot: 'B4' },
+    { name: 'Customer Support',       path: '/webhook/customer-support',         bot: 'B9' },
+    { name: 'Review Responder',       path: '/webhook/review-responder',         bot: 'B11' },
+    { name: 'Airbnb Host Intel',      path: '/webhook/airbnb-review-responder',  bot: 'B11' },
+    { name: 'Review Request',         path: '/webhook/review-request',           bot: 'B11' },
+    { name: 'Master Router',          path: '/webhook/master-router',            bot: 'CORE' },
+    { name: 'Client Onboarding',      path: '/webhook/client-onboarding',        bot: 'OPS' },
+    { name: 'Invoice Bot',            path: '/webhook/invoice',                  bot: 'OPS' },
+    { name: 'Proposal Generator',     path: '/webhook/proposal',                 bot: 'OPS' }
+  ],
+
+  // Infrastructure
+  infra: [
+    { name: 'n8n Workflow Editor',  url: N8N_BASE,                       label: 'OPEN' },
+    { name: 'Vercel — Live Portal', url: VERCEL_BASE,                    label: 'OPEN' },
+    { name: 'Groq Console',         url: 'https://console.groq.com',     label: 'OPEN' },
+    { name: 'Google Sheets — All',  url: 'https://drive.google.com',     label: 'OPEN' },
+    { name: 'Cal.com Bookings',     url: 'https://cal.com/ndumiso-mokone-limbt0', label: 'OPEN' },
+    { name: 'Telegram Bot Console', url: 'https://t.me',                 label: 'OPEN' }
+  ],
+
+  // Internal tools (operator-only HTML pages)
+  tools: [
+    { name: 'Client Onboarding Form', desc: 'New client intake — kicks off onboarding workflow.', href: '/onboarding', status: 'live' },
+    { name: 'Proposal Generator',     desc: 'Generate a proposal PDF for a prospect.',           href: '/proposal',   status: 'live' },
+    { name: 'Invoice Tool',           desc: 'Portal page in build — for now, trigger via n8n editor.', href: 'https://n8n-production-71d9.up.railway.app', status: 'build', external: true },
+    { name: 'Review Request Sender',  desc: 'Manually trigger review request to a customer.',    href: '/review-request', status: 'live' }
+  ]
+};
+
+// =============================================================
+// DASHBOARD INIT
+// =============================================================
+function initDashboard() {
+  _log('initDashboard starting');
+
+  // Clock — runs first and tickers
+  safeRender('clock', function() {
+    renderClock();
+    setInterval(function() { try { renderClock(); } catch(e) { _err('clock tick', e); } }, 1000);
+  });
+
+  safeRender('brief',     renderBrief);
+  safeRender('eskom',     renderEskom);
+  safeRender('kpis',      renderKPIs);
+  safeRender('bots',      renderBots);
+  safeRender('attention', renderAttention);
+  safeRender('stream',    function() { renderStream('all'); });
+  safeRender('clients',   renderClients);
+  safeRender('webhooks',  renderWebhooks);
+  safeRender('infra',     renderInfra);
+  safeRender('tools',     renderTools);
+  safeRender('palette',   initCommandPalette);
+
+  _log('initDashboard complete');
+}
+
+// ----- Clock -----
+function renderClock() {
+  const now = new Date();
+  const tz = 'Africa/Johannesburg';
+  const time = now.toLocaleTimeString('en-ZA', { timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  const date = now.toLocaleDateString('en-ZA', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  document.getElementById('clockTime').textContent = time;
+  document.getElementById('clockDate').textContent = date.toUpperCase();
+}
+
+// ----- Morning Brief -----
+function renderBrief() {
+  const now = new Date();
+  const hr = now.getHours();
+  let greeting, eye;
+  if (hr < 11) { greeting = 'Good morning,'; eye = 'SYSTEMS LIVE · OVERNIGHT BRIEF'; }
+  else if (hr < 17) { greeting = 'Afternoon,'; eye = 'SYSTEMS LIVE · TODAY SO FAR'; }
+  else { greeting = 'Evening,'; eye = 'SYSTEMS LIVE · END-OF-DAY BRIEF'; }
+
+  document.getElementById('briefEyeText').textContent = eye;
+  document.getElementById('briefGreeting').innerHTML = greeting + ' <span class="em">Seth.</span>';
+
+  // Build the line from KPIs
+  const events = mockData.kpi.find(k => k.label === 'Events today').value;
+  const recovered = mockData.kpi.find(k => k.label === 'Recovered today').value;
+  const manual = mockData.kpi.find(k => k.label === 'Manual queue').value;
+  const errors = mockData.kpi.find(k => k.label === 'Errors (24h)').value;
+  const intro = hr < 11 ? 'Overnight' : (hr < 17 ? 'Today so far' : 'Today');
+  const errorLine = errors === '0' ? '<span class="num">0</span> errors' : '<span class="num" style="color:var(--bad)">' + errors + '</span> errors';
+  const manualLine = manual === '0' ? 'no manual queue' : '<span class="num" style="color:var(--bad)">' + manual + '</span> manual ' + (manual === '1' ? 'item' : 'items') + ' waiting';
+  document.getElementById('briefLine').innerHTML =
+    intro + ': <span class="num">' + events + '</span> events processed, <strong>' + recovered + '</strong> recovered, ' + errorLine + ', ' + manualLine + '. ' +
+    (manual === '0' ? 'Coffee first.' : 'You\'ll want to check the attention queue.');
+}
+
+// ----- Eskom load-shedding -----
+function renderEskom() {
+  // Mock Stage 2 — wire Sepush API later
+  const stage = 2;
+  const txt = stage === 0 ? 'Eskom: No load-shedding' : 'Eskom: Stage ' + stage + ' · Joburg 14:00–16:30';
+  document.getElementById('eskomBadge').className = 'eskom-badge eskom-stage-' + stage;
+  document.getElementById('eskomText').textContent = txt;
+}
+
+// ----- KPIs -----
+function renderKPIs() {
+  const grid = document.getElementById('kpiGrid');
+  grid.innerHTML = mockData.kpi.map(k => `
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value ${k.accent || ''}">${k.value}</div>
+      <div class="kpi-delta">${k.delta}</div>
+    </div>
+  `).join('');
+}
+
+// ----- Bots -----
+function renderBots() {
+  const grid = document.getElementById('botGrid');
+  const live = mockData.bots.filter(b => b.status === 'live').length;
+  document.getElementById('botCount').textContent = `${live} LIVE / ${mockData.bots.length} TOTAL`;
+  document.getElementById('opsMeta').textContent = `${mockData.bots.length} bots monitored`;
+
+  grid.innerHTML = mockData.bots.map(b => {
+    const statusLabel = b.status === 'live' ? 'Live' : (b.status === 'idle' ? 'Idle' : (b.status === 'error' ? 'Error' : 'Build'));
+    return `
+      <a class="bot-mini" href="#stream">
+        <div class="bot-mini-top">
+          <span class="bot-mini-id">${b.id}</span>
+          <span class="bot-mini-status status-${b.status}"><span class="dot"></span>${statusLabel}</span>
+        </div>
+        <div class="bot-mini-name">${b.name}</div>
+        <div class="bot-mini-stats">
+          <span><span class="num">${b.events}</span> events 24h</span>
+          <span>· ${b.lastRun}</span>
+        </div>
+      </a>
+    `;
+  }).join('');
+}
+
+// ----- Attention Queue -----
+function renderAttention() {
+  const list = document.getElementById('attnList');
+  const count = mockData.attention.length;
+  document.getElementById('attnCount').textContent = `${count} ${count === 1 ? 'ITEM' : 'ITEMS'}`;
+
+  if (count === 0) {
+    list.innerHTML = `
+      <div class="attn-empty">
+        <div class="big">All clear.</div>
+        <div>Nothing needs your attention.</div>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = mockData.attention.map(a => `
+    <div class="attn-item attn-${a.severity}">
+      <div class="attn-top">
+        <span class="attn-tag tag-${a.severity}">${a.tag}</span>
+        <span class="attn-time">${a.time}</span>
+      </div>
+      <div class="attn-msg">${a.msg}</div>
+      <div class="attn-meta">${a.meta}</div>
+    </div>
+  `).join('');
+}
+
+// ----- Activity Stream -----
+let streamFilter = 'all';
+function renderStream(filter) {
+  streamFilter = filter;
+  const filters = [
+    { key: 'all',     label: 'All' },
+    { key: 'leads',   label: 'Leads' },
+    { key: 'churn',   label: 'Churn' },
+    { key: 'pay',     label: 'Payments' },
+    { key: 'reviews', label: 'Reviews' },
+    { key: 'support', label: 'Support' }
+  ];
+  document.getElementById('streamControls').innerHTML = filters.map(f =>
+    `<span class="stream-pill ${f.key === filter ? 'active' : ''}" data-filter="${f.key}">${f.label}</span>`
+  ).join('');
+  document.querySelectorAll('.stream-pill').forEach(p => {
+    p.addEventListener('click', () => renderStream(p.dataset.filter));
+  });
+
+  const events = filter === 'all' ? mockData.stream : mockData.stream.filter(e => e.filter === filter);
+  document.getElementById('streamFeed').innerHTML = events.length === 0
+    ? `<div class="attn-empty"><div>No events match this filter.</div></div>`
+    : events.map(e => `
+        <div class="stream-row">
+          <span class="stream-time">${e.time}</span>
+          <span class="stream-bot">${e.bot}</span>
+          <span class="stream-msg">${e.msg}</span>
+          <span class="stream-tag ${e.tag}">${e.tagText}</span>
+        </div>
+      `).join('');
+}
+
+// ----- Clients -----
+function renderClients() {
+  const roster = document.getElementById('clientRoster');
+  document.getElementById('clientMeta').textContent = `${mockData.clients.length} active`;
+
+  if (mockData.clients.length === 0) {
+    roster.innerHTML = `
+      <div class="client-empty">
+        <div class="big">No clients yet.</div>
+        <div class="small">When you onboard your first paying client, they'll appear here.</div>
+      </div>
+    `;
+    return;
+  }
+
+  roster.innerHTML = mockData.clients.map(c => `
+    <div class="client-card">
+      <div class="client-mark">${c.initials}</div>
+      <div class="client-info">
+        <div class="client-name">${c.name}</div>
+        <div class="client-meta">${c.meta}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ----- Webhooks -----
+function renderWebhooks() {
+  const list = document.getElementById('webhookLinks');
+  list.innerHTML = mockData.webhooks.map(w => {
+    const fullUrl = N8N_BASE + w.path;
+    const display = 'n8n.../' + w.path.replace(/^\/webhook\//, 'webhook/');
+    return `
+      <div class="link-row">
+        <div class="link-info">
+          <div class="link-name">${w.name} <span style="color:var(--text-lo);font-family:'JetBrains Mono',monospace;font-size:10px;">· ${w.bot}</span></div>
+          <div class="link-url">${display}</div>
+        </div>
+        <button class="btn-mini" data-copy="${fullUrl}">Copy</button>
+        <a class="btn-mini" href="${fullUrl}" target="_blank" rel="noopener">Open</a>
+      </div>
+    `;
+  }).join('');
+
+  document.querySelectorAll('[data-copy]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy);
+        const original = btn.textContent;
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1400);
+      } catch (e) {
+        alert('Copy failed — manually copy: ' + btn.dataset.copy);
+      }
+    });
+  });
+}
+
+// ----- Infrastructure links -----
+function renderInfra() {
+  const list = document.getElementById('infraLinks');
+  if (!list) return;
+  list.innerHTML = mockData.infra.map(function(i) {
+    return '<div class="link-row" style="grid-template-columns:1fr auto;">' +
+      '<div class="link-info">' +
+        '<div class="link-name">' + i.name + '</div>' +
+        '<div class="link-url">' + i.url.replace(/^https?:\/\//, '') + '</div>' +
+      '</div>' +
+      '<a class="btn-mini" href="' + i.url + '" target="_blank" rel="noopener">' + i.label + '</a>' +
+    '</div>';
+  }).join('');
+}
+
+// ----- Internal Tools -----
+function renderTools() {
+  const grid = document.getElementById('toolsGrid');
+  grid.innerHTML = mockData.tools.map(t => {
+    const target = t.external ? ' target="_blank" rel="noopener"' : '';
+    const badge = t.status === 'build'
+      ? '<span class="bot-mini-status status-build" style="margin-left:auto;"><span class="dot"></span>Build</span>'
+      : '<span class="bot-mini-status status-live" style="margin-left:auto;"><span class="dot"></span>Live</span>';
+    return `
+      <a class="tool-card" href="${t.href}"${target}>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="tool-name">${t.name}</div>
+          ${badge}
+        </div>
+        <div class="tool-desc">${t.desc}</div>
+      </a>
+    `;
+  }).join('');
+}
+
+// =============================================================
+// COMMAND PALETTE
+// =============================================================
+function initCommandPalette() {
+  const overlay = document.getElementById('cmdOverlay');
+  const input = document.getElementById('cmdInput');
+  const results = document.getElementById('cmdResults');
+  const trigger = document.getElementById('cmdTrigger');
+
+  const items = [
+    ...mockData.bots.map(b => ({ tag: b.id, name: b.name, action: 'Jump to bot', kind: 'bot', target: '#bots' })),
+    ...mockData.webhooks.map(w => ({ tag: w.bot, name: w.name + ' webhook', action: 'Copy URL', kind: 'webhook', target: N8N_BASE + w.path })),
+    ...mockData.infra.map(i => ({ tag: 'OPEN', name: i.name, action: 'Open', kind: 'link', target: i.url })),
+    ...mockData.tools.map(t => ({ tag: 'TOOL', name: t.name, action: 'Open', kind: 'tool', target: t.href })),
+    { tag: 'NAV', name: 'Brief',    action: 'Jump to section', kind: 'section', target: '#brief' },
+    { tag: 'NAV', name: 'Bots',     action: 'Jump to section', kind: 'section', target: '#bots' },
+    { tag: 'NAV', name: 'Stream',   action: 'Jump to section', kind: 'section', target: '#stream' },
+    { tag: 'NAV', name: 'Clients',  action: 'Jump to section', kind: 'section', target: '#clients' },
+    { tag: 'NAV', name: 'Links',    action: 'Jump to section', kind: 'section', target: '#links' },
+    { tag: 'NAV', name: 'Tools',    action: 'Jump to section', kind: 'section', target: '#tools' }
+  ];
+
+  let activeIdx = 0;
+  let filtered = items;
+
+  function open() {
+    overlay.classList.add('show');
+    setTimeout(() => input.focus(), 30);
+    render();
+  }
+  function close() {
+    overlay.classList.remove('show');
+    input.value = '';
+    activeIdx = 0;
+  }
+  function render() {
+    const q = input.value.trim().toLowerCase();
+    filtered = q === '' ? items : items.filter(i =>
+      i.name.toLowerCase().includes(q) || i.tag.toLowerCase().includes(q)
+    );
+    if (activeIdx >= filtered.length) activeIdx = 0;
+    if (filtered.length === 0) {
+      results.innerHTML = `<div class="cmd-empty">No matches for "${q}"</div>`;
+      return;
+    }
+    results.innerHTML = filtered.map((it, idx) => `
+      <div class="cmd-row ${idx === activeIdx ? 'active' : ''}" data-idx="${idx}">
+        <div class="cmd-row-left">
+          <span class="cmd-row-tag">${it.tag}</span>
+          <span class="cmd-row-name">${it.name}</span>
+        </div>
+        <span class="cmd-row-action">${it.action}</span>
+      </div>
+    `).join('');
+    results.querySelectorAll('.cmd-row').forEach(r => {
+      r.addEventListener('click', () => execute(parseInt(r.dataset.idx)));
+      r.addEventListener('mouseenter', () => {
+        activeIdx = parseInt(r.dataset.idx);
+        results.querySelectorAll('.cmd-row').forEach(x => x.classList.remove('active'));
+        r.classList.add('active');
+      });
+    });
+  }
+  function execute(idx) {
+    const it = filtered[idx];
+    if (!it) return;
+    if (it.kind === 'webhook') {
+      navigator.clipboard.writeText(it.target).catch(() => {});
+      // brief visual ack via input
+      input.value = '✓ Copied: ' + it.target;
+      setTimeout(close, 800);
+      return;
+    }
+    if (it.kind === 'link' || it.kind === 'tool') {
+      window.open(it.target, '_blank');
+      close();
+      return;
+    }
+    if (it.kind === 'bot' || it.kind === 'section') {
+      const tgt = document.querySelector(it.target);
+      if (tgt) tgt.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      close();
+      return;
+    }
+  }
+
+  trigger.addEventListener('click', open);
+  input.addEventListener('input', render);
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      overlay.classList.contains('show') ? close() : open();
+      return;
+    }
+    if (!overlay.classList.contains('show')) return;
+    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIdx = Math.min(activeIdx + 1, filtered.length - 1);
+      render();
+      results.querySelectorAll('.cmd-row')[activeIdx]?.scrollIntoView({ block: 'nearest' });
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIdx = Math.max(activeIdx - 1, 0);
+      render();
+      results.querySelectorAll('.cmd-row')[activeIdx]?.scrollIntoView({ block: 'nearest' });
+    }
+    if (e.key === 'Enter') { e.preventDefault(); execute(activeIdx); }
+  });
+
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+}
+</script>
+
+</body>
+</html>
