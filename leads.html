@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Catcher — Jarvis Nexus</title>
+<meta name="description" content="Catch every lead. Even the 2am ones. AI scores every enquiry in 10 seconds — budget, urgency, authority, fit — and tells you who to call first.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --indigo-glow:#818cf8; --indigo:#6366f1; --indigo-deep:#4f46e5;
+  --indigo-shadow:rgba(99,102,241,0.40); --indigo-soft:rgba(99,102,241,0.10);
+  --indigo-faint:rgba(99,102,241,0.04);
+  --surface-0:#08080c; --surface-1:#0e0e15; --surface-2:#14141d;
+  --surface-3:#1c1c28; --surface-4:#25253a;
+  --border-faint:rgba(255,255,255,0.04); --border-subtle:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.15); --border-indigo:rgba(99,102,241,0.25);
+  --text-hi:#f5f5fa; --text-md:#a8a8c2; --text-lo:#6b6b85; --text-faint:#3a3a52;
+  --ok:#10b981; --warn:#f59e0b; --bad:#f43f5e; --info:#22d3ee;
+  --grad-accent:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);
+  --grad-shimmer:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.18) 50%,transparent 100%);
+  --grad-divider:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.5) 50%,transparent 100%);
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--surface-0); color:var(--text-hi);
+  font-size:16px; line-height:1.6; font-weight:400;
+  letter-spacing:-0.01em; min-height:100vh;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+
+.serif { font-family:'Instrument Serif',serif; font-weight:400; letter-spacing:-0.02em; }
+.italic { font-style:italic; }
+.mono { font-family:'JetBrains Mono',monospace; }
+
+/* ATMOSPHERE */
+.grid-lines {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size:calc(100% / 12) 100%;
+  max-width:1280px; margin:0 auto;
+  left:50%; transform:translateX(-50%); width:100%;
+}
+.atmos { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.atmos::before {
+  content:''; position:absolute; width:1000px; height:1000px; border-radius:50%;
+  top:-350px; left:-250px;
+  background:radial-gradient(circle, rgba(129,140,248,0.18) 0%, rgba(99,102,241,0.08) 35%, transparent 70%);
+  filter:blur(40px);
+}
+.atmos::after {
+  content:''; position:absolute; width:700px; height:700px; border-radius:50%;
+  top:200px; right:-100px;
+  background:radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
+  filter:blur(60px);
+}
+.grain {
+  position:fixed; inset:0; z-index:1; pointer-events:none;
+  opacity:0.06; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+main, nav, footer { position:relative; z-index:2; }
+
+/* NAV */
+nav {
+  position:sticky; top:0;
+  background:rgba(8,8,12,0.72);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid var(--border-faint);
+  z-index:100;
+}
+.wrap { max-width:1200px; margin:0 auto; padding:0 32px; }
+.nav-inner { display:flex; align-items:center; justify-content:space-between; height:72px; gap:32px; }
+.logo { display:flex; align-items:center; gap:12px; text-decoration:none; flex-shrink:0; }
+.logo-mark {
+  width:32px; height:32px; background:var(--grad-accent);
+  border-radius:8px; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset, 0 8px 24px var(--indigo-shadow);
+}
+.logo-mark::before {
+  content:''; position:absolute; inset:6px;
+  border:1.5px solid rgba(255,255,255,0.92);
+  border-radius:4px;
+  border-bottom-color:transparent; border-right-color:transparent;
+  transform:rotate(45deg);
+}
+.logo-text { display:flex; flex-direction:column; line-height:1.1; }
+.logo-name { font-weight:800; font-size:15px; color:var(--text-hi); letter-spacing:0.02em; }
+.logo-tag { font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--text-lo); letter-spacing:0.18em; text-transform:uppercase; margin-top:2px; }
+
+.nav-back {
+  display:inline-flex; align-items:center; gap:8px;
+  color:var(--text-md); text-decoration:none;
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  letter-spacing:0.08em; text-transform:uppercase;
+  padding:7px 12px; border-radius:6px;
+  transition:color 150ms ease, background 150ms ease;
+}
+.nav-back:hover { color:var(--text-hi); background:var(--surface-2); }
+
+.nav-right { display:flex; align-items:center; gap:14px; flex-shrink:0; }
+.bot-id-pill {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 11px;
+  background:var(--indigo-soft); border:1px solid var(--border-indigo);
+  border-radius:100px;
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:600;
+  letter-spacing:0.1em; color:var(--indigo-glow);
+}
+.bot-id-pill .dot { width:5px; height:5px; border-radius:50%; background:var(--ok); box-shadow:0 0 6px var(--ok); animation:pulse-ok 1.6s infinite; }
+@keyframes pulse-ok { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+@media (max-width:640px) { .nav-back { display:none; } }
+
+.btn {
+  position:relative;
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  text-decoration:none; font-weight:600;
+  font-family:'Inter',sans-serif; cursor:pointer; border:none;
+  overflow:hidden;
+  transition:transform 150ms ease, box-shadow 200ms ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn .arrow { display:inline-block; transition:transform 200ms ease; }
+.btn:hover .arrow { transform:translateX(4px); }
+.btn:active { transform:translateY(1px) scale(0.99); }
+.btn::after {
+  content:''; position:absolute; top:0; left:-100%;
+  width:100%; height:100%;
+  background:var(--grad-shimmer);
+  transition:left 600ms ease; pointer-events:none;
+}
+.btn:hover::after { left:100%; }
+.btn-primary-sm {
+  padding:10px 16px; font-size:13.5px;
+  background:var(--grad-accent); color:#fff; border-radius:7px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.20), 0 1px 2px rgba(0,0,0,0.3);
+}
+.btn-primary-sm:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 18px var(--indigo-shadow); }
+.btn-primary {
+  padding:16px 26px; font-size:15px;
+  background:var(--grad-accent); color:#fff; border-radius:var(--r-sm);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.20), 0 1px 2px rgba(0,0,0,0.4);
+}
+.btn-primary:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 12px 32px var(--indigo-shadow); }
+.btn-secondary {
+  padding:16px 26px; font-size:15px;
+  background:transparent; color:var(--text-hi); border-radius:var(--r-sm);
+  border:1px solid var(--border-strong); box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.btn-secondary:hover { background:var(--surface-2); border-color:var(--border-indigo); }
+.btn-secondary::after { display:none; }
+
+/* HERO */
+.hero { padding:80px 0 100px; }
+.hero-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:64px; align-items:center; }
+@media (max-width:980px) { .hero-grid { grid-template-columns:1fr; gap:48px; } }
+
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:10px;
+  padding:6px 14px;
+  background:var(--indigo-soft); border:1px solid var(--border-indigo);
+  border-radius:100px;
+  font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:500;
+  color:var(--indigo-glow); letter-spacing:0.08em;
+  margin-bottom:28px; text-transform:uppercase;
+}
+.hero-eyebrow .pulse {
+  width:6px; height:6px; background:var(--indigo-glow);
+  border-radius:50%; animation:pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow:0 0 0 0 rgba(129,140,248,0.7); }
+  70% { box-shadow:0 0 0 8px rgba(129,140,248,0); }
+  100% { box-shadow:0 0 0 0 rgba(129,140,248,0); }
+}
+.hero-title {
+  font-family:'Instrument Serif',serif; font-weight:400;
+  font-size:clamp(48px,7vw,88px);
+  line-height:0.96; letter-spacing:-0.035em;
+  margin-bottom:32px; color:var(--text-hi);
+}
+.hero-title .accent {
+  font-style:italic;
+  background:var(--grad-accent);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.hero-sub {
+  font-size:18px; line-height:1.6;
+  color:var(--text-md); max-width:540px;
+  margin-bottom:36px;
+}
+.hero-sub strong { color:var(--text-hi); font-weight:600; }
+.hero-ctas { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:36px; }
+.hero-honest {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.04em;
+  display:flex; align-items:center; gap:10px;
+  padding-top:20px; border-top:1px solid var(--border-faint);
+}
+.hero-honest .dot { width:5px; height:5px; border-radius:50%; background:var(--warn); }
+
+/* DEMO CARD */
+.demo-card-wrap { perspective:1000px; }
+.demo-card {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:28px;
+  position:relative; overflow:hidden;
+  box-shadow:0 24px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition:transform 200ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  transform-style:preserve-3d;
+}
+.demo-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider); opacity:0.6;
+}
+.demo-head {
+  display:flex; align-items:center; justify-content:space-between;
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  text-transform:uppercase; letter-spacing:0.14em; color:var(--text-lo);
+  margin-bottom:20px;
+}
+.demo-head .live { display:inline-flex; align-items:center; gap:6px; color:var(--ok); }
+.demo-head .live .dot {
+  width:5px; height:5px; border-radius:50%; background:var(--ok);
+  box-shadow:0 0 6px var(--ok); animation:pulse-ok 1.6s infinite;
+}
+.score-block { margin-bottom:22px; }
+.score-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  text-transform:uppercase; letter-spacing:0.14em;
+  color:var(--text-lo); margin-bottom:6px;
+}
+.score-val {
+  font-family:'Instrument Serif',serif; font-size:64px; font-weight:400;
+  line-height:0.95; letter-spacing:-0.03em;
+  background:var(--grad-accent);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.score-val .unit {
+  font-family:'JetBrains Mono',monospace; font-size:18px;
+  color:var(--text-md); -webkit-text-fill-color:var(--text-md);
+  margin-left:4px; vertical-align:top; padding-top:8px;
+  display:inline-block; line-height:1;
+}
+.score-tag {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px 10px;
+  background:rgba(244,63,94,0.12); color:var(--bad);
+  border-radius:6px;
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:700;
+  letter-spacing:0.12em; margin-top:10px; text-transform:uppercase;
+}
+.demo-divider { height:1px; background:var(--border-faint); margin:18px 0; }
+.demo-list-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  text-transform:uppercase; letter-spacing:0.14em;
+  color:var(--text-lo); margin-bottom:12px;
+}
+.demo-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 0; border-bottom:1px solid var(--border-faint);
+}
+.demo-row:last-child { border-bottom:none; }
+.demo-row-label { font-size:13px; color:var(--text-hi); font-weight:500; }
+.demo-row-check { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ok); font-weight:600; letter-spacing:0.04em; }
+.demo-action {
+  margin-top:18px; padding:14px 16px;
+  background:var(--indigo-soft); border:1px solid var(--border-indigo);
+  border-radius:var(--r-md);
+}
+.demo-action-label {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  color:var(--indigo-glow); letter-spacing:0.14em; text-transform:uppercase;
+  margin-bottom:6px;
+}
+.demo-action-text { font-size:13px; color:var(--text-hi); font-weight:500; line-height:1.5; }
+
+/* SECTION */
+.section { padding:100px 0; position:relative; }
+.section::before {
+  content:''; position:absolute; top:0; left:5%; right:5%; height:1px;
+  background:var(--grad-divider); opacity:0.4;
+}
+.section-eyebrow {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:500;
+  text-transform:uppercase; letter-spacing:0.18em;
+  color:var(--indigo-glow); margin-bottom:16px; display:inline-block;
+}
+.section-title {
+  font-family:'Instrument Serif',serif; font-weight:400;
+  font-size:clamp(36px,5.5vw,60px);
+  line-height:1.05; letter-spacing:-0.025em;
+  margin-bottom:20px; max-width:780px; color:var(--text-hi);
+}
+.section-title .em { font-style:italic; color:var(--indigo-glow); }
+.section-sub {
+  font-size:17px; color:var(--text-md);
+  max-width:600px; margin-bottom:48px; line-height:1.6;
+}
+
+/* EMAIL MOCKUP */
+.email-card {
+  max-width:640px; margin:0 auto;
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); overflow:hidden;
+  box-shadow:0 32px 64px rgba(0,0,0,0.4);
+}
+.email-bar {
+  padding:14px 20px; background:var(--surface-3);
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--border-subtle);
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.06em;
+}
+.email-bar .dots { display:flex; gap:6px; }
+.email-bar .dots span { width:9px; height:9px; border-radius:50%; }
+.email-bar .dots span:nth-child(1) { background:#f43f5e; }
+.email-bar .dots span:nth-child(2) { background:#f59e0b; }
+.email-bar .dots span:nth-child(3) { background:#10b981; }
+.email-body { padding:32px 36px; }
+.email-meta {
+  display:flex; gap:16px; padding-bottom:16px;
+  border-bottom:1px solid var(--border-faint);
+  margin-bottom:20px;
+}
+.email-meta-row { display:flex; flex-direction:column; gap:3px; flex:1; min-width:0; }
+.email-meta-label { font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--text-lo); letter-spacing:0.12em; text-transform:uppercase; }
+.email-meta-val { font-size:13px; color:var(--text-hi); font-weight:500; }
+.email-meta-val.right { text-align:right; }
+.email-subject {
+  font-size:22px; font-weight:700; line-height:1.25;
+  letter-spacing:-0.015em; margin-bottom:18px; color:var(--text-hi);
+}
+.email-subject .fire { color:var(--bad); }
+.email-summary {
+  font-size:15px; color:var(--text-md); line-height:1.7; margin-bottom:24px;
+}
+.email-summary strong { color:var(--text-hi); font-weight:600; }
+.email-block {
+  background:var(--surface-3); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md);
+  padding:20px; margin-bottom:18px;
+}
+.email-block-label {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  color:var(--indigo-glow); letter-spacing:0.14em; text-transform:uppercase;
+  margin-bottom:12px;
+}
+.email-block-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:6px 0; font-size:13px;
+}
+.email-block-row .k { color:var(--text-md); }
+.email-block-row .v { color:var(--text-hi); font-weight:500; }
+.email-block-row .v.tag { font-family:'JetBrains Mono',monospace; font-size:11px; padding:2px 8px; border-radius:4px; }
+.email-block-row .v.tag.hot { background:rgba(244,63,94,0.12); color:var(--bad); }
+.email-block-row .v.tag.ok { background:rgba(16,185,129,0.12); color:var(--ok); }
+.email-foot {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.04em;
+  text-align:center; padding-top:20px;
+  border-top:1px solid var(--border-faint);
+}
+
+/* HOW IT WORKS */
+.how-grid {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+  gap:14px;
+}
+.how-step {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:32px;
+}
+.how-num {
+  font-family:'Instrument Serif',serif; font-size:64px;
+  font-style:italic; line-height:1; color:var(--indigo-glow);
+  margin-bottom:20px;
+}
+.how-title { font-size:20px; font-weight:700; margin-bottom:10px; letter-spacing:-0.02em; color:var(--text-hi); }
+.how-text { font-size:14px; color:var(--text-md); line-height:1.65; }
+
+/* CRITERIA */
+.crit-grid {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+  gap:14px;
+}
+.crit-card {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:24px;
+  transition:border-color 200ms ease, transform 200ms ease;
+}
+.crit-card:hover { border-color:var(--border-indigo); transform:translateY(-2px); }
+.crit-letter {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:32px; line-height:1; color:var(--indigo-glow);
+  margin-bottom:14px;
+}
+.crit-name { font-size:16px; font-weight:700; margin-bottom:6px; color:var(--text-hi); }
+.crit-desc { font-size:13.5px; color:var(--text-md); line-height:1.55; }
+
+/* FORM */
+.form-section { padding:80px 0 100px; }
+.form-wrap { max-width:760px; margin:0 auto; }
+.form-card {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); padding:48px 44px;
+  position:relative; overflow:hidden;
+}
+.form-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider);
+}
+.form-card::after {
+  content:''; position:absolute; top:-150px; right:-150px;
+  width:500px; height:500px;
+  background:radial-gradient(circle, var(--indigo-soft) 0%, transparent 70%);
+  filter:blur(50px); pointer-events:none;
+}
+.form-card > * { position:relative; z-index:1; }
+.form-eye {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.form-title {
+  font-family:'Instrument Serif',serif; font-size:clamp(28px,3.8vw,42px);
+  line-height:1.08; letter-spacing:-0.025em;
+  margin-bottom:14px; color:var(--text-hi);
+}
+.form-title .em { font-style:italic; color:var(--indigo-glow); }
+.form-sub {
+  font-size:15px; color:var(--text-md); line-height:1.55;
+  margin-bottom:32px; max-width:560px;
+}
+
+.form-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:14px;
+  margin-bottom:14px;
+}
+.field { display:flex; flex-direction:column; gap:8px; }
+.field.full { grid-column:1 / -1; }
+.field label {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.12em; text-transform:uppercase;
+  font-weight:500;
+}
+.field input, .field select, .field textarea {
+  background:var(--surface-3); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:14px 16px;
+  color:var(--text-hi); font-size:14px; font-family:'Inter',sans-serif;
+  width:100%; outline:none;
+  transition:border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+  appearance:none; -webkit-appearance:none;
+}
+.field input::placeholder, .field textarea::placeholder { color:var(--text-lo); }
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color:var(--border-indigo); background:var(--surface-2);
+  box-shadow:0 0 0 4px var(--indigo-soft);
+}
+.field textarea { min-height:110px; resize:vertical; line-height:1.55; }
+.sel-wrap { position:relative; }
+.sel-wrap::after {
+  content:'▾'; position:absolute; right:16px; top:50%;
+  transform:translateY(-50%); pointer-events:none;
+  color:var(--text-lo); font-size:12px;
+}
+.field select option { background:var(--surface-3); color:var(--text-hi); }
+
+.form-submit-row { display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-top:20px; }
+.form-note {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.04em; flex:1; min-width:200px;
+}
+
+/* SUCCESS */
+.success-state { display:none; text-align:center; padding:24px 0; }
+.success-state.show { display:block; animation:fade-in 500ms ease; }
+@keyframes fade-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.success-icon {
+  width:64px; height:64px; border-radius:50%;
+  background:var(--grad-accent);
+  display:grid; place-items:center;
+  margin:0 auto 24px;
+  box-shadow:0 12px 32px var(--indigo-shadow);
+  font-size:28px; color:#fff; font-weight:700;
+}
+.success-title {
+  font-family:'Instrument Serif',serif; font-size:36px;
+  font-style:italic; letter-spacing:-0.02em;
+  margin-bottom:14px; color:var(--text-hi);
+}
+.success-text {
+  font-size:15px; color:var(--text-md); line-height:1.6;
+  max-width:480px; margin:0 auto 28px;
+}
+.success-meta {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--ok); letter-spacing:0.06em;
+  padding:8px 14px;
+  background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2);
+  border-radius:100px; margin-bottom:32px;
+}
+.success-meta .dot { width:6px; height:6px; border-radius:50%; background:var(--ok); animation:pulse-ok 1.6s infinite; }
+.btn-ghost {
+  display:inline-flex; align-items:center; gap:10px;
+  background:transparent; color:var(--text-md);
+  padding:12px 22px; border-radius:var(--r-sm);
+  border:1px solid var(--border-subtle);
+  font-weight:500; font-size:13.5px; cursor:pointer;
+  font-family:'Inter',sans-serif;
+  transition:all 150ms ease;
+  text-decoration:none;
+}
+.btn-ghost:hover { color:var(--text-hi); border-color:var(--border-indigo); background:var(--surface-2); }
+
+.error-state {
+  display:none; padding:18px 22px; margin-top:16px;
+  background:rgba(244,63,94,0.08); border:1px solid rgba(244,63,94,0.25);
+  border-radius:var(--r-md); color:var(--bad); font-size:14px;
+}
+.error-state.show { display:block; animation:fade-in 400ms ease; }
+
+/* CLOSER */
+.closer {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); padding:64px 48px;
+  text-align:center; margin:48px 0 80px;
+  position:relative; overflow:hidden;
+}
+.closer::before {
+  content:''; position:absolute; top:-50%; left:50%;
+  transform:translateX(-50%);
+  width:600px; height:600px;
+  background:radial-gradient(circle, var(--indigo-soft) 0%, transparent 70%);
+  filter:blur(60px); pointer-events:none;
+}
+.closer > * { position:relative; z-index:1; }
+.closer-eye {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--indigo-glow); letter-spacing:0.16em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.closer-title {
+  font-family:'Instrument Serif',serif; font-size:clamp(28px,4vw,42px);
+  line-height:1.15; letter-spacing:-0.02em;
+  margin-bottom:12px; color:var(--text-hi);
+}
+.closer-title .em { font-style:italic; color:var(--indigo-glow); }
+.closer-sub { font-size:15px; color:var(--text-md); max-width:520px; margin:0 auto 28px; line-height:1.55; }
+.closer-ctas { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+/* FOOTER */
+footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
+.foot-line {
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:16px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.06em;
+}
+.joburg-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 12px;
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:100px;
+  letter-spacing:0.1em; color:var(--text-md);
+}
+.joburg-badge::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:var(--indigo-glow); box-shadow:0 0 8px var(--indigo-shadow);
+}
+
+/* WA FLOAT */
+.wa-float {
+  position:fixed; bottom:24px; right:24px;
+  width:56px; height:56px; background:#25D366;
+  border-radius:50%; display:grid; place-items:center;
+  text-decoration:none;
+  box-shadow:0 8px 24px rgba(37,211,102,0.4);
+  z-index:50; transition:transform 200ms ease;
+}
+.wa-float:hover { transform:scale(1.08); }
+.wa-float svg { width:28px; height:28px; fill:#fff; }
+
+/* TOAST */
+.toast {
+  position:fixed; top:90px; right:24px; z-index:200;
+  padding:14px 20px; background:var(--surface-2);
+  border:1px solid var(--border-subtle); border-left:3px solid var(--indigo);
+  border-radius:var(--r-md);
+  font-size:13px; color:var(--text-hi);
+  box-shadow:0 12px 32px rgba(0,0,0,0.5);
+  display:none; max-width:340px;
+}
+.toast.show { display:block; animation:slide-in-toast 300ms ease; }
+.toast.err { border-left-color:var(--bad); }
+@keyframes slide-in-toast { from { transform:translateX(20px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+@media (max-width:768px) {
+  .wrap { padding:0 20px; }
+  .hero { padding:60px 0 60px; }
+  .section { padding:60px 0; }
+  .form-section { padding:60px 0; }
+  .form-card, .closer { padding:32px 24px; }
+  .form-grid { grid-template-columns:1fr; }
+  .hero-ctas { flex-direction:column; align-items:stretch; }
+  .btn-primary, .btn-secondary { justify-content:center; }
+  .email-body { padding:24px 20px; }
+  .email-meta { flex-direction:column; gap:14px; }
+  .email-meta-val.right { text-align:left; }
+}
+</style>
+</head>
+<body>
+
+<div class="grid-lines"></div>
+<div class="atmos"></div>
+<div class="grain"></div>
+
+<nav>
+  <div class="wrap">
+    <div class="nav-inner">
+      <a href="/" class="logo">
+        <div class="logo-mark"></div>
+        <div class="logo-text">
+          <div class="logo-name">JARVIS NEXUS</div>
+          <div class="logo-tag">Lead Catcher</div>
+        </div>
+      </a>
+      <a href="/" class="nav-back">← All bots</a>
+      <div class="nav-right">
+        <span class="bot-id-pill"><span class="dot"></span>B1 · LIVE</span>
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary-sm">Book demo <span class="arrow">→</span></a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-eyebrow"><span class="pulse"></span><span>B1 · LEAD CATCHER · LIVE</span></div>
+        <h1 class="hero-title">Catch every lead.<br>Even the <span class="accent">2am ones.</span></h1>
+        <p class="hero-sub">
+          While you're sleeping, a customer finds your business and sends an enquiry. By the time you check your phone in the morning, the lead has been <strong>qualified, scored, and a follow-up alert is sitting in your Telegram</strong>. That's Lead Catcher.
+        </p>
+        <div class="hero-ctas">
+          <a href="#try-it" class="btn btn-primary">Try it now <span class="arrow">→</span></a>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-secondary">Book a 20-min demo</a>
+        </div>
+        <div class="hero-honest">
+          <span class="dot"></span>
+          <span>WHATSAPP INTAKE COMING PHASE 3 · WEB FORM &amp; EMAIL TODAY</span>
+        </div>
+      </div>
+
+      <div class="demo-card-wrap">
+        <div class="demo-card" id="demoCard">
+          <div class="demo-head">
+            <span>// LEAD #2847</span>
+            <span class="live"><span class="dot"></span>SCORED</span>
+          </div>
+          <div class="score-block">
+            <div class="score-label">Lead score</div>
+            <div class="score-val" id="leadScore">0.0<span class="unit">/10</span></div>
+            <span class="score-tag">🔥 HOT · CALL NOW</span>
+          </div>
+          <div class="demo-divider"></div>
+          <div class="demo-list-label">Qualification breakdown</div>
+          <div class="demo-row"><span class="demo-row-label">Budget</span><span class="demo-row-check">✓ R150K+/mo</span></div>
+          <div class="demo-row"><span class="demo-row-label">Timeline</span><span class="demo-row-check">✓ 2 weeks</span></div>
+          <div class="demo-row"><span class="demo-row-label">Authority</span><span class="demo-row-check">✓ Owner</span></div>
+          <div class="demo-row"><span class="demo-row-label">Fit &amp; Need</span><span class="demo-row-check">✓ Strong</span></div>
+          <div class="demo-action">
+            <div class="demo-action-label">Recommended next step</div>
+            <div class="demo-action-text">Phone call within 4 hours. Lead is decision-ready.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EMAIL MOCKUP -->
+<section class="section">
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:48px;">
+      <div class="section-eyebrow">// THE OUTPUT</div>
+      <h2 class="section-title" style="margin:0 auto 14px;">This is what <span class="em">you wake up to.</span></h2>
+      <p class="section-sub" style="margin:0 auto;">The email that lands in your inbox the moment a lead is scored. No dashboards. No log-ins. No 12-tab fatigue. Just the answer.</p>
+    </div>
+
+    <div class="email-card">
+      <div class="email-bar">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <span>📧 INBOX · 06:47 SAST</span>
+      </div>
+      <div class="email-body">
+        <div class="email-meta">
+          <div class="email-meta-row">
+            <div class="email-meta-label">From</div>
+            <div class="email-meta-val">Jarvis Nexus &lt;leads@yourbusiness.co.za&gt;</div>
+          </div>
+          <div class="email-meta-row">
+            <div class="email-meta-label">Time</div>
+            <div class="email-meta-val right">12 sec ago</div>
+          </div>
+        </div>
+
+        <div class="email-subject">🔥 <span class="fire">HOT LEAD</span> — Nkosi Properties (9.2/10)</div>
+
+        <div class="email-summary">
+          <strong>Thabo Nkosi</strong> from Nkosi Properties just submitted an enquiry at 02:43am. He's <strong>looking for support automation</strong> for a 12-property portfolio in Pretoria, has the budget, and wants to start within 2 weeks. He's the decision-maker.
+        </div>
+
+        <div class="email-block">
+          <div class="email-block-label">Qualification breakdown</div>
+          <div class="email-block-row"><span class="k">Monthly revenue</span><span class="v">R150K – R500K</span></div>
+          <div class="email-block-row"><span class="k">Solution budget</span><span class="v">R5K – R10K/month</span></div>
+          <div class="email-block-row"><span class="k">Timeline</span><span class="v tag hot">2 weeks</span></div>
+          <div class="email-block-row"><span class="k">Decision authority</span><span class="v tag ok">Owner</span></div>
+          <div class="email-block-row"><span class="k">Primary challenge</span><span class="v">Slow customer response times</span></div>
+        </div>
+
+        <div class="email-block">
+          <div class="email-block-label">Recommended next action</div>
+          <div style="font-size:14px;color:var(--text-hi);line-height:1.6;">Phone call within 4 hours — lead is decision-ready and budget-qualified. Reference his property portfolio and lead with the Smart Support Triage value-prop.</div>
+        </div>
+
+        <div class="email-foot">REPLY · CALL · MARK AS WON · POWERED BY JARVIS NEXUS</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-eyebrow">// HOW IT WORKS</div>
+    <h2 class="section-title">Three steps. <span class="em">Ten seconds.</span> No tabs.</h2>
+    <p class="section-sub">From enquiry to decision-ready brief, while the kettle's still boiling.</p>
+
+    <div class="how-grid">
+      <div class="how-step">
+        <div class="how-num">01</div>
+        <div class="how-title">Lead lands</div>
+        <div class="how-text">Through your website form, email, or — soon — a WhatsApp message. Every channel funnels into the same scoring engine.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">02</div>
+        <div class="how-title">AI scores in 10 seconds</div>
+        <div class="how-text">Budget, urgency, decision authority, fit-with-your-business. Each scored 0–10. Combined into a single lead score so you know the priority instantly.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">03</div>
+        <div class="how-title">You get the brief</div>
+        <div class="how-text">A Telegram alert lands on your phone. A summary email lands in your inbox. Hot leads first, lukewarm noted for later. Call the right one.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCORING CRITERIA -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-eyebrow">// THE SCORING</div>
+    <h2 class="section-title">Four signals. <span class="em">One number.</span></h2>
+    <p class="section-sub">The lead score isn't magic — it's a weighted read of the four signals that actually predict whether a lead converts.</p>
+
+    <div class="crit-grid">
+      <div class="crit-card">
+        <div class="crit-letter">B</div>
+        <div class="crit-name">Budget signal</div>
+        <div class="crit-desc">Can they actually pay? Reads stated revenue, budget range, and language cues to estimate spending power.</div>
+      </div>
+      <div class="crit-card">
+        <div class="crit-letter">U</div>
+        <div class="crit-name">Urgency &amp; timeline</div>
+        <div class="crit-desc">Are they buying now, or browsing? Detects timeline keywords and frustration markers that signal real urgency.</div>
+      </div>
+      <div class="crit-card">
+        <div class="crit-letter">A</div>
+        <div class="crit-name">Decision authority</div>
+        <div class="crit-desc">Are you talking to the buyer or a gatekeeper? The bot reads role, language and ownership cues to decide.</div>
+      </div>
+      <div class="crit-card">
+        <div class="crit-letter">F</div>
+        <div class="crit-name">Fit &amp; Need</div>
+        <div class="crit-desc">Does what they want match what you sell? The bot scores how well their stated problem aligns with your offer.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRY IT -->
+<section class="form-section" id="try-it">
+  <div class="wrap">
+    <div class="form-wrap">
+      <div class="form-card" id="formCard">
+        <div class="form-eye" id="formEye">// TRY IT — SUBMIT A REAL LEAD AND WATCH THE BOT WORK</div>
+        <h2 class="form-title" id="formTitle">See what the bot <span class="em">would do.</span></h2>
+        <p class="form-sub" id="formSub">Fill in the form below as if you were a prospect approaching your own business. Within 60 seconds, an AI-scored lead summary will arrive in your email — and you'll know exactly what your customers experience.</p>
+
+        <form id="leadForm" autocomplete="off">
+          <div class="form-grid">
+            <div class="field">
+              <label>Full name</label>
+              <input type="text" id="fullName" placeholder="e.g. Thabo Nkosi" required>
+            </div>
+            <div class="field">
+              <label>Business name</label>
+              <input type="text" id="businessName" placeholder="e.g. Nkosi Properties" required>
+            </div>
+            <div class="field">
+              <label>Email address</label>
+              <input type="email" id="emailAddress" placeholder="you@yourbusiness.co.za" required>
+            </div>
+            <div class="field">
+              <label>Phone number</label>
+              <input type="tel" id="phoneNumber" placeholder="082 123 4567">
+            </div>
+            <div class="field">
+              <label>Monthly revenue</label>
+              <div class="sel-wrap">
+                <select id="revenue" required>
+                  <option value="" disabled selected>Select range</option>
+                  <option>Under R10,000</option>
+                  <option>R10,000 – R50,000</option>
+                  <option>R50,000 – R150,000</option>
+                  <option>R150,000 – R500,000</option>
+                  <option>Above R500,000</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label>Solution budget</label>
+              <div class="sel-wrap">
+                <select id="budget" required>
+                  <option value="" disabled selected>Select budget</option>
+                  <option>Under R1,000/month</option>
+                  <option>R1,000 – R2,000/month</option>
+                  <option>R2,000 – R5,000/month</option>
+                  <option>R5,000 – R10,000/month</option>
+                  <option>Above R10,000/month</option>
+                </select>
+              </div>
+            </div>
+            <div class="field full">
+              <label>Biggest business challenge</label>
+              <div class="sel-wrap">
+                <select id="challenge" required>
+                  <option value="" disabled selected>Select your challenge</option>
+                  <option>Losing customers due to slow response times</option>
+                  <option>Missing leads and enquiries</option>
+                  <option>Too much time on manual admin tasks</option>
+                  <option>Bad reviews hurting my reputation</option>
+                  <option>Not enough qualified leads coming in</option>
+                  <option>Poor customer support experience</option>
+                </select>
+              </div>
+            </div>
+            <div class="field full">
+              <label>Tell us more</label>
+              <textarea id="situation" placeholder="Describe what's happening in your business and what you'd like to fix..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-submit-row">
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              Score this lead <span class="arrow">→</span>
+            </button>
+            <span class="form-note">// SECURE · GOES STRAIGHT TO THE LEAD CATCHER BOT</span>
+          </div>
+
+          <div class="error-state" id="errorState">Submission failed. Please try again — or WhatsApp Seth: +27 67 099 4163</div>
+        </form>
+
+        <div class="success-state" id="successState">
+          <div class="success-icon">✓</div>
+          <div class="success-title">Got it.</div>
+          <p class="success-text">The Lead Catcher just received the submission. Within 60 seconds, an AI-qualified lead brief will land in your inbox — exactly what you'd see if a real customer had submitted this.</p>
+          <div class="success-meta"><span class="dot"></span>LIVE · YOUR SCORE WILL BE IN YOUR INBOX IN 60 SECONDS</div>
+          <div>
+            <button type="button" class="btn-ghost" id="resetBtn">Submit another →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSER -->
+<section>
+  <div class="wrap">
+    <div class="closer">
+      <div class="closer-eye">// READY TO RUN THIS ON YOUR OWN BUSINESS?</div>
+      <h2 class="closer-title">Lead Catcher is included in <span class="em">Operator</span> &amp; <span class="em">Command</span> plans.</h2>
+      <p class="closer-sub">Book a 20-minute call. We'll set it up on your data and you'll have your first scored lead within a week.</p>
+      <div class="closer-ctas">
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book your demo <span class="arrow">→</span></a>
+        <a href="/#pricing" class="btn btn-secondary">See pricing</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-line">
+      <span>JARVIS NEXUS // B1 LEAD CATCHER // © 2026</span>
+      <span class="joburg-badge">PROUDLY BUILT IN JOHANNESBURG</span>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/27670994163?text=Hi%20Seth%2C%20I%20saw%20the%20Lead%20Catcher%20bot%20and%20I%27d%20like%20to%20learn%20more" target="_blank" rel="noopener" class="wa-float" aria-label="WhatsApp Seth">
+  <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.7-.4-1.5-.7-2.4-1.6-.7-.6-1.1-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.2.3-.4.1-.2 0-.3 0-.4 0-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2 0 1.2.9 2.4 1 2.5.1.2 1.7 2.6 4.1 3.6 1.5.6 2.1.7 2.8.6.4-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1 0-.1-.2-.2-.5-.3z M12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z M12 20c-1.5 0-3-.4-4.3-1.1l-.3-.2-3.2.8.9-3.1-.2-.3C4.4 14.9 4 13.5 4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8z"/></svg>
+</a>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const WEBHOOK = 'https://n8n-production-71d9.up.railway.app/webhook/lead-qualifier';
+
+function _log(msg) { try { console.log('[JN-LEADS]', msg); } catch(e) {} }
+
+// Count-up
+function countUp(el, target, duration) {
+  if (!el) return;
+  const start = performance.now();
+  const isFloat = target % 1 !== 0;
+  function tick(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const val = target * eased;
+    if (el.firstChild) el.firstChild.textContent = isFloat ? val.toFixed(1) : Math.round(val);
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// Parallax on demo card
+function initParallax() {
+  const card = document.getElementById('demoCard');
+  if (!card || window.matchMedia('(max-width: 768px)').matches) return;
+  let frame;
+  const wrap = card.parentElement;
+  wrap.addEventListener('mousemove', function(e) {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(function() {
+      card.style.transform = 'rotateY(' + (x * 3) + 'deg) rotateX(' + (-y * 3) + 'deg) translateZ(0)';
+    });
+  });
+  wrap.addEventListener('mouseleave', function() { card.style.transform = ''; });
+}
+
+// Toast
+function toast(kind, msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.className = 'toast' + (kind === 'err' ? ' err' : '') + ' show';
+  t.textContent = msg;
+  setTimeout(function() { t.className = 'toast' + (kind === 'err' ? ' err' : ''); }, 4500);
+}
+
+function showSuccess() {
+  ['leadForm','formEye','formTitle','formSub'].forEach(function(id) {
+    const el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+  document.getElementById('successState').classList.add('show');
+}
+
+function resetForm() {
+  ['fullName','businessName','emailAddress','phoneNumber','situation'].forEach(function(id) {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  ['revenue','budget','challenge'].forEach(function(id) {
+    const el = document.getElementById(id); if (el) el.selectedIndex = 0;
+  });
+  const btn = document.getElementById('submitBtn');
+  if (btn) { btn.disabled = false; btn.innerHTML = 'Score this lead <span class="arrow">→</span>'; }
+  document.getElementById('successState').classList.remove('show');
+  ['leadForm','formEye','formTitle','formSub'].forEach(function(id) {
+    const el = document.getElementById(id); if (el) el.style.display = '';
+  });
+  const card = document.getElementById('formCard');
+  if (card) card.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+async function submitForm() {
+  _log('submit attempt');
+  const btn = document.getElementById('submitBtn');
+  const errBox = document.getElementById('errorState');
+  errBox.classList.remove('show');
+
+  const fields = ['fullName','businessName','emailAddress','phoneNumber','situation','revenue','budget','challenge'];
+  const data = {};
+  for (var i = 0; i < fields.length; i++) {
+    const el = document.getElementById(fields[i]);
+    data[fields[i]] = el ? el.value : '';
+  }
+
+  if (!data.fullName || !data.businessName || !data.emailAddress || !data.revenue || !data.budget || !data.challenge) {
+    toast('err', '✗ Please fill in all required fields.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = 'Scoring... <span class="arrow">⟳</span>';
+
+  try {
+    const payload = Object.assign({ source: 'leads_html_form', timestamp: new Date().toISOString() }, data);
+    const res = await fetch(WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    _log('webhook OK');
+    showSuccess();
+    toast('ok', '✓ Lead scored — check your inbox in 60s.');
+  } catch (e) {
+    _log('webhook failed: ' + e.message);
+    btn.disabled = false;
+    btn.innerHTML = 'Score this lead <span class="arrow">→</span>';
+    errBox.classList.add('show');
+    toast('err', '✗ Submission failed. Please try again.');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  _log('DOM ready');
+
+  const form = document.getElementById('leadForm');
+  if (form) form.addEventListener('submit', function(e) { e.preventDefault(); submitForm(); });
+
+  const reset = document.getElementById('resetBtn');
+  if (reset) reset.addEventListener('click', resetForm);
+
+  const card = document.getElementById('demoCard');
+  if (card && 'IntersectionObserver' in window) {
+    const obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) {
+          countUp(document.getElementById('leadScore'), 9.2, 1400);
+          obs.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
+    obs.observe(card);
+  } else if (card) {
+    countUp(document.getElementById('leadScore'), 9.2, 1400);
+  }
+
+  initParallax();
+});
+</script>
+
+</body>
+</html>
