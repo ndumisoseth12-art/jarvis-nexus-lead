@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lifetime &amp; Next Action — Jarvis Nexus</title>
+<meta name="description" content="The customer success strategist that never sleeps. RFV scoring, tier upgrades celebrated automatically, milestone moments caught, and a Monday brief telling you exactly which 5 customers to act on this week.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --indigo-glow:#818cf8; --indigo:#6366f1; --indigo-deep:#4f46e5;
+  --indigo-shadow:rgba(99,102,241,0.40); --indigo-soft:rgba(99,102,241,0.10);
+  --surface-0:#08080c; --surface-1:#0e0e15; --surface-2:#14141d;
+  --surface-3:#1c1c28; --surface-4:#25253a;
+  --border-faint:rgba(255,255,255,0.04); --border-subtle:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.15); --border-indigo:rgba(99,102,241,0.25);
+  --text-hi:#f5f5fa; --text-md:#a8a8c2; --text-lo:#6b6b85; --text-faint:#3a3a52;
+  --ok:#10b981; --warn:#f59e0b; --bad:#f43f5e; --info:#22d3ee;
+  --gold:#facc15;
+  --grad-accent:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);
+  --grad-vip:linear-gradient(135deg,#a78bfa 0%,#6366f1 100%);
+  --grad-shimmer:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.18) 50%,transparent 100%);
+  --grad-divider:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.5) 50%,transparent 100%);
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--surface-0); color:var(--text-hi);
+  font-size:16px; line-height:1.6; font-weight:400;
+  letter-spacing:-0.01em; min-height:100vh;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+.serif { font-family:'Instrument Serif',serif; font-weight:400; letter-spacing:-0.02em; }
+.mono { font-family:'JetBrains Mono',monospace; }
+
+.grid-lines {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size:calc(100% / 12) 100%;
+  max-width:1280px; margin:0 auto;
+  left:50%; transform:translateX(-50%); width:100%;
+}
+.atmos { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.atmos::before {
+  content:''; position:absolute; width:1000px; height:1000px; border-radius:50%;
+  top:-350px; left:-250px;
+  background:radial-gradient(circle, rgba(129,140,248,0.18) 0%, rgba(99,102,241,0.08) 35%, transparent 70%);
+  filter:blur(40px);
+}
+.atmos::after {
+  content:''; position:absolute; width:700px; height:700px; border-radius:50%;
+  top:200px; right:-100px;
+  background:radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
+  filter:blur(60px);
+}
+.grain {
+  position:fixed; inset:0; z-index:1; pointer-events:none;
+  opacity:0.06; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+main, nav, footer { position:relative; z-index:2; }
+
+nav {
+  position:sticky; top:0;
+  background:rgba(8,8,12,0.72);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid var(--border-faint);
+  z-index:100;
+}
+.wrap { max-width:1200px; margin:0 auto; padding:0 32px; }
+.nav-inner { display:flex; align-items:center; justify-content:space-between; height:72px; gap:32px; }
+.logo { display:flex; align-items:center; gap:12px; text-decoration:none; flex-shrink:0; }
+.logo-mark {
+  width:32px; height:32px; background:var(--grad-accent);
+  border-radius:8px; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset, 0 8px 24px var(--indigo-shadow);
+}
+.logo-mark::before {
+  content:''; position:absolute; inset:6px;
+  border:1.5px solid rgba(255,255,255,0.92);
+  border-radius:4px;
+  border-bottom-color:transparent; border-right-color:transparent;
+  transform:rotate(45deg);
+}
+.logo-text { display:flex; flex-direction:column; line-height:1.1; }
+.logo-name { font-weight:800; font-size:15px; color:var(--text-hi); letter-spacing:0.02em; }
+.logo-tag { font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--text-lo); letter-spacing:0.18em; text-transform:uppercase; margin-top:2px; }
+
+.nav-back {
+  display:inline-flex; align-items:center; gap:8px;
+  color:var(--text-md); text-decoration:none;
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  letter-spacing:0.08em; text-transform:uppercase;
+  padding:7px 12px; border-radius:6px;
+  transition:color 150ms ease, background 150ms ease;
+}
+.nav-back:hover { color:var(--text-hi); background:var(--surface-2); }
+
+.nav-right { display:flex; align-items:center; gap:14px; flex-shrink:0; }
+.bot-id-pill {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 11px;
+  background:var(--indigo-soft); border:1px solid var(--border-indigo);
+  border-radius:100px;
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:600;
+  letter-spacing:0.1em; color:var(--indigo-glow);
+}
+.bot-id-pill .dot { width:5px; height:5px; border-radius:50%; background:var(--ok); box-shadow:0 0 6px var(--ok); animation:pulse-ok 1.6s infinite; }
+@keyframes pulse-ok { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+@media (max-width:640px) { .nav-back { display:none; } }
+
+.btn {
+  position:relative;
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  text-decoration:none; font-weight:600;
+  font-family:'Inter',sans-serif; cursor:pointer; border:none;
+  overflow:hidden;
+  transition:transform 150ms ease, box-shadow 200ms ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn .arrow { display:inline-block; transition:transform 200ms ease; }
+.btn:hover .arrow { transform:translateX(4px); }
+.btn:active { transform:translateY(1px) scale(0.99); }
+.btn::after {
+  content:''; position:absolute; top:0; left:-100%;
+  width:100%; height:100%;
+  background:var(--grad-shimmer);
+  transition:left 600ms ease; pointer-events:none;
+}
+.btn:hover::after { left:100%; }
+.btn-primary-sm {
+  padding:10px 16px; font-size:13.5px;
+  background:var(--grad-accent); color:#fff; border-radius:7px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.20), 0 1px 2px rgba(0,0,0,0.3);
+}
+.btn-primary-sm:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 18px var(--indigo-shadow); }
+.btn-primary {
+  padding:16px 26px; font-size:15px;
+  background:var(--grad-accent); color:#fff; border-radius:var(--r-sm);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.20), 0 1px 2px rgba(0,0,0,0.4);
+}
+.btn-primary:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 12px 32px var(--indigo-shadow); }
+.btn-secondary {
+  padding:16px 26px; font-size:15px;
+  background:transparent; color:var(--text-hi); border-radius:var(--r-sm);
+  border:1px solid var(--border-strong); box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.btn-secondary:hover { background:var(--surface-2); border-color:var(--border-indigo); }
+.btn-secondary::after { display:none; }
+
+.hero { padding:80px 0 100px; }
+.hero-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:64px; align-items:center; }
+@media (max-width:980px) { .hero-grid { grid-template-columns:1fr; gap:48px; } }
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:10px;
+  padding:6px 14px;
+  background:var(--indigo-soft); border:1px solid var(--border-indigo);
+  border-radius:100px;
+  font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:500;
+  color:var(--indigo-glow); letter-spacing:0.08em;
+  margin-bottom:28px; text-transform:uppercase;
+}
+.hero-eyebrow .pulse {
+  width:6px; height:6px; background:var(--indigo-glow);
+  border-radius:50%; animation:pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow:0 0 0 0 rgba(129,140,248,0.7); }
+  70% { box-shadow:0 0 0 8px rgba(129,140,248,0); }
+  100% { box-shadow:0 0 0 0 rgba(129,140,248,0); }
+}
+.hero-title {
+  font-family:'Instrument Serif',serif; font-weight:400;
+  font-size:clamp(44px,6.5vw,84px);
+  line-height:0.96; letter-spacing:-0.035em;
+  margin-bottom:32px; color:var(--text-hi);
+}
+.hero-title .accent {
+  font-style:italic;
+  background:var(--grad-accent);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.hero-sub {
+  font-size:18px; line-height:1.6;
+  color:var(--text-md); max-width:540px;
+  margin-bottom:36px;
+}
+.hero-sub strong { color:var(--text-hi); font-weight:600; }
+.hero-ctas { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:36px; }
+.hero-honest {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.04em;
+  display:flex; align-items:center; gap:10px;
+  padding-top:20px; border-top:1px solid var(--border-faint);
+}
+.hero-honest .dot { width:5px; height:5px; border-radius:50%; background:var(--indigo-glow); }
+
+.demo-card-wrap { perspective:1000px; }
+.demo-card {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:28px;
+  position:relative; overflow:hidden;
+  box-shadow:0 24px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition:transform 200ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  transform-style:preserve-3d;
+}
+.demo-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider); opacity:0.6;
+}
+.demo-head {
+  display:flex; align-items:center; justify-content:space-between;
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  text-transform:uppercase; letter-spacing:0.14em; color:var(--text-lo);
+  margin-bottom:20px;
+}
+.demo-head .live { display:inline-flex; align-items:center; gap:6px; color:var(--indigo-glow); }
+.demo-head .live .dot {
+  width:5px; height:5px; border-radius:50%; background:var(--indigo-glow);
+  box-shadow:0 0 6px var(--indigo-glow); animation:pulse-glow 1.6s infinite;
+}
+@keyframes pulse-glow { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+.upgrade-block { margin-bottom:22px; }
+.upgrade-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  text-transform:uppercase; letter-spacing:0.14em;
+  color:var(--text-lo); margin-bottom:6px;
+}
+.tier-flow { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+.tier-old {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:24px; color:var(--text-lo);
+  text-decoration:line-through; text-decoration-color:var(--text-faint);
+}
+.tier-arrow { font-family:'JetBrains Mono',monospace; font-size:18px; color:var(--text-lo); }
+.tier-new {
+  font-family:'Instrument Serif',serif; font-size:48px; font-style:italic;
+  font-weight:400; line-height:0.95; letter-spacing:-0.03em;
+  background:var(--grad-vip);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.upgrade-tag {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:5px 12px;
+  background:var(--indigo-soft); color:var(--indigo-glow);
+  border:1px solid var(--border-indigo); border-radius:6px;
+  font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700;
+  letter-spacing:0.12em; text-transform:uppercase;
+}
+.demo-divider { height:1px; background:var(--border-faint); margin:18px 0; }
+.demo-list-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  text-transform:uppercase; letter-spacing:0.14em;
+  color:var(--text-lo); margin-bottom:12px;
+}
+.demo-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 0; border-bottom:1px solid var(--border-faint);
+}
+.demo-row:last-child { border-bottom:none; }
+.demo-row-label { font-size:13px; color:var(--text-hi); font-weight:500; }
+.demo-row-val { font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600; letter-spacing:0.04em; color:var(--text-md); }
+.demo-row-val.ok { color:var(--ok); }
+.demo-row-val.glow { color:var(--indigo-glow); }
+.demo-action {
+  margin-top:18px; padding:14px 16px;
+  background:var(--indigo-soft); border:1px solid var(--border-indigo);
+  border-radius:var(--r-md);
+}
+.demo-action-label {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  color:var(--indigo-glow); letter-spacing:0.14em; text-transform:uppercase;
+  margin-bottom:6px;
+}
+.demo-action-text { font-size:13px; color:var(--text-hi); font-weight:500; line-height:1.5; }
+
+.section { padding:100px 0; position:relative; }
+.section::before {
+  content:''; position:absolute; top:0; left:5%; right:5%; height:1px;
+  background:var(--grad-divider); opacity:0.4;
+}
+.section-eyebrow {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:500;
+  text-transform:uppercase; letter-spacing:0.18em;
+  color:var(--indigo-glow); margin-bottom:16px; display:inline-block;
+}
+.section-title {
+  font-family:'Instrument Serif',serif; font-weight:400;
+  font-size:clamp(36px,5.5vw,60px);
+  line-height:1.05; letter-spacing:-0.025em;
+  margin-bottom:20px; max-width:780px; color:var(--text-hi);
+}
+.section-title .em { font-style:italic; color:var(--indigo-glow); }
+.section-sub {
+  font-size:17px; color:var(--text-md);
+  max-width:600px; margin-bottom:48px; line-height:1.6;
+}
+
+.email-card {
+  max-width:680px; margin:0 auto;
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); overflow:hidden;
+  box-shadow:0 32px 64px rgba(0,0,0,0.4);
+}
+.email-bar {
+  padding:14px 20px; background:var(--surface-3);
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--border-subtle);
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.06em;
+}
+.email-bar .dots { display:flex; gap:6px; }
+.email-bar .dots span { width:9px; height:9px; border-radius:50%; }
+.email-bar .dots span:nth-child(1) { background:#f43f5e; }
+.email-bar .dots span:nth-child(2) { background:#f59e0b; }
+.email-bar .dots span:nth-child(3) { background:#10b981; }
+.email-hero {
+  padding:32px 36px 24px;
+  background:linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #4f46e5 100%);
+}
+.email-hero-eye {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:rgba(255,255,255,0.85); letter-spacing:0.16em; text-transform:uppercase;
+  margin-bottom:10px;
+}
+.email-hero-title {
+  font-size:24px; font-weight:700; color:#fff;
+  letter-spacing:-0.02em; margin-bottom:6px;
+}
+.email-hero-date {
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  color:rgba(255,255,255,0.85); letter-spacing:0.06em;
+}
+.email-body { padding:28px 36px; }
+.tier-strip {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+  margin-bottom:24px;
+}
+.tier-mini {
+  background:var(--surface-3); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:12px;
+  text-align:center;
+}
+.tier-mini-label {
+  font-family:'JetBrains Mono',monospace; font-size:9px;
+  letter-spacing:0.14em; text-transform:uppercase;
+  margin-bottom:5px;
+}
+.tier-mini.vip .tier-mini-label { color:var(--indigo-glow); }
+.tier-mini.gold .tier-mini-label { color:var(--gold); }
+.tier-mini.silver .tier-mini-label { color:var(--text-md); }
+.tier-mini.bronze .tier-mini-label { color:#d97706; }
+.tier-mini-val { font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:700; color:var(--text-hi); }
+
+.email-list-label {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  color:var(--indigo-glow); letter-spacing:0.14em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.action-row {
+  display:grid; grid-template-columns:32px 1fr auto; gap:12px;
+  align-items:start; padding:14px 0;
+  border-bottom:1px solid var(--border-faint);
+}
+.action-row:last-child { border-bottom:none; }
+.action-rank {
+  font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600;
+  color:var(--text-lo); letter-spacing:0.06em; padding-top:2px;
+}
+.action-info { min-width:0; }
+.action-name { font-size:14px; font-weight:600; color:var(--text-hi); margin-bottom:3px; }
+.action-meta { font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-lo); letter-spacing:0.04em; margin-bottom:6px; }
+.action-suggestion { font-size:12.5px; color:var(--text-md); line-height:1.5; }
+.action-tag {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:700;
+  letter-spacing:0.12em; padding:4px 9px; border-radius:5px;
+  text-transform:uppercase; flex-shrink:0;
+}
+.tag-vip { background:var(--indigo-soft); color:var(--indigo-glow); border:1px solid var(--border-indigo); }
+.tag-gold { background:rgba(250,204,21,0.10); color:var(--gold); border:1px solid rgba(250,204,21,0.25); }
+.tag-bronze { background:rgba(217,119,6,0.10); color:#d97706; border:1px solid rgba(217,119,6,0.25); }
+
+.email-narrative {
+  background:var(--indigo-soft); border:1px solid var(--border-indigo);
+  border-radius:var(--r-md);
+  padding:18px 20px; margin-top:20px;
+}
+.email-narrative-label {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  color:var(--indigo-glow); letter-spacing:0.14em; text-transform:uppercase;
+  margin-bottom:10px; font-weight:700;
+}
+.email-narrative-text { font-size:13.5px; color:var(--text-hi); line-height:1.7; }
+
+.email-foot {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.04em;
+  text-align:center; padding-top:18px;
+  border-top:1px solid var(--border-faint);
+  margin-top:18px;
+}
+
+.how-grid {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+  gap:14px;
+}
+.how-step {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:32px;
+}
+.how-num {
+  font-family:'Instrument Serif',serif; font-size:64px;
+  font-style:italic; line-height:1; color:var(--indigo-glow);
+  margin-bottom:20px;
+}
+.how-title { font-size:20px; font-weight:700; margin-bottom:10px; letter-spacing:-0.02em; color:var(--text-hi); }
+.how-text { font-size:14px; color:var(--text-md); line-height:1.65; }
+
+.crit-grid {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+  gap:14px;
+}
+.crit-card {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:24px;
+  transition:border-color 200ms ease, transform 200ms ease;
+}
+.crit-card:hover { border-color:var(--border-indigo); transform:translateY(-2px); }
+.crit-letter {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:32px; line-height:1; color:var(--indigo-glow);
+  margin-bottom:14px;
+}
+.crit-name { font-size:16px; font-weight:700; margin-bottom:6px; color:var(--text-hi); }
+.crit-desc { font-size:13.5px; color:var(--text-md); line-height:1.55; }
+
+.tier-wrap {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); padding:48px 44px;
+  position:relative; overflow:hidden;
+}
+.tier-wrap::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider);
+}
+.tier-track {
+  display:grid; grid-template-columns:repeat(4, 1fr); gap:14px;
+}
+@media (max-width:780px) { .tier-track { grid-template-columns:repeat(2, 1fr); } }
+@media (max-width:480px) { .tier-track { grid-template-columns:1fr; } }
+.tier-rung {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:24px;
+  position:relative;
+}
+.tier-rung.vip { border-top:3px solid var(--indigo-glow); }
+.tier-rung.gold { border-top:3px solid var(--gold); }
+.tier-rung.silver { border-top:3px solid var(--text-md); }
+.tier-rung.bronze { border-top:3px solid #d97706; }
+.tier-rung-tag {
+  display:inline-block; padding:4px 10px; border-radius:5px;
+  font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700;
+  letter-spacing:0.14em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.tier-rung.vip .tier-rung-tag { background:var(--indigo-soft); color:var(--indigo-glow); }
+.tier-rung.gold .tier-rung-tag { background:rgba(250,204,21,0.12); color:var(--gold); }
+.tier-rung.silver .tier-rung-tag { background:rgba(168,168,194,0.10); color:var(--text-md); }
+.tier-rung.bronze .tier-rung-tag { background:rgba(217,119,6,0.10); color:#d97706; }
+.tier-rung-threshold {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:32px; line-height:1; letter-spacing:-0.02em;
+  margin-bottom:6px; color:var(--text-hi);
+}
+.tier-rung.vip .tier-rung-threshold { color:var(--indigo-glow); }
+.tier-rung.gold .tier-rung-threshold { color:var(--gold); }
+.tier-rung-unit {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.1em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.tier-rung-text { font-size:13px; color:var(--text-md); line-height:1.55; }
+
+.form-section { padding:80px 0 100px; }
+.form-wrap { max-width:760px; margin:0 auto; }
+.form-card {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); padding:48px 44px;
+  position:relative; overflow:hidden;
+}
+.form-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider);
+}
+.form-card::after {
+  content:''; position:absolute; top:-150px; right:-150px;
+  width:500px; height:500px;
+  background:radial-gradient(circle, var(--indigo-soft) 0%, transparent 70%);
+  filter:blur(50px); pointer-events:none;
+}
+.form-card > * { position:relative; z-index:1; }
+.form-eye {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.form-title {
+  font-family:'Instrument Serif',serif; font-size:clamp(28px,3.8vw,42px);
+  line-height:1.08; letter-spacing:-0.025em;
+  margin-bottom:14px; color:var(--text-hi);
+}
+.form-title .em { font-style:italic; color:var(--indigo-glow); }
+.form-sub {
+  font-size:15px; color:var(--text-md); line-height:1.55;
+  margin-bottom:32px; max-width:560px;
+}
+.form-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:14px;
+  margin-bottom:14px;
+}
+.field { display:flex; flex-direction:column; gap:8px; }
+.field.full { grid-column:1 / -1; }
+.field label {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.12em; text-transform:uppercase;
+  font-weight:500;
+}
+.field input, .field textarea {
+  background:var(--surface-3); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:14px 16px;
+  color:var(--text-hi); font-size:14px; font-family:'Inter',sans-serif;
+  width:100%; outline:none;
+  transition:border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+}
+.field input::placeholder, .field textarea::placeholder { color:var(--text-lo); }
+.field input:focus, .field textarea:focus {
+  border-color:var(--border-indigo); background:var(--surface-2);
+  box-shadow:0 0 0 4px var(--indigo-soft);
+}
+.field textarea { min-height:90px; resize:vertical; line-height:1.55; }
+
+.form-submit-row { display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-top:20px; }
+.form-note {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.04em; flex:1; min-width:200px;
+}
+
+.success-state { display:none; text-align:center; padding:24px 0; }
+.success-state.show { display:block; animation:fade-in 500ms ease; }
+@keyframes fade-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.success-icon {
+  width:64px; height:64px; border-radius:50%;
+  background:var(--grad-accent);
+  display:grid; place-items:center;
+  margin:0 auto 24px;
+  box-shadow:0 12px 32px var(--indigo-shadow);
+  font-size:28px; color:#fff; font-weight:700;
+}
+.success-title {
+  font-family:'Instrument Serif',serif; font-size:36px;
+  font-style:italic; letter-spacing:-0.02em;
+  margin-bottom:14px; color:var(--text-hi);
+}
+.success-text {
+  font-size:15px; color:var(--text-md); line-height:1.6;
+  max-width:480px; margin:0 auto 28px;
+}
+.success-meta {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--ok); letter-spacing:0.06em;
+  padding:8px 14px;
+  background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2);
+  border-radius:100px; margin-bottom:32px;
+}
+.success-meta .dot { width:6px; height:6px; border-radius:50%; background:var(--ok); animation:pulse-ok 1.6s infinite; }
+.btn-ghost {
+  display:inline-flex; align-items:center; gap:10px;
+  background:transparent; color:var(--text-md);
+  padding:12px 22px; border-radius:var(--r-sm);
+  border:1px solid var(--border-subtle);
+  font-weight:500; font-size:13.5px; cursor:pointer;
+  font-family:'Inter',sans-serif;
+  transition:all 150ms ease; text-decoration:none;
+}
+.btn-ghost:hover { color:var(--text-hi); border-color:var(--border-indigo); background:var(--surface-2); }
+
+.error-state {
+  display:none; padding:18px 22px; margin-top:16px;
+  background:rgba(244,63,94,0.08); border:1px solid rgba(244,63,94,0.25);
+  border-radius:var(--r-md); color:var(--bad); font-size:14px;
+}
+.error-state.show { display:block; animation:fade-in 400ms ease; }
+
+.closer {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); padding:64px 48px;
+  text-align:center; margin:48px 0 80px;
+  position:relative; overflow:hidden;
+}
+.closer::before {
+  content:''; position:absolute; top:-50%; left:50%;
+  transform:translateX(-50%);
+  width:600px; height:600px;
+  background:radial-gradient(circle, var(--indigo-soft) 0%, transparent 70%);
+  filter:blur(60px); pointer-events:none;
+}
+.closer > * { position:relative; z-index:1; }
+.closer-eye {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--indigo-glow); letter-spacing:0.16em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.closer-title {
+  font-family:'Instrument Serif',serif; font-size:clamp(28px,4vw,42px);
+  line-height:1.15; letter-spacing:-0.02em;
+  margin-bottom:12px; color:var(--text-hi);
+}
+.closer-title .em { font-style:italic; color:var(--indigo-glow); }
+.closer-sub { font-size:15px; color:var(--text-md); max-width:520px; margin:0 auto 28px; line-height:1.55; }
+.closer-ctas { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
+.foot-line {
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:16px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.06em;
+}
+.joburg-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 12px;
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:100px;
+  letter-spacing:0.1em; color:var(--text-md);
+}
+.joburg-badge::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:var(--indigo-glow); box-shadow:0 0 8px var(--indigo-shadow);
+}
+
+.wa-float {
+  position:fixed; bottom:24px; right:24px;
+  width:56px; height:56px; background:#25D366;
+  border-radius:50%; display:grid; place-items:center;
+  text-decoration:none;
+  box-shadow:0 8px 24px rgba(37,211,102,0.4);
+  z-index:50; transition:transform 200ms ease;
+}
+.wa-float:hover { transform:scale(1.08); }
+.wa-float svg { width:28px; height:28px; fill:#fff; }
+
+.toast {
+  position:fixed; top:90px; right:24px; z-index:200;
+  padding:14px 20px; background:var(--surface-2);
+  border:1px solid var(--border-subtle); border-left:3px solid var(--indigo);
+  border-radius:var(--r-md);
+  font-size:13px; color:var(--text-hi);
+  box-shadow:0 12px 32px rgba(0,0,0,0.5);
+  display:none; max-width:340px;
+}
+.toast.show { display:block; animation:slide-in-toast 300ms ease; }
+.toast.err { border-left-color:var(--bad); }
+@keyframes slide-in-toast { from { transform:translateX(20px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+@media (max-width:768px) {
+  .wrap { padding:0 20px; }
+  .hero { padding:60px 0 60px; }
+  .section { padding:60px 0; }
+  .form-section { padding:60px 0; }
+  .form-card, .tier-wrap, .closer { padding:32px 24px; }
+  .form-grid { grid-template-columns:1fr; }
+  .hero-ctas { flex-direction:column; align-items:stretch; }
+  .btn-primary, .btn-secondary { justify-content:center; }
+  .email-body, .email-hero { padding:24px 20px; }
+  .tier-strip { grid-template-columns:repeat(2,1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="grid-lines"></div>
+<div class="atmos"></div>
+<div class="grain"></div>
+
+<nav>
+  <div class="wrap">
+    <div class="nav-inner">
+      <a href="/" class="logo">
+        <div class="logo-mark"></div>
+        <div class="logo-text">
+          <div class="logo-name">JARVIS NEXUS</div>
+          <div class="logo-tag">Lifetime &amp; Next Action</div>
+        </div>
+      </a>
+      <a href="/" class="nav-back">← All bots</a>
+      <div class="nav-right">
+        <span class="bot-id-pill"><span class="dot"></span>B10 · LIVE</span>
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary-sm">Book demo <span class="arrow">→</span></a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-eyebrow"><span class="pulse"></span><span>B10 · LIFETIME &amp; NEXT ACTION · LIVE</span></div>
+        <h1 class="hero-title">Your customers,<br><span class="accent">ranked.</span></h1>
+        <p class="hero-sub">
+          Most businesses know their best customers vaguely. Lifetime &amp; Next Action <strong>tracks every purchase, scores every customer by RFV, celebrates milestones automatically</strong>, and emails you a Top-5 brief every Monday telling you exactly who to act on this week — and what to say.
+        </p>
+        <div class="hero-ctas">
+          <a href="#try-it" class="btn btn-primary">Log a purchase <span class="arrow">→</span></a>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-secondary">Book a 20-min demo</a>
+        </div>
+        <div class="hero-honest">
+          <span class="dot"></span>
+          <span>RFV SCORING · TIER LADDER · MILESTONE CELEBRATIONS</span>
+        </div>
+      </div>
+
+      <div class="demo-card-wrap">
+        <div class="demo-card">
+          <div class="demo-head">
+            <span>// CUSTOMER #C-1024</span>
+            <span class="live"><span class="dot"></span>UPGRADED</span>
+          </div>
+          <div class="upgrade-block">
+            <div class="upgrade-label">Tier upgrade</div>
+            <div class="tier-flow">
+              <span class="tier-old">Gold</span>
+              <span class="tier-arrow">→</span>
+              <span class="tier-new">VIP</span>
+            </div>
+            <span class="upgrade-tag">🏆 R50K+ LIFETIME · CELEBRATION FIRED</span>
+          </div>
+          <div class="demo-divider"></div>
+          <div class="demo-list-label">Customer snapshot</div>
+          <div class="demo-row"><span class="demo-row-label">Customer</span><span class="demo-row-val">Boitumelo Beauty Bar</span></div>
+          <div class="demo-row"><span class="demo-row-label">Total purchases</span><span class="demo-row-val">25 · milestone</span></div>
+          <div class="demo-row"><span class="demo-row-label">Lifetime value</span><span class="demo-row-val glow">R52,300</span></div>
+          <div class="demo-row"><span class="demo-row-label">Trajectory</span><span class="demo-row-val ok">↗ Trending up</span></div>
+          <div class="demo-action">
+            <div class="demo-action-label">AI-drafted celebration</div>
+            <div class="demo-action-text">Personal thank-you email already sent. Owner Telegram alert fired. They feel valued — automatically.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:48px;">
+      <div class="section-eyebrow">// THE MONDAY BRIEF</div>
+      <h2 class="section-title" style="margin:0 auto 14px;">Your top 5 <span class="em">next actions.</span></h2>
+      <p class="section-sub" style="margin:0 auto;">Every Monday at 8am. The five customers most worth your attention this week — ranked by RFV — with a specific recommended action for each.</p>
+    </div>
+
+    <div class="email-card">
+      <div class="email-bar">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <span>📧 INBOX · MON 08:00 SAST</span>
+      </div>
+      <div class="email-hero">
+        <div class="email-hero-eye">// JARVIS NEXUS — LIFETIME &amp; NEXT ACTION</div>
+        <div class="email-hero-title">Your Top 5 This Week</div>
+        <div class="email-hero-date">Week of 4 May 2026</div>
+      </div>
+      <div class="email-body">
+        <div class="tier-strip">
+          <div class="tier-mini vip"><div class="tier-mini-label">VIP</div><div class="tier-mini-val">3</div></div>
+          <div class="tier-mini gold"><div class="tier-mini-label">Gold</div><div class="tier-mini-val">12</div></div>
+          <div class="tier-mini silver"><div class="tier-mini-label">Silver</div><div class="tier-mini-val">28</div></div>
+          <div class="tier-mini bronze"><div class="tier-mini-label">Bronze</div><div class="tier-mini-val">47</div></div>
+        </div>
+
+        <div class="email-list-label">// TOP 5 BY RFV — ACT THIS WEEK</div>
+
+        <div class="action-row">
+          <span class="action-rank">01</span>
+          <div class="action-info">
+            <div class="action-name">Boitumelo Beauty Bar</div>
+            <div class="action-meta">25 purchases · R52,300 LTV · 4d ago</div>
+            <div class="action-suggestion">VIP trending up — offer your highest-value product or experience.</div>
+          </div>
+          <span class="action-tag tag-vip">VIP</span>
+        </div>
+
+        <div class="action-row">
+          <span class="action-rank">02</span>
+          <div class="action-info">
+            <div class="action-name">Aisha's Bakery, Durban</div>
+            <div class="action-meta">14 purchases · R28,400 LTV · 47d ago</div>
+            <div class="action-suggestion">VIP customer silent for 47 days. Personal call or hand-written note.</div>
+          </div>
+          <span class="action-tag tag-vip">VIP</span>
+        </div>
+
+        <div class="action-row">
+          <span class="action-rank">03</span>
+          <div class="action-info">
+            <div class="action-name">Sipho's Sneakers, Soweto</div>
+            <div class="action-meta">11 purchases · R18,900 LTV · 9d ago</div>
+            <div class="action-suggestion">Gold trending up — one big purchase pushes them to VIP. Suggest premium offer.</div>
+          </div>
+          <span class="action-tag tag-gold">Gold</span>
+        </div>
+
+        <div class="action-row">
+          <span class="action-rank">04</span>
+          <div class="action-info">
+            <div class="action-name">Pieter Coffee Roasters</div>
+            <div class="action-meta">9 purchases · R12,100 LTV · 5d ago</div>
+            <div class="action-suggestion">Loyal recent buyer. Best moment to ask for a referral or review.</div>
+          </div>
+          <span class="action-tag tag-gold">Gold</span>
+        </div>
+
+        <div class="action-row">
+          <span class="action-rank">05</span>
+          <div class="action-info">
+            <div class="action-name">Thabo Nkosi</div>
+            <div class="action-meta">5 purchases · R6,400 LTV · 12d ago</div>
+            <div class="action-suggestion">Loyal Bronze on the rise. A bundled offer could push them to Silver.</div>
+          </div>
+          <span class="action-tag tag-bronze">Bronze</span>
+        </div>
+
+        <div class="email-narrative">
+          <div class="email-narrative-label">// AI STRATEGIST BRIEF</div>
+          <div class="email-narrative-text">
+            Lead with Boitumelo this week — she just hit VIP and her trajectory is hot. Aisha's silence is your biggest risk: 47 days for a Gold customer is a churn signal. Block 20 minutes for a personal call. Sipho's the easy upsell — one premium offer pushes him over the VIP line.
+          </div>
+        </div>
+
+        <div class="email-foot">JARVIS NEXUS · B10 LIFETIME &amp; NEXT ACTION</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-eyebrow">// HOW IT WORKS</div>
+    <h2 class="section-title">Log it once. <span class="em">Forever ranked.</span></h2>
+    <p class="section-sub">One webhook hit per purchase. The bot does the rest — for the lifetime of every customer.</p>
+
+    <div class="how-grid">
+      <div class="how-step">
+        <div class="how-num">01</div>
+        <div class="how-title">Log every purchase</div>
+        <div class="how-text">A simple webhook call when a customer buys. The bot updates lifetime value, recalculates the tier, tracks recent spend trajectory, fires a celebration email if a milestone or tier upgrade was hit.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">02</div>
+        <div class="how-title">Monday Top 5</div>
+        <div class="how-text">Every Monday at 8am: an email + Telegram showing the five customers most worth acting on this week — each with a specific suggestion (upsell, win-back, referral ask, tier-up nudge).</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">03</div>
+        <div class="how-title">Monthly LTV report</div>
+        <div class="how-text">First of every month: a styled report showing tier breakdown, total + average LTV, top customer of the month, and an AI-strategist note on what to focus on next month.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-eyebrow">// THE FEATURES</div>
+    <h2 class="section-title">Smart. <span class="em">Tier-aware.</span> Trajectory-aware.</h2>
+    <p class="section-sub">Not generic loyalty rewards. Real per-customer intelligence that turns customer data into next actions.</p>
+
+    <div class="crit-grid">
+      <div class="crit-card">
+        <div class="crit-letter">R</div>
+        <div class="crit-name">RFV scoring</div>
+        <div class="crit-desc">Recency × Frequency × Value, weighted toward Value. Not just "who spends most" — but "who's most worth acting on this week".</div>
+      </div>
+      <div class="crit-card">
+        <div class="crit-letter">T</div>
+        <div class="crit-name">Tier-aware actions</div>
+        <div class="crit-desc">A VIP gone silent gets a different recommendation than a Bronze on the rise. The next-action engine knows the difference.</div>
+      </div>
+      <div class="crit-card">
+        <div class="crit-letter">M</div>
+        <div class="crit-name">Milestone celebrations</div>
+        <div class="crit-desc">5th, 10th, 25th, 50th, 100th purchase — a personal AI-drafted thank-you email. Tier upgrades trigger one too. Customers feel seen.</div>
+      </div>
+      <div class="crit-card">
+        <div class="crit-letter">↗</div>
+        <div class="crit-name">Trajectory detection</div>
+        <div class="crit-desc">Tracks the last 3 purchase amounts. Trending up = upsell signal. Trending down = check-in signal. Stable = leave alone.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="tiers">
+  <div class="wrap">
+    <div class="section-eyebrow">// THE TIER LADDER</div>
+    <h2 class="section-title">Four tiers. <span class="em">By lifetime value.</span></h2>
+    <p class="section-sub">Each customer's tier is recalculated on every purchase. Crossing a threshold fires a celebration email automatically — and pings you on Telegram so you can also reach out personally.</p>
+
+    <div class="tier-wrap">
+      <div class="tier-track">
+        <div class="tier-rung bronze">
+          <span class="tier-rung-tag">🥉 Bronze</span>
+          <div class="tier-rung-threshold">R0+</div>
+          <div class="tier-rung-unit">Starting tier</div>
+          <div class="tier-rung-text">Every customer starts here. The bot tracks them, scores them, watches for the move up.</div>
+        </div>
+        <div class="tier-rung silver">
+          <span class="tier-rung-tag">🥈 Silver</span>
+          <div class="tier-rung-threshold">R8K+</div>
+          <div class="tier-rung-unit">Lifetime value</div>
+          <div class="tier-rung-text">Repeat buyers. Worth a thank-you email and a small personal touch on every purchase.</div>
+        </div>
+        <div class="tier-rung gold">
+          <span class="tier-rung-tag">🥇 Gold</span>
+          <div class="tier-rung-threshold">R20K+</div>
+          <div class="tier-rung-unit">Lifetime value</div>
+          <div class="tier-rung-text">Loyal core. Tighter churn thresholds, faster win-back triggers, eligible for premium upsells.</div>
+        </div>
+        <div class="tier-rung vip">
+          <span class="tier-rung-tag">🏆 VIP</span>
+          <div class="tier-rung-threshold">R50K+</div>
+          <div class="tier-rung-unit">Lifetime value</div>
+          <div class="tier-rung-text">The 1%. White-glove treatment. Silence = immediate alert. Worth a personal call before anything else.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="form-section" id="try-it">
+  <div class="wrap">
+    <div class="form-wrap">
+      <div class="form-card" id="formCard">
+        <div class="form-eye" id="formEye">// TRY IT — LOG A PURCHASE AND WATCH THE BOT TIER IT</div>
+        <h2 class="form-title" id="formTitle">Log a purchase. <span class="em">See the score.</span></h2>
+        <p class="form-sub" id="formSub">Submit a sample purchase below. Within 60 seconds, you'll see the customer scored, their tier set, their lifetime value calculated — and if it triggers a milestone or tier upgrade, a celebration email fires automatically.</p>
+
+        <form id="lifetimeForm" autocomplete="off">
+          <div class="form-grid">
+            <div class="field">
+              <label>Customer name</label>
+              <input type="text" id="customerName" placeholder="e.g. Boitumelo Mokoena" required>
+            </div>
+            <div class="field">
+              <label>Customer email</label>
+              <input type="email" id="customerEmail" placeholder="customer@example.co.za" required>
+            </div>
+            <div class="field">
+              <label>Your business name</label>
+              <input type="text" id="businessName" placeholder="e.g. Sandton Salon Co." required>
+            </div>
+            <div class="field">
+              <label>Your email (alerts)</label>
+              <input type="email" id="ownerEmail" placeholder="you@yourbusiness.co.za" required>
+            </div>
+            <div class="field">
+              <label>Purchase amount (R)</label>
+              <input type="number" id="purchaseAmount" placeholder="2500" min="0" step="0.01" required>
+            </div>
+            <div class="field">
+              <label>Purchase date</label>
+              <input type="date" id="purchaseDate" required>
+            </div>
+            <div class="field full">
+              <label>Product or service</label>
+              <input type="text" id="productService" placeholder="e.g. Hair colour and treatment" required>
+            </div>
+            <div class="field full">
+              <label>Notes (optional)</label>
+              <textarea id="notes" placeholder="Any context you want to record..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-submit-row">
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              Log the purchase <span class="arrow">→</span>
+            </button>
+            <span class="form-note">// SECURE · GOES STRAIGHT TO LIFETIME &amp; NEXT ACTION</span>
+          </div>
+
+          <div class="error-state" id="errorState">Submission failed. Please try again — or WhatsApp Seth: +27 67 099 4163</div>
+        </form>
+
+        <div class="success-state" id="successState">
+          <div class="success-icon">✓</div>
+          <div class="success-title">Logged.</div>
+          <p class="success-text">Lifetime &amp; Next Action just received the purchase. The bot has updated the customer's lifetime value, recalculated their tier, and — if a milestone or tier upgrade was hit — fired a celebration email.</p>
+          <div class="success-meta"><span class="dot"></span>LIVE · CHECK YOUR INBOX IN 60 SECONDS</div>
+          <div>
+            <button type="button" class="btn-ghost" id="resetBtn">Log another →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="closer">
+      <div class="closer-eye">// READY TO RANK YOUR ACTUAL CUSTOMERS?</div>
+      <h2 class="closer-title">Lifetime &amp; Next Action is included in <span class="em">Operator</span> &amp; <span class="em">Command</span> plans.</h2>
+      <p class="closer-sub">Book a 20-minute call. We'll plug it into your sales flow and you'll get your first Monday brief within a week.</p>
+      <div class="closer-ctas">
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book your demo <span class="arrow">→</span></a>
+        <a href="/#pricing" class="btn btn-secondary">See pricing</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-line">
+      <span>JARVIS NEXUS // B10 LIFETIME &amp; NEXT ACTION // © 2026</span>
+      <span class="joburg-badge">PROUDLY BUILT IN JOHANNESBURG</span>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/27670994163?text=Hi%20Seth%2C%20I%20saw%20the%20Lifetime%20bot%20and%20I%27d%20like%20to%20learn%20more" target="_blank" rel="noopener" class="wa-float" aria-label="WhatsApp Seth">
+  <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.7-.4-1.5-.7-2.4-1.6-.7-.6-1.1-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.2.3-.4.1-.2 0-.3 0-.4 0-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2 0 1.2.9 2.4 1 2.5.1.2 1.7 2.6 4.1 3.6 1.5.6 2.1.7 2.8.6.4-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1 0-.1-.2-.2-.5-.3z M12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z M12 20c-1.5 0-3-.4-4.3-1.1l-.3-.2-3.2.8.9-3.1-.2-.3C4.4 14.9 4 13.5 4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8z"/></svg>
+</a>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const WEBHOOK = 'https://n8n-production-71d9.up.railway.app/webhook/lifetime-log-purchase';
+function _log(msg) { try { console.log('[JN-LIFETIME]', msg); } catch(e) {} }
+function toast(kind, msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.className = 'toast' + (kind === 'err' ? ' err' : '') + ' show';
+  t.textContent = msg;
+  setTimeout(function() { t.className = 'toast' + (kind === 'err' ? ' err' : ''); }, 4500);
+}
+function showSuccess() {
+  ['lifetimeForm','formEye','formTitle','formSub'].forEach(function(id) {
+    const el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+  document.getElementById('successState').classList.add('show');
+}
+function resetForm() {
+  ['customerName','customerEmail','businessName','ownerEmail','purchaseAmount','purchaseDate','productService','notes'].forEach(function(id) {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  const btn = document.getElementById('submitBtn');
+  if (btn) { btn.disabled = false; btn.innerHTML = 'Log the purchase <span class="arrow">→</span>'; }
+  document.getElementById('successState').classList.remove('show');
+  ['lifetimeForm','formEye','formTitle','formSub'].forEach(function(id) {
+    const el = document.getElementById(id); if (el) el.style.display = '';
+  });
+  const card = document.getElementById('formCard');
+  if (card) card.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+async function submitForm() {
+  _log('submit attempt');
+  const btn = document.getElementById('submitBtn');
+  const errBox = document.getElementById('errorState');
+  errBox.classList.remove('show');
+  const fields = ['customerName','customerEmail','businessName','ownerEmail','purchaseAmount','purchaseDate','productService','notes'];
+  const data = {};
+  for (var i = 0; i < fields.length; i++) {
+    const el = document.getElementById(fields[i]);
+    data[fields[i]] = el ? el.value : '';
+  }
+  if (!data.customerName || !data.customerEmail || !data.businessName || !data.ownerEmail || !data.purchaseAmount || !data.purchaseDate || !data.productService) {
+    toast('err', '✗ Please fill in all required fields.');
+    return;
+  }
+  btn.disabled = true;
+  btn.innerHTML = 'Logging... <span class="arrow">⟳</span>';
+  try {
+    const payload = Object.assign({ source: 'lifetime_html_form', timestamp: new Date().toISOString() }, data);
+    const res = await fetch(WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    _log('webhook OK');
+    showSuccess();
+    toast('ok', '✓ Purchase logged — tier updated.');
+  } catch (e) {
+    _log('webhook failed: ' + e.message);
+    btn.disabled = false;
+    btn.innerHTML = 'Log the purchase <span class="arrow">→</span>';
+    errBox.classList.add('show');
+    toast('err', '✗ Submission failed. Please try again.');
+  }
+}
+document.addEventListener('DOMContentLoaded', function() {
+  _log('DOM ready');
+  const form = document.getElementById('lifetimeForm');
+  if (form) form.addEventListener('submit', function(e) { e.preventDefault(); submitForm(); });
+  const reset = document.getElementById('resetBtn');
+  if (reset) reset.addEventListener('click', resetForm);
+});
+</script>
+
+</body>
+</html>
