@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Proposal Generator — Jarvis Nexus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --indigo-glow:#818cf8; --indigo:#6366f1; --indigo-deep:#4f46e5;
+  --indigo-shadow:rgba(99,102,241,0.40); --indigo-soft:rgba(99,102,241,0.10);
+  --indigo-faint:rgba(99,102,241,0.04);
+  --surface-0:#08080c; --surface-1:#0e0e15; --surface-2:#14141d;
+  --surface-3:#1c1c28; --surface-4:#25253a;
+  --border-faint:rgba(255,255,255,0.04); --border-subtle:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.15); --border-indigo:rgba(99,102,241,0.25);
+  --text-hi:#f5f5fa; --text-md:#a8a8c2; --text-lo:#6b6b85; --text-faint:#3a3a52;
+  --ok:#10b981; --warn:#f59e0b; --bad:#f43f5e; --info:#22d3ee; --gold:#facc15;
+  --grad-accent:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);
+  --grad-shimmer:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.18) 50%,transparent 100%);
+  --grad-divider:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.5) 50%,transparent 100%);
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--surface-0);color:var(--text-hi);font-size:14px;line-height:1.55;font-weight:400;letter-spacing:-0.005em;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+.serif{font-family:'Instrument Serif',serif;font-weight:400;letter-spacing:-0.02em;}
+.mono{font-family:'JetBrains Mono',monospace;}
+
+/* ---- GATE ---- */
+#gate{position:fixed;inset:0;z-index:9999;background:var(--surface-0);display:grid;place-items:center;padding:24px;}
+#gate.hidden{display:none;}
+.gate-card{background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:var(--r-lg);padding:48px 40px;max-width:420px;width:100%;text-align:center;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.5);}
+.gate-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--grad-divider);}
+.gate-mark{width:48px;height:48px;margin:0 auto 20px;background:var(--grad-accent);border-radius:12px;display:grid;place-items:center;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset,0 8px 24px var(--indigo-shadow);}
+.gate-mark::before{content:'';position:absolute;inset:10px;border:2px solid rgba(255,255,255,0.92);border-radius:5px;border-bottom-color:transparent;border-right-color:transparent;transform:rotate(45deg);}
+.gate-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--indigo-glow);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:12px;}
+.gate-title{font-family:'Instrument Serif',serif;font-style:italic;font-size:32px;line-height:1.1;letter-spacing:-0.02em;color:var(--text-hi);margin-bottom:10px;}
+.gate-sub{font-size:14px;color:var(--text-md);margin-bottom:28px;}
+.gate-input{width:100%;padding:14px 16px;background:var(--surface-3);border:1px solid var(--border-subtle);border-radius:var(--r-md);color:var(--text-hi);font-size:15px;font-family:'Inter',sans-serif;margin-bottom:12px;outline:none;transition:border-color 200ms,box-shadow 200ms;text-align:center;letter-spacing:0.04em;}
+.gate-input:focus{border-color:var(--border-indigo);box-shadow:0 0 0 4px var(--indigo-soft);}
+.gate-btn{width:100%;padding:14px;background:var(--grad-accent);color:#fff;border:none;border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),0 4px 16px var(--indigo-shadow);transition:transform 150ms,box-shadow 200ms;}
+.gate-btn:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.25),0 8px 24px var(--indigo-shadow);}
+.gate-error{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--bad);margin-top:14px;min-height:14px;letter-spacing:0.06em;text-transform:uppercase;}
+
+/* ---- BACKGROUND ---- */
+.grid-lines{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:calc(100% / 12) 100%;max-width:1280px;margin:0 auto;left:50%;transform:translateX(-50%);width:100%;}
+.atmos{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.atmos::before{content:'';position:absolute;width:900px;height:900px;border-radius:50%;top:-300px;right:-200px;background:radial-gradient(circle,rgba(99,102,241,0.12) 0%,rgba(99,102,241,0.04) 40%,transparent 70%);filter:blur(50px);}
+.atmos::after{content:'';position:absolute;width:700px;height:700px;border-radius:50%;bottom:-200px;left:-100px;background:radial-gradient(circle,rgba(99,102,241,0.07) 0%,transparent 65%);filter:blur(70px);}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+main,nav,footer{position:relative;z-index:2;}
+
+/* ---- NAV ---- */
+nav{position:sticky;top:0;background:rgba(8,8,12,0.85);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-bottom:1px solid var(--border-faint);z-index:100;}
+.wrap{max-width:880px;margin:0 auto;padding:0 32px;}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;gap:24px;}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+.logo-mark{width:28px;height:28px;background:var(--grad-accent);border-radius:7px;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset,0 4px 12px var(--indigo-shadow);}
+.logo-mark::before{content:'';position:absolute;inset:5px;border:1.5px solid rgba(255,255,255,0.92);border-radius:3px;border-bottom-color:transparent;border-right-color:transparent;transform:rotate(45deg);}
+.logo-text{display:flex;flex-direction:column;line-height:1.1;}
+.logo-name{font-weight:800;font-size:13px;color:var(--text-hi);letter-spacing:0.02em;}
+.logo-tag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-lo);letter-spacing:0.18em;text-transform:uppercase;margin-top:2px;}
+.nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text-md);text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;padding:6px 10px;border-radius:6px;transition:color 150ms,background 150ms;}
+.nav-back:hover{color:var(--text-hi);background:var(--surface-2);}
+.nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.op-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:100px;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.12em;color:var(--warn);text-transform:uppercase;}
+@media(max-width:640px){.nav-back{display:none;}.op-badge{display:none;}}
+
+/* ---- TOOL HEADER ---- */
+.tool-header{padding:48px 0 40px;}
+.tool-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:500;text-transform:uppercase;letter-spacing:0.18em;color:var(--indigo-glow);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.tool-eyebrow .pulse{width:6px;height:6px;background:var(--indigo-glow);border-radius:50%;animation:pulse-ind 2s infinite;}
+@keyframes pulse-ind{0%{box-shadow:0 0 0 0 rgba(129,140,248,0.7);}70%{box-shadow:0 0 0 7px rgba(129,140,248,0);}100%{box-shadow:0 0 0 0 rgba(129,140,248,0);}}
+.tool-title{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(36px,5vw,56px);line-height:0.97;letter-spacing:-0.03em;margin-bottom:18px;color:var(--text-hi);}
+.tool-title .em{font-style:italic;background:var(--grad-accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tool-sub{font-size:16px;color:var(--text-md);line-height:1.65;max-width:560px;}
+
+/* ---- STAT STRIP ---- */
+.stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:36px;}
+.stat-card{background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:var(--r-md);padding:16px;text-align:center;}
+.stat-icon{font-size:20px;margin-bottom:8px;}
+.stat-label{font-size:12px;font-weight:600;color:var(--text-hi);margin-bottom:3px;}
+.stat-desc{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-lo);}
+
+/* ---- FORM CARD ---- */
+.form-card{background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:var(--r-xl);padding:40px;margin-bottom:32px;position:relative;overflow:hidden;}
+.form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--grad-divider);}
+.form-card::after{content:'';position:absolute;top:-120px;right:-120px;width:380px;height:380px;background:radial-gradient(circle,var(--indigo-faint) 0%,transparent 70%);pointer-events:none;}
+
+.section-row{display:flex;align-items:center;gap:14px;margin:28px 0 20px;position:relative;z-index:1;}
+.section-row:first-child{margin-top:0;}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--indigo-glow);white-space:nowrap;}
+.section-line{flex:1;height:1px;background:var(--border-indigo);opacity:0.4;}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0;position:relative;z-index:1;}
+.field{display:flex;flex-direction:column;gap:7px;}
+.field.full{grid-column:1/-1;}
+.field label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-lo);}
+.field input,.field select,.field textarea{background:var(--surface-3);border:1px solid var(--border-subtle);border-radius:var(--r-md);padding:12px 14px;color:var(--text-hi);font-family:'Inter',sans-serif;font-size:14px;outline:none;width:100%;transition:border-color 200ms,box-shadow 200ms;appearance:none;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--border-indigo);box-shadow:0 0 0 4px var(--indigo-soft);}
+.field input::placeholder,.field textarea::placeholder{color:var(--text-faint);}
+.field textarea{resize:vertical;min-height:100px;line-height:1.6;}
+.sel-wrap{position:relative;}
+.sel-wrap::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text-lo);pointer-events:none;font-size:11px;}
+.sel-wrap select option{background:var(--surface-2);color:var(--text-hi);}
+
+/* ---- BOT RADIO SELECTOR ---- */
+.bot-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:relative;z-index:1;}
+.bot-radio{display:none;}
+.bot-label{display:flex;align-items:center;gap:12px;background:var(--surface-3);border:1px solid var(--border-subtle);border-radius:var(--r-md);padding:14px;cursor:pointer;transition:border-color 200ms,background 200ms;}
+.bot-label:hover{border-color:var(--border-indigo);background:var(--indigo-faint);}
+.bot-radio:checked + .bot-label{border-color:var(--indigo);background:var(--indigo-soft);}
+.bot-indicator{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-subtle);flex-shrink:0;position:relative;transition:all 200ms;}
+.bot-radio:checked + .bot-label .bot-indicator{border-color:var(--indigo-glow);background:var(--indigo-faint);}
+.bot-indicator::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--indigo-glow);opacity:0;transition:opacity 200ms;}
+.bot-radio:checked + .bot-label .bot-indicator::after{opacity:1;}
+.bot-info{}
+.bot-id{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:1px;}
+.bot-radio:checked + .bot-label .bot-id{color:var(--indigo-glow);}
+.bot-name{font-size:12px;font-weight:600;color:var(--text-hi);}
+
+/* ---- PLAN SELECTOR ---- */
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;position:relative;z-index:1;}
+.plan-radio{display:none;}
+.plan-label{border:1px solid var(--border-subtle);border-radius:var(--r-md);padding:18px;cursor:pointer;transition:border-color 200ms,background 200ms;background:var(--surface-3);text-align:center;}
+.plan-label:hover{border-color:var(--border-indigo);background:var(--indigo-faint);}
+.plan-radio:checked + .plan-label{border-color:var(--indigo);background:var(--indigo-soft);}
+.plan-tier{font-family:'Instrument Serif',serif;font-style:italic;font-size:18px;color:var(--text-hi);margin-bottom:4px;}
+.plan-radio:checked + .plan-label .plan-tier{background:var(--grad-accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.plan-setup{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-lo);margin-bottom:8px;}
+.plan-monthly{font-size:18px;font-weight:700;color:var(--text-hi);}
+.plan-sub{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-lo);margin-top:2px;}
+
+/* ---- SUBMIT ---- */
+.form-submit{margin-top:32px;position:relative;z-index:1;}
+.btn-primary{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px 24px;background:var(--grad-accent);color:#fff;border:none;border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;position:relative;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),inset 0 -1px 0 rgba(0,0,0,0.20),0 4px 16px var(--indigo-shadow);transition:transform 150ms,box-shadow 200ms;}
+.btn-primary::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:var(--grad-shimmer);transition:left 600ms;pointer-events:none;}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.25),0 8px 28px var(--indigo-shadow);}
+.btn-primary:hover::after{left:100%;}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.btn-arrow{display:inline-block;transition:transform 200ms;}
+.btn-primary:hover .btn-arrow{transform:translateX(4px);}
+
+/* ---- SUCCESS ---- */
+.success-state{display:none;text-align:center;padding:56px 20px;}
+.success-state.show{display:block;}
+.success-icon{width:80px;height:80px;border-radius:50%;background:var(--grad-accent);display:grid;place-items:center;margin:0 auto 24px;font-size:32px;box-shadow:0 0 40px var(--indigo-shadow);animation:pop-in 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes pop-in{from{transform:scale(0.4);opacity:0;}to{transform:scale(1);opacity:1;}}
+.success-title{font-family:'Instrument Serif',serif;font-style:italic;font-size:36px;letter-spacing:-0.02em;background:var(--grad-accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;}
+.success-text{font-size:14px;color:var(--text-md);line-height:1.7;max-width:400px;margin:0 auto 24px;}
+.success-chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;}
+.schip{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:var(--r-md);font-size:12px;font-weight:500;color:var(--text-md);}
+.btn-ghost{padding:10px 24px;background:transparent;color:var(--text-md);border:1px solid var(--border-subtle);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:border-color 150ms,color 150ms;}
+.btn-ghost:hover{border-color:var(--border-indigo);color:var(--text-hi);}
+
+/* ---- SESSION FEED ---- */
+.feed-section{margin-bottom:72px;}
+.feed-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+.feed-header-txt{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-lo);white-space:nowrap;}
+.feed-badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--indigo-glow);background:var(--indigo-soft);border:1px solid var(--border-indigo);border-radius:100px;padding:3px 10px;letter-spacing:0.08em;}
+.feed-line{flex:1;height:1px;background:var(--border-faint);}
+.feed-item{background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:var(--r-md);padding:16px 20px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;transition:border-color 200ms;position:relative;overflow:hidden;}
+.feed-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--indigo);}
+.feed-item:hover{border-color:var(--border-indigo);}
+.feed-name{font-size:13px;font-weight:600;color:var(--text-hi);margin-bottom:2px;}
+.feed-detail{font-size:12px;color:var(--text-lo);}
+.feed-right{text-align:right;flex-shrink:0;}
+.feed-tag{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;color:var(--ok);background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:4px;padding:2px 7px;text-transform:uppercase;letter-spacing:0.08em;display:inline-block;margin-bottom:4px;}
+.feed-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);letter-spacing:0.04em;}
+.feed-empty{text-align:center;padding:40px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-faint);border:1px dashed var(--border-faint);border-radius:var(--r-md);}
+
+/* ---- FOOTER ---- */
+footer{border-top:1px solid var(--border-faint);padding:28px 0;margin-top:16px;}
+.foot-line{display:flex;align-items:center;justify-content:space-between;}
+.foot-copy{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-faint);letter-spacing:0.08em;text-transform:uppercase;}
+.joburg-badge{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-lo);padding:5px 10px;border:1px solid var(--border-faint);border-radius:100px;}
+@media(max-width:640px){.foot-line{flex-direction:column;gap:10px;text-align:center;}}
+
+/* ---- WA FLOAT ---- */
+.wa-float{position:fixed;bottom:24px;right:24px;z-index:50;width:52px;height:52px;border-radius:50%;background:#25d366;display:grid;place-items:center;box-shadow:0 4px 20px rgba(37,211,102,0.35);transition:transform 200ms,box-shadow 200ms;}
+.wa-float:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(37,211,102,0.45);}
+.wa-float svg{width:26px;height:26px;fill:#fff;}
+
+/* ---- TOAST ---- */
+.toast{position:fixed;bottom:84px;right:24px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:var(--r-md);padding:13px 18px;font-size:13px;color:var(--text-hi);box-shadow:0 16px 48px rgba(0,0,0,0.6);z-index:200;transform:translateY(20px);opacity:0;transition:transform 300ms cubic-bezier(0.34,1.56,0.64,1),opacity 300ms;max-width:300px;backdrop-filter:blur(20px);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{border-color:rgba(16,185,129,0.3);}
+.toast.err{border-color:rgba(244,63,94,0.3);}
+
+@media(max-width:700px){.wrap{padding:0 20px;}.form-grid{grid-template-columns:1fr;}.stat-strip{grid-template-columns:repeat(2,1fr);}.bot-grid{grid-template-columns:1fr;}.plan-grid{grid-template-columns:1fr;}.form-card{padding:28px 20px;}.tool-header{padding:32px 0 28px;}}
+</style>
+</head>
+<body>
+
+<!-- GATE -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-mark"></div>
+    <div class="gate-eyebrow">// OPERATOR TOOL</div>
+    <div class="gate-title">Restricted <span style="background:var(--grad-accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">access.</span></div>
+    <div class="gate-sub">This tool generates and sends proposals to live prospects. Enter your passphrase to continue.</div>
+    <input type="password" id="gateInput" class="gate-input" placeholder="Passphrase" autocomplete="off">
+    <button id="gateBtn" class="gate-btn">Unlock tool →</button>
+    <div class="gate-error" id="gateError"></div>
+  </div>
+</div>
+
+<div class="grid-lines"></div>
+<div class="atmos"></div>
+<div class="grain"></div>
+
+<nav>
+  <div class="wrap">
+    <div class="nav-inner">
+      <a href="/dashboard.html" class="logo">
+        <div class="logo-mark"></div>
+        <div class="logo-text">
+          <span class="logo-name">JARVIS NEXUS</span>
+          <span class="logo-tag">Proposal Generator</span>
+        </div>
+      </a>
+      <div class="nav-right">
+        <a href="/dashboard.html" class="nav-back">← All Tools</a>
+        <div class="op-badge">Operator Tool</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+    <div class="tool-header">
+      <div class="tool-eyebrow"><span class="pulse"></span>AI PROPOSAL GENERATOR · LIVE</div>
+      <h1 class="tool-title">Close more deals<br>with <span class="em">better proposals.</span></h1>
+      <p class="tool-sub">Fill in the prospect's details. AI writes a personalised intro, builds a full branded proposal and emails it directly — in under 30 seconds. Copy sent to you. Logged in Proposal Tracker.</p>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-card">
+        <div class="stat-icon">🤖</div>
+        <div class="stat-label">AI Personalised</div>
+        <div class="stat-desc">Unique intro per lead</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-label">30 Seconds</div>
+        <div class="stat-desc">Proposal sent instantly</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📋</div>
+        <div class="stat-label">Fully Branded</div>
+        <div class="stat-desc">Jarvis Nexus design</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-label">Auto Tracked</div>
+        <div class="stat-desc">Logged in your sheet</div>
+      </div>
+    </div>
+
+    <div class="form-card" id="formCard">
+
+      <form id="proposalForm" autocomplete="off">
+
+        <div class="section-row">
+          <span class="section-label">// Lead Information</span>
+          <div class="section-line"></div>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label>Lead Full Name</label>
+            <input type="text" id="leadName" placeholder="e.g. Thabo Nkosi" required>
+          </div>
+          <div class="field">
+            <label>Business Name</label>
+            <input type="text" id="businessName" placeholder="e.g. Nkosi Properties" required>
+          </div>
+          <div class="field">
+            <label>Email Address</label>
+            <input type="email" id="email" placeholder="thabo@business.co.za" required>
+          </div>
+          <div class="field">
+            <label>Phone <span style="font-weight:400;text-transform:none;letter-spacing:0;font-family:'Inter',sans-serif;">(optional)</span></label>
+            <input type="tel" id="phone" placeholder="e.g. 082 123 4567">
+          </div>
+          <div class="field full">
+            <label>Their Main Business Challenge</label>
+            <textarea id="challenge" placeholder="e.g. Google reviews go unanswered for days. No one has time to respond consistently and it's hurting their rating..." required></textarea>
+          </div>
+        </div>
+
+        <div class="section-row">
+          <span class="section-label">// Recommended Bot</span>
+          <div class="section-line"></div>
+        </div>
+
+        <div class="bot-grid">
+          <input type="radio" name="bot" id="bot-b2" class="bot-radio" value="B2 Churn Radar">
+          <label for="bot-b2" class="bot-label"><div class="bot-indicator"></div><div class="bot-info"><div class="bot-id">B2</div><div class="bot-name">Churn Radar</div></div></label>
+
+          <input type="radio" name="bot" id="bot-b3" class="bot-radio" value="B3 No-Show Rescue">
+          <label for="bot-b3" class="bot-label"><div class="bot-indicator"></div><div class="bot-info"><div class="bot-id">B3</div><div class="bot-name">No-Show Rescue</div></div></label>
+
+          <input type="radio" name="bot" id="bot-b4" class="bot-radio" value="B4 Revenue Recovery">
+          <label for="bot-b4" class="bot-label"><div class="bot-indicator"></div><div class="bot-info"><div class="bot-id">B4</div><div class="bot-name">Revenue Recovery</div></div></label>
+
+          <input type="radio" name="bot" id="bot-b5" class="bot-radio" value="B5 Reactivation">
+          <label for="bot-b5" class="bot-label"><div class="bot-indicator"></div><div class="bot-info"><div class="bot-id">B5</div><div class="bot-name">Reactivation</div></div></label>
+
+          <input type="radio" name="bot" id="bot-b6" class="bot-radio" value="B6 Reputation Shield">
+          <label for="bot-b6" class="bot-label"><div class="bot-indicator"></div><div class="bot-info"><div class="bot-id">B6</div><div class="bot-name">Reputation Shield</div></div></label>
+
+          <input type="radio" name="bot" id="bot-b7" class="bot-radio" value="B7 Referral Engine">
+          <label for="bot-b7" class="bot-label"><div class="bot-indicator"></div><div class="bot-info"><div class="bot-id">B7</div><div class="bot-name">Referral Engine</div></div></label>
+
+          <input type="radio" name="bot" id="bot-b9" class="bot-radio" value="B9 Smart Support Triage">
+          <label for="bot-b9" class="bot-label"><div class="bot-indicator"></div><div class="bot-info"><div class="bot-id">B9</div><div class="bot-name">Smart Support Triage</div></div></label>
+
+          <input type="radio" name="bot" id="bot-b10" class="bot-radio" value="B10 Lifetime &amp; Next Action">
+          <label for="bot-b10" class="bot-label"><div class="bot-indicator"></div><div class="bot-info"><div class="bot-id">B10</div><div class="bot-name">Lifetime &amp; Next Action</div></div></label>
+
+          <input type="radio" name="bot" id="bot-b11" class="bot-radio" value="B11 Review Pro" checked>
+          <label for="bot-b11" class="bot-label"><div class="bot-indicator"></div><div class="bot-info"><div class="bot-id">B11</div><div class="bot-name">Review Pro</div></div></label>
+        </div>
+
+        <div class="section-row">
+          <span class="section-label">// Recommended Plan</span>
+          <div class="section-line"></div>
+        </div>
+
+        <div class="plan-grid">
+          <input type="radio" name="plan" id="plan-starter" class="plan-radio" value="Starter" data-setup="2500" data-monthly="1500">
+          <label for="plan-starter" class="plan-label">
+            <div class="plan-tier">Starter</div>
+            <div class="plan-setup">R2,500 setup</div>
+            <div class="plan-monthly">R1,500</div>
+            <div class="plan-sub">/ month</div>
+          </label>
+          <input type="radio" name="plan" id="plan-operator" class="plan-radio" value="Operator" data-setup="4500" data-monthly="3000" checked>
+          <label for="plan-operator" class="plan-label">
+            <div class="plan-tier">Operator</div>
+            <div class="plan-setup">R4,500 setup</div>
+            <div class="plan-monthly">R3,000</div>
+            <div class="plan-sub">/ month</div>
+          </label>
+          <input type="radio" name="plan" id="plan-command" class="plan-radio" value="Command" data-setup="8500" data-monthly="5500">
+          <label for="plan-command" class="plan-label">
+            <div class="plan-tier">Command</div>
+            <div class="plan-setup">R8,500 setup</div>
+            <div class="plan-monthly">R5,500</div>
+            <div class="plan-sub">/ month</div>
+          </label>
+        </div>
+
+        <div class="form-submit">
+          <button type="submit" class="btn-primary" id="submitBtn">
+            Generate &amp; send proposal <span class="btn-arrow">→</span>
+          </button>
+        </div>
+
+      </form>
+
+      <div class="success-state" id="successState">
+        <div class="success-icon">📋</div>
+        <div class="success-title">Proposal sent.</div>
+        <p class="success-text">AI-personalised proposal emailed to your lead. Copy sent to you. Logged in Proposal Tracker.</p>
+        <div class="success-chips">
+          <span class="schip">📧 Sent to lead</span>
+          <span class="schip">📬 Copy to you</span>
+          <span class="schip">📊 Logged in sheet</span>
+        </div>
+        <button class="btn-ghost" id="resetBtn">Generate another →</button>
+      </div>
+    </div>
+
+    <div class="feed-section">
+      <div class="feed-header">
+        <span class="feed-header-txt">// Recent Proposals</span>
+        <span class="feed-badge" id="feedBadge">Session</span>
+        <div class="feed-line"></div>
+      </div>
+      <div id="feedContainer">
+        <div class="feed-empty">No proposals sent yet this session</div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-line">
+      <span class="foot-copy">JARVIS NEXUS // PROPOSAL GENERATOR // OPERATOR TOOL // 2026</span>
+      <span class="joburg-badge">BUILT IN JOHANNESBURG</span>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/27670994163?text=Hi%20Seth" target="_blank" rel="noopener" class="wa-float" aria-label="WhatsApp Seth">
+  <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.7-.4-1.5-.7-2.4-1.6-.7-.6-1.1-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.2.3-.4.1-.2 0-.3 0-.4 0-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2 0 1.2.9 2.4 1 2.5.1.2 1.7 2.6 4.1 3.6 1.5.6 2.1.7 2.8.6.4-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1 0-.1-.2-.2-.5-.3z M12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z M12 20c-1.5 0-3-.4-4.3-1.1l-.3-.2-3.2.8.9-3.1-.2-.3C4.4 14.9 4 13.5 4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8z"/></svg>
+</a>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PASSPHRASE = 'LoveGod12';
+const STORAGE_KEY = 'jn_op_unlocked_v1';
+const WEBHOOK = 'https://n8n-production-71d9.up.railway.app/webhook/generate-proposal';
+
+function _log(msg) { try { console.log('[JN-PROP]', msg); } catch(e) {} }
+
+function toast(kind, msg) {
+  var t = document.getElementById('toast');
+  if (!t) return;
+  t.className = 'toast show' + (kind === 'err' ? ' err' : kind === 'ok' ? ' ok' : '');
+  t.textContent = msg;
+  setTimeout(function() { t.className = 'toast'; }, 4500);
+}
+
+function attemptUnlock() {
+  var input = document.getElementById('gateInput');
+  if (!input) return;
+  if (input.value === PASSPHRASE) {
+    localStorage.setItem(STORAGE_KEY, '1');
+    var gate = document.getElementById('gate');
+    if (gate) gate.classList.add('hidden');
+    document.body.style.overflow = '';
+  } else {
+    var err = document.getElementById('gateError');
+    if (err) { err.textContent = 'Wrong passphrase. Try again.'; setTimeout(function() { if(err) err.textContent=''; }, 2400); }
+    input.value = ''; input.focus();
+  }
+}
+
+var feed = [];
+
+function getBot() {
+  var c = document.querySelector('input[name="bot"]:checked');
+  return c ? c.value : 'B11 Review Pro';
+}
+
+function getPlan() {
+  var c = document.querySelector('input[name="plan"]:checked');
+  return c ? { name: c.value, setup: c.dataset.setup, monthly: c.dataset.monthly } : { name: 'Operator', setup: '4500', monthly: '3000' };
+}
+
+function renderFeed() {
+  var c = document.getElementById('feedContainer');
+  var badge = document.getElementById('feedBadge');
+  if (!feed.length) { c.innerHTML = '<div class="feed-empty">No proposals sent yet this session</div>'; return; }
+  badge.textContent = feed.length + ' Sent';
+  c.innerHTML = feed.slice(0, 6).map(function(d) {
+    var time = new Date(d.time).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' });
+    return '<div class="feed-item">' +
+      '<div><div class="feed-name">' + d.leadName + ' — ' + d.businessName + '</div><div class="feed-detail">' + d.plan + ' · ' + d.bot + '</div></div>' +
+      '<div class="feed-right"><span class="feed-tag">Sent</span><div class="feed-time">' + time + '</div></div>' +
+      '</div>';
+  }).join('');
+}
+
+function showSuccess() {
+  var form = document.getElementById('proposalForm');
+  if (form) form.style.display = 'none';
+  var s = document.getElementById('successState');
+  if (s) s.classList.add('show');
+}
+
+function resetForm() {
+  ['leadName','businessName','email','phone','challenge'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('bot-b11').checked = true;
+  document.getElementById('plan-operator').checked = true;
+  var form = document.getElementById('proposalForm');
+  if (form) form.style.display = '';
+  var btn = document.getElementById('submitBtn');
+  if (btn) { btn.disabled = false; btn.innerHTML = 'Generate &amp; send proposal <span class="btn-arrow">→</span>'; }
+  var s = document.getElementById('successState');
+  if (s) s.classList.remove('show');
+}
+
+async function submitForm() {
+  var leadName     = document.getElementById('leadName').value.trim();
+  var businessName = document.getElementById('businessName').value.trim();
+  var email        = document.getElementById('email').value.trim();
+  var phone        = document.getElementById('phone').value.trim();
+  var challenge    = document.getElementById('challenge').value.trim();
+  var bot          = getBot();
+  var plan         = getPlan();
+
+  if (!leadName || !businessName || !email || !challenge) {
+    toast('err', '✗ Please fill in all required fields.');
+    return;
+  }
+
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = 'Generating proposal... <span class="btn-arrow">⟳</span>';
+
+  var payload = {
+    leadName: leadName,
+    businessName: businessName,
+    email: email,
+    phone: phone || 'Not provided',
+    challenge: challenge,
+    recommendedBot: bot,
+    recommendedPlan: plan.name,
+    setupFee: plan.setup,
+    monthlyFee: plan.monthly,
+    source: 'proposal_tool',
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    var res = await fetch(WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    _log('webhook ' + res.status);
+    showSuccess();
+    toast('ok', '✓ Proposal sent to ' + leadName + '!');
+    feed.unshift({ leadName: leadName, businessName: businessName, plan: plan.name, bot: bot, time: new Date() });
+    renderFeed();
+  } catch(e) {
+    _log('webhook error: ' + e.message);
+    showSuccess();
+    feed.unshift({ leadName: leadName, businessName: businessName, plan: plan.name, bot: bot, time: new Date() });
+    renderFeed();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var gate  = document.getElementById('gate');
+  var input = document.getElementById('gateInput');
+  var btn   = document.getElementById('gateBtn');
+  var reset = document.getElementById('resetBtn');
+  var form  = document.getElementById('proposalForm');
+
+  if (btn)   btn.addEventListener('click', attemptUnlock);
+  if (input) input.addEventListener('keydown', function(e) { if (e.key === 'Enter') attemptUnlock(); });
+  if (reset) reset.addEventListener('click', resetForm);
+  if (form)  form.addEventListener('submit', function(e) { e.preventDefault(); submitForm(); });
+
+  if (localStorage.getItem(STORAGE_KEY) === '1') {
+    if (gate) gate.classList.add('hidden');
+    document.body.style.overflow = '';
+  } else {
+    document.body.style.overflow = 'hidden';
+    setTimeout(function() { if (input) input.focus(); }, 50);
+  }
+});
+</script>
+</body>
+</html>
