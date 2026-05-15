@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome — Jarvis Nexus</title>
+<meta name="description" content="Your subscription is active. Welcome to Jarvis Nexus.">
+<meta name="robots" content="noindex,nofollow">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --indigo-glow:#818cf8; --indigo:#6366f1; --indigo-deep:#4f46e5;
+  --indigo-shadow:rgba(99,102,241,0.40); --indigo-soft:rgba(99,102,241,0.10);
+  --surface-0:#08080c; --surface-1:#0e0e15; --surface-2:#14141d;
+  --surface-3:#1c1c28; --surface-4:#25253a;
+  --border-faint:rgba(255,255,255,0.04); --border-subtle:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.15); --border-indigo:rgba(99,102,241,0.25);
+  --text-hi:#f5f5fa; --text-md:#a8a8c2; --text-lo:#6b6b85; --text-faint:#3a3a52;
+  --ok:#10b981; --warn:#f59e0b; --bad:#f43f5e;
+  --grad-accent:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);
+  --grad-divider:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.5) 50%,transparent 100%);
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--surface-0); color:var(--text-hi);
+  font-size:16px; line-height:1.6; min-height:100vh;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden; letter-spacing:-0.01em;
+}
+
+.atmos { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.atmos::before {
+  content:''; position:absolute; width:1000px; height:1000px; border-radius:50%;
+  top:-300px; left:-200px;
+  background:radial-gradient(circle, rgba(129,140,248,0.18) 0%, rgba(99,102,241,0.06) 40%, transparent 70%);
+  filter:blur(40px);
+}
+.atmos::after {
+  content:''; position:absolute; width:700px; height:700px; border-radius:50%;
+  bottom:-200px; right:-100px;
+  background:radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
+  filter:blur(60px);
+}
+.grain {
+  position:fixed; inset:0; z-index:1; pointer-events:none;
+  opacity:0.06; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+main { position:relative; z-index:2; min-height:100vh; display:grid; place-items:center; padding:40px 24px; }
+.wrap { max-width:680px; margin:0 auto; width:100%; }
+
+.logo-bar { display:flex; align-items:center; gap:12px; justify-content:center; margin-bottom:48px; }
+.logo-mark {
+  width:36px; height:36px; background:var(--grad-accent);
+  border-radius:9px; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset, 0 8px 24px var(--indigo-shadow);
+}
+.logo-mark::before {
+  content:''; position:absolute; inset:7px;
+  border:1.5px solid rgba(255,255,255,0.92);
+  border-radius:4px;
+  border-bottom-color:transparent; border-right-color:transparent;
+  transform:rotate(45deg);
+}
+.logo-text { font-weight:800; font-size:16px; letter-spacing:0.02em; color:var(--text-hi); }
+.logo-tag { font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--text-lo); letter-spacing:0.18em; text-transform:uppercase; margin-left:6px; }
+
+.card {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); padding:48px 44px;
+  position:relative; overflow:hidden;
+}
+.card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider);
+}
+.card::after {
+  content:''; position:absolute; top:-150px; right:-150px;
+  width:500px; height:500px;
+  background:radial-gradient(circle, var(--indigo-soft) 0%, transparent 70%);
+  filter:blur(50px); pointer-events:none;
+}
+.card > * { position:relative; z-index:1; }
+
+.success-icon {
+  width:72px; height:72px; border-radius:50%;
+  background:var(--grad-accent);
+  display:grid; place-items:center;
+  margin:0 auto 28px;
+  box-shadow:0 16px 40px var(--indigo-shadow);
+  font-size:32px; color:#fff; font-weight:700;
+  animation:pop 600ms cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes pop {
+  0% { transform:scale(0.6); opacity:0; }
+  60% { transform:scale(1.08); opacity:1; }
+  100% { transform:scale(1); opacity:1; }
+}
+
+.eye {
+  font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600;
+  color:var(--ok); letter-spacing:0.18em; text-transform:uppercase;
+  text-align:center; margin-bottom:14px;
+}
+.title {
+  font-family:'Instrument Serif',Georgia,serif; font-style:italic;
+  font-size:clamp(36px,6vw,52px);
+  line-height:1.05; letter-spacing:-0.025em;
+  text-align:center; color:var(--text-hi);
+  margin-bottom:18px;
+}
+.title .em { color:var(--indigo-glow); }
+.lede {
+  font-size:16px; color:var(--text-md); line-height:1.6;
+  text-align:center; max-width:480px; margin:0 auto 36px;
+}
+.lede strong { color:var(--text-hi); font-weight:600; }
+
+.next-block {
+  background:var(--surface-2); border:1px solid var(--border-indigo);
+  border-radius:var(--r-md); padding:28px;
+  margin:0 0 28px;
+}
+.next-eye {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px; font-weight:700;
+}
+.next-list { list-style:none; padding:0; margin:0; counter-reset:steps; }
+.next-list li {
+  display:flex; gap:14px; align-items:flex-start;
+  padding:12px 0; border-bottom:1px solid var(--border-faint);
+  font-size:14.5px; color:var(--text-hi); line-height:1.55;
+}
+.next-list li:last-child { border-bottom:none; }
+.next-list li::before {
+  counter-increment:steps;
+  content:counter(steps,decimal-leading-zero);
+  font-family:'Instrument Serif',Georgia,serif; font-style:italic;
+  font-size:22px; line-height:1; color:var(--indigo-glow);
+  flex-shrink:0; min-width:32px;
+}
+
+.cta-row { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-bottom:28px; }
+.btn {
+  position:relative;
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  text-decoration:none; font-weight:600; font-family:'Inter',sans-serif;
+  cursor:pointer; border:none; overflow:hidden;
+  padding:14px 24px; font-size:14.5px; border-radius:var(--r-sm);
+  transition:transform 200ms cubic-bezier(0.16,1,0.3,1), box-shadow 250ms ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn .arrow { transition:transform 220ms cubic-bezier(0.16,1,0.3,1); }
+.btn:hover .arrow { transform:translateX(4px); }
+.btn:active { transform:translateY(1px) scale(0.99); }
+.btn-primary {
+  background:var(--grad-accent); color:#fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.20), 0 1px 2px rgba(0,0,0,0.4);
+}
+.btn-primary:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 12px 32px var(--indigo-shadow); }
+.btn-secondary {
+  background:transparent; color:var(--text-hi);
+  border:1px solid var(--border-strong); box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.btn-secondary:hover { background:var(--surface-2); border-color:var(--border-indigo); }
+
+.support-line {
+  text-align:center; padding-top:24px;
+  border-top:1px solid var(--border-faint);
+  font-size:13px; color:var(--text-md); line-height:1.7;
+}
+.support-line strong { color:var(--text-hi); font-weight:600; font-family:'JetBrains Mono',monospace; }
+.support-line a { color:var(--indigo-glow); text-decoration:none; }
+.support-line a:hover { text-decoration:underline; }
+
+.foot {
+  text-align:center; margin-top:32px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.06em;
+}
+.foot .badge {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 12px;
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:100px; letter-spacing:0.1em; color:var(--text-md);
+}
+.foot .badge::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:var(--indigo-glow); box-shadow:0 0 8px var(--indigo-shadow);
+}
+
+@media (hover: none), (pointer: coarse) {
+  .grain { display: none !important; }
+  .atmos::before { filter: blur(20px) !important; opacity: 0.45 !important; width: 600px !important; height: 600px !important; }
+  .atmos::after  { filter: blur(24px) !important; opacity: 0.45 !important; width: 500px !important; height: 500px !important; }
+}
+
+@media (max-width:640px) {
+  .card { padding:36px 24px; }
+  .next-block { padding:22px 18px; }
+  .cta-row { flex-direction:column; align-items:stretch; }
+  .btn { justify-content:center; }
+}
+</style>
+</head>
+<body>
+
+<div class="atmos"></div>
+<div class="grain"></div>
+
+<main>
+  <div class="wrap">
+
+    <div class="logo-bar">
+      <div class="logo-mark"></div>
+      <div class="logo-text">JARVIS NEXUS</div>
+      <div class="logo-tag">SUBSCRIPTION ACTIVE</div>
+    </div>
+
+    <div class="card">
+      <div class="success-icon">✓</div>
+
+      <div class="eye">// PAYMENT RECEIVED · YOU'RE IN</div>
+      <h1 class="title">Welcome to <span class="em">Jarvis Nexus.</span></h1>
+      <p class="lede">
+        Your subscription is active and your bots will be configured for your business this week. A confirmation email is on its way.
+      </p>
+
+      <div class="next-block">
+        <div class="next-eye">// WHAT HAPPENS NEXT</div>
+        <ol class="next-list">
+          <li>Within 24 hours, Seth will reach out to schedule your 30-minute onboarding call.</li>
+          <li>On the call we configure your bots to your brand voice and your specific workflow.</li>
+          <li>Within 7 days your bots are live, your sheet is set up, and your first automation is running.</li>
+        </ol>
+      </div>
+
+      <div class="cta-row">
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book your onboarding call now <span class="arrow">→</span></a>
+        <a href="/" class="btn btn-secondary">Back to home</a>
+      </div>
+
+      <div class="support-line">
+        Questions before then? WhatsApp Seth on <strong>+27 67 099 4163</strong> or email <a href="mailto:ndumisoseth12@gmail.com">ndumisoseth12@gmail.com</a>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span class="badge">PROUDLY BUILT IN JOHANNESBURG</span>
+    </div>
+
+  </div>
+</main>
+
+</body>
+</html>
