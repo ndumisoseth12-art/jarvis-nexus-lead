@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Referral Engine — Jarvis Nexus</title>
+<meta name="description" content="Turn your happiest customers into your best salespeople. AI-drafted personal referral asks, unique codes per advocate, dual rewards both sides — and conversion tracking that fires the payout automatically.">
+
+<!-- Open Graph / WhatsApp / LinkedIn -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Jarvis Nexus">
+<meta property="og:title" content="Referral Engine — Jarvis Nexus">
+<meta property="og:description" content="Your best customers, your best salespeople. AI-drafted referral asks, unique codes, dual rewards — both sides win, both sides tracked.">
+<meta property="og:url" content="https://jarvis-nexus-lead-jkon.vercel.app/referral">
+<meta property="og:image" content="https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Jarvis Nexus — Referral Engine">
+<meta property="og:locale" content="en_ZA">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Referral Engine — Jarvis Nexus">
+<meta name="twitter:description" content="Your best customers, your best salespeople. AI-drafted asks, unique codes, dual rewards.">
+<meta name="twitter:image" content="https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --indigo-glow:#818cf8; --indigo:#6366f1; --indigo-deep:#4f46e5;
+  --indigo-shadow:rgba(99,102,241,0.40); --indigo-soft:rgba(99,102,241,0.10);
+  --surface-0:#08080c; --surface-1:#0e0e15; --surface-2:#14141d;
+  --surface-3:#1c1c28; --surface-4:#25253a;
+  --border-faint:rgba(255,255,255,0.04); --border-subtle:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.15); --border-indigo:rgba(99,102,241,0.25);
+  --text-hi:#f5f5fa; --text-md:#a8a8c2; --text-lo:#6b6b85; --text-faint:#3a3a52;
+  --ok:#10b981; --warn:#f59e0b; --bad:#f43f5e; --info:#22d3ee; --gold:#facc15;
+  --grad-accent:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);
+  --grad-shimmer:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.18) 50%,transparent 100%);
+  --grad-divider:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.5) 50%,transparent 100%);
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--surface-0); color:var(--text-hi);
+  font-size:16px; line-height:1.6; font-weight:400;
+  letter-spacing:-0.01em; min-height:100vh;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+
+.serif { font-family:'Instrument Serif',serif; font-weight:400; letter-spacing:-0.02em; }
+.italic { font-style:italic; }
+.mono { font-family:'JetBrains Mono',monospace; }
+
+.grid-lines {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size:calc(100% / 12) 100%;
+  max-width:1280px; margin:0 auto;
+  left:50%; transform:translateX(-50%); width:100%;
+}
+.atmos { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.atmos::before {
+  content:''; position:absolute; width:1000px; height:1000px; border-radius:50%;
+  top:-350px; left:-250px;
+  background:radial-gradient(circle, rgba(129,140,248,0.18) 0%, rgba(99,102,241,0.08) 35%, transparent 70%);
+  filter:blur(40px);
+}
+.atmos::after {
+  content:''; position:absolute; width:700px; height:700px; border-radius:50%;
+  top:200px; right:-100px;
+  background:radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
+  filter:blur(60px);
+}
+.grain {
+  position:fixed; inset:0; z-index:1; pointer-events:none;
+  opacity:0.06; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+main, nav, footer { position:relative; z-index:2; }
+
+nav {
+  position:sticky; top:0;
+  background:rgba(8,8,12,0.72);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid var(--border-faint);
+  z-index:100;
+}
+.wrap { max-width:1200px; margin:0 auto; padding:0 32px; }
+.nav-inner { display:flex; align-items:center; justify-content:space-between; height:72px; gap:32px; }
+.logo { display:flex; align-items:center; gap:12px; text-decoration:none; flex-shrink:0; }
+.logo-mark {
+  width:32px; height:32px; background:var(--grad-accent);
+  border-radius:8px; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset, 0 8px 24px var(--indigo-shadow);
+}
+.logo-mark::before {
+  content:''; position:absolute; inset:6px;
+  border:1.5px solid rgba(255,255,255,0.92);
+  border-radius:4px;
+  border-bottom-color:transparent; border-right-color:transparent;
+  transform:rotate(45deg);
+}
+.logo-text { display:flex; flex-direction:column; line-height:1.1; }
+.logo-name { font-weight:800; font-size:15px; color:var(--text-hi); letter-spacing:0.02em; }
+.logo-tag { font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--text-lo); letter-spacing:0.18em; text-transform:uppercase; margin-top:2px; }
+
+.nav-back {
+  display:inline-flex; align-items:center; gap:8px;
+  color:var(--text-md); text-decoration:none;
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  letter-spacing:0.08em; text-transform:uppercase;
+  padding:7px 12px; border-radius:6px;
+  transition:color 150ms ease, background 150ms ease;
+}
+.nav-back:hover { color:var(--text-hi); background:var(--surface-2); }
+
+.nav-right { display:flex; align-items:center; gap:14px; flex-shrink:0; }
+.bot-id-pill {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 11px;
+  background:var(--indigo-soft); border:1px solid var(--border-indigo);
+  border-radius:100px;
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:600;
+  letter-spacing:0.1em; color:var(--indigo-glow);
+}
+.bot-id-pill .dot { width:5px; height:5px; border-radius:50%; background:var(--ok); box-shadow:0 0 6px var(--ok); animation:pulse-ok 1.6s infinite; }
+@keyframes pulse-ok { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+@media (max-width:640px) { .nav-back { display:none; } }
+
+.btn {
+  position:relative;
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  text-decoration:none; font-weight:600;
+  font-family:'Inter',sans-serif; cursor:pointer; border:none;
+  overflow:hidden;
+  transition:transform 150ms ease, box-shadow 200ms ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn .arrow { display:inline-block; transition:transform 200ms ease; }
+.btn:hover .arrow { transform:translateX(4px); }
+.btn:active { transform:translateY(1px) scale(0.99); }
+.btn::after {
+  content:''; position:absolute; top:0; left:-100%;
+  width:100%; height:100%;
+  background:var(--grad-shimmer);
+  transition:left 600ms ease; pointer-events:none;
+}
+.btn:hover::after { left:100%; }
+.btn-primary-sm {
+  padding:10px 16px; font-size:13.5px;
+  background:var(--grad-accent); color:#fff; border-radius:7px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.20), 0 1px 2px rgba(0,0,0,0.3);
+}
+.btn-primary-sm:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 18px var(--indigo-shadow); }
+.btn-primary {
+  padding:16px 26px; font-size:15px;
+  background:var(--grad-accent); color:#fff; border-radius:var(--r-sm);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.20), 0 1px 2px rgba(0,0,0,0.4);
+}
+.btn-primary:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 12px 32px var(--indigo-shadow); }
+.btn-secondary {
+  padding:16px 26px; font-size:15px;
+  background:transparent; color:var(--text-hi); border-radius:var(--r-sm);
+  border:1px solid var(--border-strong); box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.btn-secondary:hover { background:var(--surface-2); border-color:var(--border-indigo); }
+.btn-secondary::after { display:none; }
+
+.hero { padding:80px 0 100px; }
+.hero-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:64px; align-items:center; }
+@media (max-width:980px) { .hero-grid { grid-template-columns:1fr; gap:48px; } }
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:10px;
+  padding:6px 14px;
+  background:var(--indigo-soft); border:1px solid var(--border-indigo);
+  border-radius:100px;
+  font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:500;
+  color:var(--indigo-glow); letter-spacing:0.08em;
+  margin-bottom:28px; text-transform:uppercase;
+}
+.hero-eyebrow .pulse {
+  width:6px; height:6px; background:var(--indigo-glow);
+  border-radius:50%; animation:pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow:0 0 0 0 rgba(129,140,248,0.7); }
+  70% { box-shadow:0 0 0 8px rgba(129,140,248,0); }
+  100% { box-shadow:0 0 0 0 rgba(129,140,248,0); }
+}
+.hero-title {
+  font-family:'Instrument Serif',serif; font-weight:400;
+  font-size:clamp(44px,6.5vw,84px);
+  line-height:0.96; letter-spacing:-0.035em;
+  margin-bottom:32px; color:var(--text-hi);
+}
+.hero-title .accent {
+  font-style:italic;
+  background:var(--grad-accent);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.hero-sub {
+  font-size:18px; line-height:1.6;
+  color:var(--text-md); max-width:540px;
+  margin-bottom:36px;
+}
+.hero-sub strong { color:var(--text-hi); font-weight:600; }
+.hero-ctas { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:36px; }
+.hero-honest {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.04em;
+  display:flex; align-items:center; gap:10px;
+  padding-top:20px; border-top:1px solid var(--border-faint);
+}
+.hero-honest .dot { width:5px; height:5px; border-radius:50%; background:var(--ok); }
+
+.demo-card-wrap { perspective:1000px; }
+.demo-card {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:28px;
+  position:relative; overflow:hidden;
+  box-shadow:0 24px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition:transform 200ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  transform-style:preserve-3d;
+}
+.demo-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider); opacity:0.6;
+}
+.demo-head {
+  display:flex; align-items:center; justify-content:space-between;
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  text-transform:uppercase; letter-spacing:0.14em; color:var(--text-lo);
+  margin-bottom:20px;
+}
+.demo-head .live { display:inline-flex; align-items:center; gap:6px; color:var(--ok); }
+.demo-head .live .dot {
+  width:5px; height:5px; border-radius:50%; background:var(--ok);
+  box-shadow:0 0 6px var(--ok); animation:pulse-ok 1.6s infinite;
+}
+
+.code-block { margin-bottom:22px; }
+.code-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  text-transform:uppercase; letter-spacing:0.14em;
+  color:var(--text-lo); margin-bottom:10px;
+}
+.code-val {
+  font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:700;
+  letter-spacing:0.08em; color:var(--text-hi);
+  background:var(--surface-3); border:1px dashed var(--border-indigo);
+  border-radius:var(--r-md); padding:14px 18px;
+  text-align:center; display:block;
+}
+.code-tag {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:5px 12px;
+  background:rgba(16,185,129,0.12); color:var(--ok);
+  border-radius:6px;
+  font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700;
+  letter-spacing:0.12em; margin-top:10px; text-transform:uppercase;
+}
+.demo-divider { height:1px; background:var(--border-faint); margin:18px 0; }
+.demo-list-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  text-transform:uppercase; letter-spacing:0.14em;
+  color:var(--text-lo); margin-bottom:12px;
+}
+.demo-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 0; border-bottom:1px solid var(--border-faint);
+}
+.demo-row:last-child { border-bottom:none; }
+.demo-row-label { font-size:13px; color:var(--text-hi); font-weight:500; }
+.demo-row-val { font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600; letter-spacing:0.04em; color:var(--text-md); }
+.demo-row-val.warn { color:var(--warn); }
+.demo-row-val.ok { color:var(--ok); }
+.demo-row-val.indigo { color:var(--indigo-glow); }
+.demo-action {
+  margin-top:18px; padding:14px 16px;
+  background:var(--indigo-soft); border:1px solid var(--border-indigo);
+  border-radius:var(--r-md);
+}
+.demo-action-label {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  color:var(--indigo-glow); letter-spacing:0.14em; text-transform:uppercase;
+  margin-bottom:6px;
+}
+.demo-action-text { font-size:13px; color:var(--text-hi); font-weight:500; line-height:1.5; }
+
+.section { padding:100px 0; position:relative; }
+.section::before {
+  content:''; position:absolute; top:0; left:5%; right:5%; height:1px;
+  background:var(--grad-divider); opacity:0.4;
+}
+.section-eyebrow {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:500;
+  text-transform:uppercase; letter-spacing:0.18em;
+  color:var(--indigo-glow); margin-bottom:16px; display:inline-block;
+}
+.section-title {
+  font-family:'Instrument Serif',serif; font-weight:400;
+  font-size:clamp(36px,5.5vw,60px);
+  line-height:1.05; letter-spacing:-0.025em;
+  margin-bottom:20px; max-width:780px; color:var(--text-hi);
+}
+.section-title .em { font-style:italic; color:var(--indigo-glow); }
+.section-sub {
+  font-size:17px; color:var(--text-md);
+  max-width:600px; margin-bottom:48px; line-height:1.6;
+}
+
+.email-card {
+  max-width:640px; margin:0 auto;
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); overflow:hidden;
+  box-shadow:0 32px 64px rgba(0,0,0,0.4);
+}
+.email-bar {
+  padding:14px 20px; background:var(--surface-3);
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--border-subtle);
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.06em;
+}
+.email-bar .dots { display:flex; gap:6px; }
+.email-bar .dots span { width:9px; height:9px; border-radius:50%; }
+.email-bar .dots span:nth-child(1) { background:#f43f5e; }
+.email-bar .dots span:nth-child(2) { background:#f59e0b; }
+.email-bar .dots span:nth-child(3) { background:#10b981; }
+
+.email-meta {
+  padding:18px 32px; border-bottom:1px solid var(--border-faint);
+  display:flex; gap:24px; flex-wrap:wrap;
+}
+.email-meta-col { flex:1; min-width:140px; }
+.email-meta-label { font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--text-lo); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:4px; }
+.email-meta-val { font-size:13px; color:var(--text-hi); font-weight:500; }
+.email-stage-tag {
+  display:inline-flex; padding:4px 10px;
+  background:var(--indigo-soft); color:var(--indigo-glow);
+  border-radius:5px;
+  font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700;
+  letter-spacing:0.14em; text-transform:uppercase;
+}
+.email-body { padding:32px; }
+.email-subject {
+  font-size:22px; font-weight:700; line-height:1.25;
+  letter-spacing:-0.015em; margin-bottom:18px; color:var(--text-hi);
+}
+.email-greeting { font-size:15px; color:var(--text-hi); margin-bottom:14px; font-weight:500; }
+.email-para {
+  font-size:14.5px; color:var(--text-md); line-height:1.7; margin-bottom:14px;
+}
+.email-para strong { color:var(--text-hi); font-weight:600; }
+
+.code-card {
+  background:linear-gradient(135deg,rgba(129,140,248,0.10),rgba(99,102,241,0.05));
+  border:1px solid var(--border-indigo);
+  border-radius:var(--r-md); padding:22px;
+  margin:20px 0; text-align:center;
+}
+.code-card-eye {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:12px; font-weight:700;
+}
+.code-card-code {
+  font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:700;
+  letter-spacing:0.12em; color:var(--text-hi);
+  background:#fff; color:#020208;
+  border:1px dashed var(--indigo);
+  border-radius:6px; padding:16px;
+  display:block;
+}
+.code-card-sub { font-size:12.5px; color:var(--text-md); margin-top:14px; line-height:1.55; }
+.code-card-sub strong { color:var(--text-hi); }
+
+.email-foot {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.04em;
+  text-align:center; padding-top:20px;
+  border-top:1px solid var(--border-faint);
+  margin-top:18px;
+}
+
+.how-grid {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+  gap:14px;
+}
+.how-step {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:32px;
+}
+.how-num {
+  font-family:'Instrument Serif',serif; font-size:64px;
+  font-style:italic; line-height:1; color:var(--indigo-glow);
+  margin-bottom:20px;
+}
+.how-title { font-size:20px; font-weight:700; margin-bottom:10px; letter-spacing:-0.02em; color:var(--text-hi); }
+.how-text { font-size:14px; color:var(--text-md); line-height:1.65; }
+
+.crit-grid {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+  gap:14px;
+}
+.crit-card {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:24px;
+  transition:border-color 200ms ease, transform 200ms ease;
+}
+.crit-card:hover { border-color:var(--border-indigo); transform:translateY(-2px); }
+.crit-letter {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:32px; line-height:1; color:var(--indigo-glow);
+  margin-bottom:14px;
+}
+.crit-name { font-size:16px; font-weight:700; margin-bottom:6px; color:var(--text-hi); }
+.crit-desc { font-size:13.5px; color:var(--text-md); line-height:1.55; }
+
+/* DUAL REWARD VISUAL */
+.dual-wrap {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); padding:48px 44px;
+  position:relative; overflow:hidden;
+}
+.dual-wrap::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider);
+}
+.dual-grid {
+  display:grid; grid-template-columns:1fr auto 1fr; gap:30px;
+  align-items:center;
+}
+@media (max-width:780px) { .dual-grid { grid-template-columns:1fr; } }
+.dual-side {
+  background:var(--surface-2); border:1px solid var(--border-indigo);
+  border-radius:var(--r-lg); padding:32px;
+  text-align:center;
+}
+.dual-side-eye {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px; display:inline-flex; align-items:center; gap:8px;
+  padding:5px 12px; background:var(--indigo-soft);
+  border-radius:100px;
+}
+.dual-side-eye .dot { width:5px; height:5px; border-radius:50%; background:var(--indigo-glow); }
+.dual-side-title {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:32px; color:var(--text-hi); margin-bottom:12px;
+  letter-spacing:-0.02em;
+}
+.dual-side-reward {
+  font-family:'JetBrains Mono',monospace; font-size:18px;
+  color:var(--indigo-glow); font-weight:600;
+  margin-bottom:14px; letter-spacing:0.02em;
+}
+.dual-side-text {
+  font-size:13.5px; color:var(--text-md); line-height:1.6;
+}
+.dual-arrow {
+  font-family:'JetBrains Mono',monospace; font-size:24px;
+  color:var(--indigo-glow); font-weight:700;
+}
+@media (max-width:780px) { .dual-arrow { transform:rotate(90deg); padding:8px 0; } }
+
+.form-section { padding:80px 0 100px; }
+.form-wrap { max-width:760px; margin:0 auto; }
+.form-card {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); padding:48px 44px;
+  position:relative; overflow:hidden;
+}
+.form-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider);
+}
+.form-card::after {
+  content:''; position:absolute; top:-150px; right:-150px;
+  width:500px; height:500px;
+  background:radial-gradient(circle, var(--indigo-soft) 0%, transparent 70%);
+  filter:blur(50px); pointer-events:none;
+}
+.form-card > * { position:relative; z-index:1; }
+.form-eye {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.form-title {
+  font-family:'Instrument Serif',serif; font-size:clamp(28px,3.8vw,42px);
+  line-height:1.08; letter-spacing:-0.025em;
+  margin-bottom:14px; color:var(--text-hi);
+}
+.form-title .em { font-style:italic; color:var(--indigo-glow); }
+.form-sub {
+  font-size:15px; color:var(--text-md); line-height:1.55;
+  margin-bottom:32px; max-width:560px;
+}
+.form-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:14px;
+  margin-bottom:14px;
+}
+.field { display:flex; flex-direction:column; gap:8px; }
+.field.full { grid-column:1 / -1; }
+.field label {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.12em; text-transform:uppercase;
+  font-weight:500;
+}
+.field input, .field select, .field textarea {
+  background:var(--surface-3); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:14px 16px;
+  color:var(--text-hi); font-size:14px; font-family:'Inter',sans-serif;
+  width:100%; outline:none;
+  transition:border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+  appearance:none; -webkit-appearance:none;
+}
+.field input::placeholder, .field textarea::placeholder { color:var(--text-lo); }
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color:var(--border-indigo); background:var(--surface-2);
+  box-shadow:0 0 0 4px var(--indigo-soft);
+}
+.field select {
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='%23818cf8'%3E%3Cpath d='M6 8 0 0h12z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 16px center;
+  background-size:10px; padding-right:40px;
+}
+
+.form-submit-row { display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-top:20px; }
+.form-note {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.04em; flex:1; min-width:200px;
+}
+
+.success-state { display:none; text-align:center; padding:24px 0; }
+.success-state.show { display:block; animation:fade-in 500ms ease; }
+@keyframes fade-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.success-icon {
+  width:64px; height:64px; border-radius:50%;
+  background:var(--grad-accent);
+  display:grid; place-items:center;
+  margin:0 auto 24px;
+  box-shadow:0 12px 32px var(--indigo-shadow);
+  font-size:28px; color:#fff; font-weight:700;
+}
+.success-title {
+  font-family:'Instrument Serif',serif; font-size:36px;
+  font-style:italic; letter-spacing:-0.02em;
+  margin-bottom:14px; color:var(--text-hi);
+}
+.success-text {
+  font-size:15px; color:var(--text-md); line-height:1.6;
+  max-width:480px; margin:0 auto 28px;
+}
+.success-meta {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--ok); letter-spacing:0.06em;
+  padding:8px 14px;
+  background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2);
+  border-radius:100px; margin-bottom:32px;
+}
+.success-meta .dot { width:6px; height:6px; border-radius:50%; background:var(--ok); animation:pulse-ok 1.6s infinite; }
+.success-id {
+  display:inline-block; margin:0 0 24px;
+  font-family:'JetBrains Mono',monospace; font-size:13px;
+  color:var(--text-hi); padding:10px 18px;
+  background:var(--surface-2); border:1px dashed var(--border-indigo);
+  border-radius:var(--r-md); letter-spacing:0.05em;
+}
+.btn-ghost {
+  display:inline-flex; align-items:center; gap:10px;
+  background:transparent; color:var(--text-md);
+  padding:12px 22px; border-radius:var(--r-sm);
+  border:1px solid var(--border-subtle);
+  font-weight:500; font-size:13.5px; cursor:pointer;
+  font-family:'Inter',sans-serif;
+  transition:all 150ms ease;
+  text-decoration:none;
+}
+.btn-ghost:hover { color:var(--text-hi); border-color:var(--border-indigo); background:var(--surface-2); }
+
+.error-state {
+  display:none; padding:18px 22px; margin-top:16px;
+  background:rgba(244,63,94,0.08); border:1px solid rgba(244,63,94,0.25);
+  border-radius:var(--r-md); color:var(--bad); font-size:14px;
+}
+.error-state.show { display:block; animation:fade-in 400ms ease; }
+
+.closer {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); padding:64px 48px;
+  text-align:center; margin:48px 0 80px;
+  position:relative; overflow:hidden;
+}
+.closer::before {
+  content:''; position:absolute; top:-50%; left:50%;
+  transform:translateX(-50%);
+  width:600px; height:600px;
+  background:radial-gradient(circle, var(--indigo-soft) 0%, transparent 70%);
+  filter:blur(60px); pointer-events:none;
+}
+.closer > * { position:relative; z-index:1; }
+.closer-eye {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--indigo-glow); letter-spacing:0.16em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.closer-title {
+  font-family:'Instrument Serif',serif; font-size:clamp(28px,4vw,42px);
+  line-height:1.15; letter-spacing:-0.02em;
+  margin-bottom:12px; color:var(--text-hi);
+}
+.closer-title .em { font-style:italic; color:var(--indigo-glow); }
+.closer-sub { font-size:15px; color:var(--text-md); max-width:520px; margin:0 auto 28px; line-height:1.55; }
+.closer-ctas { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
+.foot-line {
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:16px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.06em;
+}
+.joburg-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 12px;
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:100px;
+  letter-spacing:0.1em; color:var(--text-md);
+}
+.joburg-badge::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:var(--indigo-glow); box-shadow:0 0 8px var(--indigo-shadow);
+}
+
+.wa-float {
+  position:fixed; bottom:24px; right:24px;
+  width:56px; height:56px; background:#25D366;
+  border-radius:50%; display:grid; place-items:center;
+  text-decoration:none;
+  box-shadow:0 8px 24px rgba(37,211,102,0.4);
+  z-index:50; transition:transform 200ms ease;
+}
+.wa-float:hover { transform:scale(1.08); }
+.wa-float svg { width:28px; height:28px; fill:#fff; }
+
+.toast {
+  position:fixed; top:90px; right:24px; z-index:200;
+  padding:14px 20px; background:var(--surface-2);
+  border:1px solid var(--border-subtle); border-left:3px solid var(--indigo);
+  border-radius:var(--r-md);
+  font-size:13px; color:var(--text-hi);
+  box-shadow:0 12px 32px rgba(0,0,0,0.5);
+  display:none; max-width:340px;
+}
+.toast.show { display:block; animation:slide-in-toast 300ms ease; }
+.toast.err { border-left-color:var(--bad); }
+@keyframes slide-in-toast { from { transform:translateX(20px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+@media (max-width:768px) {
+  .wrap { padding:0 20px; }
+  .hero { padding:60px 0 60px; }
+  .section { padding:60px 0; }
+  .form-section { padding:60px 0; }
+  .form-card, .dual-wrap, .closer { padding:32px 24px; }
+  .form-grid { grid-template-columns:1fr; }
+  .hero-ctas { flex-direction:column; align-items:stretch; }
+  .btn-primary, .btn-secondary { justify-content:center; }
+  .email-body { padding:24px 20px; }
+  .email-meta { padding:18px 20px; }
+}
+
+/* iOS / touch relief — reduce GPU pressure on Safari mobile */
+@media (hover: none), (pointer: coarse) {
+  .grain { display: none !important; }
+  .atmos::before { filter: blur(20px) !important; opacity: 0.45 !important; width: 600px !important; height: 600px !important; }
+  .atmos::after  { filter: blur(24px) !important; opacity: 0.45 !important; width: 500px !important; height: 500px !important; }
+  nav { backdrop-filter: blur(10px) saturate(140%) !important; -webkit-backdrop-filter: blur(10px) saturate(140%) !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="grid-lines"></div>
+<div class="atmos"></div>
+<div class="grain"></div>
+
+<nav>
+  <div class="wrap">
+    <div class="nav-inner">
+      <a href="/" class="logo">
+        <div class="logo-mark"></div>
+        <div class="logo-text">
+          <div class="logo-name">JARVIS NEXUS</div>
+          <div class="logo-tag">Referral Engine</div>
+        </div>
+      </a>
+      <a href="/" class="nav-back">← All bots</a>
+      <div class="nav-right">
+        <span class="bot-id-pill"><span class="dot"></span>B7 · LIVE</span>
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary-sm">Book demo <span class="arrow">→</span></a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-eyebrow"><span class="pulse"></span><span>B7 · REFERRAL ENGINE · LIVE</span></div>
+        <h1 class="hero-title">Your best customers,<br><span class="accent">your best salespeople.</span></h1>
+        <p class="hero-sub">
+          Referrals are your highest-quality, lowest-cost customers — but most owners never ask, because writing personalised referral emails is awkward and the rewards admin is a nightmare. Referral Engine sends an <strong>AI-drafted personal ask</strong> with a <strong>unique code per advocate</strong>, tracks the conversion when their friend buys, and fires the dual reward automatically.
+        </p>
+        <div class="hero-ctas">
+          <a href="#try-it" class="btn btn-primary">Send a referral ask <span class="arrow">→</span></a>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-secondary">Book a 20-min demo</a>
+        </div>
+        <div class="hero-honest">
+          <span class="dot"></span>
+          <span>EMAIL DELIVERY · TIER-AWARE TONE · WHATSAPP IN PHASE 3</span>
+        </div>
+      </div>
+
+      <div class="demo-card-wrap">
+        <div class="demo-card">
+          <div class="demo-head">
+            <span>// REFERRAL · CONVERTED</span>
+            <span class="live"><span class="dot"></span>WIN</span>
+          </div>
+          <div class="code-block">
+            <div class="code-label">Unique referral code</div>
+            <div class="code-val">REF-20260514-K8W2QM</div>
+            <span class="code-tag">✓ FRIEND CONVERTED · BOTH REWARDS PAID</span>
+          </div>
+          <div class="demo-divider"></div>
+          <div class="demo-list-label">Conversion timeline</div>
+          <div class="demo-row"><span class="demo-row-label">Advocate</span><span class="demo-row-val">Aisha P. · Gold</span></div>
+          <div class="demo-row"><span class="demo-row-label">Asked</span><span class="demo-row-val ok">✓ 09:14</span></div>
+          <div class="demo-row"><span class="demo-row-label">Friend signed up</span><span class="demo-row-val indigo">→ Thabo N. · 14:42</span></div>
+          <div class="demo-row"><span class="demo-row-label">Advocate reward</span><span class="demo-row-val ok">✓ R200 credit</span></div>
+          <div class="demo-row"><span class="demo-row-label">Friend offer</span><span class="demo-row-val ok">✓ 20% off applied</span></div>
+          <div class="demo-action">
+            <div class="demo-action-label">Owner ping</div>
+            <div class="demo-action-text">Telegram fired. Both rewards logged. Advocate is now likely to refer again — Gold tier loops are your highest-LTV customers.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:48px;">
+      <div class="section-eyebrow">// WHAT THE ADVOCATE RECEIVES</div>
+      <h2 class="section-title" style="margin:0 auto 14px;">A personal ask, <span class="em">not a marketing template.</span></h2>
+      <p class="section-sub" style="margin:0 auto;">Each email is AI-drafted in your voice, calibrated to the customer's tier — warmer for VIPs, casual for Silver — with their unique referral code in a clean, share-ready block.</p>
+    </div>
+
+    <div class="email-card">
+      <div class="email-bar">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <span>📧 REFERRAL ASK · GOLD TIER</span>
+      </div>
+      <div class="email-meta">
+        <div class="email-meta-col">
+          <div class="email-meta-label">From</div>
+          <div class="email-meta-val">Mokoena Coffee Roasters</div>
+        </div>
+        <div class="email-meta-col">
+          <div class="email-meta-label">Stage</div>
+          <span class="email-stage-tag">REFERRAL · AI</span>
+        </div>
+      </div>
+      <div class="email-body">
+        <div class="email-subject">Aisha, would you share us with someone?</div>
+        <div class="email-greeting">Hi Aisha,</div>
+        <div class="email-para">
+          Thank you for being one of our favourite Gold customers — your loyalty means more than you probably realise to a small roastery like ours.
+        </div>
+        <div class="email-para">
+          If you know someone who'd love a really good cup, would you share us with them? They get something nice, and so do you.
+        </div>
+        <div class="code-card">
+          <div class="code-card-eye">YOUR UNIQUE REFERRAL CODE</div>
+          <div class="code-card-code">REF-20260514-K8W2QM</div>
+          <div class="code-card-sub">Share this code with a friend. They get <strong>20% off their first order</strong>. Once they buy, you get <strong>R200 store credit</strong>.</div>
+        </div>
+        <div class="email-para">
+          No pressure either way — but if you do share, we'll know it came from you and treat them like family.
+        </div>
+        <div class="email-para">
+          Warmly,<br><strong>Seth · Mokoena Coffee Roasters</strong>
+        </div>
+        <div class="email-foot">SENT ON BEHALF OF MOKOENA COFFEE ROASTERS · POWERED BY JARVIS NEXUS</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-eyebrow">// THE DUAL REWARD</div>
+    <h2 class="section-title">Both sides win. <span class="em">Both sides are tracked.</span></h2>
+    <p class="section-sub">A one-sided referral feels transactional. Dual rewards turn it into a gift — the advocate is helping their friend, not selling on your behalf.</p>
+
+    <div class="dual-wrap">
+      <div class="dual-grid">
+        <div class="dual-side">
+          <div class="dual-side-eye"><span class="dot"></span>FRIEND</div>
+          <div class="dual-side-title">Gets the offer</div>
+          <div class="dual-side-reward">20% off first order</div>
+          <div class="dual-side-text">Code applied automatically when they sign up. They get a real discount, not a "vague intro" — so the conversion is fast and obvious.</div>
+        </div>
+        <div class="dual-arrow">→</div>
+        <div class="dual-side">
+          <div class="dual-side-eye"><span class="dot"></span>ADVOCATE</div>
+          <div class="dual-side-title">Gets the reward</div>
+          <div class="dual-side-reward">R200 store credit</div>
+          <div class="dual-side-text">Triggered the moment the friend's first order lands. Logged automatically. Owner gets a Telegram ping so the next thank-you can be personal too.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-eyebrow">// HOW IT WORKS</div>
+    <h2 class="section-title">Three steps. <span class="em">Both rewards automated.</span></h2>
+    <p class="section-sub">No code printing. No manual tracking. No "did Aisha actually refer Thabo?" guessing.</p>
+
+    <div class="how-grid">
+      <div class="how-step">
+        <div class="how-num">01</div>
+        <div class="how-title">Trigger an ask</div>
+        <div class="how-text">Pick a happy customer (a recent purchase, a 5-star rater, a Gold-tier loyalist) and fire the webhook with their tier and the rewards. Bot generates a unique code on the spot.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">02</div>
+        <div class="how-title">AI drafts + sends</div>
+        <div class="how-text">A personal email goes out — tier-calibrated tone, referencing what they last bought, with the code in a styled block ready to share. Logged to your Referral Engine sheet.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">03</div>
+        <div class="how-title">Friend converts → both rewarded</div>
+        <div class="how-text">When the friend signs up using the code, the conversion webhook fires. Both rewards are issued automatically and the row is marked "converted". You get a Telegram ping.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-eyebrow">// THE FEATURES</div>
+    <h2 class="section-title">AI-personal. <span class="em">Code-unique.</span> Tier-aware.</h2>
+    <p class="section-sub">Built so referrals stop being a one-off campaign and start being a system that runs every time you've got a happy customer.</p>
+
+    <div class="crit-grid">
+      <div class="crit-card">
+        <div class="crit-letter">A</div>
+        <div class="crit-name">AI-drafted ask</div>
+        <div class="crit-desc">Each email written individually using their name, tier, and last product. Warm, never desperate. SA English. Tone calibrated to advocate value.</div>
+      </div>
+      <div class="crit-card">
+        <div class="crit-letter">C</div>
+        <div class="crit-name">Code per advocate</div>
+        <div class="crit-desc">Every advocate gets a unique referral code generated on the spot. No collisions, no manual issuing — and full attribution when the friend converts.</div>
+      </div>
+      <div class="crit-card">
+        <div class="crit-letter">D</div>
+        <div class="crit-name">Dual rewards built-in</div>
+        <div class="crit-desc">Friend gets your incentive on first purchase. Advocate gets their reward the moment that purchase lands. Both sides win, both sides are tracked.</div>
+      </div>
+      <div class="crit-card">
+        <div class="crit-letter">T</div>
+        <div class="crit-name">Tracked end-to-end</div>
+        <div class="crit-desc">Every referral row in your sheet — Asked → Shared → Converted → Reward sent. Owner Telegram-pinged on every win. Nothing falls through the cracks.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="form-section" id="try-it">
+  <div class="wrap">
+    <div class="form-wrap">
+      <div class="form-card" id="formCard">
+        <div class="form-eye" id="formEye">// TRY IT — SEND A REFERRAL ASK TO YOURSELF</div>
+        <h2 class="form-title" id="formTitle">Drop in an <span class="em">advocate.</span></h2>
+        <p class="form-sub" id="formSub">Submit the form below as if you were asking one of your real customers to refer a friend. Use your own email so you'll see exactly the email an advocate gets — code, rewards, tone and all.</p>
+
+        <form id="referralForm" autocomplete="off">
+          <div class="form-grid">
+            <div class="field">
+              <label>Advocate name</label>
+              <input type="text" id="customerName" placeholder="e.g. Aisha Patel" required>
+            </div>
+            <div class="field">
+              <label>Advocate email (yours, to test)</label>
+              <input type="email" id="customerEmail" placeholder="you@yourbusiness.co.za" required>
+            </div>
+            <div class="field">
+              <label>Business name (the sender)</label>
+              <input type="text" id="businessName" placeholder="e.g. Mokoena Coffee Roasters" required>
+            </div>
+            <div class="field">
+              <label>Owner email (for alerts)</label>
+              <input type="email" id="ownerEmail" placeholder="owner@business.co.za" required>
+            </div>
+            <div class="field">
+              <label>Advocate tier</label>
+              <select id="tier" required>
+                <option value="VIP">VIP</option>
+                <option value="Gold" selected>Gold</option>
+                <option value="Silver">Silver</option>
+                <option value="Bronze">Bronze</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Last product (optional context)</label>
+              <input type="text" id="lastProduct" placeholder="e.g. Yirgacheffe single-origin">
+            </div>
+            <div class="field">
+              <label>Advocate reward</label>
+              <input type="text" id="advocateReward" placeholder="e.g. R200 store credit" required>
+            </div>
+            <div class="field">
+              <label>Friend offer</label>
+              <input type="text" id="friendOffer" placeholder="e.g. 20% off first order" required>
+            </div>
+          </div>
+
+          <div class="form-submit-row">
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              Send the referral ask <span class="arrow">→</span>
+            </button>
+            <span class="form-note">// FIRES INSTANTLY · CHECK YOUR INBOX IN ~30 SECONDS</span>
+          </div>
+
+          <div class="error-state" id="errorState">Submission failed. Please try again — or WhatsApp Seth: +27 67 099 4163</div>
+        </form>
+
+        <div class="success-state" id="successState">
+          <div class="success-icon">✓</div>
+          <div class="success-title">Referral ask sent.</div>
+          <p class="success-text">Referral Engine has drafted the email and queued it for delivery. Watch your inbox — your unique referral code is included so you can see exactly what an advocate would share.</p>
+          <div class="success-meta"><span class="dot"></span>LIVE · EMAIL ARRIVING IN ~30 SECONDS</div>
+          <div class="success-id" id="successId">REF-PENDING</div>
+          <div>
+            <button type="button" class="btn-ghost" id="resetBtn">Send another →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="closer">
+      <div class="closer-eye">// READY TO TURN YOUR HAPPIEST CUSTOMERS INTO YOUR SALES TEAM?</div>
+      <h2 class="closer-title">Referral Engine is included in <span class="em">Operator</span> &amp; <span class="em">Command</span> plans.</h2>
+      <p class="closer-sub">Book a 20-minute call. We'll wire it to your customer flow and you'll have your first referral ask going out next week.</p>
+      <div class="closer-ctas">
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book your demo <span class="arrow">→</span></a>
+        <a href="/#pricing" class="btn btn-secondary">See pricing</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-line">
+      <span>JARVIS NEXUS // B7 REFERRAL ENGINE // © 2026</span>
+      <span class="joburg-badge">PROUDLY BUILT IN JOHANNESBURG</span>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/27670994163?text=Hi%20Seth%2C%20I%20saw%20the%20Referral%20Engine%20bot%20and%20I%27d%20like%20to%20learn%20more" target="_blank" rel="noopener" class="wa-float" aria-label="WhatsApp Seth">
+  <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.7-.4-1.5-.7-2.4-1.6-.7-.6-1.1-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.2.3-.4.1-.2 0-.3 0-.4 0-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2 0 1.2.9 2.4 1 2.5.1.2 1.7 2.6 4.1 3.6 1.5.6 2.1.7 2.8.6.4-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1 0-.1-.2-.2-.5-.3z M12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z M12 20c-1.5 0-3-.4-4.3-1.1l-.3-.2-3.2.8.9-3.1-.2-.3C4.4 14.9 4 13.5 4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8z"/></svg>
+</a>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const WEBHOOK = 'https://n8n-production-71d9.up.railway.app/webhook/referral-ask';
+
+function _log(msg) { try { console.log('[JN-REF]', msg); } catch(e) {} }
+
+function toast(kind, msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.className = 'toast' + (kind === 'err' ? ' err' : '') + ' show';
+  t.textContent = msg;
+  setTimeout(function() { t.className = 'toast' + (kind === 'err' ? ' err' : ''); }, 4500);
+}
+
+function showSuccess(referralCode) {
+  ['referralForm','formEye','formTitle','formSub'].forEach(function(id) {
+    const el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+  const idEl = document.getElementById('successId');
+  if (idEl && referralCode) idEl.textContent = referralCode;
+  document.getElementById('successState').classList.add('show');
+}
+
+function resetForm() {
+  ['customerName','customerEmail','businessName','ownerEmail','lastProduct','advocateReward','friendOffer'].forEach(function(id) {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  const tier = document.getElementById('tier'); if (tier) tier.value = 'Gold';
+  const btn = document.getElementById('submitBtn');
+  if (btn) { btn.disabled = false; btn.innerHTML = 'Send the referral ask <span class="arrow">→</span>'; }
+  document.getElementById('successState').classList.remove('show');
+  ['referralForm','formEye','formTitle','formSub'].forEach(function(id) {
+    const el = document.getElementById(id); if (el) el.style.display = '';
+  });
+  const card = document.getElementById('formCard');
+  if (card) card.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+async function submitForm() {
+  _log('submit attempt');
+  const btn = document.getElementById('submitBtn');
+  const errBox = document.getElementById('errorState');
+  errBox.classList.remove('show');
+
+  const required = ['customerName','customerEmail','businessName','ownerEmail','tier','advocateReward','friendOffer'];
+  const all = required.concat(['lastProduct']);
+  const data = {};
+  for (var i = 0; i < all.length; i++) {
+    const el = document.getElementById(all[i]);
+    data[all[i]] = el ? el.value : '';
+  }
+
+  for (var k = 0; k < required.length; k++) {
+    if (!data[required[k]]) {
+      toast('err', '✗ Please fill in all required fields.');
+      return;
+    }
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = 'Sending... <span class="arrow">⟳</span>';
+
+  try {
+    const payload = Object.assign({ source: 'referral_html_form', timestamp: new Date().toISOString() }, data);
+    const res = await fetch(WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const body = await res.json().catch(function() { return {}; });
+    _log('webhook OK · referralCode=' + (body.referralCode || 'n/a'));
+    showSuccess(body.referralCode || 'REF-LOGGED');
+    toast('ok', '✓ Referral ask sent.');
+  } catch (e) {
+    _log('webhook failed: ' + e.message);
+    btn.disabled = false;
+    btn.innerHTML = 'Send the referral ask <span class="arrow">→</span>';
+    errBox.classList.add('show');
+    toast('err', '✗ Submission failed. Please try again.');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  _log('DOM ready');
+  const form = document.getElementById('referralForm');
+  if (form) form.addEventListener('submit', function(e) { e.preventDefault(); submitForm(); });
+  const reset = document.getElementById('resetBtn');
+  if (reset) reset.addEventListener('click', resetForm);
+});
+</script>
+
+</body>
+</html>
