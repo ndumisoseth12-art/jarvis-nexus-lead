@@ -193,6 +193,18 @@ footer{border-top:1px solid var(--border-faint);padding:28px 0;margin-top:16px;}
 .toast.err{border-color:rgba(244,63,94,0.3);}
 
 @media(max-width:700px){.wrap{padding:0 20px;}.form-grid{grid-template-columns:1fr;}.stat-strip{grid-template-columns:repeat(2,1fr);}.bot-grid{grid-template-columns:1fr;}.plan-grid{grid-template-columns:1fr;}.form-card{padding:28px 20px;}.tool-header{padding:32px 0 28px;}}
+
+  /* iOS Safari memory fix — heavy blur/backdrop-filter on large fixed elements
+     crashes WebKit with 'A problem repeatedly occurred'. Drop all filters on touch devices. */
+  @media (hover: none), (pointer: coarse), (max-width: 768px) {
+    *, *::before, *::after {
+      filter: none !important;
+      -webkit-filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    .grain, .atmos-spot { display: none !important; }
+  }
 </style>
 </head>
 <body>

@@ -1235,13 +1235,17 @@ nav.scrolled {
 .btn .arrow { transition: transform 320ms var(--ease-out-expo) !important; }
 .btn:hover .arrow { transform: translateX(5px); }
 
-/* iOS / touch relief — reduce GPU pressure on Safari mobile */
-@media (hover: none), (pointer: coarse) {
-  .grain, .atmos-spot { display: none !important; }
-  .atmos::before { filter: blur(20px) !important; opacity: 0.45 !important; width: 600px !important; height: 600px !important; }
-  .atmos::after  { filter: blur(24px) !important; opacity: 0.45 !important; width: 500px !important; height: 500px !important; }
-  nav { backdrop-filter: blur(10px) saturate(140%) !important; -webkit-backdrop-filter: blur(10px) saturate(140%) !important; }
-}
+/* iOS Safari memory fix — heavy blur/backdrop-filter on large fixed elements
+     crashes WebKit with 'A problem repeatedly occurred'. Drop all filters on touch devices. */
+  @media (hover: none), (pointer: coarse), (max-width: 768px) {
+    *, *::before, *::after {
+      filter: none !important;
+      -webkit-filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    .grain, .atmos-spot { display: none !important; }
+  }
 
 /* Respect users who ask for reduced motion */
 @media (prefers-reduced-motion: reduce) {
