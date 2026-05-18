@@ -24,6 +24,46 @@
 <meta name="twitter:description" content="Ten AI bots for SA businesses. Catch leads, recover revenue, win back customers — automatically, in Rand.">
 <meta name="twitter:image" content="https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png">
 
+<link rel="canonical" href="https://jarvis-nexus-lead-jkon.vercel.app/">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Crect x='9' y='9' width='14' height='14' rx='2' fill='none' stroke='white' stroke-width='1.8' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Crect x='52' y='52' width='76' height='76' rx='10' fill='none' stroke='white' stroke-width='10' transform='rotate(45 90 90)'/%3E%3C/svg%3E">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Jarvis Nexus",
+  "alternateName": "Jarvis Nexus AI",
+  "url": "https://jarvis-nexus-lead-jkon.vercel.app/",
+  "logo": "https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png",
+  "image": "https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png",
+  "description": "AI automation agency for South African SMBs. Ten production bots that catch leads, recover revenue, win back customers, protect reviews and triage support — automatically, in Rand.",
+  "founder": { "@type": "Person", "name": "Seth Mokoena" },
+  "foundingLocation": { "@type": "Place", "name": "Johannesburg, South Africa" },
+  "areaServed": { "@type": "Country", "name": "South Africa" },
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Johannesburg",
+    "addressRegion": "Gauteng",
+    "addressCountry": "ZA"
+  },
+  "contactPoint": [{
+    "@type": "ContactPoint",
+    "telephone": "+27-67-099-4163",
+    "contactType": "sales",
+    "email": "ndumisoseth12@gmail.com",
+    "areaServed": "ZA",
+    "availableLanguage": ["English"]
+  }],
+  "offers": [
+    { "@type": "Offer", "name": "Starter Plan",  "price": "1490", "priceCurrency": "ZAR", "category": "subscription" },
+    { "@type": "Offer", "name": "Operator Plan", "price": "3990", "priceCurrency": "ZAR", "category": "subscription" },
+    { "@type": "Offer", "name": "Command Plan",  "price": "9990", "priceCurrency": "ZAR", "category": "subscription" }
+  ]
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -79,6 +119,17 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Screen-reader-only — accessible labels without visual clutter */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 html { scroll-behavior: smooth; }
 
@@ -1546,10 +1597,13 @@ nav.scrolled {
 
       <form class="router-form" id="routerForm">
         <div class="router-fields">
-          <input type="text" class="field" name="name" id="routerName" placeholder="Your name" required>
-          <input type="email" class="field" name="email" id="routerEmail" placeholder="Your email" required>
+          <label class="sr-only" for="routerName">Your name</label>
+          <input type="text" class="field" name="name" id="routerName" placeholder="Your name" autocomplete="name" required>
+          <label class="sr-only" for="routerEmail">Your email address</label>
+          <input type="email" class="field" name="email" id="routerEmail" placeholder="Your email" autocomplete="email" required>
         </div>
-        <textarea class="field field-textarea" name="message" id="routerMessage" placeholder="e.g. 'Customers don't show up for their hair appointments and I lose half my Saturdays.' or 'I get loads of WhatsApp enquiries after hours and I can't reply fast enough.'" required></textarea>
+        <label class="sr-only" for="routerMessage">Describe your business problem</label>
+        <textarea class="field field-textarea" name="message" id="routerMessage" placeholder="e.g. 'Customers don't show up for their hair appointments and I lose half my Saturdays.' or 'I get loads of enquiries after hours and I can't reply fast enough.'" required></textarea>
         <div class="router-submit-row">
           <button type="submit" class="btn btn-primary" id="routerSubmit">Route my request <span class="arrow">→</span></button>
           <span class="router-note">// SECURE · GOES STRAIGHT TO SETH</span>
@@ -1596,7 +1650,7 @@ nav.scrolled {
           <li>Email + Telegram alerts</li>
           <li class="muted">Phone support</li>
         </ul>
-        <a href="https://n8n-production-71d9.up.railway.app/webhook/payfast-subscribe?tier=starter" class="price-cta">Start with Starter →</a>
+        <a href="/api/payfast-subscribe?tier=starter" class="price-cta">Start with Starter →</a>
       </div>
 
       <div class="price-card feature">
@@ -1613,7 +1667,7 @@ nav.scrolled {
           <li>Custom AI tone &amp; brand voice</li>
           <li>Priority phone + WhatsApp support</li>
         </ul>
-        <a href="https://n8n-production-71d9.up.railway.app/webhook/payfast-subscribe?tier=operator" class="price-cta">Choose Operator →</a>
+        <a href="/api/payfast-subscribe?tier=operator" class="price-cta">Choose Operator →</a>
       </div>
 
       <div class="price-card">
@@ -1668,10 +1722,14 @@ nav.scrolled {
         <h4>Bots</h4>
         <a href="/leads">Lead Catcher</a>
         <a href="/churn">Churn Radar</a>
+        <a href="/noshow">No-Show Rescue</a>
         <a href="/recovery">Revenue Recovery</a>
-        <a href="/reviews">Review Pro</a>
+        <a href="/reactivation">Reactivation</a>
+        <a href="/reputation">Reputation Shield</a>
+        <a href="/referral">Referral Engine</a>
         <a href="/support">Smart Support</a>
         <a href="/lifetime">Lifetime &amp; Next Action</a>
+        <a href="/reviews">Review Pro</a>
       </div>
       <div class="foot-col">
         <h4>Company</h4>
@@ -1814,7 +1872,7 @@ document.getElementById('routerForm').addEventListener('submit', async function(
 
   try {
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'https://n8n-production-71d9.up.railway.app/webhook/master-router', true);
+    xhr.open('POST', '/api/router', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = function() {
       submit.disabled = false;
