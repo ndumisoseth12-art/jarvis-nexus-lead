@@ -18,6 +18,8 @@
     { "source": "/review-request", "destination": "/review-request.html" },
     { "source": "/onboarding",     "destination": "/onboarding.html" },
     { "source": "/proposal",       "destination": "/proposal.html" },
+    { "source": "/privacy",        "destination": "/privacy.html" },
+    { "source": "/terms",          "destination": "/terms.html" },
 
     { "source": "/api/router",            "destination": "https://n8n-production-71d9.up.railway.app/webhook/master-router" },
     { "source": "/api/payfast-subscribe", "destination": "https://n8n-production-71d9.up.railway.app/webhook/payfast-subscribe" },
