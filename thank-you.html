@@ -238,6 +238,12 @@ main { position:relative; z-index:2; min-height:100vh; display:grid; place-items
     }
     .grain, .atmos-spot { display: none !important; }
   }
+
+/* Legal links in footer */
+.foot-legal { display: inline-flex; gap: 12px; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; }
+.foot-legal a { color: var(--text-md, #a8a8c2); text-decoration: none; transition: color 150ms ease; }
+.foot-legal a:hover { color: var(--text-hi, #f5f5fa); }
+.foot-legal .sep { color: var(--text-lo, #6b6b85); opacity: 0.5; }
 </style>
 </head>
 <body>
@@ -289,5 +295,17 @@ main { position:relative; z-index:2; min-height:100vh; display:grid; place-items
   </div>
 </main>
 
+
+<footer style="border-top:1px solid rgba(255,255,255,0.08);padding:32px 0;margin-top:60px;text-align:center;">
+  <div class="wrap" style="max-width:1200px;margin:0 auto;padding:0 32px;">
+    <span class="foot-legal" style="display:inline-flex;gap:12px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;color:#a8a8c2;">
+      <a href="/" style="color:#a8a8c2;text-decoration:none;">HOME</a>
+      <span style="color:#6b6b85;opacity:0.5;">·</span>
+      <a href="/privacy" style="color:#a8a8c2;text-decoration:none;">PRIVACY</a>
+      <span style="color:#6b6b85;opacity:0.5;">·</span>
+      <a href="/terms" style="color:#a8a8c2;text-decoration:none;">TERMS</a>
+    </span>
+  </div>
+</footer>
 </body>
 </html>

@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Crect x='9' y='9' width='14' height='14' rx='2' fill='none' stroke='white' stroke-width='1.8' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Crect x='52' y='52' width='76' height='76' rx='10' fill='none' stroke='white' stroke-width='10' transform='rotate(45 90 90)'/%3E%3C/svg%3E">
 <title>Client Onboarding — Jarvis Nexus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,6 +28,17 @@
   --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
+/* Screen-reader-only — accessible labels without visual clutter */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 html{scroll-behavior:smooth;}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--surface-0);color:var(--text-hi);font-size:14px;line-height:1.55;font-weight:400;letter-spacing:-0.005em;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
 .serif{font-family:'Instrument Serif',serif;font-weight:400;letter-spacing:-0.02em;}
@@ -189,6 +203,21 @@ footer{border-top:1px solid var(--border-faint);padding:28px 0;margin-top:16px;}
     }
     .grain, .atmos-spot { display: none !important; }
   }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Legal links in footer */
+.foot-legal { display: inline-flex; gap: 12px; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; }
+.foot-legal a { color: var(--text-md, #a8a8c2); text-decoration: none; transition: color 150ms ease; }
+.foot-legal a:hover { color: var(--text-hi, #f5f5fa); }
+.foot-legal .sep { color: var(--text-lo, #6b6b85); opacity: 0.5; }
 </style>
 </head>
 <body>
@@ -200,7 +229,7 @@ footer{border-top:1px solid var(--border-faint);padding:28px 0;margin-top:16px;}
     <div class="gate-eyebrow">// OPERATOR TOOL</div>
     <div class="gate-title">Restricted <span style="background:var(--grad-accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">access.</span></div>
     <div class="gate-sub">Client onboarding triggers live emails and CRM updates. Enter your passphrase to continue.</div>
-    <input type="password" id="gateInput" class="gate-input" placeholder="Passphrase" autocomplete="off">
+    <label class="sr-only" for="gateInput">Passphrase</label><input type="password" id="gateInput" class="gate-input" placeholder="Passphrase" autocomplete="off">
     <button id="gateBtn" class="gate-btn">Unlock tool →</button>
     <div class="gate-error" id="gateError"></div>
   </div>
@@ -273,24 +302,24 @@ footer{border-top:1px solid var(--border-faint);padding:28px 0;margin-top:16px;}
         <div class="form-grid">
           <div class="field">
             <label>Client Full Name</label>
-            <input type="text" id="clientName" placeholder="e.g. Thabo Nkosi" required>
+            <label class="sr-only" for="clientName">e.g. Thabo Nkosi</label><input type="text" id="clientName" placeholder="e.g. Thabo Nkosi" required>
           </div>
           <div class="field">
             <label>Business Name</label>
-            <input type="text" id="businessName" placeholder="e.g. Nkosi Properties" required>
+            <label class="sr-only" for="businessName">e.g. Nkosi Properties</label><input type="text" id="businessName" placeholder="e.g. Nkosi Properties" required>
           </div>
           <div class="field">
             <label>Email Address</label>
-            <input type="email" id="email" placeholder="client@theirbusiness.co.za" required>
+            <label class="sr-only" for="email">client@theirbusiness.co.za</label><input type="email" id="email" placeholder="client@theirbusiness.co.za" required>
           </div>
           <div class="field">
             <label>Phone Number</label>
-            <input type="tel" id="phone" placeholder="e.g. 082 123 4567" required>
+            <label class="sr-only" for="phone">e.g. 082 123 4567</label><input type="tel" id="phone" placeholder="e.g. 082 123 4567" required>
           </div>
           <div class="field full">
             <label>Industry / Business Type</label>
             <div class="sel-wrap">
-              <select id="industry">
+              <label class="sr-only" for="industry">industry</label><select id="industry">
                 <option value="">Select industry</option>
                 <option>Retail &amp; E-Commerce</option>
                 <option>Property &amp; Real Estate</option>
@@ -361,17 +390,17 @@ footer{border-top:1px solid var(--border-faint);padding:28px 0;margin-top:16px;}
         <div class="form-grid">
           <div class="field">
             <label>Setup Fee (R)</label>
-            <input type="number" id="setupFee" placeholder="e.g. 4500" min="0" required>
+            <label class="sr-only" for="setupFee">e.g. 4500</label><input type="number" id="setupFee" placeholder="e.g. 4500" min="0" required>
             <span class="field-hint">Auto-fills from plan — override if needed</span>
           </div>
           <div class="field">
             <label>Monthly Fee (R)</label>
-            <input type="number" id="monthlyFee" placeholder="e.g. 3000" min="0" required>
+            <label class="sr-only" for="monthlyFee">e.g. 3000</label><input type="number" id="monthlyFee" placeholder="e.g. 3000" min="0" required>
             <span class="field-hint">Auto-fills from plan — override if needed</span>
           </div>
           <div class="field full">
             <label>Notes <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text-faint);font-family:'Inter',sans-serif;">(optional)</span></label>
-            <input type="text" id="notes" placeholder="e.g. Founder deal — free setup. Wants weekly check-ins.">
+            <label class="sr-only" for="notes">e.g. Founder deal — free setup. Wants weekly check-ins.</label><input type="text" id="notes" placeholder="e.g. Founder deal — free setup. Wants weekly check-ins.">
           </div>
         </div>
 
@@ -404,6 +433,7 @@ footer{border-top:1px solid var(--border-faint);padding:28px 0;margin-top:16px;}
   <div class="wrap">
     <div class="foot-line">
       <span class="foot-copy">JARVIS NEXUS // CLIENT ONBOARDING // OPERATOR TOOL // 2026</span>
+      <span class="foot-legal"><a href="/privacy">PRIVACY</a><span class="sep">·</span><a href="/terms">TERMS</a></span>
       <span class="joburg-badge">BUILT IN JOHANNESBURG</span>
     </div>
   </div>
@@ -418,7 +448,7 @@ footer{border-top:1px solid var(--border-faint);padding:28px 0;margin-top:16px;}
 <script>
 const PASSPHRASE = 'LoveGod12';
 const STORAGE_KEY = 'jn_op_unlocked_v1';
-const WEBHOOK = 'https://n8n-production-71d9.up.railway.app/webhook/client-onboard';
+const WEBHOOK = '/api/webhook/client-onboard';
 
 function _log(msg) { try { console.log('[JN-OB]', msg); } catch(e) {} }
 

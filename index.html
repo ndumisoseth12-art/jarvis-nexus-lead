@@ -1339,6 +1339,12 @@ nav.scrolled {
   }
   .atmos, .atmos-spot { transform: none !important; animation: none !important; }
 }
+
+/* Legal links in footer */
+.foot-legal { display: inline-flex; gap: 12px; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; }
+.foot-legal a { color: var(--text-md, #a8a8c2); text-decoration: none; transition: color 150ms ease; }
+.foot-legal a:hover { color: var(--text-hi, #f5f5fa); }
+.foot-legal .sep { color: var(--text-lo, #6b6b85); opacity: 0.5; }
 </style>
 </head>
 <body>
@@ -1737,6 +1743,8 @@ nav.scrolled {
         <a href="#pricing">Pricing</a>
         <a href="#router">Get a Proposal</a>
         <a href="#how">How it works</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
       </div>
       <div class="foot-col">
         <h4>Contact</h4>

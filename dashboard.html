@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Command Centre · Jarvis Nexus</title>
 <meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Crect x='9' y='9' width='14' height='14' rx='2' fill='none' stroke='white' stroke-width='1.8' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Crect x='52' y='52' width='76' height='76' rx='10' fill='none' stroke='white' stroke-width='10' transform='rotate(45 90 90)'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,6 +30,17 @@
 }
 
 * { box-sizing:border-box; margin:0; padding:0; }
+/* Screen-reader-only — accessible labels without visual clutter */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 html { scroll-behavior:smooth; }
 body {
   font-family:'Inter',-apple-system,sans-serif;
@@ -687,6 +701,21 @@ footer {
     }
     .grain, .atmos-spot { display: none !important; }
   }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Legal links in footer */
+.foot-legal { display: inline-flex; gap: 12px; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; }
+.foot-legal a { color: var(--text-md, #a8a8c2); text-decoration: none; transition: color 150ms ease; }
+.foot-legal a:hover { color: var(--text-hi, #f5f5fa); }
+.foot-legal .sep { color: var(--text-lo, #6b6b85); opacity: 0.5; }
 </style>
 </head>
 <body>
@@ -698,7 +727,7 @@ footer {
     <div class="gate-eyebrow">// COMMAND CENTRE</div>
     <div class="gate-title">Operator <span style="font-style:italic;color:var(--indigo-glow);">access only.</span></div>
     <div class="gate-sub">This console contains live operations data. Enter your passphrase to continue.</div>
-    <input type="password" id="gateInput" class="gate-input" placeholder="Passphrase" autocomplete="off">
+    <label class="sr-only" for="gateInput">Passphrase</label><input type="password" id="gateInput" class="gate-input" placeholder="Passphrase" autocomplete="off">
     <button id="gateBtn" class="gate-btn">Unlock console →</button>
     <div class="gate-error" id="gateError"></div>
   </div>
@@ -860,6 +889,7 @@ footer {
   <div class="wrap">
     <div class="foot-line">
       <span>JARVIS NEXUS // COMMAND CENTRE // OPERATOR ACCESS // BUILT IN JOBURG</span>
+      <span class="foot-legal"><a href="/privacy">PRIVACY</a><span class="sep">·</span><a href="/terms">TERMS</a></span>
       <span><span class="signout" id="signout">SIGN OUT</span></span>
     </div>
   </div>
@@ -870,7 +900,7 @@ footer {
   <div class="cmd-panel">
     <div class="cmd-input-wrap">
       <span class="cmd-icon">⌘</span>
-      <input type="text" id="cmdInput" class="cmd-input" placeholder="Search bots, links, webhooks, tools…">
+      <label class="sr-only" for="cmdInput">Search bots, links, webhooks, tools…</label><input type="text" id="cmdInput" class="cmd-input" placeholder="Search bots, links, webhooks, tools…">
     </div>
     <div class="cmd-results" id="cmdResults"></div>
     <div class="cmd-foot">
@@ -971,7 +1001,7 @@ const mockData = {
     { label: 'Errors (24h)',       value: '0',      accent: 'ok',     delta: 'all green' }
   ],
 
-  // Bot health — 11 bots, real status reflects what's currently shipped
+  // Bot health — 10 bots, real status reflects what's currently shipped
   bots: [
     { id: 'B1',  name: 'Lead Catcher',     status: 'live',  events: 12, lastRun: '2 min ago' },
     { id: 'B2',  name: 'Churn Radar',      status: 'live',  events: 8,  lastRun: '14 min ago' },

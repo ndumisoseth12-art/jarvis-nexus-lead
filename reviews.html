@@ -230,6 +230,12 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
     }
     .grain, .atmos-spot { display: none !important; }
   }
+
+/* Legal links in footer */
+.foot-legal { display: inline-flex; gap: 12px; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; }
+.foot-legal a { color: var(--text-md, #a8a8c2); text-decoration: none; transition: color 150ms ease; }
+.foot-legal a:hover { color: var(--text-hi, #f5f5fa); }
+.foot-legal .sep { color: var(--text-lo, #6b6b85); opacity: 0.5; }
 </style>
 </head>
 <body>
@@ -428,6 +434,7 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
   <div class="wrap">
     <div class="foot-line">
       <span>JARVIS NEXUS // B11 REVIEW PRO · E-COMMERCE // © 2026</span>
+      <span class="foot-legal"><a href="/privacy">PRIVACY</a><span class="sep">·</span><a href="/terms">TERMS</a></span>
       <span class="joburg-badge">PROUDLY BUILT IN JOHANNESBURG</span>
     </div>
   </div>
