@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice Tool — Coming Soon · Jarvis Nexus</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://jarvis-nexus-lead-jkon.vercel.app/invoice-tool">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Crect x='9' y='9' width='14' height='14' rx='2' fill='none' stroke='white' stroke-width='1.8' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Crect x='52' y='52' width='76' height='76' rx='10' fill='none' stroke='white' stroke-width='10' transform='rotate(45 90 90)'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --indigo-glow:#818cf8; --indigo:#6366f1; --indigo-deep:#4f46e5;
+  --indigo-shadow:rgba(99,102,241,0.40); --indigo-soft:rgba(99,102,241,0.10);
+  --surface-0:#08080c; --surface-1:#0e0e15; --surface-2:#14141d; --surface-3:#1c1c28;
+  --border-faint:rgba(255,255,255,0.04); --border-subtle:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.15); --border-indigo:rgba(99,102,241,0.25);
+  --text-hi:#f5f5fa; --text-md:#a8a8c2; --text-lo:#6b6b85;
+  --warn:#f59e0b; --ok:#10b981;
+  --grad-accent:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--surface-0);
+  color: var(--text-hi);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  display: flex; flex-direction: column;
+}
+
+#gate {
+  position: fixed; inset: 0;
+  display: grid; place-items: center;
+  background: var(--surface-0);
+  z-index: 9999;
+}
+#gate .gate-box {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 40px;
+  text-align: center;
+  max-width: 360px;
+  width: 90%;
+}
+#gate h2 {
+  font-family: 'Instrument Serif', serif;
+  font-size: 32px; font-weight: 400;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+#gate p { color: var(--text-md); font-size: 13.5px; margin-bottom: 20px; }
+#gate input {
+  width: 100%;
+  background: var(--surface-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  color: var(--text-hi);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  padding: 14px 16px;
+  letter-spacing: 0.15em;
+  text-align: center;
+  outline: none;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+#gate input:focus { border-color: var(--border-indigo); box-shadow: 0 0 0 4px var(--indigo-soft); }
+#gate button {
+  width: 100%;
+  background: var(--grad-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-md);
+  padding: 14px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+}
+#gate .err {
+  color: #f43f5e; font-size: 12px; margin-top: 8px; min-height: 16px;
+  font-family: 'JetBrains Mono', monospace; letter-spacing: 0.06em;
+}
+
+#shell { display: none; flex-direction: column; flex: 1; min-height: 100vh; }
+#shell.unlocked { display: flex; }
+
+nav {
+  background: rgba(8,8,12,0.82);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border-faint);
+}
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 32px; }
+.nav-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 72px; gap: 24px;
+}
+.logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.logo-mark {
+  width: 32px; height: 32px;
+  background: var(--grad-accent);
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset, 0 8px 24px var(--indigo-shadow);
+}
+.logo-mark::before {
+  content: ''; position: absolute; inset: 6px;
+  border: 1.5px solid rgba(255,255,255,0.92);
+  border-radius: 4px;
+  border-bottom-color: transparent;
+  border-right-color: transparent;
+  transform: rotate(45deg);
+}
+.logo-name { font-weight: 800; font-size: 15px; letter-spacing: 0.02em; }
+.logo-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px; color: var(--text-lo);
+  letter-spacing: 0.18em; text-transform: uppercase; margin-top: 2px;
+}
+.nav-right { display: flex; align-items: center; gap: 14px; }
+.btn-ghost {
+  font-size: 13.5px; font-weight: 500; color: var(--text-md);
+  text-decoration: none; padding: 8px 14px;
+  border-radius: 6px;
+  transition: color 150ms ease, background 150ms ease;
+}
+.btn-ghost:hover { color: var(--text-hi); background: var(--surface-2); }
+.signout {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-lo);
+  letter-spacing: 0.12em; cursor: pointer;
+  padding: 8px 12px; border-radius: 6px;
+  transition: color 150ms ease, background 150ms ease;
+}
+.signout:hover { color: var(--text-hi); background: var(--surface-2); }
+
+main { flex: 1; display: grid; place-items: center; padding: 60px 0; }
+
+.coming-card {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 64px 40px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-xl);
+  position: relative;
+  overflow: hidden;
+}
+.coming-card::before {
+  content: '';
+  position: absolute; top: -50%; left: 50%;
+  transform: translateX(-50%);
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, var(--indigo-soft) 0%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+.coming-card > * { position: relative; z-index: 1; }
+
+.eyebrow {
+  display: inline-block;
+  padding: 5px 12px;
+  background: rgba(245,158,11,0.10);
+  border: 1px solid rgba(245,158,11,0.20);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--warn);
+  letter-spacing: 0.16em;
+  margin-bottom: 28px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+h1 {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400; font-style: italic;
+  font-size: clamp(44px, 6vw, 64px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin-bottom: 18px;
+  color: var(--text-hi);
+}
+h1 .em {
+  background: var(--grad-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-style: normal;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: var(--text-md);
+  line-height: 1.6;
+  max-width: 460px;
+  margin: 0 auto 32px;
+}
+
+.fallback {
+  margin-top: 12px;
+  padding: 20px 24px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  text-align: left;
+}
+.fallback-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-lo);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.fallback p { font-size: 13.5px; color: var(--text-md); margin-bottom: 14px; }
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 13px 22px;
+  background: var(--grad-accent);
+  color: #fff;
+  text-decoration: none;
+  border-radius: var(--r-sm);
+  font-weight: 600;
+  font-size: 13.5px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px var(--indigo-shadow);
+  transition: transform 150ms ease, box-shadow 200ms ease;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 10px 24px var(--indigo-shadow); }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 13px 22px;
+  background: transparent;
+  color: var(--text-hi);
+  text-decoration: none;
+  border-radius: var(--r-sm);
+  font-weight: 500;
+  font-size: 13.5px;
+  border: 1px solid var(--border-strong);
+  margin-left: 8px;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.btn-secondary:hover { background: var(--surface-3); border-color: var(--border-indigo); }
+
+footer {
+  border-top: 1px solid var(--border-subtle);
+  padding: 28px 0;
+}
+.foot-line {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-lo);
+  letter-spacing: 0.04em;
+}
+.foot-legal { display: inline-flex; gap: 12px; align-items: center; }
+.foot-legal a { color: var(--text-md); text-decoration: none; transition: color 150ms ease; }
+.foot-legal a:hover { color: var(--text-hi); }
+.foot-legal .sep { color: var(--text-lo); opacity: 0.5; }
+.joburg-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 100px;
+  color: var(--text-md);
+}
+.joburg-badge::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--indigo-glow);
+  box-shadow: 0 0 8px var(--indigo-shadow);
+}
+
+@media (hover: none), (pointer: coarse), (max-width: 768px) {
+  *, *::before, *::after {
+    filter: none !important;
+    -webkit-filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media (max-width: 768px) {
+  .wrap { padding: 0 20px; }
+  .coming-card { padding: 48px 28px; }
+  .btn-secondary { margin-left: 0; margin-top: 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Operator-only gate (LoveGod12) -->
+<div id="gate">
+  <div class="gate-box">
+    <h2 class="serif">Operator <em>access.</em></h2>
+    <p>Enter the operator passphrase.</p>
+    <form id="gateForm">
+      <label class="sr-only" for="gatePass">Operator passphrase</label>
+      <input type="password" id="gatePass" autocomplete="off" placeholder="••••••••">
+      <button type="submit">Unlock</button>
+    </form>
+    <div class="err" id="gateErr"></div>
+  </div>
+</div>
+
+<div id="shell">
+
+  <nav>
+    <div class="wrap">
+      <div class="nav-inner">
+        <a href="/dashboard" class="logo">
+          <div class="logo-mark"></div>
+          <div>
+            <div class="logo-name">JARVIS NEXUS</div>
+            <div class="logo-tag">OPERATOR · INVOICE TOOL</div>
+          </div>
+        </a>
+        <div class="nav-right">
+          <a href="/dashboard" class="btn-ghost">← Dashboard</a>
+          <span class="signout" id="signout">SIGN OUT</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="wrap">
+      <div class="coming-card">
+        <div class="eyebrow">// PHASE 3 · COMING SOON</div>
+        <h1>Invoice Tool — <span class="em">in build.</span></h1>
+        <p class="subtitle">A dedicated portal page for generating, sending and tracking client invoices is on the roadmap. Until then, trigger the Invoice workflow directly from the n8n editor.</p>
+
+        <div class="fallback">
+          <div class="fallback-label">// Workaround for now</div>
+          <p>Open the n8n editor → find the <strong>Invoice Bot</strong> workflow → click "Execute Workflow" → fill in the trigger payload (client name, amount, line items) → the workflow generates the invoice PDF and emails it to the client. Logs hit the Invoices sheet.</p>
+          <a href="https://n8n-production-71d9.up.railway.app" target="_blank" rel="noopener" class="btn-primary">Open n8n editor →</a>
+          <a href="/dashboard" class="btn-secondary">Back to dashboard</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-line">
+        <span>JARVIS NEXUS // INVOICE TOOL // OPERATOR · IN BUILD // 2026</span>
+        <span class="foot-legal"><a href="/privacy">PRIVACY</a><span class="sep">·</span><a href="/terms">TERMS</a></span>
+        <span class="joburg-badge">BUILT IN JOHANNESBURG</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function() {
+  const PASS = 'LoveGod12';
+  const KEY  = 'jn_op_unlocked_v1';
+  const gate = document.getElementById('gate');
+  const shell = document.getElementById('shell');
+  const form = document.getElementById('gateForm');
+  const passInp = document.getElementById('gatePass');
+  const err = document.getElementById('gateErr');
+  const signout = document.getElementById('signout');
+
+  function unlock() {
+    gate.style.display = 'none';
+    shell.classList.add('unlocked');
+  }
+
+  if (localStorage.getItem(KEY) === '1') {
+    unlock();
+  } else {
+    passInp.focus();
+  }
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (passInp.value === PASS) {
+      localStorage.setItem(KEY, '1');
+      err.textContent = '';
+      unlock();
+    } else {
+      err.textContent = 'WRONG PASSPHRASE';
+      passInp.value = '';
+      passInp.focus();
+    }
+  });
+
+  signout.addEventListener('click', function() {
+    localStorage.removeItem(KEY);
+    location.reload();
+  });
+})();
+</script>
+
+</body>
+</html>

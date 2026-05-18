@@ -1003,16 +1003,16 @@ const mockData = {
 
   // Bot health — 10 bots, real status reflects what's currently shipped
   bots: [
-    { id: 'B1',  name: 'Lead Catcher',     status: 'live',  events: 12, lastRun: '2 min ago' },
+    { id: 'B1',  name: 'Lead Catcher',     status: 'build', events: 0,  lastRun: '— (Phase 3)' },
     { id: 'B2',  name: 'Churn Radar',      status: 'live',  events: 8,  lastRun: '14 min ago' },
-    { id: 'B3',  name: 'No-Show Rescue',   status: 'build', events: 0,  lastRun: '—' },
+    { id: 'B3',  name: 'No-Show Rescue',   status: 'live',  events: 3,  lastRun: '38 min ago' },
     { id: 'B4',  name: 'Revenue Recovery', status: 'live',  events: 6,  lastRun: '4 min ago' },
-    { id: 'B5',  name: 'Reactivation',     status: 'build', events: 0,  lastRun: '—' },
-    { id: 'B6',  name: 'Reputation Shield',status: 'build', events: 0,  lastRun: '—' },
-    { id: 'B7',  name: 'Referral Engine',  status: 'build', events: 0,  lastRun: '—' },
-    { id: 'B8',  name: 'Owner Brief',      status: 'idle',  events: 1,  lastRun: '07:00 today' },
+    { id: 'B5',  name: 'Reactivation',     status: 'live',  events: 2,  lastRun: '1 hr ago' },
+    { id: 'B6',  name: 'Reputation Shield',status: 'live',  events: 4,  lastRun: '22 min ago' },
+    { id: 'B7',  name: 'Referral Engine',  status: 'live',  events: 1,  lastRun: '3 hr ago' },
+    { id: 'B8',  name: 'Owner Brief',      status: 'live',  events: 1,  lastRun: '07:00 today' },
     { id: 'B9',  name: 'Smart Support',    status: 'live',  events: 11, lastRun: '7 min ago' },
-    { id: 'B10', name: 'Lifetime & NA',    status: 'idle',  events: 0,  lastRun: 'Mon 8:00' },
+    { id: 'B10', name: 'Lifetime & NA',    status: 'live',  events: 1,  lastRun: 'Mon 08:00' },
     { id: 'B11', name: 'Review Pro',       status: 'live',  events: 9,  lastRun: '11 min ago' }
   ],
 
@@ -1077,7 +1077,7 @@ const mockData = {
   tools: [
     { name: 'Client Onboarding Form', desc: 'New client intake — kicks off onboarding workflow.', href: '/onboarding', status: 'live' },
     { name: 'Proposal Generator',     desc: 'Generate a proposal PDF for a prospect.',           href: '/proposal',   status: 'live' },
-    { name: 'Invoice Tool',           desc: 'Portal page in build — for now, trigger via n8n editor.', href: 'https://n8n-production-71d9.up.railway.app', status: 'build', external: true },
+    { name: 'Invoice Tool',           desc: 'Portal page in build — see workaround on the stub page.', href: '/invoice-tool', status: 'build' },
     { name: 'Review Request Sender',  desc: 'Manually trigger review request to a customer.',    href: '/review-request', status: 'live' }
   ]
 };
