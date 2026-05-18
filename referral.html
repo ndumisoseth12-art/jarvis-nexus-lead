@@ -22,6 +22,28 @@
 <meta name="twitter:description" content="Your best customers, your best salespeople. AI-drafted asks, unique codes, dual rewards.">
 <meta name="twitter:image" content="https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png">
 
+<link rel="canonical" href="https://jarvis-nexus-lead-jkon.vercel.app/referral">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Crect x='9' y='9' width='14' height='14' rx='2' fill='none' stroke='white' stroke-width='1.8' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Crect x='52' y='52' width='76' height='76' rx='10' fill='none' stroke='white' stroke-width='10' transform='rotate(45 90 90)'/%3E%3C/svg%3E">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Referral Engine",
+  "url": "https://jarvis-nexus-lead-jkon.vercel.app/referral",
+  "description": "Turns 5-star customers into a referral pipeline with tracked links and auto-issued rewards.",
+  "provider": {
+    "@type": "Organization",
+    "name": "Jarvis Nexus",
+    "url": "https://jarvis-nexus-lead-jkon.vercel.app"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "South Africa"
+  }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -43,6 +65,17 @@
 }
 
 * { box-sizing:border-box; margin:0; padding:0; }
+/* Screen-reader-only — accessible labels without visual clutter */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 html { scroll-behavior:smooth; }
 body {
   font-family:'Inter',-apple-system,sans-serif;
@@ -731,7 +764,7 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
         </p>
         <div class="hero-ctas">
           <a href="#try-it" class="btn btn-primary">Send a referral ask <span class="arrow">→</span></a>
-          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-secondary">Book a 20-min demo</a>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-secondary">Book a 30-min demo</a>
         </div>
         <div class="hero-honest">
           <span class="dot"></span>
@@ -911,23 +944,23 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
           <div class="form-grid">
             <div class="field">
               <label>Advocate name</label>
-              <input type="text" id="customerName" placeholder="e.g. Aisha Patel" required>
+              <label class="sr-only" for="customerName">e.g. Aisha Patel</label><input type="text" id="customerName" placeholder="e.g. Aisha Patel" required>
             </div>
             <div class="field">
               <label>Advocate email (yours, to test)</label>
-              <input type="email" id="customerEmail" placeholder="you@yourbusiness.co.za" required>
+              <label class="sr-only" for="customerEmail">you@yourbusiness.co.za</label><input type="email" id="customerEmail" placeholder="you@yourbusiness.co.za" required>
             </div>
             <div class="field">
               <label>Business name (the sender)</label>
-              <input type="text" id="businessName" placeholder="e.g. Mokoena Coffee Roasters" required>
+              <label class="sr-only" for="businessName">e.g. Mokoena Coffee Roasters</label><input type="text" id="businessName" placeholder="e.g. Mokoena Coffee Roasters" required>
             </div>
             <div class="field">
               <label>Owner email (for alerts)</label>
-              <input type="email" id="ownerEmail" placeholder="owner@business.co.za" required>
+              <label class="sr-only" for="ownerEmail">owner@business.co.za</label><input type="email" id="ownerEmail" placeholder="owner@business.co.za" required>
             </div>
             <div class="field">
               <label>Advocate tier</label>
-              <select id="tier" required>
+              <label class="sr-only" for="tier">tier</label><select id="tier" required>
                 <option value="VIP">VIP</option>
                 <option value="Gold" selected>Gold</option>
                 <option value="Silver">Silver</option>
@@ -936,15 +969,15 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
             </div>
             <div class="field">
               <label>Last product (optional context)</label>
-              <input type="text" id="lastProduct" placeholder="e.g. Yirgacheffe single-origin">
+              <label class="sr-only" for="lastProduct">e.g. Yirgacheffe single-origin</label><input type="text" id="lastProduct" placeholder="e.g. Yirgacheffe single-origin">
             </div>
             <div class="field">
               <label>Advocate reward</label>
-              <input type="text" id="advocateReward" placeholder="e.g. R200 store credit" required>
+              <label class="sr-only" for="advocateReward">e.g. R200 store credit</label><input type="text" id="advocateReward" placeholder="e.g. R200 store credit" required>
             </div>
             <div class="field">
               <label>Friend offer</label>
-              <input type="text" id="friendOffer" placeholder="e.g. 20% off first order" required>
+              <label class="sr-only" for="friendOffer">e.g. 20% off first order</label><input type="text" id="friendOffer" placeholder="e.g. 20% off first order" required>
             </div>
           </div>
 
@@ -1005,7 +1038,7 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
 <div class="toast" id="toast"></div>
 
 <script>
-const WEBHOOK = 'https://n8n-production-71d9.up.railway.app/webhook/referral-ask';
+const WEBHOOK = '/api/webhook/referral-ask';
 
 function _log(msg) { try { console.log('[JN-REF]', msg); } catch(e) {} }
 

@@ -22,6 +22,28 @@
 <meta name="twitter:description" content="The polite, persistent invoice chaser. Auto-escalates, stops on payment, briefs you Monday.">
 <meta name="twitter:image" content="https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png">
 
+<link rel="canonical" href="https://jarvis-nexus-lead-jkon.vercel.app/recovery">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Crect x='9' y='9' width='14' height='14' rx='2' fill='none' stroke='white' stroke-width='1.8' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Crect x='52' y='52' width='76' height='76' rx='10' fill='none' stroke='white' stroke-width='10' transform='rotate(45 90 90)'/%3E%3C/svg%3E">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Revenue Recovery",
+  "url": "https://jarvis-nexus-lead-jkon.vercel.app/recovery",
+  "description": "Auto-chases failed payments and overdue invoices on a polite-firm-final ladder until they pay.",
+  "provider": {
+    "@type": "Organization",
+    "name": "Jarvis Nexus",
+    "url": "https://jarvis-nexus-lead-jkon.vercel.app"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "South Africa"
+  }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -43,6 +65,17 @@
 }
 
 * { box-sizing:border-box; margin:0; padding:0; }
+/* Screen-reader-only — accessible labels without visual clutter */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 html { scroll-behavior:smooth; }
 body {
   font-family:'Inter',-apple-system,sans-serif;
@@ -741,7 +774,7 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
         </p>
         <div class="hero-ctas">
           <a href="#try-it" class="btn btn-primary">Add an overdue invoice <span class="arrow">→</span></a>
-          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-secondary">Book a 20-min demo</a>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-secondary">Book a 30-min demo</a>
         </div>
         <div class="hero-honest">
           <span class="dot"></span>
@@ -929,43 +962,43 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
           <div class="form-grid">
             <div class="field">
               <label>Your name (the chaser)</label>
-              <input type="text" id="clientName" placeholder="e.g. Seth Mokoena" required>
+              <label class="sr-only" for="clientName">e.g. Seth Mokoena</label><input type="text" id="clientName" placeholder="e.g. Seth Mokoena" required>
             </div>
             <div class="field">
               <label>Your business name</label>
-              <input type="text" id="clientBusiness" placeholder="e.g. Mokoena Properties" required>
+              <label class="sr-only" for="clientBusiness">e.g. Mokoena Properties</label><input type="text" id="clientBusiness" placeholder="e.g. Mokoena Properties" required>
             </div>
             <div class="field">
               <label>Your email (for alerts)</label>
-              <input type="email" id="ownerEmail" placeholder="you@yourbusiness.co.za" required>
+              <label class="sr-only" for="ownerEmail">you@yourbusiness.co.za</label><input type="email" id="ownerEmail" placeholder="you@yourbusiness.co.za" required>
             </div>
             <div class="field">
               <label>Debtor name</label>
-              <input type="text" id="debtorName" placeholder="e.g. Thabo Nkosi" required>
+              <label class="sr-only" for="debtorName">e.g. Thabo Nkosi</label><input type="text" id="debtorName" placeholder="e.g. Thabo Nkosi" required>
             </div>
             <div class="field">
               <label>Debtor email</label>
-              <input type="email" id="debtorEmail" placeholder="them@theirbusiness.co.za" required>
+              <label class="sr-only" for="debtorEmail">them@theirbusiness.co.za</label><input type="email" id="debtorEmail" placeholder="them@theirbusiness.co.za" required>
             </div>
             <div class="field">
               <label>Invoice number</label>
-              <input type="text" id="invoiceNumber" placeholder="e.g. INV-2026-014" required>
+              <label class="sr-only" for="invoiceNumber">e.g. INV-2026-014</label><input type="text" id="invoiceNumber" placeholder="e.g. INV-2026-014" required>
             </div>
             <div class="field">
               <label>Invoice amount (R)</label>
-              <input type="number" id="invoiceAmount" placeholder="8500" min="0" step="0.01" required>
+              <label class="sr-only" for="invoiceAmount">8500</label><input type="number" id="invoiceAmount" placeholder="8500" min="0" step="0.01" required>
             </div>
             <div class="field">
               <label>Due date</label>
-              <input type="date" id="dueDate" required>
+              <label class="sr-only" for="dueDate">dueDate</label><input type="date" id="dueDate" required>
             </div>
             <div class="field full">
               <label>Service description</label>
-              <input type="text" id="serviceDesc" placeholder="e.g. March property management fee" required>
+              <label class="sr-only" for="serviceDesc">e.g. March property management fee</label><input type="text" id="serviceDesc" placeholder="e.g. March property management fee" required>
             </div>
             <div class="field full">
               <label>Accepted payment methods</label>
-              <input type="text" id="paymentMethods" placeholder="e.g. EFT, PayFast, or Yoco card link" required>
+              <label class="sr-only" for="paymentMethods">e.g. EFT, PayFast, or Yoco card link</label><input type="text" id="paymentMethods" placeholder="e.g. EFT, PayFast, or Yoco card link" required>
             </div>
           </div>
 
@@ -1026,7 +1059,7 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
 <div class="toast" id="toast"></div>
 
 <script>
-const WEBHOOK = 'https://n8n-production-71d9.up.railway.app/webhook/revenue-recovery';
+const WEBHOOK = '/api/webhook/revenue-recovery';
 
 function _log(msg) { try { console.log('[JN-RECOVERY]', msg); } catch(e) {} }
 

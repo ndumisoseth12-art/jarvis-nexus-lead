@@ -22,6 +22,28 @@
 <meta name="twitter:description" content="Customer success on autopilot. RFV scoring, tier moments, Monday brief.">
 <meta name="twitter:image" content="https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png">
 
+<link rel="canonical" href="https://jarvis-nexus-lead-jkon.vercel.app/lifetime">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Crect x='9' y='9' width='14' height='14' rx='2' fill='none' stroke='white' stroke-width='1.8' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Crect x='52' y='52' width='76' height='76' rx='10' fill='none' stroke='white' stroke-width='10' transform='rotate(45 90 90)'/%3E%3C/svg%3E">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Lifetime & Next Action",
+  "url": "https://jarvis-nexus-lead-jkon.vercel.app/lifetime",
+  "description": "Every Monday: your top 5 customers to act on this week and the exact offer for each one.",
+  "provider": {
+    "@type": "Organization",
+    "name": "Jarvis Nexus",
+    "url": "https://jarvis-nexus-lead-jkon.vercel.app"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "South Africa"
+  }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -44,6 +66,17 @@
   --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
 }
 * { box-sizing:border-box; margin:0; padding:0; }
+/* Screen-reader-only — accessible labels without visual clutter */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 html { scroll-behavior:smooth; }
 body {
   font-family:'Inter',-apple-system,sans-serif;
@@ -752,7 +785,7 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
         </p>
         <div class="hero-ctas">
           <a href="#try-it" class="btn btn-primary">Log a purchase <span class="arrow">→</span></a>
-          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-secondary">Book a 20-min demo</a>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-secondary">Book a 30-min demo</a>
         </div>
         <div class="hero-honest">
           <span class="dot"></span>
@@ -988,35 +1021,35 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
           <div class="form-grid">
             <div class="field">
               <label>Customer name</label>
-              <input type="text" id="customerName" placeholder="e.g. Boitumelo Mokoena" required>
+              <label class="sr-only" for="customerName">e.g. Boitumelo Mokoena</label><input type="text" id="customerName" placeholder="e.g. Boitumelo Mokoena" required>
             </div>
             <div class="field">
               <label>Customer email</label>
-              <input type="email" id="customerEmail" placeholder="customer@example.co.za" required>
+              <label class="sr-only" for="customerEmail">customer@example.co.za</label><input type="email" id="customerEmail" placeholder="customer@example.co.za" required>
             </div>
             <div class="field">
               <label>Your business name</label>
-              <input type="text" id="businessName" placeholder="e.g. Sandton Salon Co." required>
+              <label class="sr-only" for="businessName">e.g. Sandton Salon Co.</label><input type="text" id="businessName" placeholder="e.g. Sandton Salon Co." required>
             </div>
             <div class="field">
               <label>Your email (alerts)</label>
-              <input type="email" id="ownerEmail" placeholder="you@yourbusiness.co.za" required>
+              <label class="sr-only" for="ownerEmail">you@yourbusiness.co.za</label><input type="email" id="ownerEmail" placeholder="you@yourbusiness.co.za" required>
             </div>
             <div class="field">
               <label>Purchase amount (R)</label>
-              <input type="number" id="purchaseAmount" placeholder="2500" min="0" step="0.01" required>
+              <label class="sr-only" for="purchaseAmount">2500</label><input type="number" id="purchaseAmount" placeholder="2500" min="0" step="0.01" required>
             </div>
             <div class="field">
               <label>Purchase date</label>
-              <input type="date" id="purchaseDate" required>
+              <label class="sr-only" for="purchaseDate">purchaseDate</label><input type="date" id="purchaseDate" required>
             </div>
             <div class="field full">
               <label>Product or service</label>
-              <input type="text" id="productService" placeholder="e.g. Hair colour and treatment" required>
+              <label class="sr-only" for="productService">e.g. Hair colour and treatment</label><input type="text" id="productService" placeholder="e.g. Hair colour and treatment" required>
             </div>
             <div class="field full">
               <label>Notes (optional)</label>
-              <textarea id="notes" placeholder="Any context you want to record..."></textarea>
+              <label class="sr-only" for="notes">Any context you want to record...</label><textarea id="notes" placeholder="Any context you want to record..."></textarea>
             </div>
           </div>
 
@@ -1076,7 +1109,7 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
 <div class="toast" id="toast"></div>
 
 <script>
-const WEBHOOK = 'https://n8n-production-71d9.up.railway.app/webhook/lifetime-log-purchase';
+const WEBHOOK = '/api/webhook/lifetime-log-purchase';
 function _log(msg) { try { console.log('[JN-LIFETIME]', msg); } catch(e) {} }
 function toast(kind, msg) {
   const t = document.getElementById('toast');

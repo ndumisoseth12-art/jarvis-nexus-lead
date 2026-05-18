@@ -22,6 +22,28 @@
 <meta name="twitter:description" content="Every support message — triaged, AI-drafted reply, SLA-tracked automatically.">
 <meta name="twitter:image" content="https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png">
 
+<link rel="canonical" href="https://jarvis-nexus-lead-jkon.vercel.app/support">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Crect x='9' y='9' width='14' height='14' rx='2' fill='none' stroke='white' stroke-width='1.8' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Crect x='52' y='52' width='76' height='76' rx='10' fill='none' stroke='white' stroke-width='10' transform='rotate(45 90 90)'/%3E%3C/svg%3E">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Smart Support Triage",
+  "url": "https://jarvis-nexus-lead-jkon.vercel.app/support",
+  "description": "Sorts every customer message by urgency, drafts the reply, tracks SLA and escalates if you are slow.",
+  "provider": {
+    "@type": "Organization",
+    "name": "Jarvis Nexus",
+    "url": "https://jarvis-nexus-lead-jkon.vercel.app"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "South Africa"
+  }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -43,6 +65,17 @@
 }
 
 * { box-sizing:border-box; margin:0; padding:0; }
+/* Screen-reader-only — accessible labels without visual clutter */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 html { scroll-behavior:smooth; }
 body {
   font-family:'Inter',-apple-system,sans-serif;
@@ -769,7 +802,7 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
         </p>
         <div class="hero-ctas">
           <a href="#try-it" class="btn btn-primary">Submit a test ticket <span class="arrow">→</span></a>
-          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-secondary">Book a 20-min demo</a>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-secondary">Book a 30-min demo</a>
         </div>
         <div class="hero-honest">
           <span class="dot"></span>
@@ -984,20 +1017,20 @@ Thank you for your patience.
           <div class="form-grid">
             <div class="field">
               <label>Full name</label>
-              <input type="text" id="fullName" placeholder="e.g. Sipho Dlamini" required>
+              <label class="sr-only" for="fullName">e.g. Sipho Dlamini</label><input type="text" id="fullName" placeholder="e.g. Sipho Dlamini" required>
             </div>
             <div class="field">
               <label>Email</label>
-              <input type="email" id="email" placeholder="you@example.co.za" required>
+              <label class="sr-only" for="email">you@example.co.za</label><input type="email" id="email" placeholder="you@example.co.za" required>
             </div>
             <div class="field">
               <label>Order number</label>
-              <input type="text" id="orderNumber" placeholder="e.g. SO-2026-0894">
+              <label class="sr-only" for="orderNumber">e.g. SO-2026-0894</label><input type="text" id="orderNumber" placeholder="e.g. SO-2026-0894">
             </div>
             <div class="field">
               <label>Issue type</label>
               <div class="sel-wrap">
-                <select id="issueType" required>
+                <label class="sr-only" for="issueType">issueType</label><select id="issueType" required>
                   <option value="" disabled selected>Select issue type</option>
                   <option>Order not received</option>
                   <option>Damaged product</option>
@@ -1012,7 +1045,7 @@ Thank you for your patience.
             </div>
             <div class="field full">
               <label>Describe the issue</label>
-              <textarea id="issueDescription" placeholder="Tell us what's happening..." required></textarea>
+              <label class="sr-only" for="issueDescription">Tell us what</label><textarea id="issueDescription" placeholder="Tell us what's happening..." required></textarea>
             </div>
           </div>
 
@@ -1073,7 +1106,7 @@ Thank you for your patience.
 <div class="toast" id="toast"></div>
 
 <script>
-const WEBHOOK = 'https://n8n-production-71d9.up.railway.app/webhook/customer-support';
+const WEBHOOK = '/api/webhook/customer-support';
 
 function _log(msg) { try { console.log('[JN-SUPPORT]', msg); } catch(e) {} }
 
