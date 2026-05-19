@@ -1127,6 +1127,7 @@ nav {
   outline: 2px solid var(--indigo-glow);
   outline-offset: 2px;
 }
+.industry-chip:active { transform: scale(0.97); }
 .bot-card.hidden { display: none !important; }
 @media (max-width: 640px) {
   .industry-filter { gap: 6px; margin: 24px 0 28px; }
@@ -1634,62 +1635,6 @@ footer { border-top: 1px solid var(--border-subtle); padding: 64px 0 32px; }
   box-shadow: 0 0 8px var(--indigo-shadow);
 }
 
-/* ========== STICKY BOOK-DEMO PILL ========== */
-.book-pill {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(24px);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 50;
-  display: inline-flex; align-items: center; gap: 9px;
-  padding: 12px 22px 12px 18px;
-  background: var(--grad-accent);
-  color: #fff;
-  border-radius: 100px;
-  text-decoration: none;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.22),
-    0 8px 28px var(--indigo-shadow),
-    0 2px 6px rgba(0,0,0,0.3);
-  transition: transform 350ms cubic-bezier(0.2, 0.9, 0.3, 1), opacity 300ms ease;
-}
-.book-pill.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-  pointer-events: auto;
-}
-.book-pill:hover { transform: translateX(-50%) translateY(-2px); }
-.book-pill .pill-dot {
-  width: 7px; height: 7px;
-  background: #fff;
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(255,255,255,0.8);
-  animation: pulse-ok 1.6s infinite;
-}
-.book-pill .pill-arrow {
-  font-family: 'JetBrains Mono', monospace;
-  transition: transform 200ms ease;
-}
-.book-pill:hover .pill-arrow { transform: translateX(2px); }
-@media (max-width: 640px) {
-  .book-pill {
-    bottom: 92px;
-    padding: 11px 18px 11px 14px;
-    font-size: 13px;
-    max-width: calc(100vw - 32px);
-    white-space: nowrap;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .book-pill .pill-dot { animation: none; }
-}
-
 /* ========== WA FLOAT ========== */
 .wa-float {
   position: fixed; bottom: 24px; right: 24px;
@@ -1904,7 +1849,7 @@ nav.scrolled {
         <div class="demo-card" id="demoCard">
           <div class="demo-head">
             <span>// JARVIS NEXUS · INBOX ALERT</span>
-            <span class="live"><span class="dot"></span>06:47 SAST</span>
+            <span class="live"><span class="dot"></span>just now</span>
           </div>
 
           <div class="mock-mail">
@@ -2441,12 +2386,6 @@ nav.scrolled {
   </div>
 </footer>
 
-<a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="book-pill" id="bookPill" aria-label="Book a 30-minute demo with Seth">
-  <span class="pill-dot" aria-hidden="true"></span>
-  Book a 30-min demo
-  <span class="pill-arrow" aria-hidden="true">→</span>
-</a>
-
 <a href="https://wa.me/27670994163?text=Hi%20Seth%2C%20I%20saw%20Jarvis%20Nexus%20and%20I%27d%20like%20to%20learn%20more" target="_blank" rel="noopener" class="wa-float" aria-label="WhatsApp Seth">
   <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.7-.4-1.5-.7-2.4-1.6-.7-.6-1.1-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.2.3-.4.1-.2 0-.3 0-.4 0-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2 0 1.2.9 2.4 1 2.5.1.2 1.7 2.6 4.1 3.6 1.5.6 2.1.7 2.8.6.4-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1 0-.1-.2-.2-.5-.3z M12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z M12 20c-1.5 0-3-.4-4.3-1.1l-.3-.2-3.2.8.9-3.1-.2-.3C4.4 14.9 4 13.5 4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8z"/></svg>
 </a>
@@ -2470,20 +2409,6 @@ nav.scrolled {
       });
     });
   });
-})();
-
-// ============ STICKY BOOK-DEMO PILL ============
-(function() {
-  const pill = document.getElementById('bookPill');
-  const hero = document.querySelector('.hero');
-  if (!pill || !hero) return;
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) pill.classList.remove('show');
-      else pill.classList.add('show');
-    });
-  }, { threshold: 0.25 });
-  obs.observe(hero);
 })();
 
 // ============ PARALLAX TILT ON DEMO CARD ============
