@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Airbnb Pack · Jarvis Nexus — 3 AI bots built for SA Airbnb hosts</title>
+<meta name="description" content="Reply to every Airbnb review. Even at 2am. Three AI bots — Review Pro, Revenue Recovery, Owner Brief — built specifically for South African Airbnb and short-term rental hosts. From R1,990/month. Built in Joburg.">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Jarvis Nexus">
+<meta property="og:title" content="The Airbnb Pack — 3 AI bots built for SA Airbnb hosts">
+<meta property="og:description" content="Reply to every Airbnb review. Even at 2am. Three AI bots built for South African Airbnb hosts. From R1,990/month.">
+<meta property="og:url" content="https://jarvis-nexus-lead-jkon.vercel.app/airbnb-pack">
+<meta property="og:image" content="https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_ZA">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Airbnb Pack — 3 AI bots built for SA Airbnb hosts">
+<meta name="twitter:description" content="Reply to every review, even at 2am. Three AI bots built for SA Airbnb hosts. From R1,990/month.">
+<meta name="twitter:image" content="https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png">
+
+<link rel="canonical" href="https://jarvis-nexus-lead-jkon.vercel.app/airbnb-pack">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Crect x='9' y='9' width='14' height='14' rx='2' fill='none' stroke='white' stroke-width='1.8' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Crect x='52' y='52' width='76' height='76' rx='10' fill='none' stroke='white' stroke-width='10' transform='rotate(45 90 90)'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --indigo-glow:    #818cf8;
+  --indigo:         #6366f1;
+  --indigo-deep:    #4f46e5;
+  --indigo-shadow:  rgba(99,102,241,0.40);
+  --indigo-soft:    rgba(99,102,241,0.10);
+
+  --surface-0: #08080c;
+  --surface-1: #0e0e15;
+  --surface-2: #14141d;
+  --surface-3: #1c1c28;
+  --surface-4: #25253a;
+
+  --border-faint:  rgba(255,255,255,0.04);
+  --border-subtle: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.15);
+  --border-indigo: rgba(99,102,241,0.25);
+
+  --text-hi:    #f5f5fa;
+  --text-md:    #a8a8c2;
+  --text-lo:    #6b6b85;
+  --text-faint: #3a3a52;
+
+  --ok:   #10b981;
+  --warn: #f59e0b;
+  --bad:  #f43f5e;
+  --info: #22d3ee;
+  --gold: #facc15;
+  --airbnb: #ff5a5f;
+
+  --grad-accent:   linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #4f46e5 100%);
+  --grad-shimmer:  linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
+  --grad-divider:  linear-gradient(90deg, transparent 0%, rgba(99,102,241,0.5) 50%, transparent 100%);
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--surface-0);
+  color: var(--text-hi);
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.serif { font-family: 'Instrument Serif', serif; font-weight: 400; letter-spacing: -0.02em; }
+.italic { font-style: italic; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* ========== ATMOSPHERE ========== */
+.grid-lines {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: calc(100% / 12) 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+}
+.atmos {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.atmos::before {
+  content: '';
+  position: absolute;
+  width: 1000px; height: 1000px;
+  border-radius: 50%;
+  top: -350px; left: -250px;
+  background: radial-gradient(circle, rgba(129,140,248,0.18) 0%, rgba(99,102,241,0.08) 35%, transparent 70%);
+  filter: blur(40px);
+}
+.atmos::after {
+  content: '';
+  position: absolute;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  top: 200px; right: -100px;
+  background: radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
+  filter: blur(60px);
+}
+.grain {
+  position: fixed; inset: 0; z-index: 1;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+@media (max-width: 768px) {
+  .atmos::before, .atmos::after { filter: none; opacity: 0.35; }
+  .grain { display: none; }
+}
+
+main, nav, footer { position: relative; z-index: 2; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+@media (max-width: 640px) { .wrap { padding: 0 20px; } }
+
+/* ========== NAV ========== */
+nav {
+  position: sticky; top: 0; z-index: 40;
+  background: rgba(8,8,12,0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-faint);
+}
+@media (max-width: 768px) {
+  nav { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(8,8,12,0.96); }
+}
+.nav-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 0;
+  gap: 16px;
+}
+.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-mark {
+  width: 28px; height: 28px;
+  background: var(--grad-accent);
+  border-radius: 7px;
+  position: relative;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 12px rgba(99,102,241,0.3);
+}
+.logo-mark::after {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  border: 1.5px solid #fff;
+  border-radius: 2px;
+  top: 7px; left: 7px;
+  transform: rotate(45deg);
+}
+.logo-text { display: flex; flex-direction: column; }
+.logo-name {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: var(--text-hi);
+  line-height: 1;
+}
+.logo-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--text-lo);
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-back {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-md);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  transition: color 200ms, border-color 200ms;
+}
+.nav-back:hover { color: var(--text-hi); border-color: var(--border-indigo); }
+@media (max-width: 540px) { .nav-back { display: none; } }
+.pack-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px;
+  background: var(--indigo-soft);
+  border: 1px solid var(--border-indigo);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--indigo-glow);
+}
+.pack-pill .dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--indigo-glow);
+  box-shadow: 0 0 8px var(--indigo-glow);
+}
+
+/* ========== BUTTONS ========== */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  transition: transform 200ms cubic-bezier(0.2,0.9,0.3,1), box-shadow 200ms;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: var(--grad-shimmer);
+  transition: left 600ms ease;
+  pointer-events: none;
+}
+.btn:hover::after { left: 100%; }
+.btn .arrow { transition: transform 200ms ease; }
+.btn:hover .arrow { transform: translateX(2px); }
+
+.btn-primary {
+  padding: 16px 26px;
+  font-size: 15px;
+  background: var(--grad-accent);
+  color: #fff;
+  border-radius: var(--r-sm);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.20),
+    0 1px 2px rgba(0,0,0,0.4);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    0 12px 32px var(--indigo-shadow);
+}
+.btn-secondary {
+  padding: 16px 26px;
+  font-size: 15px;
+  background: transparent;
+  color: var(--text-hi);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border-strong);
+}
+.btn-secondary:hover {
+  background: var(--surface-2);
+  border-color: var(--border-indigo);
+}
+.btn-secondary::after { display: none; }
+.btn-text {
+  font-size: 14px;
+  color: var(--text-md);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 10px 4px;
+  border-bottom: 1px solid transparent;
+  transition: color 200ms, border-color 200ms;
+}
+.btn-text:hover { color: var(--text-hi); border-bottom-color: var(--border-strong); }
+
+/* ========== HERO ========== */
+.hero { padding: 64px 0 80px; }
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+@media (max-width: 980px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+  .hero { padding: 48px 0 60px; }
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 6px 14px;
+  background: var(--indigo-soft);
+  border: 1px solid var(--border-indigo);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--indigo-glow);
+  letter-spacing: 0.08em;
+  margin-bottom: 28px;
+  text-transform: uppercase;
+}
+.hero-eyebrow .pulse {
+  width: 6px; height: 6px;
+  background: var(--indigo-glow);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(129,140,248,0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(129,140,248,0); }
+  100% { box-shadow: 0 0 0 0 rgba(129,140,248,0); }
+}
+
+.hero-title {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(48px, 7.2vw, 92px);
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+  margin-bottom: 28px;
+  color: var(--text-hi);
+}
+.hero-title .accent {
+  font-style: italic;
+  background: var(--grad-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--text-md);
+  max-width: 540px;
+  margin-bottom: 32px;
+}
+.hero-sub strong { color: var(--text-hi); font-weight: 600; }
+.hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 32px; align-items: center; }
+@media (max-width: 540px) {
+  .hero-ctas { flex-direction: column; align-items: stretch; }
+  .hero-ctas .btn { justify-content: center; }
+}
+
+.trust-strip {
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-lo);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.trust-strip .item { display: inline-flex; align-items: center; gap: 7px; }
+.trust-strip .item .ico { color: var(--indigo-glow); font-size: 12px; }
+
+/* ========== HERO DEMO CARD — OWNER BRIEF MOCKUP ========== */
+.demo-card-wrap { perspective: 1000px; }
+.demo-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 26px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.demo-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: var(--grad-divider);
+  opacity: 0.6;
+}
+.demo-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-lo);
+  margin-bottom: 18px;
+}
+.demo-head .live {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--ok);
+}
+.demo-head .live .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 6px var(--ok);
+  animation: pulse-ok 1.6s infinite;
+}
+@keyframes pulse-ok {
+  0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+  70% { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+  100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+
+.brief-greet {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 21px;
+  color: var(--text-hi);
+  letter-spacing: -0.01em;
+  margin-bottom: 14px;
+  line-height: 1.3;
+}
+.brief-stat {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 12px 14px;
+  background: rgba(16,185,129,0.06);
+  border: 1px solid rgba(16,185,129,0.15);
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+.brief-stat-big {
+  font-family: 'Instrument Serif', serif;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--ok);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+.brief-stat-label { font-size: 12.5px; color: var(--text-md); }
+.brief-stat-label strong { color: var(--text-hi); }
+
+.brief-divider { height: 1px; background: var(--border-faint); margin: 14px 0; }
+
+.brief-section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-lo);
+  margin-bottom: 10px;
+}
+.brief-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-faint);
+  align-items: center;
+}
+.brief-row:last-child { border-bottom: none; }
+.brief-row-name { font-size: 13px; color: var(--text-hi); font-weight: 500; }
+.brief-row-meta { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-lo); margin-top: 2px; }
+.brief-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  padding: 3px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.pill-ok { background: rgba(16,185,129,0.14); color: var(--ok); }
+.pill-warn { background: rgba(245,158,11,0.14); color: var(--warn); }
+.pill-info { background: var(--indigo-soft); color: var(--indigo-glow); }
+.pill-star { background: rgba(250,204,21,0.14); color: var(--gold); }
+
+/* ========== PAIN STATS BAND ========== */
+.pain-band {
+  padding: 64px 0;
+  border-top: 1px solid var(--border-faint);
+  border-bottom: 1px solid var(--border-faint);
+  background: linear-gradient(180deg, var(--surface-0) 0%, var(--surface-1) 100%);
+}
+.pain-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-lo);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.pain-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-align: center;
+  color: var(--text-hi);
+  margin-bottom: 48px;
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.pain-title em { font-style: italic; color: var(--indigo-glow); }
+.pain-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+@media (max-width: 880px) { .pain-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; } }
+.pain-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 28px;
+  text-align: center;
+}
+.pain-stat {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  background: var(--grad-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 14px;
+}
+.pain-stat-unit {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: var(--text-md);
+  -webkit-text-fill-color: var(--text-md);
+  margin-left: 4px;
+}
+.pain-card-title { font-size: 15px; font-weight: 600; color: var(--text-hi); margin-bottom: 6px; }
+.pain-card-text { font-size: 13.5px; color: var(--text-md); line-height: 1.55; }
+
+/* ========== SECTION ========== */
+.section { padding: 84px 0; position: relative; }
+@media (max-width: 768px) { .section { padding: 56px 0; } }
+.section-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-lo);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.section-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(34px, 5vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--text-hi);
+  margin-bottom: 18px;
+  max-width: 800px;
+}
+.section-title .em { font-style: italic; color: var(--indigo-glow); }
+.section-sub {
+  font-size: 17px;
+  color: var(--text-md);
+  line-height: 1.6;
+  max-width: 620px;
+  margin-bottom: 48px;
+}
+
+/* ========== PACK GRID ========== */
+.pack-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+@media (max-width: 980px) { .pack-grid { grid-template-columns: 1fr; max-width: 540px; margin: 0 auto; } }
+
+.pack-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 30px 26px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 250ms ease, border-color 250ms ease;
+}
+.pack-card:hover { transform: translateY(-2px); border-color: var(--border-indigo); }
+.pack-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: var(--grad-divider);
+  opacity: 0.5;
+}
+.pack-num {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 64px;
+  line-height: 0.9;
+  background: var(--grad-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+  display: block;
+}
+.pack-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  margin-bottom: 6px;
+}
+.pack-name {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 26px;
+  letter-spacing: -0.01em;
+  color: var(--text-hi);
+  margin-bottom: 14px;
+  line-height: 1.15;
+}
+.pack-text {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-md);
+  margin-bottom: 16px;
+}
+.pack-text strong { color: var(--text-hi); font-weight: 600; }
+.pack-features { list-style: none; padding: 0; margin: 0; }
+.pack-features li {
+  font-size: 13px;
+  color: var(--text-md);
+  padding: 5px 0 5px 18px;
+  position: relative;
+  line-height: 1.5;
+}
+.pack-features li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--indigo-glow);
+  font-weight: 700;
+}
+
+/* ========== HOW IT WORKS ========== */
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+@media (max-width: 980px) { .how-grid { grid-template-columns: 1fr; max-width: 540px; margin: 0 auto; } }
+.how-step {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 28px 24px;
+}
+.how-num {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 48px;
+  line-height: 1;
+  color: var(--indigo-glow);
+  margin-bottom: 14px;
+  display: block;
+}
+.how-title { font-size: 17px; font-weight: 600; color: var(--text-hi); margin-bottom: 10px; }
+.how-text { font-size: 13.5px; line-height: 1.65; color: var(--text-md); }
+.how-text strong { color: var(--text-hi); font-weight: 600; }
+
+/* ========== REAL OUTPUTS ========== */
+.outputs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 1080px) {
+  .outputs-grid { grid-template-columns: 1fr; gap: 18px; max-width: 560px; margin-left: auto; margin-right: auto; }
+}
+
+.output-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: transform 250ms ease, border-color 250ms ease;
+}
+.output-card:hover { transform: translateY(-2px); border-color: var(--border-indigo); }
+
+.output-platform {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 18px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border-faint);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-md);
+}
+.platform-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--airbnb);
+  flex-shrink: 0;
+}
+.platform-dot.tg { background: #2aabee; }
+.platform-dot.brief { background: var(--indigo-glow); }
+.platform-meta {
+  margin-left: auto;
+  color: var(--text-lo);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.output-foot {
+  padding: 10px 18px;
+  background: var(--surface-2);
+  border-top: 1px solid var(--border-faint);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-lo);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: auto;
+}
+
+/* Airbnb-style review mockup */
+.airbnb-thread { padding: 18px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.airbnb-listing {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-faint);
+}
+.airbnb-guest-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.airbnb-guest-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff5a5f 0%, #e23744 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+}
+.airbnb-guest-name { font-size: 13px; font-weight: 600; color: var(--text-hi); line-height: 1.2; }
+.airbnb-guest-meta { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-lo); margin-top: 2px; }
+.airbnb-stars {
+  font-size: 14px;
+  color: var(--gold);
+  letter-spacing: 2px;
+}
+.airbnb-text {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-md);
+  padding: 10px 12px;
+  background: var(--surface-3);
+  border-radius: 8px;
+  font-style: italic;
+}
+.airbnb-reply-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--indigo-glow);
+}
+.airbnb-reply {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-hi);
+  padding: 10px 12px;
+  border-left: 2px solid var(--indigo);
+  background: rgba(99,102,241,0.06);
+  border-radius: 0 6px 6px 0;
+}
+.airbnb-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.output-btn {
+  display: inline-flex; align-items: center;
+  padding: 7px 11px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-md);
+  background: var(--surface-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+.output-btn.primary {
+  background: var(--grad-accent);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 3px 10px var(--indigo-shadow);
+}
+
+/* Telegram */
+.tg-thread {
+  padding: 18px;
+  flex: 1;
+  background: radial-gradient(at 100% 0%, rgba(42,171,238,0.05) 0%, transparent 45%);
+}
+.tg-bubble {
+  background: var(--surface-3);
+  border-radius: 14px 14px 14px 4px;
+  padding: 12px 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.tg-sender { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.tg-avatar {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--grad-accent);
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+}
+.tg-avatar::after {
+  content: '';
+  position: absolute;
+  width: 10px; height: 10px;
+  border: 1.3px solid #fff;
+  border-radius: 1.5px;
+  top: 6.5px; left: 6.5px;
+  transform: rotate(45deg);
+}
+.tg-name { font-size: 11.5px; font-weight: 600; color: #2aabee; }
+.tg-body { font-size: 13px; line-height: 1.6; color: var(--text-hi); }
+.tg-body strong { color: var(--text-hi); font-weight: 600; }
+.tg-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-lo);
+  margin-top: 8px;
+  letter-spacing: 0.04em;
+}
+
+/* Multi-listing brief mockup */
+.brief-listing-thread { padding: 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.brief-listing-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-faint);
+  align-items: center;
+}
+.brief-listing-row:last-child { border-bottom: none; }
+.brief-listing-name { font-size: 13px; font-weight: 600; color: var(--text-hi); line-height: 1.25; }
+.brief-listing-meta { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-lo); margin-top: 3px; }
+.brief-listing-stat {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-hi);
+  text-align: right;
+}
+.brief-listing-stat .sub { display: block; font-size: 9.5px; color: var(--text-lo); margin-top: 2px; font-weight: 500; letter-spacing: 0.04em; }
+
+/* honest note */
+.outputs-honesty {
+  max-width: 720px;
+  margin: 48px auto 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-md);
+  text-align: center;
+  padding: 20px 24px;
+  background: var(--surface-1);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-md);
+}
+.outputs-honesty strong { color: var(--text-hi); font-weight: 600; }
+.honesty-pill {
+  display: inline-block;
+  margin-right: 10px;
+  padding: 3px 8px;
+  background: var(--indigo-soft);
+  color: var(--indigo-glow);
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+@media (max-width: 640px) {
+  .outputs-honesty { font-size: 13.5px; padding: 18px; text-align: left; }
+}
+
+/* ========== FOUNDER NOTE ========== */
+.founder-section { padding: 84px 0; }
+.founder-card {
+  max-width: 800px;
+  margin: 0 auto;
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-xl);
+  padding: 48px 44px;
+  position: relative;
+  overflow: hidden;
+}
+.founder-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--grad-accent);
+}
+.founder-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--indigo-glow);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.founder-quote {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(20px, 2.6vw, 26px);
+  line-height: 1.45;
+  color: var(--text-hi);
+  letter-spacing: -0.01em;
+  margin-bottom: 22px;
+}
+.founder-quote em { font-style: italic; color: var(--indigo-glow); }
+.founder-sign {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 22px;
+}
+.founder-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--grad-accent);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 22px;
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+}
+.founder-name { font-size: 14px; font-weight: 600; color: var(--text-hi); }
+.founder-role { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-lo); margin-top: 2px; letter-spacing: 0.04em; }
+@media (max-width: 640px) {
+  .founder-card { padding: 36px 26px; }
+}
+
+/* ========== FAQ ========== */
+.faq-list {
+  display: grid;
+  gap: 12px;
+  max-width: 860px;
+  margin: 40px auto 0;
+}
+.faq-item {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  transition: border-color 200ms, background 200ms;
+}
+.faq-item:hover { border-color: var(--border-indigo); }
+.faq-item[open] { background: var(--surface-2); border-color: var(--border-indigo); }
+.faq-item summary {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary:focus-visible {
+  outline: 2px solid var(--indigo-glow);
+  outline-offset: -2px;
+}
+.faq-q {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.3;
+  color: var(--text-hi);
+  letter-spacing: -0.01em;
+}
+.faq-toggle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  color: var(--indigo-glow);
+  flex-shrink: 0;
+  transition: transform 250ms ease;
+  width: 24px; text-align: center;
+  line-height: 1;
+}
+.faq-item[open] .faq-toggle { transform: rotate(45deg); }
+.faq-a {
+  padding: 0 24px 22px;
+  color: var(--text-md);
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 720px;
+}
+.faq-a strong { color: var(--text-hi); font-weight: 600; }
+@media (max-width: 640px) {
+  .faq-q { font-size: 18px; }
+  .faq-item summary { padding: 16px 18px; }
+  .faq-a { padding: 0 18px 18px; font-size: 14.5px; }
+}
+
+/* ========== PRICING ========== */
+.price-section { padding: 64px 0 100px; }
+.price-card {
+  max-width: 540px;
+  margin: 48px auto 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border-indigo);
+  border-radius: var(--r-xl);
+  padding: 44px 36px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(99,102,241,0.12);
+}
+.price-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--grad-accent);
+}
+.price-tier {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--indigo-glow);
+  margin-bottom: 14px;
+}
+.price-name {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 42px;
+  line-height: 1;
+  color: var(--text-hi);
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.price-setup {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-lo);
+  letter-spacing: 0.04em;
+  margin-bottom: 18px;
+}
+.price-amount {
+  font-family: 'Instrument Serif', serif;
+  font-size: 72px;
+  line-height: 1;
+  color: var(--text-hi);
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+.price-amount .currency { font-size: 38px; vertical-align: top; line-height: 1; margin-right: 2px; color: var(--text-md); }
+.price-per {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--text-lo);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.price-pitch { font-size: 14.5px; line-height: 1.6; color: var(--text-md); margin-bottom: 22px; }
+.price-list { list-style: none; padding: 0; margin: 0 0 32px; }
+.price-list li {
+  font-size: 14px;
+  padding: 9px 0 9px 22px;
+  color: var(--text-hi);
+  position: relative;
+  line-height: 1.5;
+}
+.price-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--indigo-glow);
+  font-weight: 700;
+}
+.price-cta {
+  display: block;
+  text-align: center;
+  padding: 16px;
+  background: var(--grad-accent);
+  color: #fff;
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    0 8px 24px var(--indigo-shadow);
+  transition: transform 200ms;
+  margin-bottom: 12px;
+}
+.price-cta:hover { transform: translateY(-1px); }
+.price-fine {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--text-lo);
+  text-align: center;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ========== CLOSER ========== */
+.closer {
+  text-align: center;
+  padding: 80px 32px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-xl);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 80px;
+}
+.closer::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: var(--grad-divider);
+}
+.closer-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(32px, 4.5vw, 52px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: var(--text-hi);
+  margin-bottom: 20px;
+}
+.closer-title .em { font-style: italic; color: var(--indigo-glow); }
+.closer-sub {
+  font-size: 17px;
+  color: var(--text-md);
+  margin-bottom: 32px;
+  max-width: 540px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ========== FOOTER ========== */
+footer {
+  border-top: 1px solid var(--border-faint);
+  padding: 40px 0 32px;
+  margin-top: 40px;
+}
+.foot-grid { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+.foot-bio {
+  font-size: 13px;
+  color: var(--text-lo);
+  max-width: 360px;
+  line-height: 1.55;
+}
+.foot-links { display: flex; gap: 18px; flex-wrap: wrap; }
+.foot-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  text-decoration: none;
+  transition: color 200ms;
+}
+.foot-link:hover { color: var(--text-hi); }
+.foot-ribbon {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-faint);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ========== WA FLOAT ========== */
+.wa-float {
+  position: fixed; bottom: 24px; right: 24px;
+  width: 56px; height: 56px;
+  background: #25D366;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 24px rgba(37,211,102,0.4);
+  z-index: 30;
+  transition: transform 200ms ease;
+}
+.wa-float:hover { transform: scale(1.08); }
+.wa-float svg { width: 28px; height: 28px; fill: #fff; }
+
+/* ========== REVEAL ========== */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity 700ms ease, transform 700ms ease; }
+.reveal.show { opacity: 1; transform: translateY(0); }
+.stagger > * { opacity: 0; transform: translateY(12px); transition: opacity 600ms ease, transform 600ms ease; }
+.stagger.show > * { opacity: 1; transform: translateY(0); }
+.stagger.show > *:nth-child(1) { transition-delay: 0ms; }
+.stagger.show > *:nth-child(2) { transition-delay: 80ms; }
+.stagger.show > *:nth-child(3) { transition-delay: 160ms; }
+.stagger.show > *:nth-child(4) { transition-delay: 240ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal, .stagger > * { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="grid-lines"></div>
+<div class="atmos"></div>
+<div class="grain"></div>
+
+<nav>
+  <div class="wrap">
+    <div class="nav-inner">
+      <a href="/" class="logo" aria-label="Jarvis Nexus home">
+        <div class="logo-mark"></div>
+        <div class="logo-text">
+          <div class="logo-name">JARVIS NEXUS</div>
+          <div class="logo-tag">AI · Built in Joburg</div>
+        </div>
+      </a>
+      <div class="nav-right">
+        <span class="pack-pill"><span class="dot"></span>Airbnb Pack</span>
+        <a href="/" class="nav-back">← All bots</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-eyebrow">
+          <span class="pulse"></span>
+          <span>The airbnb pack · 3 bots · from R1,990/mo</span>
+        </div>
+        <h1 class="hero-title">
+          Reply to every review.<br><span class="accent">Even at 2am.</span>
+        </h1>
+        <p class="hero-sub">
+          Three AI bots, built specifically for South African Airbnb and short-term rental hosts: <strong>Review Pro</strong> drafts a reply to every Airbnb, Booking.com and Google review in your voice within 60 seconds, <strong>Revenue Recovery</strong> chases late security deposits and damage claims automatically, and <strong>Owner Brief</strong> emails you what happened across all your listings every morning at 7am.
+        </p>
+        <div class="hero-ctas">
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book a 10-min host demo <span class="arrow">→</span></a>
+          <a href="#whats-inside" class="btn-text">or see what's inside ↓</a>
+        </div>
+        <div class="trust-strip">
+          <span class="item"><span class="ico">⚡</span> Live in 48 hours</span>
+          <span class="item"><span class="ico">●</span> Keep your Superhost</span>
+          <span class="item"><span class="ico">🛡</span> 30-day money-back</span>
+        </div>
+      </div>
+
+      <div class="demo-card-wrap">
+        <div class="demo-card" id="demoCard">
+          <div class="demo-head">
+            <span>// OWNER BRIEF · 07:00 SAST</span>
+            <span class="live"><span class="dot"></span>just landed</span>
+          </div>
+          <div class="brief-greet">Good morning, Thabo — last night went well.</div>
+          <div class="brief-stat">
+            <div class="brief-stat-big">R2,850</div>
+            <div class="brief-stat-label"><strong>recovered</strong> + 4 reviews replied while you slept</div>
+          </div>
+
+          <div class="brief-divider"></div>
+          <div class="brief-section-label">Overnight wins</div>
+          <div class="brief-row">
+            <div>
+              <div class="brief-row-name">Sarah from London · Sea Point Studio</div>
+              <div class="brief-row-meta">Review Pro · reply posted · 23:14</div>
+            </div>
+            <span class="brief-pill pill-star">★★★★★</span>
+          </div>
+          <div class="brief-row">
+            <div>
+              <div class="brief-row-name">Jens (Amsterdam) · Camps Bay Loft</div>
+              <div class="brief-row-meta">Review Pro · reply posted · 02:07</div>
+            </div>
+            <span class="brief-pill pill-star">★★★★</span>
+          </div>
+          <div class="brief-row">
+            <div>
+              <div class="brief-row-name">Pieter de Klerk · R1,200 cleaning fee</div>
+              <div class="brief-row-meta">Revenue Recovery · paid on chase 2</div>
+            </div>
+            <span class="brief-pill pill-ok">R1,200</span>
+          </div>
+          <div class="brief-row">
+            <div>
+              <div class="brief-row-name">Aisha P. · R450 late checkout</div>
+              <div class="brief-row-meta">Revenue Recovery · paid same-day</div>
+            </div>
+            <span class="brief-pill pill-ok">R450</span>
+          </div>
+
+          <div class="brief-divider"></div>
+          <div class="brief-section-label">Today · needs you</div>
+          <div class="brief-row">
+            <div>
+              <div class="brief-row-name">1 review flagged · ★★★</div>
+              <div class="brief-row-meta">Review Pro · draft ready, check the tone</div>
+            </div>
+            <span class="brief-pill pill-info">draft ready</span>
+          </div>
+          <div class="brief-row">
+            <div>
+              <div class="brief-row-name">Sea Point · open next weekend</div>
+              <div class="brief-row-meta">no bookings — consider a 15% promo?</div>
+            </div>
+            <span class="brief-pill pill-warn">at risk</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAIN STATS -->
+<section class="pain-band">
+  <div class="wrap">
+    <div class="pain-eyebrow">// THE COST OF SLOW REPLIES</div>
+    <h2 class="pain-title">Most SA hosts hit the <em>Superhost reply deadline</em> while putting their kids to bed.</h2>
+    <div class="pain-grid stagger">
+      <div class="pain-card">
+        <div class="pain-stat">90<span class="pain-stat-unit">%</span></div>
+        <div class="pain-card-title">Reply rate to keep Superhost</div>
+        <div class="pain-card-text">Airbnb requires you to reply to 90% of new messages within 24 hours. Miss it for one quarter and Superhost is gone.</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-stat">24<span class="pain-stat-unit">%</span></div>
+        <div class="pain-card-title">Of damage claims never recovered</div>
+        <div class="pain-card-text">Most hosts give up after one polite email. The bot keeps chasing politely until paid — or it's escalated to you to call it.</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-stat">6<span class="pain-stat-unit">hrs</span></div>
+        <div class="pain-card-title">Per week per 5 listings</div>
+        <div class="pain-card-text">Replying to reviews, chasing late fees, fielding "what's the wifi password" — most of it is the same questions on repeat.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT'S IN THE PACK -->
+<section class="section" id="whats-inside">
+  <div class="wrap">
+    <div class="section-eyebrow">// WHAT'S IN THE PACK</div>
+    <h2 class="section-title">Three bots. <span class="em">One job each.</span> All running across every listing.</h2>
+    <p class="section-sub">No new app for you or your guests. The bots plug into the platforms you already use — Airbnb, Booking.com, Google Business, your bank — and work quietly across all your listings at once.</p>
+
+    <div class="pack-grid stagger">
+
+      <div class="pack-card">
+        <span class="pack-num">1</span>
+        <div class="pack-id">B11 · REVIEW PRO</div>
+        <div class="pack-name">Review Pro.</div>
+        <p class="pack-text">Every new review on Airbnb, Booking.com or Google triggers an AI-drafted reply <strong>in your voice</strong>, within 60 seconds. You read it, tap approve, it posts. Your Superhost reply rate stays intact even while you're sleeping.</p>
+        <ul class="pack-features">
+          <li>Replies across Airbnb, Booking.com and Google</li>
+          <li>Matches your tone — warm, professional, on-brand</li>
+          <li>Flags 1–3★ reviews privately before they go public</li>
+          <li>Tracks your reply rate trend in the daily brief</li>
+        </ul>
+      </div>
+
+      <div class="pack-card">
+        <span class="pack-num">2</span>
+        <div class="pack-id">B4 · REVENUE RECOVERY</div>
+        <div class="pack-name">Revenue Recovery.</div>
+        <p class="pack-text">When a security deposit, cleaning surcharge or damage claim goes unpaid, the bot <strong>chases it for you</strong> on a polite-firm-final ladder. Most clear within 7 days. The rest land in your brief for a personal call.</p>
+        <ul class="pack-features">
+          <li>Auto-chase: day 3, day 7, day 14 escalation</li>
+          <li>Adjusts tone based on the guest's payment history</li>
+          <li>Logs every recovery + remaining open chase</li>
+          <li>Average recovery rate: 70%+ within 2 weeks</li>
+        </ul>
+      </div>
+
+      <div class="pack-card">
+        <span class="pack-num">3</span>
+        <div class="pack-id">B8 · OWNER BRIEF</div>
+        <div class="pack-name">Owner Brief.</div>
+        <p class="pack-text">Every morning at 7am, <strong>one email across all your listings</strong>: reviews replied to overnight, money recovered, today's bookings, listings at risk. Two minutes, then you're done with admin.</p>
+        <ul class="pack-features">
+          <li>Aggregates across every listing you manage</li>
+          <li>Flags open damage claims older than 7 days</li>
+          <li>Highlights listings with no upcoming bookings</li>
+          <li>Telegram backup in case email is missed</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-eyebrow">// HOW IT WORKS</div>
+    <h2 class="section-title">From signup to <span class="em">first review replied</span> in 48 hours.</h2>
+    <p class="section-sub">You don't lift a finger after the onboarding call. Including weekends.</p>
+
+    <div class="how-grid stagger">
+      <div class="how-step">
+        <span class="how-num">01</span>
+        <div class="how-title">60-minute onboarding call</div>
+        <div class="how-text">We jump on Zoom or WhatsApp video. You share your <strong>Airbnb co-host invite, Google Business profile, and the tone of voice</strong> you want your replies in. I do everything else.</div>
+      </div>
+      <div class="how-step">
+        <span class="how-num">02</span>
+        <div class="how-title">Bots go live in 48 hours</div>
+        <div class="how-text">I connect Airbnb's review feed, your Google Business profile, and your damage claim sheet into the system. <strong>You approve the first drafted reply</strong> on a real review. If you like the voice, we ship it.</div>
+      </div>
+      <div class="how-step">
+        <span class="how-num">03</span>
+        <div class="how-title">You get on with your day</div>
+        <div class="how-text">From day 3, the bots run themselves across every listing. <strong>You get a 7am brief each morning</strong>, you approve drafted replies in 30 seconds on your phone, and Superhost stays Superhost. That's it.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REAL OUTPUTS -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-eyebrow">// THE FORMAT</div>
+    <h2 class="section-title">This is what the bots <span class="em">actually send</span>.</h2>
+    <p class="section-sub">Three real output templates — same words your guests see, same alerts you receive. Names and amounts are sample data.</p>
+
+    <div class="outputs-grid stagger">
+
+      <!-- 1. Airbnb-style review reply -->
+      <div class="output-card">
+        <div class="output-platform">
+          <span class="platform-dot"></span>
+          <span>Airbnb · review reply</span>
+          <span class="platform-meta">drafted in 47s</span>
+        </div>
+        <div class="airbnb-thread">
+          <div class="airbnb-listing">Listing · Sea Point Studio · Cape Town</div>
+          <div class="airbnb-guest-row">
+            <div class="airbnb-guest-avatar">S</div>
+            <div>
+              <div class="airbnb-guest-name">Sarah from London</div>
+              <div class="airbnb-guest-meta">3-night stay · Sept 2026</div>
+            </div>
+          </div>
+          <div class="airbnb-stars">★★★★★</div>
+          <div class="airbnb-text">
+            "Absolutely perfect spot. The bed was a dream, the kettle was clean (matters more than people think), and the Sea Point sunset from the balcony made our anniversary. Thabo replied to my "where's the closest pharmacy" question in under 4 minutes at 9pm. Will be back."
+          </div>
+          <div class="airbnb-reply-label">// Drafted reply (in your voice)</div>
+          <div class="airbnb-reply">
+            "Sarah! Thank you for the kind words — and for noticing the kettle, that genuinely made my day. The Sea Point sunsets are the reason I bought this place. You and your partner are welcome back anytime, we'll make sure the kettle stays clean. 🌅"
+          </div>
+          <div class="airbnb-actions">
+            <span class="output-btn primary">Post reply →</span>
+            <span class="output-btn">Edit first</span>
+          </div>
+        </div>
+        <div class="output-foot">// Review Pro · waiting on you · 8s to approve</div>
+      </div>
+
+      <!-- 2. Telegram alert — recovered deposit -->
+      <div class="output-card">
+        <div class="output-platform">
+          <span class="platform-dot tg"></span>
+          <span>Telegram</span>
+          <span class="platform-meta">14:21 SAST</span>
+        </div>
+        <div class="tg-thread">
+          <div class="tg-bubble">
+            <div class="tg-sender">
+              <span class="tg-avatar" aria-hidden="true"></span>
+              <span class="tg-name">Camps Bay Loft · alerts</span>
+            </div>
+            <div class="tg-body">
+              <strong>✅ R1,200 just landed.</strong><br>
+              Pieter paid the cleaning surcharge from his weekend stay — chase 2 of 3 worked. That stain is officially paid for.<br><br>
+              <strong>This week recovered: R3,250</strong><br>
+              Open chases: <strong>1</strong> · oldest 4 days
+            </div>
+            <div class="tg-meta">14:21 · ✓✓ delivered</div>
+          </div>
+        </div>
+        <div class="output-foot">// Revenue Recovery · chase 2 of 3 · resolved</div>
+      </div>
+
+      <!-- 3. Multi-listing brief snapshot -->
+      <div class="output-card">
+        <div class="output-platform">
+          <span class="platform-dot brief"></span>
+          <span>Owner Brief · 07:00 snapshot</span>
+          <span class="platform-meta">across 4 listings</span>
+        </div>
+        <div class="brief-listing-thread">
+          <div class="brief-listing-row">
+            <div>
+              <div class="brief-listing-name">Sea Point Studio</div>
+              <div class="brief-listing-meta">2 reviews replied · 100% reply rate · 6 nights booked</div>
+            </div>
+            <div class="brief-listing-stat">
+              ★ 4.92
+              <span class="sub">28-day avg</span>
+            </div>
+          </div>
+          <div class="brief-listing-row">
+            <div>
+              <div class="brief-listing-name">Camps Bay Loft</div>
+              <div class="brief-listing-meta">1 review replied · damage claim paid · 4 nights</div>
+            </div>
+            <div class="brief-listing-stat">
+              ★ 4.88
+              <span class="sub">28-day avg</span>
+            </div>
+          </div>
+          <div class="brief-listing-row">
+            <div>
+              <div class="brief-listing-name">Fourways Cottage</div>
+              <div class="brief-listing-meta">1 review · 3★ flagged for review · open next wknd</div>
+            </div>
+            <div class="brief-listing-stat">
+              ★ 4.71
+              <span class="sub">⚠ down 0.08</span>
+            </div>
+          </div>
+          <div class="brief-listing-row">
+            <div>
+              <div class="brief-listing-name">Sandton 1-bed</div>
+              <div class="brief-listing-meta">no reviews this week · 7 nights booked</div>
+            </div>
+            <div class="brief-listing-stat">
+              ★ 4.95
+              <span class="sub">28-day avg</span>
+            </div>
+          </div>
+        </div>
+        <div class="output-foot">// Owner Brief · all listings, one inbox, 2-min read</div>
+      </div>
+
+    </div>
+
+    <p class="outputs-honesty">
+      <span class="honesty-pill">// Honest note</span>
+      These are mockups, not screenshots — Jarvis Nexus is brand new and I won't fake guest reviews or host logos. <strong>The output format is identical to what the bots actually produce on real data</strong>. Want to see one fire on your listings? That's what the 10-min demo is for.
+    </p>
+  </div>
+</section>
+
+<!-- FOUNDER NOTE -->
+<section class="founder-section">
+  <div class="wrap">
+    <div class="founder-card">
+      <div class="founder-eyebrow">// A note from the builder</div>
+      <p class="founder-quote">
+        I built the Airbnb Pack because <em>my cousin manages 4 listings in Cape Town</em> between her actual job and her kids, and was losing her Superhost badge because she couldn't reply to reviews fast enough after 8pm. The bots don't replace her — they handle the routine so she can focus on the guests who actually need her. Three bots. One job each. Live in 48 hours. <em>Cancel any time.</em>
+      </p>
+      <div class="founder-sign">
+        <div class="founder-avatar">S</div>
+        <div>
+          <div class="founder-name">Seth Mokoena</div>
+          <div class="founder-role">Founder · Jarvis Nexus · Joburg</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="wrap">
+    <div class="section-eyebrow">// HOSTS ASK ME</div>
+    <h2 class="section-title">The questions <span class="em">every Airbnb host</span> has before signing up.</h2>
+    <p class="section-sub">Honest answers. Tap any question.</p>
+
+    <div class="faq-list stagger">
+
+      <details class="faq-item" open>
+        <summary>
+          <span class="faq-q">How many listings does this work for?</span>
+          <span class="faq-toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="faq-a">
+          <p>The Airbnb Pack is sized for hosts with <strong>1–5 active listings</strong>. The 500-event monthly cap fits comfortably in that range — each new review, drafted reply, and recovered payment counts as one event. If you have 6+ listings or a serious property-management operation, look at the Operator or Command tier where the events scale up and you get custom AI voice per listing.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span class="faq-q">What if my listings are also on Booking.com or Vrbo?</span>
+          <span class="faq-toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="faq-a">
+          <p>Review Pro <strong>handles Airbnb, Booking.com and Google reviews</strong> out of the box. Vrbo and HelloPeter integrations are on the roadmap — currently we route those manually for early clients (you forward the review notification, the bot drafts the reply, you post it). Be honest about your platform mix on the demo call and I'll tell you what's automated vs manual today.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span class="faq-q">Will the bot reply to negative reviews on its own?</span>
+          <span class="faq-toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="faq-a">
+          <p>No. Any review <strong>3★ or below gets flagged for your personal approval</strong>. The bot still drafts a thoughtful, de-escalating response — but it never posts a sensitive reply automatically. Your reputation is too important to delegate to AI without a human glance.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span class="faq-q">What about international guests who don't speak English well?</span>
+          <span class="faq-toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="faq-a">
+          <p>The bot reads the review in whatever language the guest wrote it (Dutch, German, French, Mandarin — the LLM handles it natively) and <strong>drafts your reply in English by default</strong>. If you want replies in the guest's language, that's a paid add-on we can configure during onboarding. Most SA hosts reply in English and guests are happy.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span class="faq-q">Can it actually recover damage claims that are weeks old?</span>
+          <span class="faq-toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="faq-a">
+          <p>Yes — Revenue Recovery handles claims of any age. <strong>Average recovery rate is around 70%</strong> on claims under 30 days old, dropping to ~40% after 60 days. The bot won't perform miracles on a claim from 2024, but for anything in the last few months, it's worth running. You import the open claims into a sheet during onboarding and the chase ladder kicks off the next morning.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span class="faq-q">What if my guests prefer WhatsApp for communication?</span>
+          <span class="faq-toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="faq-a">
+          <p>Right now Revenue Recovery chases via <strong>email + SMS</strong>. The WhatsApp Lead Catcher (our WhatsApp Business integration) launches Phase 3 — we're waiting on the SA WhatsApp Business account approval from Meta. Until then, email + SMS reaches 95% of guests. When WhatsApp goes live, your account gets upgraded at no extra cost.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span class="faq-q">I'm a property manager with 30+ listings — does this scale?</span>
+          <span class="faq-toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="faq-a">
+          <p>The Airbnb Pack is sized for individual hosts. For <strong>property managers running 10+ listings</strong>, the Operator tier (R3,990/mo, 5,000 events, custom AI voice per listing) is the right fit. For 30+ listings or agency-style operations, the Command tier (R9,990/mo, unlimited, quarterly strategy session) is built for that scale. Book a call and I'll size you correctly — no point overpaying or hitting caps mid-month.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span class="faq-q">What if I cancel — do I lose my data?</span>
+          <span class="faq-toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="faq-a">
+          <p>No. Your reviews, drafted replies, damage claim history and guest log <strong>all live in your own Google Sheets</strong>, in your own Google account. The bots simply turn off. You keep everything. Month-to-month. <strong>30-day money-back on your first month, no questions asked.</strong> For Airbnb Pack clients you also get my direct WhatsApp — +27 67 099 4163 — if anything urgent comes up between briefs.</p>
+        </div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="price-section">
+  <div class="wrap">
+    <div class="section-eyebrow" style="text-align:center;">// AIRBNB PACK PRICING</div>
+    <h2 class="section-title" style="text-align:center; margin-left:auto; margin-right:auto;">Less than <span class="em">one cleaning fee recovered</span> per month.</h2>
+
+    <div class="price-card">
+      <div class="price-tier">Tier 01 · Airbnb Pack</div>
+      <div class="price-name">Airbnb Pack.</div>
+      <div class="price-setup">R2,500 setup · once-off · includes 60-min onboarding</div>
+      <div class="price-amount"><span class="currency">R</span>1,990</div>
+      <div class="price-per">per month · cancel any time</div>
+      <p class="price-pitch">Everything a SA Airbnb host needs to keep Superhost, recover damage claims and stop checking the app at 11pm — running across all your listings in 48 hours.</p>
+      <ul class="price-list">
+        <li>Review Pro · drafted replies across Airbnb, Booking.com, Google</li>
+        <li>Revenue Recovery · auto-chase late deposits &amp; damage claims</li>
+        <li>Owner Brief · 7am daily email + Telegram across all listings</li>
+        <li>Up to 500 customer events / month <em style="display:block; font-family:'Instrument Serif',serif; font-size:13px; color:var(--text-lo); margin-top:2px; margin-left:0;">≈ 16/day — fits 3–5 active listings comfortably</em></li>
+        <li>Your own Google Sheet — you own the data</li>
+        <li>Direct WhatsApp to Seth for support</li>
+        <li>30-day money-back guarantee</li>
+      </ul>
+      <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="price-cta">Book your 10-min host demo →</a>
+      <div class="price-fine">// Or WhatsApp Seth directly: +27 67 099 4163</div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSER -->
+<section>
+  <div class="wrap">
+    <div class="closer">
+      <h2 class="closer-title">The next bad review <span class="em">can't wait until Monday.</span></h2>
+      <p class="closer-sub">10 minutes on a call. 48 hours to go live. One recovered cleaning fee pays for the first month.</p>
+      <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book your host demo <span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="/" class="logo" style="margin-bottom: 14px;">
+          <div class="logo-mark"></div>
+          <div class="logo-text">
+            <div class="logo-name">JARVIS NEXUS</div>
+            <div class="logo-tag">AI · Built in Joburg</div>
+          </div>
+        </a>
+        <p class="foot-bio">The Airbnb Pack is part of Jarvis Nexus — a 10-bot AI automation suite built for South African small businesses.</p>
+      </div>
+      <div class="foot-links">
+        <a href="/" class="foot-link">All bots</a>
+        <a href="/salon" class="foot-link">Salon Pack</a>
+        <a href="/recovery-pack" class="foot-link">Recovery Pack</a>
+        <a href="/healthcare-pack" class="foot-link">Healthcare Pack</a>
+        <a href="/playbook" class="foot-link">Playbook</a>
+        <a href="/privacy" class="foot-link">Privacy</a>
+        <a href="/terms" class="foot-link">Terms</a>
+      </div>
+    </div>
+    <div class="foot-ribbon">// Built in Joburg · Paid in Rand · Cancel any time</div>
+  </div>
+</footer>
+
+<a href="https://wa.me/27670994163?text=Hi%20Seth%2C%20I%27m%20an%20Airbnb%20host%20and%20I%27d%20like%20to%20hear%20more%20about%20the%20Airbnb%20Pack" target="_blank" rel="noopener" class="wa-float" aria-label="WhatsApp Seth">
+  <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.7-.4-1.5-.7-2.4-1.6-.7-.6-1.1-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.2.3-.4.1-.2 0-.3 0-.4 0-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2 0 1.2.9 2.4 1 2.5.1.2 1.7 2.6 4.1 3.6 1.5.6 2.1.7 2.8.6.4-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1 0-.1-.2-.2-.5-.3z M12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z M12 20c-1.5 0-3-.4-4.3-1.1l-.3-.2-3.2.8.9-3.1-.2-.3C4.4 14.9 4 13.5 4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8z"/></svg>
+</a>
+
+<script>
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal, .stagger, .section').forEach(el => obs.observe(el));
+
+(function() {
+  const nav = document.querySelector('nav');
+  if (!nav) return;
+  let scrolled = false;
+  function onScroll() {
+    const s = window.scrollY > 16;
+    if (s !== scrolled) {
+      scrolled = s;
+      nav.style.borderBottomColor = s ? 'var(--border-subtle)' : 'var(--border-faint)';
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();
+</script>
+
+</body>
+</html>
