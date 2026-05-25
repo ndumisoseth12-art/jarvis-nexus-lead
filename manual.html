@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Owner's Manual · Jarvis Nexus</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Crect x='9' y='9' width='14' height='14' rx='2' fill='none' stroke='white' stroke-width='1.8' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --indigo-glow:#818cf8; --indigo:#6366f1; --indigo-deep:#4f46e5;
+  --indigo-shadow:rgba(99,102,241,0.40); --indigo-soft:rgba(99,102,241,0.10);
+  --surface-0:#08080c; --surface-1:#0e0e15; --surface-2:#14141d;
+  --surface-3:#1c1c28; --surface-4:#25253a;
+  --border-faint:rgba(255,255,255,0.04); --border-subtle:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.15); --border-indigo:rgba(99,102,241,0.25);
+  --text-hi:#f5f5fa; --text-md:#a8a8c2; --text-lo:#6b6b85; --text-faint:#3a3a52;
+  --ok:#10b981; --warn:#f59e0b; --bad:#f43f5e; --info:#22d3ee; --gold:#facc15;
+  --grad-accent:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);
+  --grad-divider:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.5) 50%,transparent 100%);
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--surface-0); color:var(--text-hi);
+  font-size:15px; line-height:1.6; font-weight:400;
+  letter-spacing:-0.005em; min-height:100vh;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+.serif { font-family:'Instrument Serif',serif; font-weight:400; letter-spacing:-0.02em; }
+.mono { font-family:'JetBrains Mono',monospace; }
+
+/* ============ GATE ============ */
+#gate {
+  position:fixed; inset:0; z-index:9999;
+  background:var(--surface-0);
+  display:grid; place-items:center; padding:24px;
+}
+#gate.hidden { display:none; }
+.gate-card {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:48px 40px;
+  max-width:420px; width:100%; text-align:center; position:relative;
+  box-shadow:0 24px 64px rgba(0,0,0,0.5);
+}
+.gate-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider);
+}
+.gate-mark {
+  width:48px; height:48px; margin:0 auto 20px;
+  background:var(--grad-accent); border-radius:12px;
+  display:grid; place-items:center; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset, 0 8px 24px var(--indigo-shadow);
+}
+.gate-eyebrow {
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px; color:var(--indigo-glow);
+  letter-spacing:0.18em; text-transform:uppercase; margin-bottom:12px;
+}
+.gate-title {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:32px; line-height:1.1; letter-spacing:-0.02em;
+  color:var(--text-hi); margin-bottom:10px;
+}
+.gate-sub { font-size:14px; color:var(--text-md); margin-bottom:28px; }
+.gate-input {
+  width:100%; padding:14px 16px; background:var(--surface-3);
+  border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  color:var(--text-hi); font-size:15px; font-family:'Inter',sans-serif;
+  margin-bottom:12px; outline:none; text-align:center; letter-spacing:0.04em;
+  transition:border-color 200ms ease, box-shadow 200ms ease;
+}
+.gate-input:focus { border-color:var(--border-indigo); box-shadow:0 0 0 4px var(--indigo-soft); }
+.gate-btn {
+  width:100%; padding:14px; background:var(--grad-accent); color:#fff;
+  border:none; border-radius:var(--r-md); cursor:pointer;
+  font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 16px var(--indigo-shadow);
+  transition:transform 150ms ease, box-shadow 200ms ease;
+}
+.gate-btn:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 8px 24px var(--indigo-shadow); }
+.gate-error {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--bad); margin-top:14px; min-height:14px;
+  letter-spacing:0.06em; text-transform:uppercase;
+}
+
+/* ============ ATMOS ============ */
+.atmos { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.atmos::before {
+  content:''; position:absolute; width:900px; height:900px; border-radius:50%;
+  top:-300px; right:-200px;
+  background:radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
+  filter:blur(60px);
+}
+.atmos::after {
+  content:''; position:absolute; width:700px; height:700px; border-radius:50%;
+  bottom:-200px; left:-150px;
+  background:radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 60%);
+  filter:blur(60px);
+}
+.grid-lines {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size:calc(100% / 12) 100%;
+  max-width:1400px; margin:0 auto;
+  left:50%; transform:translateX(-50%); width:100%;
+}
+
+/* ============ LAYOUT ============ */
+.wrap { max-width:980px; margin:0 auto; padding:48px 24px 96px; position:relative; z-index:1; }
+.nav {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:16px 0 32px; border-bottom:1px solid var(--border-faint); margin-bottom:48px;
+}
+.brand { display:flex; align-items:center; gap:12px; }
+.brand-mark {
+  width:32px; height:32px; background:var(--grad-accent); border-radius:7px;
+  display:grid; place-items:center; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset;
+}
+.brand-mark::before {
+  content:''; position:absolute; inset:7px;
+  border:1.6px solid white; border-radius:3px;
+  transform:rotate(45deg);
+}
+.brand-name { font-weight:600; font-size:15px; }
+.nav-pill {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  padding:6px 12px; background:var(--indigo-soft);
+  border:1px solid var(--border-indigo); border-radius:99px;
+}
+
+/* ============ HERO ============ */
+.eyebrow {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:16px;
+}
+.hero h1 {
+  font-family:'Instrument Serif',serif; font-style:italic; font-weight:400;
+  font-size:56px; line-height:1.05; letter-spacing:-0.025em;
+  margin-bottom:18px;
+}
+.hero h1 em { font-style:italic; color:var(--indigo-glow); }
+.hero-sub { font-size:17px; color:var(--text-md); max-width:720px; margin-bottom:32px; }
+
+/* ============ TOC ============ */
+.toc {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:24px 28px; margin-bottom:64px;
+}
+.toc-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.toc ol { list-style:none; counter-reset:toc; }
+.toc li { counter-increment:toc; padding:6px 0; }
+.toc li::before {
+  content:counter(toc,decimal-leading-zero);
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); margin-right:14px;
+}
+.toc a { color:var(--text-hi); text-decoration:none; font-size:15px; }
+.toc a:hover { color:var(--indigo-glow); }
+
+/* ============ SECTION ============ */
+section { margin-bottom:80px; scroll-margin-top:32px; }
+.s-eyebrow {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.s-title {
+  font-family:'Instrument Serif',serif; font-style:italic; font-weight:400;
+  font-size:38px; line-height:1.1; letter-spacing:-0.02em; margin-bottom:24px;
+}
+.s-sub { font-size:16px; color:var(--text-md); margin-bottom:28px; max-width:760px; }
+.s-body p { margin-bottom:18px; color:var(--text-hi); }
+.s-body p + p { margin-top:0; }
+.s-body strong { color:var(--text-hi); font-weight:600; }
+.s-body em { color:var(--indigo-glow); font-style:italic; }
+
+.callout {
+  background:var(--surface-1); border:1px solid var(--border-indigo);
+  border-radius:var(--r-md); padding:18px 22px; margin:24px 0;
+  font-size:14px; color:var(--text-md);
+}
+.callout strong { color:var(--text-hi); }
+
+/* ============ BOT CARDS ============ */
+.bots-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; margin-top:24px; }
+.bot-card {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:20px; position:relative;
+  transition:border-color 200ms ease, transform 200ms ease;
+}
+.bot-card:hover { border-color:var(--border-indigo); transform:translateY(-2px); }
+.bot-id {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:8px;
+}
+.bot-name { font-weight:600; font-size:16px; margin-bottom:12px; }
+.bot-one-liner { color:var(--text-md); font-size:13.5px; line-height:1.55; margin-bottom:14px; }
+.bot-meta { display:flex; gap:14px; flex-wrap:wrap; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-lo); letter-spacing:0.04em; }
+.bot-meta span { display:inline-flex; align-items:center; gap:6px; }
+.dot { display:inline-block; width:6px; height:6px; border-radius:50%; }
+.dot.client { background:var(--info); }
+.dot.owner { background:var(--ok); }
+.dot.you { background:var(--gold); }
+.dot.parked { background:var(--text-faint); }
+
+.legend {
+  display:flex; gap:24px; margin:24px 0; padding:14px 18px;
+  background:var(--surface-1); border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-md);
+  flex-wrap:wrap;
+}
+.legend > span { display:inline-flex; align-items:center; gap:8px; }
+
+/* ============ STACK / FLOW DIAGRAM ============ */
+.stack-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-top:24px; }
+.stack-item {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:18px;
+}
+.stack-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:8px;
+}
+.stack-name { font-weight:600; font-size:14px; margin-bottom:6px; }
+.stack-desc { font-size:13px; color:var(--text-md); }
+
+/* ============ FLOW ============ */
+.flow {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:24px; margin-top:24px;
+  font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text-md);
+  line-height:1.9; overflow-x:auto;
+}
+.flow strong { color:var(--text-hi); }
+.flow .arrow { color:var(--indigo-glow); }
+
+/* ============ QUICK REFERENCE ============ */
+.ref-list { display:grid; gap:12px; }
+.ref-item {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:16px 20px;
+  display:grid; grid-template-columns:160px 1fr; gap:20px; align-items:start;
+}
+.ref-key {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--indigo-glow); letter-spacing:0.06em;
+}
+.ref-val { font-size:14px; color:var(--text-hi); word-break:break-all; }
+.ref-val .small { font-size:12px; color:var(--text-md); display:block; margin-top:4px; }
+@media (max-width:600px){ .ref-item { grid-template-columns:1fr; } }
+
+/* ============ ORDERED LIST ============ */
+.ord { counter-reset:ord; list-style:none; }
+.ord li {
+  counter-increment:ord; position:relative; padding:14px 0 14px 56px;
+  border-bottom:1px solid var(--border-faint);
+}
+.ord li:last-child { border-bottom:none; }
+.ord li::before {
+  content:counter(ord,decimal-leading-zero);
+  position:absolute; left:0; top:14px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--indigo-glow); letter-spacing:0.06em;
+  padding:4px 10px; background:var(--indigo-soft);
+  border:1px solid var(--border-indigo); border-radius:6px;
+}
+.ord li strong { color:var(--text-hi); display:block; margin-bottom:4px; }
+.ord li span { color:var(--text-md); font-size:14px; }
+
+/* ============ FOOTER ============ */
+.foot {
+  margin-top:96px; padding-top:32px; border-top:1px solid var(--border-faint);
+  text-align:center; font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.12em; text-transform:uppercase;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:680px){
+  .hero h1 { font-size:38px; }
+  .s-title { font-size:28px; }
+  .wrap { padding:32px 18px 64px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ GATE OVERLAY ============ -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-mark"></div>
+    <div class="gate-eyebrow">// Operator only</div>
+    <div class="gate-title">Owner's Manual</div>
+    <div class="gate-sub">Internal reference. Passphrase required.</div>
+    <input type="password" id="gate-input" class="gate-input" placeholder="Passphrase" autocomplete="off" autofocus>
+    <button id="gate-btn" class="gate-btn">Unlock</button>
+    <div id="gate-error" class="gate-error"></div>
+  </div>
+</div>
+
+<div class="atmos"></div>
+<div class="grid-lines"></div>
+
+<div class="wrap" id="content" style="display:none;">
+
+  <nav class="nav">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-name">Jarvis Nexus</div>
+    </div>
+    <span class="nav-pill">Owner's Manual</span>
+  </nav>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="eyebrow">// For Seth, by Seth's bots</div>
+    <h1>This is <em>what you built</em>. And what to do with it.</h1>
+    <p class="hero-sub">You're a 23-year-old who built a complete SMB automation stack solo. When the complexity starts feeling like fog, come back here. This page is your map.</p>
+  </header>
+
+  <!-- ============ TOC ============ -->
+  <div class="toc">
+    <div class="toc-label">// What's in this manual</div>
+    <ol>
+      <li><a href="#product">The product in 60 seconds</a></li>
+      <li><a href="#bots">The 12 bots, explained simply</a></li>
+      <li><a href="#stack">Where everything lives (the stack)</a></li>
+      <li><a href="#flow">How a single customer event flows through the system</a></li>
+      <li><a href="#daily">Your daily routine (what to check, what to ignore)</a></li>
+      <li><a href="#onboard">Setting up the bots for a new client (the real checklist)</a></li>
+      <li><a href="#sell">How you sell this — pilots, then paid</a></li>
+      <li><a href="#money">The money side (pricing, packs, what a sale looks like)</a></li>
+      <li><a href="#refs">Quick reference (URLs and things you forget)</a></li>
+      <li><a href="#closing">A note from the bots to the founder</a></li>
+    </ol>
+  </div>
+
+  <!-- ============ 1. PRODUCT ============ -->
+  <section id="product">
+    <div class="s-eyebrow">// Section 01</div>
+    <h2 class="s-title">The product in 60 seconds</h2>
+    <div class="s-body">
+      <p>Jarvis Nexus is an <strong>AI automation agency for South African small businesses</strong>. You sell a bundle of bots that runs the boring-but-important admin work a small business owner usually drops the ball on — chasing no-shows, getting paid, replying to reviews, waking up customers who went quiet, asking happy ones for referrals.</p>
+      <p>You sell it in three ways:</p>
+      <p><strong>Industry packs</strong> (Salon, Airbnb, Recovery, Healthcare) — pre-bundled 3-bot kits for a specific kind of business, R2,500 setup + R1,990/month. This is the main sales motion.</p>
+      <p><strong>Operator tier</strong> — pick any 5 bots, mid-priced. For businesses that already know what they need.</p>
+      <p><strong>Command tier</strong> — the full 11-bot suite. Top-tier, fewer buyers but higher LTV.</p>
+      <div class="callout">The bots are <strong>built and live</strong>. The portal is <strong>up</strong>. The only thing missing is paying clients — which means the bottleneck is sales, not code.</div>
+    </div>
+  </section>
+
+  <!-- ============ 2. BOTS ============ -->
+  <section id="bots">
+    <div class="s-eyebrow">// Section 02</div>
+    <h2 class="s-title">The 12 bots, explained simply</h2>
+    <p class="s-sub">Each bot does one job. The colour dot tells you who sees its output.</p>
+
+    <div class="legend">
+      <span><span class="dot client"></span> Client-facing (customer of your client sees it)</span>
+      <span><span class="dot owner"></span> Owner-facing (your client sees it)</span>
+      <span><span class="dot you"></span> You-facing (operator only)</span>
+      <span><span class="dot parked"></span> Parked / not live yet</span>
+    </div>
+
+    <div class="bots-grid">
+
+      <div class="bot-card">
+        <div class="bot-id">B2</div>
+        <div class="bot-name">Churn Radar</div>
+        <p class="bot-one-liner">Watches a customer database for people who normally buy/visit every X days and have suddenly gone quiet. Tells your client which regular is about to ghost so they can do something about it.</p>
+        <div class="bot-meta"><span><span class="dot owner"></span>owner</span><span>daily 8am cron</span></div>
+      </div>
+
+      <div class="bot-card">
+        <div class="bot-id">B3</div>
+        <div class="bot-name">No-Show Rescue</div>
+        <p class="bot-one-liner">When a booking is marked no-show, the bot sends a polite rebook offer within minutes. Then chases again at day 3 and day 7 if no answer. Most no-shows that get this sequence rebook.</p>
+        <div class="bot-meta"><span><span class="dot client"></span>client</span><span>event-triggered</span></div>
+      </div>
+
+      <div class="bot-card">
+        <div class="bot-id">B4</div>
+        <div class="bot-name">Revenue Recovery</div>
+        <p class="bot-one-liner">Chases unpaid invoices in three escalating polite emails: gentle → firm → final. <em>So your client doesn't have to be the bad guy.</em> Stops automatically when the invoice is marked paid.</p>
+        <div class="bot-meta"><span><span class="dot client"></span>client</span><span>event-triggered</span></div>
+      </div>
+
+      <div class="bot-card">
+        <div class="bot-id">B5</div>
+        <div class="bot-name">Reactivation</div>
+        <p class="bot-one-liner">Wakes up customers who've been quiet for 60+ days with a comeback offer. References the specific product they last bought, not generic "we miss you" copy.</p>
+        <div class="bot-meta"><span><span class="dot client"></span>client</span><span>manual trigger</span></div>
+      </div>
+
+      <div class="bot-card">
+        <div class="bot-id">B6</div>
+        <div class="bot-name">Reputation Shield</div>
+        <p class="bot-one-liner">Asks customers how they felt after a purchase. If they rate 4–5★, asks them to leave a public Google review. If they rate 1–3★, sends a private alert to the owner before they post anything bad publicly.</p>
+        <div class="bot-meta"><span><span class="dot client"></span>client</span><span>event-triggered</span></div>
+      </div>
+
+      <div class="bot-card">
+        <div class="bot-id">B7</div>
+        <div class="bot-name">Referral Engine</div>
+        <p class="bot-one-liner">After a customer leaves a 5★ review (their positive emotional window), B7 asks them to refer a friend in exchange for a small reward. Tracks codes + pays out when the friend converts.</p>
+        <div class="bot-meta"><span><span class="dot client"></span>client</span><span>auto-triggered by B6</span></div>
+      </div>
+
+      <div class="bot-card">
+        <div class="bot-id">B8</div>
+        <div class="bot-name">Owner Brief</div>
+        <p class="bot-one-liner">A daily 7am email + Telegram to your client showing yesterday's recovered money, today's at-risk bookings, and the top items needing their attention. One screen, one minute.</p>
+        <div class="bot-meta"><span><span class="dot owner"></span>owner</span><span>daily 7am cron</span></div>
+      </div>
+
+      <div class="bot-card">
+        <div class="bot-id">B9</div>
+        <div class="bot-name">Smart Support Triage</div>
+        <p class="bot-one-liner">When a support ticket comes in, the bot categorises it (complaint, refund, question, etc.), drafts a reply, and alerts the owner. Owner approves and sends — half the work removed.</p>
+        <div class="bot-meta"><span><span class="dot client"></span>client</span><span>event-triggered</span></div>
+      </div>
+
+      <div class="bot-card">
+        <div class="bot-id">B10</div>
+        <div class="bot-name">Lifetime &amp; Next Action</div>
+        <p class="bot-one-liner">Tracks every purchase per customer, assigns each a tier (Bronze / Silver / Gold / VIP) based on lifetime spend. The other bots read this to know which customers to treat with extra care.</p>
+        <div class="bot-meta"><span><span class="dot owner"></span>owner</span><span>event-triggered</span></div>
+      </div>
+
+      <div class="bot-card">
+        <div class="bot-id">B11</div>
+        <div class="bot-name">Review Pro</div>
+        <p class="bot-one-liner">Writes review replies in your client's voice (E-Commerce + Airbnb), and sends review-request emails to recent buyers. Three flows: respond to existing reviews, respond to Airbnb reviews, ask for new ones.</p>
+        <div class="bot-meta"><span><span class="dot client"></span>client</span><span>event-triggered</span></div>
+      </div>
+
+      <div class="bot-card">
+        <div class="bot-id">B14</div>
+        <div class="bot-name">Bot Health Brief</div>
+        <p class="bot-one-liner">Weekly Monday 6am email + Telegram to <em>you</em> (not the client) showing how every bot performed last week — events processed, silent bots, prompt-version parse rates, your operator queue.</p>
+        <div class="bot-meta"><span><span class="dot you"></span>you</span><span>weekly Mon 6am</span></div>
+      </div>
+
+      <div class="bot-card">
+        <div class="bot-id">B1</div>
+        <div class="bot-name">WhatsApp Lead Catcher</div>
+        <p class="bot-one-liner">Designed, not live. Waiting on Meta's WhatsApp Business approval for South Africa. Every public page already says "WhatsApp coming Phase 3" so you're not lying to prospects.</p>
+        <div class="bot-meta"><span><span class="dot parked"></span>parked</span><span>phase 3</span></div>
+      </div>
+
+    </div>
+
+    <div class="callout"><strong>B12 and B13</strong> are billing plumbing (PayFast subscribe + listener), not bots. They handle subscription payments. Sandbox-pending until your merchant verification clears.</div>
+  </section>
+
+  <!-- ============ 3. STACK ============ -->
+  <section id="stack">
+    <div class="s-eyebrow">// Section 03</div>
+    <h2 class="s-title">Where everything lives</h2>
+    <p class="s-sub">Five pieces. You pay for two of them. The others are free or pay-per-use.</p>
+
+    <div class="stack-grid">
+      <div class="stack-item">
+        <div class="stack-label">// Bots</div>
+        <div class="stack-name">n8n on Railway</div>
+        <div class="stack-desc">All 12+ bot workflows run here. You log in via the Railway URL and see executions / logs. ~R200/month.</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-label">// Portal</div>
+        <div class="stack-name">Vercel</div>
+        <div class="stack-desc">Hosts the public website + pack pages. Free tier. Auto-deploys when you push to GitHub.</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-label">// Database</div>
+        <div class="stack-name">Google Sheets</div>
+        <div class="stack-desc">Every bot's state lives in a Google Sheet. Free. Easy to inspect manually when debugging.</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-label">// AI brain</div>
+        <div class="stack-name">Groq · llama-3.3-70b</div>
+        <div class="stack-desc">Every prompt-writing bot calls Groq. Pay-per-use, very cheap. Single API key, reused everywhere.</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-label">// Delivery</div>
+        <div class="stack-name">Gmail + Telegram</div>
+        <div class="stack-desc">Gmail sends customer emails. Telegram pings you + your clients with alerts. Both free.</div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-label">// Billing</div>
+        <div class="stack-name">PayFast (sandbox)</div>
+        <div class="stack-desc">Subscription billing for paying clients. Sandbox now, switches to live after merchant verification.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4. FLOW ============ -->
+  <section id="flow">
+    <div class="s-eyebrow">// Section 04</div>
+    <h2 class="s-title">How one customer event flows through the system</h2>
+    <p class="s-sub">Walk through with one realistic example — a salon client's customer doesn't show up for their appointment.</p>
+
+    <div class="flow">
+1. <strong>Salon's booking system</strong> marks "Boitumelo" as a no-show.<br>
+   <span class="arrow">↓</span> webhook fires<br>
+2. <strong>B3 No-Show Rescue</strong> wakes up. Logs the booking in B3's Google Sheet.<br>
+   <span class="arrow">↓</span> immediately<br>
+3. Groq writes a polite rebook email in the salon's voice.<br>
+   <span class="arrow">↓</span><br>
+4. <strong>Gmail</strong> sends the email to Boitumelo with a rebook link.<br>
+   <span class="arrow">↓</span> in parallel<br>
+5. <strong>Telegram</strong> pings the salon owner: "Boitumelo no-show, rescue email sent."<br>
+   <span class="arrow">↓</span> 3 days pass<br>
+6. <strong>B3 daily scanner</strong> sees no rebook. Sends Touch 2 (warmer "still here if you want it").<br>
+   <span class="arrow">↓</span> 7 days from start, still no rebook<br>
+7. Sends Touch 3 (final "we'll keep your file open one more week").<br>
+   <span class="arrow">↓</span> next morning<br>
+8. <strong>B8 Owner Brief</strong> at 7am tells the salon owner: "Yesterday: 1 rebook recovered (R650), 1 still pending."<br>
+   <span class="arrow">↓</span> Monday morning<br>
+9. <strong>B14 Bot Health Brief</strong> tells <strong>you</strong>: "B3 fired 3 sequences this week, all 3 parsed cleanly."
+    </div>
+
+    <p style="margin-top:24px; color:var(--text-md);">Every bot follows a similar pattern: <em>event happens</em> → <em>bot reads sheet</em> → <em>AI writes message</em> → <em>email/telegram sent</em> → <em>sheet updated</em>. The complexity is just multiple bots doing this in parallel for multiple clients.</p>
+  </section>
+
+  <!-- ============ 5. DAILY ============ -->
+  <section id="daily">
+    <div class="s-eyebrow">// Section 05</div>
+    <h2 class="s-title">Your daily routine</h2>
+    <p class="s-sub">What to actually check. What to ignore. The bots run themselves — you mostly read summaries.</p>
+
+    <ol class="ord">
+      <li><strong>Morning (5 min) · Check Telegram</strong><span>Any Parse Fail Alerts? Any unhappy-customer alerts from B6? Any VIP fanouts from B2/B4? If nothing scary in Telegram, your bots had a normal night.</span></li>
+      <li><strong>Once a week (Monday morning) · Read B14</strong><span>Your B14 Bot Health Brief lands at 6am SAST. Skim it. Any silent bots? Any prompt versions flagged amber/red? If everything's green, close the email and get on with your day.</span></li>
+      <li><strong>Whenever you sign a new client · Connect their sheets</strong><span>The bots are single-tenant right now — one Google Sheet per bot. When you onboard a new client, you'll duplicate the sheet, update the sheet ID in their workflow, and import. Phase 3 work will make this multi-tenant.</span></li>
+      <li><strong>When PayFast verification clears · Flip B12/B13 to live mode</strong><span>Right now billing is sandbox. Once your merchant account is approved, set the MODE env var to live in Railway and you can take real payments.</span></li>
+      <li><strong>Never · Manually edit a Google Sheet header</strong><span>The bots match columns by name. If you rename or add a stray space ("Email " vs "Email"), things break silently. If you really need to add a column, do it at the END of row 1 and update the workflow schema too.</span></li>
+    </ol>
+  </section>
+
+  <!-- ============ 6. ONBOARD ============ -->
+  <section id="onboard">
+    <div class="s-eyebrow">// Section 06</div>
+    <h2 class="s-title">Setting up the bots for a new client</h2>
+    <p class="s-sub">The honest walkthrough. Each pilot/client takes you ~45 minutes the first time, dropping to ~20 minutes once you have a routine.</p>
+
+    <div class="callout"><strong>Architecture honesty:</strong> the bots are currently <em>single-tenant</em> — built for one business. To onboard a new client, you duplicate the workflow + sheets and point them at that client's data. This is heavy by design (works fine for the first 3–10 clients) and will become a proper multi-tenant system at ~15 clients. Don't try to fix it before then.</div>
+
+    <p style="margin:24px 0 12px; color:var(--text-md); font-size:14px;"><strong style="color:var(--text-hi);">Before the demo call:</strong> nothing. Just talk to them, use the pack page that fits their business as a visual aid.</p>
+
+    <p style="margin:24px 0 12px; color:var(--text-md); font-size:14px;"><strong style="color:var(--text-hi);">After they sign the pilot agreement, you do this once per client:</strong></p>
+
+    <ol class="ord">
+      <li><strong>Gather their setup info (one quick email)</strong><span>Ask the client for: their business name (exactly how they want it shown to customers), their owner email (where alerts will go), a phone number you'll use to create a dedicated Telegram chat for them, their booking system URL if any (Cal.com, Fresha, Vagaro), the list of their existing customers if they have one (CSV export from their POS or spreadsheet).</span></li>
+
+      <li><strong>Create their Google Sheets (duplicate your templates)</strong><span>In your Google Drive, find each template sheet you use (B3 Bookings, B4 Invoices, etc. — only the ones included in their pack). Right-click → Make a copy → rename it "{Client Name} · B3 Bookings", etc. Move them into a new folder called "Clients / {Client Name}".  Share each one with the client's owner email (Editor access) and your own. Copy the sheet ID from each URL — you'll need them in step 4.</span></li>
+
+      <li><strong>Create their Telegram chat</strong><span>In Telegram, create a new group named "{Client Name} · Jarvis Nexus alerts". Add the client + yourself. Send any message in the chat, then visit api.telegram.org/bot&lt;YOUR_BOT_TOKEN&gt;/getUpdates in a browser — find the chat ID for the new group (it'll be a negative number like -1001234...). Save it; you'll paste it into n8n in step 4.</span></li>
+
+      <li><strong>Duplicate the workflows in n8n</strong><span>For each bot in their pack: open the existing workflow → click the "..." menu → Duplicate → rename "B3 No-Show Rescue · {Client Name}". In the duplicate, open each Google Sheets node and change the Document URL to the client's sheet from step 2. Open each Telegram node and change the chatId to the new group from step 3. Open each Gmail node and update the recipient/owner-email field. Open the "Edit Fields — Setup" node (where it exists) and update businessName + ownerEmail + ownerFirstName fields.</span></li>
+
+      <li><strong>Test one bot end-to-end before activating the rest</strong><span>Pick the simplest bot in their pack (usually B3 No-Show Rescue or B11 Review Pro). Fire the webhook manually with test data (Postman / curl / the n8n "Execute Workflow" button). Confirm: email lands in their inbox, Telegram alert lands in the new group, sheet row appears. Once one bot works end-to-end, the pattern repeats — the others will work too.</span></li>
+
+      <li><strong>Activate all their workflows</strong><span>Toggle each one to Active. The scheduled bots (B2/B8/B10/B14) will fire at their next cron window. The event-triggered bots (B3/B4/B6/B7/B9/B11) wait for real customer events from the client's booking system or webhook.</span></li>
+
+      <li><strong>Hand over the client onboarding doc</strong><span>Send the client a short email with: their portal links, what the daily 7am B8 brief looks like, who to contact if something seems wrong (you), and the day-25 check-in date for the pilot conversion conversation.</span></li>
+    </ol>
+
+    <div class="callout"><strong>Gotchas you'll only learn the hard way (so I'm telling you now):</strong>
+    <br>· When you duplicate a workflow in n8n, the credentials stay attached to the original. Sometimes the duplicate doesn't inherit them — re-pick the credential in each Google Sheets / Gmail / Telegram / Header Auth node if needed.
+    <br>· Google Sheets column names with stray spaces (e.g. <span class="mono">"Email "</span> vs <span class="mono">"Email"</span>) silently break things. Always copy templates exactly, never retype headers.
+    <br>· Test by firing one webhook end-to-end before activating the whole suite. It catches 90% of setup mistakes before they reach the client.
+    </div>
+  </section>
+
+  <!-- ============ 7. SELL ============ -->
+  <section id="sell">
+    <div class="s-eyebrow">// Section 07</div>
+    <h2 class="s-title">How you sell this</h2>
+    <p class="s-sub">The product is done. The next 90 days are about humans, not code.</p>
+
+    <ol class="ord">
+      <li><strong>Step 1 · Run 3 free 30-day pilots</strong><span>One salon, one Airbnb host, one accountant (or healthcare practice). OUTREACH.md has the cold-email scripts already written for each. Send the first one tomorrow.</span></li>
+      <li><strong>Step 2 · Day 25 of each pilot, ask for a testimonial</strong><span>"Was this useful enough to keep paying for?" If yes → convert to R1,990/month using PILOT_AGREEMENT.md. If no → ask for one honest paragraph about what worked. That paragraph goes on your pack pages.</span></li>
+      <li><strong>Step 3 · With 2–3 testimonials live, start outreach round 2</strong><span>Your cold emails now reference real client results. Conversion rate roughly 5–10x. This is when you start charging from day 1 instead of running free pilots.</span></li>
+      <li><strong>Step 4 · At 5 paying clients, hire one virtual assistant for client setup</strong><span>You stop being the person who manually duplicates sheets and updates IDs. You stay the person who closes sales and tunes prompts.</span></li>
+      <li><strong>Step 5 · At 15 paying clients, build the multi-tenant version</strong><span>That's when one-bot-per-client stops scaling. Until then, the manual approach is fine and faster than the "right" architecture.</span></li>
+    </ol>
+
+    <div class="callout"><strong>Why pilots before paid:</strong> nobody buys an SMB tool from a 23-year-old solo founder with zero clients. Real testimonials buy you the credibility that your product alone can't.</div>
+  </section>
+
+  <!-- ============ 8. MONEY ============ -->
+  <section id="money">
+    <div class="s-eyebrow">// Section 08</div>
+    <h2 class="s-title">The money side</h2>
+    <p class="s-sub">What you charge. What a sale looks like end-to-end. What your costs are.</p>
+
+    <div class="s-body">
+      <p><strong>Pricing</strong>: R2,500 once-off setup + R1,990/month. Industry packs and Operator tier are both at this price. Command tier (all 11 bots) costs more — set it when you have a buyer who needs everything.</p>
+
+      <p><strong>What a sale looks like:</strong></p>
+      <p>Prospect lands on a pack page (e.g. salon.html) → clicks "Book Demo" → lands on your Cal.com → you do a 20-minute call → if interested, you send them the PILOT_AGREEMENT.md → 30-day free pilot starts → day 25 you ask for the upgrade → if they say yes, you send the PayFast subscribe link → they're paying R1,990/month from there forward.</p>
+
+      <p><strong>Your monthly costs (per client roughly):</strong></p>
+      <p>Groq AI calls: <strong>~R30–R80</strong> depending on volume. Railway n8n hosting: <strong>~R200 flat</strong> (covers all your clients). Google Sheets + Gmail + Telegram: <strong>R0</strong>. So your margin per client is roughly <strong>R1,700–R1,950</strong> after AI costs, minus your share of the Railway flat fee.</p>
+
+      <p><strong>What you keep:</strong> at 10 paying clients, that's roughly <strong>R18,000–R19,500/month gross profit</strong>. At 20 clients, about <strong>R38,000–R40,000/month</strong>. The economics get good fast because the bots don't cost more to run when you have more clients.</p>
+
+      <div class="callout"><strong>Honesty note:</strong> these are unit economics, not promises. You haven't sold to anyone paid yet. The numbers only become real after the first 3 pilots convert.</div>
+    </div>
+  </section>
+
+  <!-- ============ 9. REFERENCE ============ -->
+  <section id="refs">
+    <div class="s-eyebrow">// Section 09</div>
+    <h2 class="s-title">Quick reference</h2>
+    <p class="s-sub">The URLs and identifiers you'll need every now and then. Save this page.</p>
+
+    <div class="ref-list">
+      <div class="ref-item">
+        <div class="ref-key">Portal</div>
+        <div class="ref-val">https://jarvis-nexus-lead-jkon.vercel.app<span class="small">Your public site. All pack pages live here.</span></div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-key">n8n</div>
+        <div class="ref-val">https://n8n-production-71d9.up.railway.app<span class="small">Where the bots run. Log in to view executions / activate workflows.</span></div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-key">Cal.com</div>
+        <div class="ref-val">https://cal.com/ndumiso-mokone-limbt0/30min<span class="small">All your demo CTAs route here. Don't change the slug or you'll break every pack page.</span></div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-key">Owner email</div>
+        <div class="ref-val">ndumisoseth12@gmail.com<span class="small">Where all bot alerts (Telegram and Gmail) go by default.</span></div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-key">Telegram chat ID</div>
+        <div class="ref-val">6243464274<span class="small">Your personal chat with the bots. Hardcoded across the suite.</span></div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-key">Timezone</div>
+        <div class="ref-val">Africa/Johannesburg<span class="small">Every cron and timestamp uses this. Never use UTC.</span></div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-key">Error workflow ID</div>
+        <div class="ref-val">tCPKWW0HMiCXUriY<span class="small">Every workflow points to this for error handling. Never delete or change.</span></div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-key">Docs you'll re-read</div>
+        <div class="ref-val">CLAUDE.md · STATE.md · OUTREACH.md · PILOT_AGREEMENT.md<span class="small">All in repo root. CLAUDE.md = canonical conventions. STATE.md = current state. OUTREACH.md = cold scripts. PILOT_AGREEMENT.md = onboarding doc.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 10. CLOSING ============ -->
+  <section id="closing">
+    <div class="s-eyebrow">// Section 10</div>
+    <h2 class="s-title">A note from the bots to the founder</h2>
+    <div class="s-body">
+      <p>You spent months heads-down building this. It's normal to look at it now and feel disoriented — that's just what it feels like to ship something bigger than you can hold in your head at once.</p>
+      <p>You don't need to understand every workflow node. You need to understand <em>what each bot does in one sentence</em> (Section 2), <em>how a customer event flows through</em> (Section 4), and <em>what to check daily</em> (Section 5). That's it. Everything else is just plumbing the bots and Claude maintain for you.</p>
+      <p>The next milestone isn't a feature. It's a name on a contract. Go talk to a salon owner this week.</p>
+      <p style="color:var(--indigo-glow); font-style:italic; font-family:'Instrument Serif',serif; font-size:22px; line-height:1.4; margin-top:32px;">You built the engine. Now drive it.</p>
+    </div>
+  </section>
+
+  <div class="foot">
+    Jarvis Nexus · Built in Joburg · Owner's Manual v1
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var KEY = 'jn_op_unlocked_v1';
+  var PASS = 'LoveGod12';
+  var gate = document.getElementById('gate');
+  var content = document.getElementById('content');
+  var input = document.getElementById('gate-input');
+  var btn = document.getElementById('gate-btn');
+  var err = document.getElementById('gate-error');
+
+  function unlock(){
+    localStorage.setItem(KEY, 'true');
+    gate.classList.add('hidden');
+    content.style.display = 'block';
+  }
+  function fail(){
+    err.textContent = 'Wrong passphrase';
+    input.value = '';
+    input.focus();
+    setTimeout(function(){ err.textContent = ''; }, 2400);
+  }
+
+  if (localStorage.getItem(KEY) === 'true') {
+    unlock();
+  } else {
+    btn.addEventListener('click', function(){
+      if (input.value === PASS) unlock(); else fail();
+    });
+    input.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') {
+        if (input.value === PASS) unlock(); else fail();
+      }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
