@@ -1570,25 +1570,66 @@ nav {
   margin-bottom: 2px;
 }
 .pack-pick {
-  padding: 11px 12px;
+  position: relative;
+  padding: 14px 10px 12px;
   background: var(--surface-3);
   border: 1px solid var(--border-subtle);
-  border-radius: 8px;
+  border-radius: 10px;
+  text-decoration: none;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  transition: background 200ms ease, border-color 200ms ease, transform 200ms ease;
+}
+.pack-pick::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at top, rgba(99,102,241,0.14) 0%, transparent 65%);
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+.pack-pick:hover::after { opacity: 1; }
+.pack-pick:hover {
+  background: var(--surface-4);
+  border-color: var(--border-indigo);
+  transform: translateY(-1px);
+}
+.pack-pick-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--indigo-soft);
+  color: var(--indigo-glow);
+  transition: background 200ms ease, color 200ms ease;
+  position: relative; z-index: 1;
+}
+.pack-pick:hover .pack-pick-icon {
+  background: rgba(99,102,241,0.20);
+  color: #fff;
+}
+.pack-pick-icon svg {
+  width: 16px; height: 16px;
+  stroke: currentColor; fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.pack-pick-name {
   font-family: 'Inter', sans-serif;
   font-size: 12.5px;
   font-weight: 600;
   color: var(--text-md);
-  text-align: center;
-  text-decoration: none;
-  transition: background 200ms ease, border-color 200ms ease, color 200ms ease, transform 200ms ease;
   line-height: 1.3;
+  position: relative; z-index: 1;
+  transition: color 200ms ease;
 }
-.pack-pick:hover {
-  background: var(--surface-4);
-  border-color: var(--border-indigo);
-  color: var(--text-hi);
-  transform: translateY(-1px);
-}
+.pack-pick:hover .pack-pick-name { color: var(--text-hi); }
 .pack-pick-meta {
   display: block;
   font-family: 'JetBrains Mono', monospace;
@@ -1597,10 +1638,238 @@ nav {
   letter-spacing: 0.06em;
   color: var(--text-lo);
   text-transform: uppercase;
-  margin-top: 3px;
+  position: relative; z-index: 1;
 }
 @media (max-width: 480px) {
   .pack-picker { grid-template-columns: 1fr; }
+}
+
+/* ========== COMPARE TABLE (additive — below price cards) ========== */
+.compare-table-wrap { margin-top: 56px; }
+.compare-divider {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 24px;
+}
+.compare-divider::before,
+.compare-divider::after {
+  content: ''; flex: 1; height: 1px;
+  background: var(--grad-divider);
+}
+.compare-divider-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+}
+.compare-table-scroll {
+  overflow-x: auto;
+  border-radius: var(--r-lg);
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+}
+.compare-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.compare-table thead th {
+  text-align: left;
+  padding: 24px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  vertical-align: bottom;
+}
+.compare-feature-head {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  font-weight: 600;
+}
+.compare-tier-head { position: relative; }
+.compare-tier-head.featured {
+  background: linear-gradient(180deg, rgba(99,102,241,0.10) 0%, var(--surface-2) 100%);
+  border-left: 1px solid var(--border-indigo);
+  border-right: 1px solid var(--border-indigo);
+}
+.compare-tier-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  background: var(--grad-accent);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px var(--indigo-shadow);
+}
+.compare-tier-name {
+  display: block;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 22px;
+  color: var(--text-hi);
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.compare-tier-price {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-md);
+}
+.compare-tier-per {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-lo);
+  letter-spacing: 0.06em;
+}
+.compare-table tbody td,
+.compare-table tbody th {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-faint);
+  color: var(--text-hi);
+  vertical-align: middle;
+}
+.compare-table tbody tr:last-child td,
+.compare-table tbody tr:last-child th { border-bottom: none; }
+.compare-row-head {
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-md);
+  font-size: 13.5px;
+  width: 36%;
+}
+.compare-row-hint {
+  display: block;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--text-lo);
+  margin-top: 2px;
+}
+.compare-table tbody td.featured {
+  background: rgba(99,102,241,0.04);
+  border-left: 1px solid var(--border-indigo);
+  border-right: 1px solid var(--border-indigo);
+}
+.compare-table tbody tr:hover td:not(.featured) { background: rgba(255,255,255,0.015); }
+.compare-table tbody tr:hover td.featured { background: rgba(99,102,241,0.07); }
+.compare-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--indigo-soft);
+  color: var(--indigo-glow);
+  font-weight: 700;
+  font-size: 13px;
+}
+.compare-dash {
+  color: var(--text-faint);
+  font-weight: 400;
+}
+@media (max-width: 720px) {
+  .compare-table-scroll { border-radius: var(--r-md); }
+  .compare-feature-head { font-size: 9px; }
+  .compare-tier-name { font-size: 18px; }
+}
+
+/* ========== LIVE ACTIVITY TICKER (sample stream — format mockup) ========== */
+.ticker-strip {
+  position: relative;
+  background: var(--surface-1);
+  border-top: 1px solid var(--border-faint);
+  border-bottom: 1px solid var(--border-faint);
+  padding: 14px 0;
+  overflow: hidden;
+}
+.ticker-label {
+  position: absolute;
+  left: 24px; top: 50%; transform: translateY(-50%);
+  z-index: 3;
+  background: var(--surface-1);
+  padding: 6px 16px 6px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  display: flex; align-items: center; gap: 10px;
+  white-space: nowrap;
+}
+.ticker-label::after {
+  content: '';
+  position: absolute;
+  right: -32px; top: 0; bottom: 0;
+  width: 32px;
+  background: linear-gradient(90deg, var(--surface-1) 0%, transparent 100%);
+  pointer-events: none;
+}
+.ticker-label-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--indigo-glow);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  animation: tickerPulse 1.6s ease-in-out infinite;
+}
+@keyframes tickerPulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+  50%      { box-shadow: 0 0 0 7px rgba(99,102,241,0.0); }
+}
+.ticker-marquee {
+  display: flex; gap: 48px;
+  width: max-content;
+  animation: tickerScroll 70s linear infinite;
+  padding-left: 240px;
+}
+.ticker-strip:hover .ticker-marquee { animation-play-state: paused; }
+@keyframes tickerScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.ticker-item {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 13px;
+  color: var(--text-md);
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.005em;
+}
+.ticker-item-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--indigo-glow);
+  padding: 3px 8px;
+  border: 1px solid var(--border-indigo);
+  border-radius: 4px;
+  background: var(--indigo-soft);
+}
+.ticker-item-amount {
+  color: var(--ok);
+  font-weight: 600;
+}
+.ticker-item-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+}
+@media (max-width: 720px) {
+  .ticker-label { left: 16px; font-size: 9px; padding-right: 12px; }
+  .ticker-label::after { right: -24px; width: 24px; }
+  .ticker-marquee { padding-left: 180px; gap: 32px; }
+  .ticker-item { font-size: 12px; gap: 8px; }
 }
 
 /* ========== CLOSER ========== */
@@ -1957,6 +2226,36 @@ nav.scrolled {
     </div>
   </div>
 </section>
+
+<!-- LIVE ACTIVITY TICKER (sample stream — format mockup per design system) -->
+<div class="ticker-strip" aria-label="Sample event stream — format mockup">
+  <div class="ticker-label">
+    <span class="ticker-label-dot" aria-hidden="true"></span>
+    <span>SAMPLE STREAM</span>
+  </div>
+  <div class="ticker-marquee">
+    <span class="ticker-item"><span class="ticker-item-tag">Recovery</span> Invoice paid by Sipho · <span class="ticker-item-amount">+R3,400</span> <span class="ticker-item-time">stage 2 chase</span></span>
+    <span class="ticker-item"><span class="ticker-item-tag">Review Pro</span> 5-star reply drafted for Cape Town Sneakers <span class="ticker-item-time">in 47s</span></span>
+    <span class="ticker-item"><span class="ticker-item-tag">No-Show</span> Boitumelo rebooked · missed 14:30 → 17:00 today</span>
+    <span class="ticker-item"><span class="ticker-item-tag">Support</span> Thabo flagged unhappy — owner pinged <span class="ticker-item-time">11:42</span></span>
+    <span class="ticker-item"><span class="ticker-item-tag">Reactivation</span> VIP Lerato silent 28 days — reach-out drafted</span>
+    <span class="ticker-item"><span class="ticker-item-tag">Referral</span> Aisha sent 2 friends · 1 already booked</span>
+    <span class="ticker-item"><span class="ticker-item-tag">Owner Brief</span> Tuesday: <span class="ticker-item-amount">R12,840</span> recovered · 4 no-shows saved</span>
+    <span class="ticker-item"><span class="ticker-item-tag">Churn Radar</span> Pieter at risk — engagement email queued</span>
+    <span class="ticker-item"><span class="ticker-item-tag">Lifetime</span> Kagiso hit VIP tier · purchase #12 <span class="ticker-item-amount">+R8,200 LTV</span></span>
+    <span class="ticker-item"><span class="ticker-item-tag">Reputation</span> 2-star review for Linden Studio · owner alerted before public reply</span>
+    <span class="ticker-item"><span class="ticker-item-tag">Recovery</span> Invoice paid by Sipho · <span class="ticker-item-amount">+R3,400</span> <span class="ticker-item-time">stage 2 chase</span></span>
+    <span class="ticker-item"><span class="ticker-item-tag">Review Pro</span> 5-star reply drafted for Cape Town Sneakers <span class="ticker-item-time">in 47s</span></span>
+    <span class="ticker-item"><span class="ticker-item-tag">No-Show</span> Boitumelo rebooked · missed 14:30 → 17:00 today</span>
+    <span class="ticker-item"><span class="ticker-item-tag">Support</span> Thabo flagged unhappy — owner pinged <span class="ticker-item-time">11:42</span></span>
+    <span class="ticker-item"><span class="ticker-item-tag">Reactivation</span> VIP Lerato silent 28 days — reach-out drafted</span>
+    <span class="ticker-item"><span class="ticker-item-tag">Referral</span> Aisha sent 2 friends · 1 already booked</span>
+    <span class="ticker-item"><span class="ticker-item-tag">Owner Brief</span> Tuesday: <span class="ticker-item-amount">R12,840</span> recovered · 4 no-shows saved</span>
+    <span class="ticker-item"><span class="ticker-item-tag">Churn Radar</span> Pieter at risk — engagement email queued</span>
+    <span class="ticker-item"><span class="ticker-item-tag">Lifetime</span> Kagiso hit VIP tier · purchase #12 <span class="ticker-item-amount">+R8,200 LTV</span></span>
+    <span class="ticker-item"><span class="ticker-item-tag">Reputation</span> 2-star review for Linden Studio · owner alerted before public reply</span>
+  </div>
+</div>
 
 <!-- REAL OUTPUT TEMPLATES (mockups, framed honestly) -->
 <section class="section" id="outputs">
@@ -2334,27 +2633,33 @@ nav.scrolled {
         <div class="pack-picker">
           <div class="pack-picker-label">// Pick the pack that fits you</div>
           <a href="/salon" class="pack-pick">
-            Salon Pack
+            <span class="pack-pick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></span>
+            <span class="pack-pick-name">Salon Pack</span>
             <span class="pack-pick-meta">salons · hair · beauty</span>
           </a>
           <a href="/trainer-pack" class="pack-pick">
-            Trainer Pack
+            <span class="pack-pick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7v10M7 5v14M17 5v14M21 7v10"/><line x1="7" y1="12" x2="17" y2="12"/></svg></span>
+            <span class="pack-pick-name">Trainer Pack</span>
             <span class="pack-pick-meta">trainers · fitness · pilates</span>
           </a>
           <a href="/trade-pack" class="pack-pick">
-            Trade Pack
+            <span class="pack-pick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+            <span class="pack-pick-name">Trade Pack</span>
             <span class="pack-pick-meta">plumbers · electricians · handymen</span>
           </a>
           <a href="/airbnb-pack" class="pack-pick">
-            Airbnb Pack
+            <span class="pack-pick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+            <span class="pack-pick-name">Airbnb Pack</span>
             <span class="pack-pick-meta">hosts · short-term lets</span>
           </a>
           <a href="/recovery-pack" class="pack-pick">
-            Recovery Pack
+            <span class="pack-pick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="18" y1="12" x2="18.01" y2="12"/></svg></span>
+            <span class="pack-pick-name">Recovery Pack</span>
             <span class="pack-pick-meta">accountants · B2B</span>
           </a>
           <a href="/healthcare-pack" class="pack-pick">
-            Healthcare Pack
+            <span class="pack-pick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+            <span class="pack-pick-name">Healthcare Pack</span>
             <span class="pack-pick-meta">dentists · physios · GPs</span>
           </a>
         </div>
@@ -2402,6 +2707,97 @@ nav.scrolled {
         <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="price-cta">Talk to Seth →</a>
       </div>
 
+    </div>
+
+    <!-- COMPARE TABLE (additive — at-a-glance feature comparison) -->
+    <div class="compare-table-wrap">
+      <div class="compare-divider">
+        <span class="compare-divider-label">// COMPARE FEATURES</span>
+      </div>
+      <div class="compare-table-scroll">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th class="compare-feature-head">Feature</th>
+              <th class="compare-tier-head">
+                <span class="compare-tier-name">Starter</span>
+                <span class="compare-tier-price">R1,990<span class="compare-tier-per"> /mo</span></span>
+              </th>
+              <th class="compare-tier-head featured">
+                <span class="compare-tier-badge">MOST POPULAR</span>
+                <span class="compare-tier-name">Operator</span>
+                <span class="compare-tier-price">R3,990<span class="compare-tier-per"> /mo</span></span>
+              </th>
+              <th class="compare-tier-head">
+                <span class="compare-tier-name">Command</span>
+                <span class="compare-tier-price">R9,990<span class="compare-tier-per"> /mo</span></span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th class="compare-row-head">Bots included</th>
+              <td>3 (pre-built pack)</td>
+              <td class="featured">Any 5 bots</td>
+              <td>All 10 bots</td>
+            </tr>
+            <tr>
+              <th class="compare-row-head">Customer events / month</th>
+              <td>500</td>
+              <td class="featured">5,000</td>
+              <td>Unlimited</td>
+            </tr>
+            <tr>
+              <th class="compare-row-head">Daily Owner Brief</th>
+              <td><span class="compare-check">✓</span></td>
+              <td class="featured"><span class="compare-check">✓</span></td>
+              <td><span class="compare-check">✓</span> bespoke format</td>
+            </tr>
+            <tr>
+              <th class="compare-row-head">POPIA-compliant data handling</th>
+              <td><span class="compare-check">✓</span></td>
+              <td class="featured"><span class="compare-check">✓</span></td>
+              <td><span class="compare-check">✓</span></td>
+            </tr>
+            <tr>
+              <th class="compare-row-head">Custom AI tone &amp; brand voice</th>
+              <td><span class="compare-dash">—</span></td>
+              <td class="featured"><span class="compare-check">✓</span></td>
+              <td><span class="compare-check">✓</span></td>
+            </tr>
+            <tr>
+              <th class="compare-row-head">Priority phone + WhatsApp support</th>
+              <td><span class="compare-dash">—</span></td>
+              <td class="featured"><span class="compare-check">✓</span></td>
+              <td><span class="compare-check">✓</span> + Slack</td>
+            </tr>
+            <tr>
+              <th class="compare-row-head">Custom integrations<span class="compare-row-hint">Yoco, PayFast, Fresha, Stitch</span></th>
+              <td><span class="compare-dash">—</span></td>
+              <td class="featured"><span class="compare-dash">—</span></td>
+              <td><span class="compare-check">✓</span></td>
+            </tr>
+            <tr>
+              <th class="compare-row-head">Quarterly strategy session</th>
+              <td><span class="compare-dash">—</span></td>
+              <td class="featured"><span class="compare-dash">—</span></td>
+              <td><span class="compare-check">✓</span></td>
+            </tr>
+            <tr>
+              <th class="compare-row-head">30-day money-back guarantee</th>
+              <td><span class="compare-check">✓</span></td>
+              <td class="featured"><span class="compare-check">✓</span></td>
+              <td><span class="compare-check">✓</span></td>
+            </tr>
+            <tr>
+              <th class="compare-row-head">Cancel any time</th>
+              <td><span class="compare-check">✓</span></td>
+              <td class="featured"><span class="compare-check">✓</span></td>
+              <td><span class="compare-check">✓</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </section>
