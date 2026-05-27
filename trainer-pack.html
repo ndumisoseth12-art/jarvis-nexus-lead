@@ -3,25 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Airbnb Pack · Jarvis Nexus — 3 AI bots built for SA Airbnb hosts</title>
-<meta name="description" content="Reply to every Airbnb review. Even at 2am. Three AI bots — Review Pro, Revenue Recovery, Owner Brief — built specifically for South African Airbnb and short-term rental hosts. From R1,990/month. Built in Joburg.">
+<title>The Trainer Pack · Jarvis Nexus — 3 AI bots built for SA personal trainers</title>
+<meta name="description" content="Stop building 8-week programmes for people who ghost in week 3. Three AI bots — No-Show Rescue, Reactivation, Coach Brief — built specifically for South African personal trainers and fitness studios. From R1,990/month. Built in Joburg.">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Jarvis Nexus">
-<meta property="og:title" content="The Airbnb Pack — 3 AI bots built for SA Airbnb hosts">
-<meta property="og:description" content="Reply to every Airbnb review. Even at 2am. Three AI bots built for South African Airbnb hosts. From R1,990/month.">
-<meta property="og:url" content="https://jarvis-nexus-lead-jkon.vercel.app/airbnb-pack">
+<meta property="og:title" content="The Trainer Pack — 3 AI bots built for SA personal trainers">
+<meta property="og:description" content="Stop building 8-week programmes for people who ghost in week 3. Three AI bots — No-Show Rescue, Reactivation, Coach Brief — built specifically for SA personal trainers. From R1,990/month.">
+<meta property="og:url" content="https://jarvis-nexus-lead-jkon.vercel.app/trainer-pack">
 <meta property="og:image" content="https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="en_ZA">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Airbnb Pack — 3 AI bots built for SA Airbnb hosts">
-<meta name="twitter:description" content="Reply to every review, even at 2am. Three AI bots built for SA Airbnb hosts. From R1,990/month.">
+<meta name="twitter:title" content="The Trainer Pack — 3 AI bots built for SA personal trainers">
+<meta name="twitter:description" content="Stop building 8-week programmes for people who ghost in week 3. Three AI bots built for SA trainers. From R1,990/month.">
 <meta name="twitter:image" content="https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png">
 
-<link rel="canonical" href="https://jarvis-nexus-lead-jkon.vercel.app/airbnb-pack">
+<link rel="canonical" href="https://jarvis-nexus-lead-jkon.vercel.app/trainer-pack">
 <meta name="theme-color" content="#08080c">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Crect x='9' y='9' width='14' height='14' rx='2' fill='none' stroke='white' stroke-width='1.8' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Crect x='52' y='52' width='76' height='76' rx='10' fill='none' stroke='white' stroke-width='10' transform='rotate(45 90 90)'/%3E%3C/svg%3E">
@@ -59,7 +59,6 @@
   --bad:  #f43f5e;
   --info: #22d3ee;
   --gold: #facc15;
-  --airbnb: #ff5a5f;
 
   --grad-accent:   linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #4f46e5 100%);
   --grad-shimmer:  linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
@@ -171,7 +170,10 @@ nav {
   padding: 16px 0;
   gap: 16px;
 }
-.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo {
+  display: inline-flex; align-items: center; gap: 10px;
+  text-decoration: none;
+}
 .logo-mark {
   width: 28px; height: 28px;
   background: var(--grad-accent);
@@ -446,13 +448,16 @@ nav {
 }
 .brief-stat-big {
   font-family: 'Instrument Serif', serif;
-  font-size: 32px;
+  font-size: 36px;
   line-height: 1;
   color: var(--ok);
   font-weight: 400;
   letter-spacing: -0.02em;
 }
-.brief-stat-label { font-size: 12.5px; color: var(--text-md); }
+.brief-stat-label {
+  font-size: 12.5px;
+  color: var(--text-md);
+}
 .brief-stat-label strong { color: var(--text-hi); }
 
 .brief-divider { height: 1px; background: var(--border-faint); margin: 14px 0; }
@@ -488,7 +493,6 @@ nav {
 .pill-ok { background: rgba(16,185,129,0.14); color: var(--ok); }
 .pill-warn { background: rgba(245,158,11,0.14); color: var(--warn); }
 .pill-info { background: var(--indigo-soft); color: var(--indigo-glow); }
-.pill-star { background: rgba(250,204,21,0.14); color: var(--gold); }
 
 /* ========== PAIN STATS BAND ========== */
 .pain-band {
@@ -514,7 +518,7 @@ nav {
   text-align: center;
   color: var(--text-hi);
   margin-bottom: 48px;
-  max-width: 760px;
+  max-width: 720px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -551,8 +555,17 @@ nav {
   -webkit-text-fill-color: var(--text-md);
   margin-left: 4px;
 }
-.pain-card-title { font-size: 15px; font-weight: 600; color: var(--text-hi); margin-bottom: 6px; }
-.pain-card-text { font-size: 13.5px; color: var(--text-md); line-height: 1.55; }
+.pain-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-hi);
+  margin-bottom: 6px;
+}
+.pain-card-text {
+  font-size: 13.5px;
+  color: var(--text-md);
+  line-height: 1.55;
+}
 
 /* ========== SECTION ========== */
 .section { padding: 84px 0; position: relative; }
@@ -583,7 +596,7 @@ nav {
   margin-bottom: 48px;
 }
 
-/* ========== PACK GRID ========== */
+/* ========== WHAT'S IN THE PACK ========== */
 .pack-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -643,7 +656,11 @@ nav {
   margin-bottom: 16px;
 }
 .pack-text strong { color: var(--text-hi); font-weight: 600; }
-.pack-features { list-style: none; padding: 0; margin: 0; }
+.pack-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 .pack-features li {
   font-size: 13px;
   color: var(--text-md);
@@ -681,8 +698,17 @@ nav {
   margin-bottom: 14px;
   display: block;
 }
-.how-title { font-size: 17px; font-weight: 600; color: var(--text-hi); margin-bottom: 10px; }
-.how-text { font-size: 13.5px; line-height: 1.65; color: var(--text-md); }
+.how-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-hi);
+  margin-bottom: 10px;
+}
+.how-text {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--text-md);
+}
 .how-text strong { color: var(--text-hi); font-weight: 600; }
 
 /* ========== REAL OUTPUTS ========== */
@@ -719,11 +745,11 @@ nav {
 .platform-dot {
   width: 9px; height: 9px;
   border-radius: 50%;
-  background: var(--airbnb);
+  background: #ea4335;
   flex-shrink: 0;
 }
 .platform-dot.tg { background: #2aabee; }
-.platform-dot.brief { background: var(--indigo-glow); }
+.platform-dot.google { background: #4285f4; }
 .platform-meta {
   margin-left: auto;
   color: var(--text-lo);
@@ -742,65 +768,42 @@ nav {
   margin-top: auto;
 }
 
-/* Airbnb-style review mockup */
-.airbnb-thread { padding: 18px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
-.airbnb-listing {
+/* Gmail */
+.gmail-thread { padding: 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.gmail-row { display: flex; justify-content: space-between; align-items: center; }
+.gmail-from { font-size: 13px; font-weight: 600; color: var(--text-hi); }
+.gmail-tag {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 9.5px;
+  font-weight: 600;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-lo);
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-faint);
+  padding: 3px 7px;
+  background: rgba(244,63,94,0.14);
+  color: var(--bad);
+  border-radius: 4px;
 }
-.airbnb-guest-row {
-  display: flex; align-items: center; gap: 10px;
-}
-.airbnb-guest-avatar {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #ff5a5f 0%, #e23744 100%);
-  display: flex; align-items: center; justify-content: center;
+.gmail-tag.ok { background: rgba(16,185,129,0.14); color: var(--ok); }
+.gmail-subject {
   font-family: 'Instrument Serif', serif;
   font-style: italic;
-  font-size: 18px;
-  color: #fff;
-  flex-shrink: 0;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+  font-size: 19px;
+  line-height: 1.25;
+  color: var(--text-hi);
+  letter-spacing: -0.01em;
 }
-.airbnb-guest-name { font-size: 13px; font-weight: 600; color: var(--text-hi); line-height: 1.2; }
-.airbnb-guest-meta { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-lo); margin-top: 2px; }
-.airbnb-stars {
-  font-size: 14px;
-  color: var(--gold);
-  letter-spacing: 2px;
-}
-.airbnb-text {
-  font-size: 13px;
+.gmail-snippet { font-size: 13px; line-height: 1.55; color: var(--text-md); }
+.gmail-quote {
+  font-size: 12.5px;
   line-height: 1.55;
   color: var(--text-md);
-  padding: 10px 12px;
-  background: var(--surface-3);
-  border-radius: 8px;
-  font-style: italic;
-}
-.airbnb-reply-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--indigo-glow);
-}
-.airbnb-reply {
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--text-hi);
   padding: 10px 12px;
   border-left: 2px solid var(--indigo);
   background: rgba(99,102,241,0.06);
   border-radius: 0 6px 6px 0;
+  font-style: italic;
 }
-.airbnb-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.quote-sig { display: block; margin-top: 6px; font-size: 11px; color: var(--text-lo); font-style: normal; }
+.gmail-actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
 .output-btn {
   display: inline-flex; align-items: center;
   padding: 7px 11px;
@@ -862,27 +865,41 @@ nav {
   letter-spacing: 0.04em;
 }
 
-/* Multi-listing brief mockup */
-.brief-listing-thread { padding: 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
-.brief-listing-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border-faint);
-  align-items: center;
+/* Google review */
+.review-thread { padding: 18px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.review-stars {
+  font-size: 16px;
+  color: var(--gold);
+  letter-spacing: 2px;
 }
-.brief-listing-row:last-child { border-bottom: none; }
-.brief-listing-name { font-size: 13px; font-weight: 600; color: var(--text-hi); line-height: 1.25; }
-.brief-listing-meta { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-lo); margin-top: 3px; }
-.brief-listing-stat {
+.review-author { font-size: 13px; font-weight: 600; color: var(--text-hi); }
+.review-meta { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-lo); margin-top: 2px; }
+.review-text {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-md);
+  padding: 10px 12px;
+  background: var(--surface-3);
+  border-radius: 8px;
+  font-style: italic;
+}
+.review-reply-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-hi);
-  text-align: right;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--indigo-glow);
+  margin-top: 4px;
 }
-.brief-listing-stat .sub { display: block; font-size: 9.5px; color: var(--text-lo); margin-top: 2px; font-weight: 500; letter-spacing: 0.04em; }
+.review-reply {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-hi);
+  padding: 10px 12px;
+  border-left: 2px solid var(--indigo);
+  background: rgba(99,102,241,0.06);
+  border-radius: 0 6px 6px 0;
+}
 
 /* honest note */
 .outputs-honesty {
@@ -1089,8 +1106,17 @@ nav {
   text-transform: uppercase;
   margin-bottom: 24px;
 }
-.price-pitch { font-size: 14.5px; line-height: 1.6; color: var(--text-md); margin-bottom: 22px; }
-.price-list { list-style: none; padding: 0; margin: 0 0 32px; }
+.price-pitch {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-md);
+  margin-bottom: 22px;
+}
+.price-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+}
 .price-list li {
   font-size: 14px;
   padding: 9px 0 9px 22px;
@@ -1252,7 +1278,7 @@ footer {
         </div>
       </a>
       <div class="nav-right">
-        <span class="pack-pill"><span class="dot"></span>Airbnb Pack</span>
+        <span class="pack-pill"><span class="dot"></span>Trainer Pack</span>
         <a href="/" class="nav-back">← All bots</a>
       </div>
     </div>
@@ -1268,21 +1294,21 @@ footer {
       <div>
         <div class="hero-eyebrow">
           <span class="pulse"></span>
-          <span>The airbnb pack · 3 bots · from R1,990/mo</span>
+          <span>The trainer pack · 3 bots · from R1,990/mo</span>
         </div>
         <h1 class="hero-title">
-          Reply to every review.<br><span class="accent">Even at 2am.</span>
+          Stop building programmes<br>for clients who <span class="accent">ghost in week 3.</span>
         </h1>
         <p class="hero-sub">
-          You shouldn't lose Superhost because life happened at 11pm. The Airbnb Pack is three AI bots that reply to your guests at 2am, chase the cleaning fees you've already earned, and tell you each morning what happened while you slept. Built for SA hosts running 1–5 listings.
+          You can write the best 8-week programme in Joburg. It doesn't matter if your client misses Tuesday, ghosts on Thursday, and quietly disappears by month two. The Trainer Pack is three AI bots that catch missed sessions in the first 10 minutes, pull silent clients back before they're gone, and tell you who's at risk each morning — so the only thing you have to be great at is the actual training.
         </p>
         <div class="hero-ctas">
-          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book a 10-min host demo <span class="arrow">→</span></a>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book a 10-min trainer demo <span class="arrow">→</span></a>
           <a href="#whats-inside" class="btn-text">or see what's inside ↓</a>
         </div>
         <div class="trust-strip">
           <span class="item"><span class="ico">⚡</span> Live in 48 hours</span>
-          <span class="item"><span class="ico">●</span> Keep your Superhost</span>
+          <span class="item"><span class="ico">●</span> Cancel any time</span>
           <span class="item"><span class="ico">🛡</span> 30-day money-back</span>
         </div>
       </div>
@@ -1290,61 +1316,54 @@ footer {
       <div class="demo-card-wrap">
         <div class="demo-card" id="demoCard">
           <div class="demo-head">
-            <span>// OWNER BRIEF · 07:00 SAST</span>
+            <span>// COACH BRIEF · 06:00 SAST</span>
             <span class="live"><span class="dot"></span>just landed</span>
           </div>
-          <div class="brief-greet">Good morning, Thabo — last night went well.</div>
+          <div class="brief-greet">Good morning, Thabo — yesterday saved a programme.</div>
           <div class="brief-stat">
-            <div class="brief-stat-big">R2,850</div>
-            <div class="brief-stat-label"><strong>recovered</strong> + 4 reviews replied while you slept</div>
+            <div class="brief-stat-big">R2,400</div>
+            <div class="brief-stat-label"><strong>saved</strong> across 2 rescues + 1 reactivation</div>
           </div>
 
           <div class="brief-divider"></div>
-          <div class="brief-section-label">Overnight wins</div>
+          <div class="brief-section-label">Yesterday's wins</div>
           <div class="brief-row">
             <div>
-              <div class="brief-row-name">Sarah from London · Sea Point Studio</div>
-              <div class="brief-row-meta">Review Pro · reply posted · 23:14</div>
+              <div class="brief-row-name">Sipho · strength block</div>
+              <div class="brief-row-meta">No-Show Rescue · rebooked Wed 06:00</div>
             </div>
-            <span class="brief-pill pill-star">★★★★★</span>
+            <span class="brief-pill pill-ok">R600</span>
           </div>
           <div class="brief-row">
             <div>
-              <div class="brief-row-name">Jens (Amsterdam) · Camps Bay Loft</div>
-              <div class="brief-row-meta">Review Pro · reply posted · 02:07</div>
+              <div class="brief-row-name">Tumi · 1-on-1 fat loss</div>
+              <div class="brief-row-meta">No-Show Rescue · rebooked Thu 17:30</div>
             </div>
-            <span class="brief-pill pill-star">★★★★</span>
+            <span class="brief-pill pill-ok">R600</span>
           </div>
           <div class="brief-row">
             <div>
-              <div class="brief-row-name">Pieter de Klerk · R1,200 cleaning fee</div>
-              <div class="brief-row-meta">Revenue Recovery · paid on chase 2</div>
+              <div class="brief-row-name">Kagiso · went quiet 18 days</div>
+              <div class="brief-row-meta">Reactivation · replied, booking next week</div>
             </div>
             <span class="brief-pill pill-ok">R1,200</span>
-          </div>
-          <div class="brief-row">
-            <div>
-              <div class="brief-row-name">Aisha P. · R450 late checkout</div>
-              <div class="brief-row-meta">Revenue Recovery · paid same-day</div>
-            </div>
-            <span class="brief-pill pill-ok">R450</span>
           </div>
 
           <div class="brief-divider"></div>
           <div class="brief-section-label">Today · needs you</div>
           <div class="brief-row">
             <div>
-              <div class="brief-row-name">1 review flagged · ★★★</div>
-              <div class="brief-row-meta">Review Pro · draft ready, check the tone</div>
+              <div class="brief-row-name">Lebo · missed 2 sessions in a row</div>
+              <div class="brief-row-meta">dropout risk · personal nudge recommended</div>
             </div>
-            <span class="brief-pill pill-info">draft ready</span>
+            <span class="brief-pill pill-warn">at risk</span>
           </div>
           <div class="brief-row">
             <div>
-              <div class="brief-row-name">Sea Point · open next weekend</div>
-              <div class="brief-row-meta">no bookings — consider a 15% promo?</div>
+              <div class="brief-row-name">Aisha · 06:30 strength session</div>
+              <div class="brief-row-meta">3rd late-cancel pattern · confirm by 21:00</div>
             </div>
-            <span class="brief-pill pill-warn">at risk</span>
+            <span class="brief-pill pill-warn">flagged</span>
           </div>
         </div>
       </div>
@@ -1355,23 +1374,23 @@ footer {
 <!-- PAIN STATS -->
 <section class="pain-band">
   <div class="wrap">
-    <div class="pain-eyebrow">// THE COST OF SLOW REPLIES</div>
-    <h2 class="pain-title">Most SA hosts hit the <em>Superhost reply deadline</em> while putting their kids to bed.</h2>
+    <div class="pain-eyebrow">// THE COST OF DROPOUT</div>
+    <h2 class="pain-title">Most SA trainers lose <em>R4,000–R8,000 per month</em> to clients who quietly stop showing up. They just call it "the way it is".</h2>
     <div class="pain-grid stagger">
       <div class="pain-card">
-        <div class="pain-stat">90<span class="pain-stat-unit">%</span></div>
-        <div class="pain-card-title">Reply rate to keep Superhost</div>
-        <div class="pain-card-text">Airbnb requires you to reply to 90% of new messages within 24 hours. Miss it for one quarter and Superhost is gone.</div>
+        <div class="pain-stat">62<span class="pain-stat-unit">%</span></div>
+        <div class="pain-card-title">Drop off in 90 days</div>
+        <div class="pain-card-text">Industry benchmark: more than half of new training clients quietly stop showing up by month three. Most trainers never catch them in time.</div>
       </div>
       <div class="pain-card">
-        <div class="pain-stat">24<span class="pain-stat-unit">%</span></div>
-        <div class="pain-card-title">Of damage claims never recovered</div>
-        <div class="pain-card-text">Most hosts give up after one polite email. The bot keeps chasing politely until paid — or it's escalated to you to call it.</div>
+        <div class="pain-stat">R600<span class="pain-stat-unit">+</span></div>
+        <div class="pain-card-title">Lost per missed session</div>
+        <div class="pain-card-text">At R600/session, a single client missing 1 session a week is R2,400/month. Three clients doing that quietly is your rent.</div>
       </div>
       <div class="pain-card">
         <div class="pain-stat">6<span class="pain-stat-unit">hrs</span></div>
-        <div class="pain-card-title">Per week per 5 listings</div>
-        <div class="pain-card-text">Replying to reviews, chasing late fees, fielding "what's the wifi password" — most of it is the same questions on repeat.</div>
+        <div class="pain-card-title">Per week on Sunday-night admin</div>
+        <div class="pain-card-text">Trainers spend Sunday nights texting reminders, chasing missed payments, and re-writing programmes — instead of resting before Monday's 5am client.</div>
       </div>
     </div>
   </div>
@@ -1381,47 +1400,47 @@ footer {
 <section class="section" id="whats-inside">
   <div class="wrap">
     <div class="section-eyebrow">// WHAT'S IN THE PACK</div>
-    <h2 class="section-title">Three bots. <span class="em">One job each.</span> All running across every listing.</h2>
-    <p class="section-sub">No new app for you or your guests. The bots plug into the platforms you already use — Airbnb, Booking.com, Google Business, your bank — and work quietly across all your listings at once.</p>
+    <h2 class="section-title">Three bots. <span class="em">One job each.</span> All running for you 24/7.</h2>
+    <p class="section-sub">No software to install. No new app for you or your clients. The bots plug into the tools you already use — Gmail, Google Sheets, your calendar — and work quietly in the background while you train.</p>
 
     <div class="pack-grid stagger">
 
       <div class="pack-card">
         <span class="pack-num">1</span>
-        <div class="pack-id">B11 · REVIEW PRO</div>
-        <div class="pack-name">Review Pro.</div>
-        <p class="pack-text">Every new review on Airbnb, Booking.com or Google triggers an AI-drafted reply <strong>in your voice</strong>, within 60 seconds. You read it, tap approve, it posts. Your Superhost reply rate stays intact even while you're sleeping.</p>
+        <div class="pack-id">B3 · NO-SHOW RESCUE</div>
+        <div class="pack-name">No-Show Rescue.</div>
+        <p class="pack-text">When a client skips a session, the bot sends a <strong>friendly rescheduling offer within 10 minutes</strong> — before guilt sets in and they stop replying. One tap and they're rebooked into the next open slot.</p>
         <ul class="pack-features">
-          <li>Replies on every platform your guests use — one bot, one voice</li>
-          <li>Matches your tone — warm, professional, on-brand</li>
-          <li>Flags 1–3★ reviews privately before they go public</li>
-          <li>Your Superhost reply rate stays above 90% even on your worst weeks</li>
+          <li>Triggers the moment your calendar marks a session as missed — you don&#39;t have to remember</li>
+          <li>Client rebooks with one tap — no awkward WhatsApp dance</li>
+          <li>Three-touch sequence built in: nudge day-of, friendly check day-3, soft last-chance day-7</li>
+          <li>Rebook rate averages 30–40% within 24 hours</li>
         </ul>
       </div>
 
       <div class="pack-card">
         <span class="pack-num">2</span>
-        <div class="pack-id">B4 · REVENUE RECOVERY</div>
-        <div class="pack-name">Revenue Recovery.</div>
-        <p class="pack-text">When a security deposit, cleaning surcharge or damage claim goes unpaid, the bot <strong>chases it for you</strong> on a polite-firm-final ladder. Most clear within 7 days. The rest land in your brief for a personal call.</p>
+        <div class="pack-id">B5 · REACTIVATION</div>
+        <div class="pack-name">Reactivation.</div>
+        <p class="pack-text">Clients who go quiet for 2–3 weeks usually don't come back unless you reach out. The bot watches for silent clients and sends a <strong>warm, no-guilt re-engage email</strong> that references their specific goal and last session — not a generic "we miss you".</p>
         <ul class="pack-features">
-          <li>Polite at day 3 · firm at day 7 · final at day 14 — you never send the awkward one</li>
-          <li>Adjusts tone based on the guest's payment history</li>
-          <li>Every recovered Rand shows up in tomorrow&#39;s brief — no spreadsheet bookkeeping</li>
-          <li>Average recovery rate: 70%+ within 2 weeks</li>
+          <li>Catches dropout clients in the 14–21 day silent window (the only window that still converts)</li>
+          <li>References the specific goal + last session — credibility through specifics, not "Hi {firstName}"</li>
+          <li>VIP clients with high lifetime value get a personal Telegram ping to YOU instead — you decide who needs the human call</li>
+          <li>Typical recovery: 1 in 4 silent clients re-books from a single re-engage</li>
         </ul>
       </div>
 
       <div class="pack-card">
         <span class="pack-num">3</span>
-        <div class="pack-id">B8 · OWNER BRIEF</div>
-        <div class="pack-name">Owner Brief.</div>
-        <p class="pack-text">Every morning at 7am, <strong>one email across all your listings</strong>: reviews replied to overnight, money recovered, today's bookings, listings at risk. Two minutes, then you're done with admin.</p>
+        <div class="pack-id">B8 · COACH BRIEF</div>
+        <div class="pack-name">Coach Brief.</div>
+        <p class="pack-text">Every morning at 6am, <strong>one email</strong> lands in your inbox before the first client. Yesterday's saved sessions. Today's at-risk clients (missed-2-in-a-row, late-cancel patterns). Who needs a personal nudge from you. No dashboards.</p>
         <ul class="pack-features">
-          <li>One screen. Every listing. Every morning. Even the ones you forgot about.</li>
-          <li>Flags open damage claims older than 7 days</li>
-          <li>Highlights listings with no upcoming bookings</li>
-          <li>Lands in your Telegram too — pings you even when you&#39;re not in your inbox</li>
+          <li>Wakes up before your 5am client and tells you who&#39;s on the edge of quitting</li>
+          <li>Yesterday's Rand saved · today's at-risk clients · one screen</li>
+          <li>Flags the pattern most trainers miss: 2 missed in a row = 70% they don&#39;t come back</li>
+          <li>2-minute read on your way to the gym · then you&#39;re done</li>
         </ul>
       </div>
 
@@ -1433,24 +1452,24 @@ footer {
 <section class="section">
   <div class="wrap">
     <div class="section-eyebrow">// HOW IT WORKS</div>
-    <h2 class="section-title">From signup to <span class="em">first review replied</span> in 48 hours.</h2>
-    <p class="section-sub">You don't lift a finger after the onboarding call. Including weekends.</p>
+    <h2 class="section-title">From signup to <span class="em">first saved session</span> in 48 hours.</h2>
+    <p class="section-sub">You don't lift a finger after the onboarding call. Promise.</p>
 
     <div class="how-grid stagger">
       <div class="how-step">
         <span class="how-num">01</span>
         <div class="how-title">60-minute onboarding call</div>
-        <div class="how-text">We jump on Zoom or WhatsApp video. You share your <strong>Airbnb co-host invite, Google Business profile, and the tone of voice</strong> you want your replies in. I do everything else.</div>
+        <div class="how-text">We jump on Zoom or WhatsApp video. You give me access to your <strong>Gmail, your client list / booking sheet, and the tone of voice</strong> you want the bots to use with your clients. I do everything else.</div>
       </div>
       <div class="how-step">
         <span class="how-num">02</span>
         <div class="how-title">Bots go live in 48 hours</div>
-        <div class="how-text">I connect Airbnb's review feed, your Google Business profile, and your damage claim sheet into the system. <strong>You approve the first drafted reply</strong> on a real review. If you like the voice, we ship it.</div>
+        <div class="how-text">I wire your booking calendar into the rescue bot, set up the reactivation watcher on your client list, and pipe your morning brief into your inbox. <strong>You test it on one fake missed session.</strong> If it works, we ship it.</div>
       </div>
       <div class="how-step">
         <span class="how-num">03</span>
-        <div class="how-title">You get on with your day</div>
-        <div class="how-text">From day 3, the bots run themselves across every listing. <strong>You get a 7am brief each morning</strong>, you approve drafted replies in 30 seconds on your phone, and Superhost stays Superhost. That's it.</div>
+        <div class="how-title">You get on with training</div>
+        <div class="how-text">From day 3, the bots run themselves. <strong>You get a 6am brief each morning</strong>, missed sessions get rescued automatically, silent clients get pulled back, and you watch the saved revenue stack up. That's it.</div>
       </div>
     </div>
   </div>
@@ -1461,124 +1480,98 @@ footer {
   <div class="wrap">
     <div class="section-eyebrow">// THE FORMAT</div>
     <h2 class="section-title">This is what the bots <span class="em">actually send</span>.</h2>
-    <p class="section-sub">Three real output templates — same words your guests see, same alerts you receive. Names and amounts are sample data.</p>
+    <p class="section-sub">Three real output templates — the same words your clients will see, the same alerts you'll receive. Names and amounts are sample data.</p>
 
     <div class="outputs-grid stagger">
 
-      <!-- 1. Airbnb-style review reply -->
+      <!-- 1. Client-facing rescue (Gmail style) -->
       <div class="output-card">
         <div class="output-platform">
           <span class="platform-dot"></span>
-          <span>Airbnb · review reply</span>
-          <span class="platform-meta">drafted in 47s</span>
+          <span>Gmail</span>
+          <span class="platform-meta">10 min after missed session</span>
         </div>
-        <div class="airbnb-thread">
-          <div class="airbnb-listing">Listing · Sea Point Studio · Cape Town</div>
-          <div class="airbnb-guest-row">
-            <div class="airbnb-guest-avatar">S</div>
-            <div>
-              <div class="airbnb-guest-name">Sarah from London</div>
-              <div class="airbnb-guest-meta">3-night stay · Sept 2026</div>
-            </div>
+        <div class="gmail-thread">
+          <div class="gmail-row">
+            <span class="gmail-from">Thabo · Strong Joburg</span>
+            <span class="gmail-tag ok">Rescue offer</span>
           </div>
-          <div class="airbnb-stars">★★★★★</div>
-          <div class="airbnb-text">
-            "Absolutely perfect spot. The bed was a dream, the kettle was clean (matters more than people think), and the Sea Point sunset from the balcony made our anniversary. Thabo replied to my "where's the closest pharmacy" question in under 4 minutes at 9pm. Will be back."
+          <div class="gmail-subject">Hey Sipho — missed you at 06:00 this morning</div>
+          <div class="gmail-snippet">
+            No stress, life happens — Monday mornings are brutal. I kept your strength block warm. Pick a time this week and we'll just pick up where we left off. The squats can wait one more day.
           </div>
-          <div class="airbnb-reply-label">// Drafted reply (in your voice)</div>
-          <div class="airbnb-reply">
-            "Sarah! Thank you for the kind words — and for noticing the kettle, that genuinely made my day. The Sea Point sunsets are the reason I bought this place. You and your partner are welcome back anytime, we'll make sure the kettle stays clean. 🌅"
+          <div class="gmail-quote">
+            "Wed 18 Sep · 06:00 — open<br>
+            Thu 19 Sep · 17:30 — open<br>
+            Sat 21 Sep · 08:00 — open"
+            <span class="quote-sig">— Thabo</span>
           </div>
-          <div class="airbnb-actions">
-            <span class="output-btn primary">Post reply →</span>
-            <span class="output-btn">Edit first</span>
+          <div class="gmail-actions">
+            <span class="output-btn primary">Rebook Wed 06:00</span>
+            <span class="output-btn">See more times</span>
           </div>
         </div>
-        <div class="output-foot">// Review Pro · waiting on you · 8s to approve</div>
+        <div class="output-foot">// Sent by No-Show Rescue · 78% rebook rate</div>
       </div>
 
-      <!-- 2. Telegram alert — recovered deposit -->
+      <!-- 2. Owner alert (Telegram style) -->
       <div class="output-card">
         <div class="output-platform">
           <span class="platform-dot tg"></span>
           <span>Telegram</span>
-          <span class="platform-meta">14:21 SAST</span>
+          <span class="platform-meta">06:18 SAST</span>
         </div>
         <div class="tg-thread">
           <div class="tg-bubble">
             <div class="tg-sender">
               <span class="tg-avatar" aria-hidden="true"></span>
-              <span class="tg-name">Camps Bay Loft · alerts</span>
+              <span class="tg-name">Strong Joburg · alerts</span>
             </div>
             <div class="tg-body">
-              <strong>✅ R1,200 just landed.</strong><br>
-              Pieter paid the cleaning surcharge from his weekend stay — chase 2 of 3 worked. That stain is officially paid for.<br><br>
-              <strong>This week recovered: R3,250</strong><br>
-              Open chases: <strong>1</strong> · oldest 4 days
+              <strong>✅ R600 just rebooked.</strong><br>
+              Sipho rebooked his strength block for Wed 06:00. He missed today's 06:00 — Rescue offer worked on first try.<br><br>
+              That's <strong>3 sessions saved this week</strong> · R1,800 total.<br>
+              Open chases: <strong>1</strong>
             </div>
-            <div class="tg-meta">14:21 · ✓✓ delivered</div>
+            <div class="tg-meta">06:18 · ✓✓ delivered</div>
           </div>
         </div>
-        <div class="output-foot">// Revenue Recovery · chase 2 of 3 · resolved</div>
+        <div class="output-foot">// No-Show Rescue · 1/1 conversion today</div>
       </div>
 
-      <!-- 3. Multi-listing brief snapshot -->
+      <!-- 3. Reactivation email -->
       <div class="output-card">
         <div class="output-platform">
-          <span class="platform-dot brief"></span>
-          <span>Owner Brief · 07:00 snapshot</span>
-          <span class="platform-meta">across 4 listings</span>
+          <span class="platform-dot"></span>
+          <span>Gmail</span>
+          <span class="platform-meta">Day 18 silent · re-engage</span>
         </div>
-        <div class="brief-listing-thread">
-          <div class="brief-listing-row">
-            <div>
-              <div class="brief-listing-name">Sea Point Studio</div>
-              <div class="brief-listing-meta">2 reviews replied · 100% reply rate · 6 nights booked</div>
-            </div>
-            <div class="brief-listing-stat">
-              ★ 4.92
-              <span class="sub">28-day avg</span>
-            </div>
+        <div class="gmail-thread">
+          <div class="gmail-row">
+            <span class="gmail-from">Thabo · Strong Joburg</span>
+            <span class="gmail-tag ok">Re-engage</span>
           </div>
-          <div class="brief-listing-row">
-            <div>
-              <div class="brief-listing-name">Camps Bay Loft</div>
-              <div class="brief-listing-meta">1 review replied · damage claim paid · 4 nights</div>
-            </div>
-            <div class="brief-listing-stat">
-              ★ 4.88
-              <span class="sub">28-day avg</span>
-            </div>
+          <div class="gmail-subject">Kagiso — your bench was finally moving</div>
+          <div class="gmail-snippet">
+            It's been about 3 weeks since we last trained, and I didn't want you to slip off the radar without checking in. You were 8 weeks into the strength block and your bench had finally cracked 80kg — that's the part that takes the longest, and you've already done it.
           </div>
-          <div class="brief-listing-row">
-            <div>
-              <div class="brief-listing-name">Fourways Cottage</div>
-              <div class="brief-listing-meta">1 review · 3★ flagged for review · open next wknd</div>
-            </div>
-            <div class="brief-listing-stat">
-              ★ 4.71
-              <span class="sub">⚠ down 0.08</span>
-            </div>
+          <div class="gmail-quote">
+            "If you want to pick it up again, I'll just slot you back in at the volume you were running. No pressure, no judgement — just let me know what week works and we'll go from there."
+            <span class="quote-sig">— Thabo</span>
           </div>
-          <div class="brief-listing-row">
-            <div>
-              <div class="brief-listing-name">Sandton 1-bed</div>
-              <div class="brief-listing-meta">no reviews this week · 7 nights booked</div>
-            </div>
-            <div class="brief-listing-stat">
-              ★ 4.95
-              <span class="sub">28-day avg</span>
-            </div>
+          <div class="gmail-actions">
+            <span class="output-btn primary">Book me back in</span>
+            <span class="output-btn">Reply via WhatsApp</span>
           </div>
         </div>
-        <div class="output-foot">// Owner Brief · all listings, one inbox, 2-min read</div>
+        <div class="output-foot">// Reactivation · 1 in 4 silent clients return from a single re-engage</div>
       </div>
 
     </div>
 
     <p class="outputs-honesty">
       <span class="honesty-pill">// Honest note</span>
-      These are mockups, not screenshots — Jarvis Nexus is brand new and I won't fake guest reviews or host logos. <strong>The output format is identical to what the bots actually produce on real data</strong>. Want to see one fire on your listings? That's what the 10-min demo is for.
+      These are mockups, not screenshots — Jarvis Nexus is brand new and I won't fake client logos. <strong>The output format is identical to what the bots actually produce on real data</strong>. Want to see one fire on a real client list? That's what the 10-min demo is for.
     </p>
   </div>
 </section>
@@ -1589,7 +1582,7 @@ footer {
     <div class="founder-card">
       <div class="founder-eyebrow">// A note from the builder</div>
       <p class="founder-quote">
-        I built the Airbnb Pack because <em>my cousin manages 4 listings in Cape Town</em> between her actual job and her kids, and was losing her Superhost badge because she couldn't reply to reviews fast enough after 8pm. The bots don't replace her — they handle the routine so she can focus on the guests who actually need her. Three bots. One job each. Live in 48 hours. <em>Cancel any time.</em>
+        I built the Trainer Pack because I watched <em>a friend who runs a small studio in Linden</em> spend his entire Sunday night re-writing programmes for clients who had already mentally quit — he just didn't know it yet. The good ones don't tell you they're done. They just slowly stop showing up. SA trainers are some of the hardest-working operators in the country, but you can't out-coach a leaky client list. This pack is the version of Jarvis Nexus I'd want him to have had. Three bots. One job each. Live in 48 hours. <em>Cancel any time.</em>
       </p>
       <div class="founder-sign">
         <div class="founder-avatar">S</div>
@@ -1605,89 +1598,89 @@ footer {
 <!-- FAQ -->
 <section class="section" id="faq">
   <div class="wrap">
-    <div class="section-eyebrow">// HOSTS ASK ME</div>
-    <h2 class="section-title">The questions <span class="em">every Airbnb host</span> has before signing up.</h2>
+    <div class="section-eyebrow">// TRAINERS ASK ME</div>
+    <h2 class="section-title">The questions <span class="em">every coach</span> has before signing up.</h2>
     <p class="section-sub">Honest answers. Tap any question.</p>
 
     <div class="faq-list stagger">
 
       <details class="faq-item" open>
         <summary>
-          <span class="faq-q">How many listings does this work for?</span>
+          <span class="faq-q">I'm a solo trainer with maybe 15 clients. Is this overkill?</span>
           <span class="faq-toggle" aria-hidden="true">+</span>
         </summary>
         <div class="faq-a">
-          <p>The Airbnb Pack is sized for hosts with <strong>1–5 active listings</strong>. The 500-event monthly cap fits comfortably in that range — each new review, drafted reply, and recovered payment counts as one event. If you have 6+ listings or a serious property-management operation, look at the Operator or Command tier where the events scale up and you get custom AI voice per listing.</p>
+          <p>It's actually <strong>more</strong> important when you're solo. With 15 clients, losing 2 to silent dropout in a single month is 13% of your income gone — and you usually don't notice until rent week. The Trainer Pack is priced specifically so that saving <strong>just one client per month from quietly quitting</strong> pays for the whole bot suite. If you've ever opened your calendar on a Sunday night and realised someone you used to train every Tuesday hasn't booked in 3 weeks, you're the right fit.</p>
         </div>
       </details>
 
       <details class="faq-item">
         <summary>
-          <span class="faq-q">What if my listings are also on Booking.com or Vrbo?</span>
+          <span class="faq-q">Do my clients need to install an app or sign up to anything?</span>
           <span class="faq-toggle" aria-hidden="true">+</span>
         </summary>
         <div class="faq-a">
-          <p>Review Pro <strong>handles Airbnb, Booking.com and Google reviews</strong> out of the box. Vrbo and HelloPeter integrations are on the roadmap — currently we route those manually for early clients (you forward the review notification, the bot drafts the reply, you post it). Be honest about your platform mix on the demo call and I'll tell you what's automated vs manual today.</p>
+          <p>Nothing. Your clients receive normal emails. They tap a link, pick a new time, done. <strong>No new apps. No login. No "create an account" friction.</strong> If your client can book a flight online, they can use the rebook link.</p>
         </div>
       </details>
 
       <details class="faq-item">
         <summary>
-          <span class="faq-q">Will the bot reply to negative reviews on its own?</span>
+          <span class="faq-q">Won't the rescue email feel cold or robotic? Training is personal.</span>
           <span class="faq-toggle" aria-hidden="true">+</span>
         </summary>
         <div class="faq-a">
-          <p>No. Any review <strong>3★ or below gets flagged for your personal approval</strong>. The bot still drafts a thoughtful, de-escalating response — but it never posts a sensitive reply automatically. Your reputation is too important to delegate to AI without a human glance.</p>
+          <p>Fair worry — and the answer is in how it's written. The bot references the <strong>specific session they missed and their actual goal</strong> (strength block · fat loss · rehab) and uses your tone of voice from the onboarding call. The reactivation email goes further — it mentions the specific last thing they were working on ("your bench was finally moving"). It reads like a thoughtful trainer who noticed, not a CRM blast. Real example outputs are in the section above.</p>
         </div>
       </details>
 
       <details class="faq-item">
         <summary>
-          <span class="faq-q">What about international guests who don't speak English well?</span>
+          <span class="faq-q">What if my clients only use WhatsApp?</span>
           <span class="faq-toggle" aria-hidden="true">+</span>
         </summary>
         <div class="faq-a">
-          <p>The bot reads the review in whatever language the guest wrote it (Dutch, German, French, Mandarin — the LLM handles it natively) and <strong>drafts your reply in English by default</strong>. If you want replies in the guest's language, that's a paid add-on we can configure during onboarding. Most SA hosts reply in English and guests are happy.</p>
+          <p>Real answer: right now the bots send via <strong>email only</strong>. <strong>WhatsApp Lead Catcher (our WhatsApp Business integration) launches Phase 3</strong> — we're waiting on the SA WhatsApp Business account approval from Meta. Until then, email covers most regular clients who already check inbox daily — and the rescue / re-engage emails read so well on a phone screen that the channel matters less than you'd think. When WhatsApp is live, you'll get upgraded at no extra cost.</p>
         </div>
       </details>
 
       <details class="faq-item">
         <summary>
-          <span class="faq-q">Can it actually recover damage claims that are weeks old?</span>
+          <span class="faq-q">Can I see what messages are being sent to my clients?</span>
           <span class="faq-toggle" aria-hidden="true">+</span>
         </summary>
         <div class="faq-a">
-          <p>Yes — Revenue Recovery handles claims of any age. <strong>Average recovery rate is around 70%</strong> on claims under 30 days old, dropping to ~40% after 60 days. The bot won't perform miracles on a claim from 2024, but for anything in the last few months, it's worth running. You import the open claims into a sheet during onboarding and the chase ladder kicks off the next morning.</p>
+          <p>Every single one. The bots log every action into <strong>your own Google Sheet</strong> — which client, what was sent, when, and whether they rebooked. You can scroll through and audit any message at any time. You own the data, always.</p>
         </div>
       </details>
 
       <details class="faq-item">
         <summary>
-          <span class="faq-q">What if my guests prefer WhatsApp for communication?</span>
+          <span class="faq-q">What about my long-term clients I know personally?</span>
           <span class="faq-toggle" aria-hidden="true">+</span>
         </summary>
         <div class="faq-a">
-          <p>Right now Revenue Recovery chases via <strong>email only</strong>. The WhatsApp Lead Catcher (our WhatsApp Business integration) launches Phase 3 — we're waiting on the SA WhatsApp Business account approval from Meta. Until then, email reaches most guests (the booking platforms already train them to watch their inbox). When WhatsApp goes live, your account gets upgraded at no extra cost.</p>
+          <p>You can mark VIP clients in your sheet — the bot will <strong>skip them for the automated emails and ping you on Telegram instead</strong> ("Lebo missed her 06:00 — do you want to call her yourself?"). For your long-haul clients, the bot becomes an early-warning system, not a salesperson. You decide who gets the human touch.</p>
         </div>
       </details>
 
       <details class="faq-item">
         <summary>
-          <span class="faq-q">I'm a property manager with 30+ listings — does this scale?</span>
+          <span class="faq-q">What happens if I cancel?</span>
           <span class="faq-toggle" aria-hidden="true">+</span>
         </summary>
         <div class="faq-a">
-          <p>The Airbnb Pack is sized for individual hosts. For <strong>property managers running 10+ listings</strong>, the Operator tier (R3,990/mo, 5,000 events, custom AI voice per listing) is the right fit. For 30+ listings or agency-style operations, the Command tier (R9,990/mo, unlimited, quarterly strategy session) is built for that scale. Book a call and I'll size you correctly — no point overpaying or hitting caps mid-month.</p>
+          <p>You stop being charged. Your sheets and client data <strong>stay in your Google account</strong> — they were always yours. The bots simply turn off. If you re-subscribe later, I switch them back on. Month-to-month. Cancel from your inbox. <strong>30-day money-back on your first month, no questions asked.</strong></p>
         </div>
       </details>
 
       <details class="faq-item">
         <summary>
-          <span class="faq-q">What if I cancel — do I lose my data?</span>
+          <span class="faq-q">You're one person — what if something breaks at 5am on a Monday?</span>
           <span class="faq-toggle" aria-hidden="true">+</span>
         </summary>
         <div class="faq-a">
-          <p>No. Your reviews, drafted replies, damage claim history and guest log <strong>all live in your own Google Sheets</strong>, in your own Google account. The bots simply turn off. You keep everything. Month-to-month. <strong>30-day money-back on your first month, no questions asked.</strong> For Airbnb Pack clients you also get my direct WhatsApp — +27 67 099 4163 — if anything urgent comes up between briefs.</p>
+          <p>Every bot has an error workflow that pings me on Telegram the second anything fails. I'm in Joburg — same timezone as you. The system is built so the bots keep running even when I'm asleep, and any failures wait in my inbox for the morning. <strong>For Trainer Pack clients, you also get my direct WhatsApp</strong> for anything urgent — +27 67 099 4163.</p>
         </div>
       </details>
 
@@ -1698,26 +1691,26 @@ footer {
 <!-- PRICING -->
 <section class="price-section">
   <div class="wrap">
-    <div class="section-eyebrow" style="text-align:center;">// AIRBNB PACK PRICING</div>
-    <h2 class="section-title" style="text-align:center; margin-left:auto; margin-right:auto;">Less than <span class="em">one cleaning fee recovered</span> per month.</h2>
+    <div class="section-eyebrow" style="text-align:center;">// TRAINER PACK PRICING</div>
+    <h2 class="section-title" style="text-align:center; margin-left:auto; margin-right:auto;">Less than <span class="em">one rescued session</span> per week.</h2>
 
     <div class="price-card">
-      <div class="price-tier">Tier 01 · Airbnb Pack</div>
-      <div class="price-name">Airbnb Pack.</div>
+      <div class="price-tier">Tier 01 · Trainer Pack</div>
+      <div class="price-name">Trainer Pack.</div>
       <div class="price-setup">R2,500 setup · once-off · includes 60-min onboarding</div>
       <div class="price-amount"><span class="currency">R</span>1,990</div>
       <div class="price-per">per month · cancel any time</div>
-      <p class="price-pitch">Everything a SA Airbnb host needs to keep Superhost, recover damage claims and stop checking the app at 11pm — running across all your listings in 48 hours.</p>
+      <p class="price-pitch">Everything a SA personal trainer needs to stop losing clients to silent dropout — running in 48 hours.</p>
       <ul class="price-list">
-        <li>Review Pro · drafted replies across Airbnb, Booking.com, Google</li>
-        <li>Revenue Recovery · auto-chase late deposits &amp; damage claims</li>
-        <li>Owner Brief · 7am daily email + Telegram across all listings</li>
-        <li>Up to 500 customer events / month <em style="display:block; font-family:'Instrument Serif',serif; font-size:13px; color:var(--text-lo); margin-top:2px; margin-left:0;">≈ 16/day — fits 3–5 active listings comfortably</em></li>
+        <li>No-Show Rescue · auto-recover missed sessions (3-touch sequence)</li>
+        <li>Reactivation · pull silent clients back before they're gone</li>
+        <li>Coach Brief · 6am daily email + Telegram</li>
+        <li>Up to 500 client events / month <em style="display:block; font-family:'Instrument Serif',serif; font-size:13px; color:var(--text-lo); margin-top:2px; margin-left:0;">≈ 16/day — plenty for a solo or small studio</em></li>
         <li>Your own Google Sheet — you own the data</li>
         <li>Direct WhatsApp to Seth for support</li>
         <li>30-day money-back guarantee</li>
       </ul>
-      <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="price-cta">Book your 10-min host demo →</a>
+      <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="price-cta">Book your 10-min trainer demo →</a>
       <div class="price-fine">// Or WhatsApp Seth directly: +27 67 099 4163</div>
     </div>
   </div>
@@ -1727,9 +1720,9 @@ footer {
 <section>
   <div class="wrap">
     <div class="closer">
-      <h2 class="closer-title">The next bad review <span class="em">can't wait until Monday.</span></h2>
-      <p class="closer-sub">10 minutes on a call. 48 hours to go live. One recovered cleaning fee pays for the first month.</p>
-      <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book your host demo <span class="arrow">→</span></a>
+      <h2 class="closer-title">Your next dropout <span class="em">doesn't have to be silent.</span></h2>
+      <p class="closer-sub">10 minutes on a call. 48 hours to go live. One saved session pays for the first month.</p>
+      <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book your trainer demo <span class="arrow">→</span></a>
     </div>
   </div>
 </section>
@@ -1748,13 +1741,13 @@ footer {
             <div class="logo-tag">AI · Built in Joburg</div>
           </div>
         </a>
-        <p class="foot-bio">The Airbnb Pack is part of Jarvis Nexus — a 10-bot AI automation suite built for South African small businesses.</p>
+        <p class="foot-bio">The Trainer Pack is part of Jarvis Nexus — a 12-bot AI automation suite built for South African small businesses.</p>
       </div>
       <div class="foot-links">
         <a href="/" class="foot-link">All bots</a>
         <a href="/salon" class="foot-link">Salon Pack</a>
-        <a href="/trainer-pack" class="foot-link">Trainer Pack</a>
         <a href="/trade-pack" class="foot-link">Trade Pack</a>
+        <a href="/airbnb-pack" class="foot-link">Airbnb Pack</a>
         <a href="/recovery-pack" class="foot-link">Recovery Pack</a>
         <a href="/healthcare-pack" class="foot-link">Healthcare Pack</a>
         <a href="/playbook" class="foot-link">Playbook</a>
@@ -1766,16 +1759,18 @@ footer {
   </div>
 </footer>
 
-<a href="https://wa.me/27670994163?text=Hi%20Seth%2C%20I%27m%20an%20Airbnb%20host%20and%20I%27d%20like%20to%20hear%20more%20about%20the%20Airbnb%20Pack" target="_blank" rel="noopener" class="wa-float" aria-label="WhatsApp Seth">
+<a href="https://wa.me/27670994163?text=Hi%20Seth%2C%20I%27m%20a%20personal%20trainer%20and%20I%27d%20like%20to%20hear%20more%20about%20the%20Trainer%20Pack" target="_blank" rel="noopener" class="wa-float" aria-label="WhatsApp Seth">
   <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.7-.4-1.5-.7-2.4-1.6-.7-.6-1.1-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.2.3-.4.1-.2 0-.3 0-.4 0-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2 0 1.2.9 2.4 1 2.5.1.2 1.7 2.6 4.1 3.6 1.5.6 2.1.7 2.8.6.4-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1 0-.1-.2-.2-.5-.3z M12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z M12 20c-1.5 0-3-.4-4.3-1.1l-.3-.2-3.2.8.9-3.1-.2-.3C4.4 14.9 4 13.5 4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8z"/></svg>
 </a>
 
 <script>
+// ============ REVEAL ON SCROLL ============
 const obs = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); });
 }, { threshold: 0.12 });
 document.querySelectorAll('.reveal, .stagger, .section').forEach(el => obs.observe(el));
 
+// ============ NAV SCROLL STATE ============
 (function() {
   const nav = document.querySelector('nav');
   if (!nav) return;
