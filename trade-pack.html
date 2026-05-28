@@ -1259,6 +1259,68 @@ footer {
   }
   .reveal, .stagger > * { opacity: 1; transform: none; }
 }
+
+/* ========== HERO POLISH (Path B+ session 2) ========== */
+.hero { position: relative; overflow: hidden; }
+.hero > .wrap { position: relative; z-index: 1; }
+.hero-glow {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 0; overflow: hidden;
+}
+.hero-glow::before,
+.hero-glow::after {
+  content: ''; position: absolute;
+  width: 720px; height: 720px;
+  border-radius: 50%;
+  filter: blur(140px);
+  opacity: 0.40;
+  animation: heroGlowPulse 8s ease-in-out infinite;
+}
+.hero-glow::before {
+  top: -240px; left: -180px;
+  background: radial-gradient(circle, rgba(129,140,248,0.45) 0%, transparent 60%);
+}
+.hero-glow::after {
+  top: -120px; right: -200px;
+  background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 60%);
+  animation-delay: -4s;
+}
+@keyframes heroGlowPulse {
+  0%, 100% { opacity: 0.32; transform: scale(1); }
+  50%      { opacity: 0.52; transform: scale(1.08); }
+}
+.hero-title-grad {
+  background: linear-gradient(180deg, #f5f5fa 0%, #f5f5fa 60%, rgba(245,245,250,0.55) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.hero-title-grad .accent {
+  background: linear-gradient(135deg, #818cf8 0%, #6366f1 60%, #4f46e5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 0 28px rgba(129,140,248,0.35));
+}
+.hero-eyebrow {
+  position: relative;
+  text-decoration: none;
+  transition: background 200ms ease;
+}
+.hero-eyebrow:hover { background: rgba(99,102,241,0.16); }
+.hero-eyebrow .ev-chevron {
+  display: inline-block;
+  margin-left: 2px;
+  transition: transform 200ms ease;
+  color: var(--indigo-glow);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1;
+}
+.hero-eyebrow:hover .ev-chevron { transform: translateX(3px); }
+.pain-stat .pain-stat-num { display: inline-block; }
 </style>
 </head>
 <body>
@@ -1289,14 +1351,16 @@ footer {
 
 <!-- HERO -->
 <section class="hero">
+  <div class="hero-glow" aria-hidden="true"></div>
   <div class="wrap">
     <div class="hero-grid">
       <div>
-        <div class="hero-eyebrow">
+        <a href="#whats-inside" class="hero-eyebrow">
           <span class="pulse"></span>
           <span>The trade pack · 3 bots · from R1,990/mo</span>
-        </div>
-        <h1 class="hero-title">
+          <span class="ev-chevron" aria-hidden="true">›</span>
+        </a>
+        <h1 class="hero-title hero-title-grad">
           Stop losing callouts<br>to the plumber who <span class="accent">answered first.</span>
         </h1>
         <p class="hero-sub">
@@ -1378,7 +1442,7 @@ footer {
     <h2 class="pain-title">Most SA trade businesses lose <em>R8,000–R15,000 per month</em> in callouts that went to the competitor who picked up first. They just call it "tough luck".</h2>
     <div class="pain-grid stagger">
       <div class="pain-card">
-        <div class="pain-stat">5<span class="pain-stat-unit">min</span></div>
+        <div class="pain-stat"><span class="pain-stat-num" data-count-to="5">0</span><span class="pain-stat-unit">min</span></div>
         <div class="pain-card-title">Customer patience window</div>
         <div class="pain-card-text">Research: if you don't respond to a trade enquiry within 5 minutes, the customer has already called your competitor. You're now competing for second place.</div>
       </div>
@@ -1388,7 +1452,7 @@ footer {
         <div class="pain-card-text">Two missed enquiries a week at R2,500 each is R20,000/month walking past your van — because you were already on a job and couldn't pick up.</div>
       </div>
       <div class="pain-card">
-        <div class="pain-stat">88<span class="pain-stat-unit">%</span></div>
+        <div class="pain-stat"><span class="pain-stat-num" data-count-to="88">0</span><span class="pain-stat-unit">%</span></div>
         <div class="pain-card-title">Of SA buyers check reviews first</div>
         <div class="pain-card-text">For local trade, your Google rating IS your marketing. One unanswered 3-star review can quietly cost you a callout a week.</div>
       </div>
@@ -1765,6 +1829,39 @@ footer {
 </a>
 
 <script>
+// ============ COUNT-UP STATS (scroll-triggered) ============
+(function() {
+  const nums = document.querySelectorAll('.pain-stat-num[data-count-to], .stat-num[data-count-to]');
+  function render(el, value, suffix) {
+    el.innerHTML = value + (suffix ? '<span class="stat-suffix">' + suffix + '</span>' : '');
+  }
+  if (!nums.length || !('IntersectionObserver' in window)) {
+    nums.forEach(n => render(n, parseInt(n.dataset.countTo, 10) || 0, n.dataset.countSuffix || ''));
+    return;
+  }
+  const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+  function animate(el) {
+    const to = parseInt(el.dataset.countTo, 10) || 0;
+    const suffix = el.dataset.countSuffix || '';
+    if (to === 0) { render(el, 0, suffix); return; }
+    const duration = 1200;
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const value = Math.round(to * easeOutCubic(t));
+      render(el, value, suffix);
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  const cobs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) { animate(entry.target); cobs.unobserve(entry.target); }
+    });
+  }, { threshold: 0.4 });
+  nums.forEach(n => cobs.observe(n));
+})();
+
 // ============ REVEAL ON SCROLL ============
 const obs = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); });
