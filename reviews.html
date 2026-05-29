@@ -231,6 +231,139 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
     .grain, .atmos-spot { display: none !important; }
   }
 
+/* ========== TRY IT FORM (B11 Review Pro demo) ========== */
+.form-section { padding:80px 0 100px; }
+.form-wrap { max-width:760px; margin:0 auto; }
+.form-card {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); padding:48px 44px;
+  position:relative; overflow:hidden;
+}
+.form-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider);
+}
+.form-card::after {
+  content:''; position:absolute; top:-150px; right:-150px;
+  width:500px; height:500px;
+  background:radial-gradient(circle, var(--indigo-soft) 0%, transparent 70%);
+  filter:blur(50px); pointer-events:none;
+}
+.form-card > * { position:relative; z-index:1; }
+.form-eye {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.form-title {
+  font-family:'Instrument Serif',serif; font-size:clamp(28px,3.8vw,42px);
+  line-height:1.08; letter-spacing:-0.025em;
+  margin-bottom:14px; color:var(--text-hi);
+}
+.form-title .em { font-style:italic; color:var(--indigo-glow); }
+.form-sub {
+  font-size:15px; color:var(--text-md); line-height:1.55;
+  margin-bottom:32px; max-width:560px;
+}
+.form-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:14px;
+  margin-bottom:14px;
+}
+.field { display:flex; flex-direction:column; gap:8px; }
+.field.full { grid-column:1 / -1; }
+.field label {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.12em; text-transform:uppercase;
+  font-weight:500;
+}
+.field input, .field select, .field textarea {
+  background:var(--surface-3); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:14px 16px;
+  color:var(--text-hi); font-size:14px; font-family:'Inter',sans-serif;
+  width:100%; outline:none;
+  transition:border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+  appearance:none; -webkit-appearance:none;
+}
+.field input::placeholder, .field textarea::placeholder { color:var(--text-lo); }
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color:var(--border-indigo); background:var(--surface-2);
+  box-shadow:0 0 0 4px var(--indigo-soft);
+}
+.field textarea { min-height:110px; resize:vertical; line-height:1.55; font-family:'Inter',sans-serif; }
+
+.form-submit-row { display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-top:20px; }
+.form-note {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.04em; flex:1; min-width:200px;
+}
+
+.success-state { display:none; text-align:center; padding:24px 0; }
+.success-state.show { display:block; animation:fade-in 500ms ease; }
+@keyframes fade-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse-ok { 0%, 100% { opacity:1; transform:scale(1); } 50% { opacity:0.55; transform:scale(1.4); } }
+.success-icon {
+  width:64px; height:64px; border-radius:50%;
+  background:var(--grad-accent);
+  display:grid; place-items:center;
+  margin:0 auto 24px;
+  box-shadow:0 12px 32px var(--indigo-shadow);
+  font-size:28px; color:#fff; font-weight:700;
+}
+.success-title {
+  font-family:'Instrument Serif',serif; font-size:36px;
+  font-style:italic; letter-spacing:-0.02em;
+  margin-bottom:14px; color:var(--text-hi);
+}
+.success-text {
+  font-size:15px; color:var(--text-md); line-height:1.6;
+  max-width:480px; margin:0 auto 28px;
+}
+.success-meta {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--ok); letter-spacing:0.06em;
+  padding:8px 14px;
+  background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2);
+  border-radius:100px; margin-bottom:32px;
+}
+.success-meta .dot { width:6px; height:6px; border-radius:50%; background:var(--ok); animation:pulse-ok 1.6s infinite; }
+.btn-ghost {
+  display:inline-flex; align-items:center; gap:10px;
+  background:transparent; color:var(--text-md);
+  padding:12px 22px; border-radius:var(--r-sm);
+  border:1px solid var(--border-subtle);
+  font-weight:500; font-size:13.5px; cursor:pointer;
+  font-family:'Inter',sans-serif;
+  transition:all 150ms ease;
+  text-decoration:none;
+}
+.btn-ghost:hover { color:var(--text-hi); border-color:var(--border-indigo); background:var(--surface-2); }
+.error-state {
+  display:none; padding:18px 22px; margin-top:16px;
+  background:rgba(244,63,94,0.08); border:1px solid rgba(244,63,94,0.25);
+  border-radius:var(--r-md); color:var(--bad); font-size:14px;
+}
+.error-state.show { display:block; animation:fade-in 400ms ease; }
+
+.toast {
+  position:fixed; top:90px; right:24px; z-index:200;
+  padding:14px 20px; background:var(--surface-2);
+  border:1px solid var(--border-subtle); border-left:3px solid var(--indigo);
+  border-radius:var(--r-md);
+  font-size:13px; color:var(--text-hi);
+  box-shadow:0 12px 32px rgba(0,0,0,0.5);
+  display:none; max-width:340px;
+}
+.toast.show { display:block; animation:slide-in-toast 300ms ease; }
+.toast.err { border-left-color:var(--bad); }
+@keyframes slide-in-toast { from { transform:translateX(20px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+@media (max-width:768px) {
+  .form-section { padding:60px 0; }
+  .form-card { padding:32px 24px; }
+  .form-grid { grid-template-columns:1fr; }
+}
+
 /* Legal links in footer */
 .foot-legal { display: inline-flex; gap: 12px; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; }
 .foot-legal a { color: var(--text-md, #a8a8c2); text-decoration: none; transition: color 150ms ease; }
@@ -414,6 +547,98 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
   </div>
 </section>
 
+<!-- TRY IT — PASTE A REVIEW FORM -->
+<section class="form-section" id="try-it">
+  <div class="wrap">
+    <div class="form-wrap">
+      <div class="form-card" id="formCard">
+        <div class="form-eye" id="formEye">// TRY IT — DROP IN A REVIEW, WATCH THE BOT REPLY</div>
+        <h2 class="form-title" id="formTitle">Paste a real review. <span class="em">Get a drafted reply.</span></h2>
+        <p class="form-sub" id="formSub">Submit the form below as if you'd just received this review on Google, Hello Peter, or Facebook. The bot will draft a reply in your tone within 60 seconds and email it to you.</p>
+
+        <form id="reviewForm" autocomplete="off">
+          <div class="form-grid">
+            <div class="field">
+              <label>Your business name</label>
+              <label class="sr-only" for="businessName">e.g. Cape Town Sneakers</label><input type="text" id="businessName" placeholder="e.g. Cape Town Sneakers" required>
+            </div>
+            <div class="field">
+              <label>Your name</label>
+              <label class="sr-only" for="ownerName">e.g. Seth Mokoena</label><input type="text" id="ownerName" placeholder="e.g. Seth Mokoena" required>
+            </div>
+            <div class="field full">
+              <label>Your email (where the draft lands)</label>
+              <label class="sr-only" for="ownerEmail">you@yourbusiness.co.za</label><input type="email" id="ownerEmail" placeholder="you@yourbusiness.co.za" required>
+            </div>
+            <div class="field">
+              <label>Reviewer name</label>
+              <label class="sr-only" for="reviewerName">e.g. Thabo Nkosi</label><input type="text" id="reviewerName" placeholder="e.g. Thabo Nkosi" required>
+            </div>
+            <div class="field">
+              <label>Star rating</label>
+              <label class="sr-only" for="rating">Star rating</label>
+              <select id="rating" required>
+                <option value="">Pick a rating…</option>
+                <option value="5">★★★★★ (5)</option>
+                <option value="4">★★★★ (4)</option>
+                <option value="3">★★★ (3)</option>
+                <option value="2">★★ (2)</option>
+                <option value="1">★ (1)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Review source</label>
+              <label class="sr-only" for="source">Review source</label>
+              <select id="source" required>
+                <option value="">Pick a source…</option>
+                <option value="google">Google</option>
+                <option value="hello-peter">Hello Peter</option>
+                <option value="facebook">Facebook</option>
+                <option value="airbnb">Airbnb</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Brand tone</label>
+              <label class="sr-only" for="tone">Brand tone</label>
+              <select id="tone" required>
+                <option value="">Pick a tone…</option>
+                <option value="warm">Warm — friendly, human, casual</option>
+                <option value="professional">Professional — calm, neutral, polished</option>
+                <option value="quirky">Quirky — playful, light, personable</option>
+                <option value="apologetic">Apologetic — sincere, takes ownership</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label>The review (paste what the customer wrote)</label>
+              <label class="sr-only" for="reviewText">Paste the review text</label><textarea id="reviewText" placeholder="e.g. Took 3 weeks to get my shoes and they were the wrong size. Customer service didn't reply for 2 days." required></textarea>
+            </div>
+          </div>
+
+          <div class="form-submit-row">
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              Draft my reply <span class="arrow">→</span>
+            </button>
+            <span class="form-note">// SECURE · GOES STRAIGHT TO REVIEW PRO</span>
+          </div>
+
+          <div class="error-state" id="errorState">Submission failed. Please try again — or WhatsApp Seth: +27 67 099 4163</div>
+        </form>
+
+        <div class="success-state" id="successState">
+          <div class="success-icon">✓</div>
+          <div class="success-title">Reply drafting now.</div>
+          <p class="success-text">Review Pro has logged the review. A tone-matched reply will land in your inbox within 60 seconds, ready for you to approve and post.</p>
+          <div class="success-meta"><span class="dot"></span>LIVE · DRAFT ARRIVING IN 60 SECONDS</div>
+          <div>
+            <button type="button" class="btn-ghost" id="resetBtn">Try another →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section>
   <div class="wrap">
     <div class="closer">
@@ -443,5 +668,99 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
 <a href="https://wa.me/27670994163?text=Hi%20Seth%2C%20I%20saw%20Review%20Pro%20and%20I%27d%20like%20to%20learn%20more" target="_blank" rel="noopener" class="wa-float" aria-label="WhatsApp Seth">
   <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.7-.4-1.5-.7-2.4-1.6-.7-.6-1.1-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.2.3-.4.1-.2 0-.3 0-.4 0-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2 0 1.2.9 2.4 1 2.5.1.2 1.7 2.6 4.1 3.6 1.5.6 2.1.7 2.8.6.4-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1 0-.1-.2-.2-.5-.3z M12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z M12 20c-1.5 0-3-.4-4.3-1.1l-.3-.2-3.2.8.9-3.1-.2-.3C4.4 14.9 4 13.5 4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8z"/></svg>
 </a>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const WEBHOOK = '/api/webhook/review-responder';
+
+function _log(msg) { try { console.log('[JN-REVIEW]', msg); } catch(e) {} }
+
+function toast(kind, msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.className = 'toast show' + (kind === 'err' ? ' err' : '');
+  setTimeout(() => { t.className = 'toast'; }, 4200);
+}
+
+(function () {
+  const form = document.getElementById('reviewForm');
+  const formCard = document.getElementById('formCard');
+  const successState = document.getElementById('successState');
+  const errorState = document.getElementById('errorState');
+  const submitBtn = document.getElementById('submitBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const formEye = document.getElementById('formEye');
+  const formTitle = document.getElementById('formTitle');
+  const formSub = document.getElementById('formSub');
+  if (!form) return;
+
+  function val(id) { const el = document.getElementById(id); return el ? (el.value || '').trim() : ''; }
+
+  function showSuccess() {
+    form.style.display = 'none';
+    formEye.style.display = 'none';
+    formTitle.style.display = 'none';
+    formSub.style.display = 'none';
+    successState.classList.add('show');
+  }
+
+  function resetForm() {
+    form.reset();
+    form.style.display = '';
+    formEye.style.display = '';
+    formTitle.style.display = '';
+    formSub.style.display = '';
+    successState.classList.remove('show');
+    errorState.classList.remove('show');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = 'Draft my reply <span class="arrow">→</span>';
+    formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorState.classList.remove('show');
+
+    const payload = {
+      businessName: val('businessName'),
+      ownerName:    val('ownerName'),
+      ownerEmail:   val('ownerEmail'),
+      reviewerName: val('reviewerName'),
+      rating:       parseInt(val('rating'), 10),
+      source:       val('source'),
+      tone:         val('tone'),
+      reviewText:   val('reviewText'),
+      submittedAt:  new Date().toISOString(),
+      origin:       'reviews.html · try-it'
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Sending… <span class="arrow">→</span>';
+
+    try {
+      const res = await fetch(WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      _log('webhook OK');
+      showSuccess();
+      toast('ok', 'Review submitted — draft on the way');
+    } catch (err) {
+      _log('webhook failed: ' + err.message);
+      errorState.classList.add('show');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Draft my reply <span class="arrow">→</span>';
+      toast('err', 'Submission failed — please retry');
+    }
+  });
+
+  if (resetBtn) resetBtn.addEventListener('click', resetForm);
+})();
+</script>
+
 </body>
 </html>
