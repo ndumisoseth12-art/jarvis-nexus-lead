@@ -515,6 +515,168 @@ footer {
   .bot-section { padding: 48px 0; }
   .closer { padding: 56px 24px; margin: 64px 0 48px; }
 }
+
+/* ========== "WHO THIS IS FOR" INTRO CARD ========== */
+.intro-card {
+  margin: 8px 0 32px;
+  padding: 28px 32px;
+  background: linear-gradient(180deg, rgba(99,102,241,0.05) 0%, var(--surface-1) 100%);
+  border: 1px solid var(--border-indigo);
+  border-radius: var(--r-lg);
+}
+.intro-card .intro-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--indigo-glow);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.intro-card .intro-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 24px;
+  letter-spacing: -0.015em;
+  color: var(--text-hi);
+  margin-bottom: 16px;
+}
+.intro-card .intro-title em { font-style: italic; color: var(--indigo-glow); }
+.intro-card .intro-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 18px;
+}
+@media (max-width: 640px) { .intro-card .intro-grid { grid-template-columns: 1fr; } }
+.intro-fact {
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+}
+.intro-fact .fact-h {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  color: var(--text-lo);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.intro-fact .fact-v { font-size: 14px; color: var(--text-hi); line-height: 1.5; }
+.intro-card p { font-size: 15px; color: var(--text-md); line-height: 1.65; margin-bottom: 12px; }
+.intro-card p:last-child { margin-bottom: 0; }
+.intro-card strong { color: var(--text-hi); font-weight: 600; }
+
+/* "What we need from you" meta card variant */
+.meta-card.need-card {
+  border-left: 3px solid var(--indigo-glow);
+  background: linear-gradient(180deg, rgba(99,102,241,0.04) 0%, var(--surface-2) 100%);
+}
+
+/* "Save as PDF" pill button in nav */
+.btn-pdf {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-md);
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+  font-family: 'Inter', sans-serif;
+}
+.btn-pdf:hover { color: var(--text-hi); border-color: var(--border-indigo); background: var(--surface-3); }
+@media (max-width: 560px) { .btn-pdf { display: none; } }
+
+/* ========== PRINT STYLES — make this PDF-friendly ========== */
+@media print {
+  :root {
+    --surface-0: #ffffff;
+    --surface-1: #ffffff;
+    --surface-2: #fafafa;
+    --surface-3: #f5f5f5;
+    --text-hi: #0b0b18;
+    --text-md: #2c2c40;
+    --text-lo: #6b6b85;
+    --border-faint: rgba(0,0,0,0.06);
+    --border-subtle: rgba(0,0,0,0.12);
+    --border-strong: rgba(0,0,0,0.25);
+    --border-indigo: rgba(79,70,229,0.45);
+    --indigo-glow: #4f46e5;
+    --indigo: #4f46e5;
+  }
+  body { background: #fff; color: #0b0b18; font-size: 11.5pt; line-height: 1.5; }
+  .atmos, nav, footer, .wa-float, .btn-pdf, .closer-ctas { display: none !important; }
+  .wrap { max-width: 100%; padding: 0 24px; }
+  main { padding-top: 0; }
+  .hero { padding: 24px 0 16px; page-break-after: avoid; }
+  .hero-title { font-size: 32pt; line-height: 1.05; }
+  .hero-sub { font-size: 11pt; max-width: 100%; }
+  .toc-section { display: none; }
+  .bot-section {
+    page-break-before: always;
+    padding: 24px 0;
+    border-top: none;
+  }
+  .bot-section:first-of-type { page-break-before: avoid; }
+  .bot-name { font-size: 22pt; margin-bottom: 16px; }
+  .bot-id-large { background: #eef0fe; color: #4f46e5; border: 1px solid #4f46e5; }
+  .bot-status-large { background: #eef0fe !important; color: #4f46e5 !important; border-color: #4f46e5 !important; }
+  .bot-status-large::before { background: #4f46e5 !important; box-shadow: none !important; }
+  .bot-status-soon { background: #fff7e8 !important; color: #b45309 !important; border-color: #b45309 !important; }
+  .bot-status-soon::before { background: #b45309 !important; }
+  .sub-label { color: #4f46e5; margin-top: 18px; }
+  .problem-card {
+    border-left: 3px solid #d70036;
+    background: #fff5f6 !important;
+    color: #0b0b18;
+    page-break-inside: avoid;
+  }
+  .flow-step {
+    background: #fafafa !important;
+    border: 1px solid #e6e6ef !important;
+    color: #0b0b18;
+    page-break-inside: avoid;
+  }
+  .flow-num { color: #4f46e5; }
+  .flow-body strong { color: #0b0b18; }
+  .flow-body p { color: #2c2c40; }
+  .meta-card {
+    background: #fafafa !important;
+    border: 1px solid #e6e6ef !important;
+    page-break-inside: avoid;
+  }
+  .meta-card.need-card { border-left: 3px solid #4f46e5 !important; background: #f4f4ff !important; }
+  .meta-label { color: #6b6b85; }
+  .meta-value { color: #0b0b18; }
+  .tier-chip { background: #fff !important; border: 1px solid #c7c7d6 !important; color: #2c2c40 !important; }
+  .tier-chip.active { background: #eef0fe !important; border-color: #4f46e5 !important; color: #4f46e5 !important; }
+  .intro-card {
+    background: #f4f4ff !important;
+    border: 1px solid #4f46e5;
+    color: #0b0b18;
+    page-break-inside: avoid;
+  }
+  .intro-fact { background: #fff !important; border: 1px solid #e6e6ef !important; }
+  .closer {
+    page-break-before: always;
+    background: #f4f4ff !important;
+    color: #0b0b18;
+    border: 1px solid #4f46e5;
+  }
+  .closer::before { display: none !important; }
+  a { color: #4f46e5; }
+  /* Hide gradient-clipped text and replace with solid colour */
+  .hero-title .em, .bot-name .em, .closer-title .em, .intro-title em {
+    background: none !important;
+    -webkit-text-fill-color: initial !important;
+    color: #4f46e5 !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -533,6 +695,7 @@ footer {
       </a>
       <div class="nav-right">
         <a href="/" class="btn-ghost">← Home</a>
+        <button type="button" class="btn-pdf" onclick="window.print()">⤓ Save as PDF</button>
         <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn-primary-sm">Book demo →</a>
       </div>
     </div>
@@ -550,6 +713,23 @@ footer {
   </div>
 </section>
 
+<!-- WHO THIS IS FOR -->
+<section>
+  <div class="wrap">
+    <div class="intro-card">
+      <div class="intro-label">// WHO THIS IS FOR</div>
+      <div class="intro-title">If you're a South African business owner who's drowning in <em>reviews, no-shows, unpaid invoices, or silent customers</em> — this is for you.</div>
+      <p>Each bot solves one specific problem an SA SMB has. You don't pick from a menu of features — you pick the bots whose problems you actually have, and they run automatically from day one.</p>
+      <p><strong>You don't write code. You don't manage AI. You don't change tools.</strong> Bots read from sheets / calendars / inboxes you already use, and write back into them. You see the result in the channels you already check (Gmail + Telegram, with WhatsApp coming in Phase 3).</p>
+      <div class="intro-grid">
+        <div class="intro-fact"><div class="fact-h">Setup</div><div class="fact-v">7 days from signup to live</div></div>
+        <div class="intro-fact"><div class="fact-h">Pricing</div><div class="fact-v">In Rand, monthly, cancel anytime</div></div>
+        <div class="intro-fact"><div class="fact-h">Guarantee</div><div class="fact-v">30-day money-back, no questions</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- TOC -->
 <section class="toc-section">
   <div class="wrap">
@@ -562,6 +742,7 @@ footer {
       <a href="#b5"  class="toc-pill"><span class="id">B5</span><span class="name">Reactivation</span></a>
       <a href="#b6"  class="toc-pill"><span class="id">B6</span><span class="name">Reputation Shield</span></a>
       <a href="#b7"  class="toc-pill"><span class="id">B7</span><span class="name">Referral Engine</span></a>
+      <a href="#b8"  class="toc-pill"><span class="id">B8</span><span class="name">Owner Brief</span></a>
       <a href="#b9"  class="toc-pill"><span class="id">B9</span><span class="name">Smart Support</span></a>
       <a href="#b10" class="toc-pill"><span class="id">B10</span><span class="name">Lifetime &amp; NA</span></a>
       <a href="#b11" class="toc-pill"><span class="id">B11</span><span class="name">Review Pro</span></a>
@@ -600,6 +781,7 @@ footer {
       <div class="meta-card"><div class="meta-label">What you see</div><div class="meta-value">Telegram alert · WhatsApp auto-reply log · Calendar event</div></div>
       <div class="meta-card"><div class="meta-label">Best for</div><div class="meta-value">Estate agents, salons, plumbers, freelancers — any service where leads come in via WhatsApp after hours</div></div>
       <div class="meta-card"><div class="meta-label">Available on</div><div class="meta-value"><div class="tier-row"><span class="tier-chip active">Starter</span><span class="tier-chip active">Operator</span><span class="tier-chip active">Command</span></div><p style="font-size:12px;color:var(--warn);margin-top:8px;font-family:'JetBrains Mono',monospace;letter-spacing:0.06em;">⚠ Launches in Phase 3 once SA WhatsApp Business account is approved.</p></div></div>
+      <div class="meta-card need-card"><div class="meta-label">What we need from you</div><div class="meta-value">Your <strong>WhatsApp Business number</strong> (once registered) + 5–10 sample replies in your tone + your services & prices list.</div></div>
     </div>
   </div>
 </section>
@@ -635,6 +817,7 @@ footer {
       <div class="meta-card"><div class="meta-label">What you see</div><div class="meta-value">Morning Gmail brief with at-risk list + suggested messages</div></div>
       <div class="meta-card"><div class="meta-label">Best for</div><div class="meta-value">Subscription businesses, gyms, salons, restaurants — anywhere with repeat customers</div></div>
       <div class="meta-card"><div class="meta-label">Available on</div><div class="meta-value"><div class="tier-row"><span class="tier-chip active">Starter</span><span class="tier-chip active">Operator</span><span class="tier-chip active">Command</span></div></div></div>
+      <div class="meta-card need-card"><div class="meta-label">What we need from you</div><div class="meta-value">A <strong>sheet (or export)</strong> of your customer purchase history — last 12 months is plenty. CSV, Google Sheets, anything we can read.</div></div>
     </div>
   </div>
 </section>
@@ -670,6 +853,7 @@ footer {
       <div class="meta-card"><div class="meta-label">What you see</div><div class="meta-value">Customer email reminders · Telegram on no-show · Recovery rate in brief</div></div>
       <div class="meta-card"><div class="meta-label">Best for</div><div class="meta-value">Salons, dentists, clinics, beauty therapists — any business with appointment slots</div></div>
       <div class="meta-card"><div class="meta-label">Available on</div><div class="meta-value"><div class="tier-row"><span class="tier-chip">Starter</span><span class="tier-chip active">Operator</span><span class="tier-chip active">Command</span></div></div></div>
+      <div class="meta-card need-card"><div class="meta-label">What we need from you</div><div class="meta-value">Your <strong>booking calendar</strong> (Cal.com, Google Calendar, Fresha, Setmore) <em>or</em> a sheet of upcoming appointments. We do the wiring.</div></div>
     </div>
   </div>
 </section>
@@ -705,6 +889,7 @@ footer {
       <div class="meta-card"><div class="meta-label">What you see</div><div class="meta-value">Customer email/SMS series · Telegram on payment or escalation</div></div>
       <div class="meta-card"><div class="meta-label">Best for</div><div class="meta-value">Subscription services, freelancers, agencies — anyone who invoices</div></div>
       <div class="meta-card"><div class="meta-label">Available on</div><div class="meta-value"><div class="tier-row"><span class="tier-chip active">Starter</span><span class="tier-chip active">Operator</span><span class="tier-chip active">Command</span></div></div></div>
+      <div class="meta-card need-card"><div class="meta-label">What we need from you</div><div class="meta-value">A <strong>list of overdue invoices</strong> (debtor name, email, amount, due date) and the payment methods you accept.</div></div>
     </div>
   </div>
 </section>
@@ -740,6 +925,7 @@ footer {
       <div class="meta-card"><div class="meta-label">What you see</div><div class="meta-value">Personal Gmail to each customer · Reactivation log sheet · Telegram on conversions</div></div>
       <div class="meta-card"><div class="meta-label">Best for</div><div class="meta-value">E-commerce, salons, restaurants, services — anyone with purchase history</div></div>
       <div class="meta-card"><div class="meta-label">Available on</div><div class="meta-value"><div class="tier-row"><span class="tier-chip">Starter</span><span class="tier-chip active">Operator</span><span class="tier-chip active">Command</span></div></div></div>
+      <div class="meta-card need-card"><div class="meta-label">What we need from you</div><div class="meta-value">A <strong>customer list</strong> with email + last purchase date. We define "silent" together (45 / 60 / 90 days, depending on your business).</div></div>
     </div>
   </div>
 </section>
@@ -775,6 +961,7 @@ footer {
       <div class="meta-card"><div class="meta-label">What you see</div><div class="meta-value">Customer feedback form · Telegram on low scores · Private feedback log</div></div>
       <div class="meta-card"><div class="meta-label">Best for</div><div class="meta-value">Service businesses, hospitality, restaurants — anywhere reviews drive new business</div></div>
       <div class="meta-card"><div class="meta-label">Available on</div><div class="meta-value"><div class="tier-row"><span class="tier-chip">Starter</span><span class="tier-chip active">Operator</span><span class="tier-chip active">Command</span></div></div></div>
+      <div class="meta-card need-card"><div class="meta-label">What we need from you</div><div class="meta-value"><strong>Access to your review-platform inbox</strong> (Hello Peter, Google Business) + your preferred private-reply tone.</div></div>
     </div>
   </div>
 </section>
@@ -810,6 +997,43 @@ footer {
       <div class="meta-card"><div class="meta-label">What you see</div><div class="meta-value">Referral email log · Conversion sheet · Telegram on new conversion · Auto-reward email sent</div></div>
       <div class="meta-card"><div class="meta-label">Best for</div><div class="meta-value">Any business with word-of-mouth potential — e-commerce, gyms, restaurants, services</div></div>
       <div class="meta-card"><div class="meta-label">Available on</div><div class="meta-value"><div class="tier-row"><span class="tier-chip">Starter</span><span class="tier-chip active">Operator</span><span class="tier-chip active">Command</span></div></div></div>
+      <div class="meta-card need-card"><div class="meta-label">What we need from you</div><div class="meta-value">A <strong>happy-customer list</strong> + the referral reward you're offering (discount, free service, R-credit).</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- B8 — OWNER BRIEF -->
+<!-- ============================================================ -->
+<section class="bot-section" id="b8">
+  <div class="wrap">
+    <div class="bot-header">
+      <span class="bot-id-large">B8 · Owner Brief</span>
+      <span class="bot-status-large bot-status-live">Live</span>
+    </div>
+    <h2 class="bot-name">Owner <span class="em">Brief.</span></h2>
+
+    <div class="sub-label">// THE PROBLEM</div>
+    <div class="problem-card">
+      You're running 3, 5, maybe all 10 bots — but checking each one's sheet, email log, and Telegram thread is its own part-time job. By the time you've reviewed everything, the actionable signals are buried under noise. <strong>You need one daily roll-up that tells you what happened, what made you money, and what needs your attention</strong> — not ten separate places to look.
+    </div>
+
+    <div class="sub-label">// HOW IT WORKS</div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-body"><strong>Runs every morning at 07:00 SAST</strong><p>Automatically. No trigger needed from you. The brief is in your inbox before your first coffee.</p></div></div>
+      <div class="flow-step"><div class="flow-num">02</div><div class="flow-body"><strong>Pulls yesterday's activity from every bot you run</strong><p>Reviews replied, invoices recovered, no-shows rescued, churn alerts, referrals, support tickets — whatever is live for your business.</p></div></div>
+      <div class="flow-step"><div class="flow-num">03</div><div class="flow-body"><strong>Highlights the money + the must-acts</strong><p>"R12,840 recovered yesterday." "Pieter at risk — engagement email queued." "4 no-shows saved." Numbers first, decisions second.</p></div></div>
+      <div class="flow-step"><div class="flow-num">04</div><div class="flow-body"><strong>Surfaces anything that needs you</strong><p>Failed payments past the chase ladder. 1-star reviews. Hot WhatsApp leads not yet replied to by you. Flagged customer threads.</p></div></div>
+      <div class="flow-step"><div class="flow-num">05</div><div class="flow-body"><strong>Delivered by email + Telegram</strong><p>Same content, both channels. Phone reading or laptop, your call. A weekly digest also lands every Monday with a 7-day view.</p></div></div>
+    </div>
+
+    <div class="sub-label">// SPECS</div>
+    <div class="meta-grid">
+      <div class="meta-card"><div class="meta-label">Who triggers it</div><div class="meta-value">Daily cron at 07:00 Africa/Johannesburg (plus manual via <span class="mono">/owner-brief-trigger</span>)</div></div>
+      <div class="meta-card"><div class="meta-label">What you see</div><div class="meta-value">One email · One Telegram message · Weekly digest on Mondays</div></div>
+      <div class="meta-card"><div class="meta-label">Best for</div><div class="meta-value">Every owner running 2+ bots. Single point of truth across the suite.</div></div>
+      <div class="meta-card"><div class="meta-label">Available on</div><div class="meta-value"><div class="tier-row"><span class="tier-chip active">Starter</span><span class="tier-chip active">Operator</span><span class="tier-chip active">Command</span></div><p style="font-size:12px;color:var(--text-md);margin-top:8px;font-family:'JetBrains Mono',monospace;letter-spacing:0.06em;">Included free in every tier — there's nothing extra to switch on.</p></div></div>
+      <div class="meta-card need-card"><div class="meta-label">What we need from you</div><div class="meta-value"><strong>Nothing extra.</strong> The Owner Brief automatically summarises whatever other bots you're running — it has no separate inputs.</div></div>
     </div>
   </div>
 </section>
@@ -845,6 +1069,7 @@ footer {
       <div class="meta-card"><div class="meta-label">What you see</div><div class="meta-value">Telegram with pre-drafted reply · SLA dashboard · Escalation pings</div></div>
       <div class="meta-card"><div class="meta-label">Best for</div><div class="meta-value">E-commerce, SaaS, service businesses — anyone with more than 5 support emails per day</div></div>
       <div class="meta-card"><div class="meta-label">Available on</div><div class="meta-value"><div class="tier-row"><span class="tier-chip active">Starter</span><span class="tier-chip active">Operator</span><span class="tier-chip active">Command</span></div></div></div>
+      <div class="meta-card need-card"><div class="meta-label">What we need from you</div><div class="meta-value">Your <strong>support inbox</strong> (Gmail) + 5–10 recent resolved tickets so the bot learns your tone and your refund/replacement rules.</div></div>
     </div>
   </div>
 </section>
@@ -880,6 +1105,7 @@ footer {
       <div class="meta-card"><div class="meta-label">What you see</div><div class="meta-value">Monday Gmail brief with top 5 customers + suggested next actions per customer</div></div>
       <div class="meta-card"><div class="meta-label">Best for</div><div class="meta-value">Repeat-purchase businesses — retail, salons, services, subscription</div></div>
       <div class="meta-card"><div class="meta-label">Available on</div><div class="meta-value"><div class="tier-row"><span class="tier-chip active">Starter</span><span class="tier-chip active">Operator</span><span class="tier-chip active">Command</span></div></div></div>
+      <div class="meta-card need-card"><div class="meta-label">What we need from you</div><div class="meta-value">A <strong>sales history sheet</strong> — last 12 months. Just customer name, email, total spend, last purchase date.</div></div>
     </div>
   </div>
 </section>
@@ -915,6 +1141,7 @@ footer {
       <div class="meta-card"><div class="meta-label">What you see</div><div class="meta-value">Public review reply posted · Daily summary Gmail · Telegram on low-star drafts to approve</div></div>
       <div class="meta-card"><div class="meta-label">Best for</div><div class="meta-value">Restaurants, hotels, e-commerce, Airbnb hosts — anyone with public reviews driving sales</div></div>
       <div class="meta-card"><div class="meta-label">Available on</div><div class="meta-value"><div class="tier-row"><span class="tier-chip active">Starter</span><span class="tier-chip active">Operator</span><span class="tier-chip active">Command</span></div></div></div>
+      <div class="meta-card need-card"><div class="meta-label">What we need from you</div><div class="meta-value">Your <strong>review platform access</strong> (Google Business / Hello Peter / Airbnb) + 5–10 sample replies you've written in your brand voice.</div></div>
     </div>
   </div>
 </section>
