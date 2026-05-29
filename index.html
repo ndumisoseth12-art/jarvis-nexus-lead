@@ -1662,18 +1662,40 @@ nav {
   text-transform: uppercase;
   color: var(--text-lo);
 }
+
+/* Scroll wrapper — room for the floating badge above the featured column */
 .compare-table-scroll {
+  position: relative;
   overflow-x: auto;
   border-radius: var(--r-lg);
   background: var(--surface-1);
   border: 1px solid var(--border-subtle);
+  padding-top: 14px;
 }
+/* Right-edge fade hint on mobile so users know to scroll */
+.compare-table-scroll::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 32px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--surface-1));
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+@media (max-width: 720px) {
+  .compare-table-scroll::after { opacity: 1; }
+}
+
 .compare-table {
   width: 100%;
   min-width: 720px;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 13.5px;
 }
+
+/* Header row */
 .compare-table thead th {
   text-align: left;
   padding: 24px 20px;
@@ -1689,39 +1711,82 @@ nav {
   color: var(--text-lo);
   font-weight: 600;
 }
-.compare-tier-head { position: relative; }
+.compare-tier-head { position: relative; vertical-align: bottom; }
+
+/* === FEATURED COLUMN ELEVATION === */
 .compare-tier-head.featured {
-  background: linear-gradient(180deg, rgba(99,102,241,0.10) 0%, var(--surface-2) 100%);
+  background:
+    linear-gradient(180deg, rgba(129,140,248,0.18) 0%, rgba(99,102,241,0.06) 60%, var(--surface-2) 100%);
   border-left: 1px solid var(--border-indigo);
   border-right: 1px solid var(--border-indigo);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
 }
+/* Crown — gradient bar on top of the featured column */
+.compare-tier-head.featured::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: -1px; right: -1px;
+  height: 2px;
+  background: var(--grad-accent);
+  box-shadow: 0 0 18px rgba(129,140,248,0.55);
+  border-radius: 2px 2px 0 0;
+}
+
+/* Floating "MOST POPULAR" badge — sits above the column */
 .compare-tier-badge {
-  display: inline-block;
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   background: var(--grad-accent);
   color: #fff;
-  padding: 3px 8px;
-  border-radius: 4px;
-  margin-bottom: 8px;
-  box-shadow: 0 2px 8px var(--indigo-shadow);
+  padding: 5px 10px 5px 10px;
+  border-radius: 100px;
+  margin-bottom: 0;
+  box-shadow: 0 6px 18px var(--indigo-shadow), inset 0 1px 0 rgba(255,255,255,0.22);
+  white-space: nowrap;
+  z-index: 2;
+  animation: badgeFloat 3.6s ease-in-out infinite;
 }
+.compare-tier-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px #fff;
+}
+@keyframes badgeFloat {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(-2px); }
+}
+
 .compare-tier-name {
   display: block;
   font-family: 'Instrument Serif', serif;
   font-style: italic;
-  font-size: 22px;
+  font-size: 24px;
   color: var(--text-hi);
   letter-spacing: -0.02em;
   margin-bottom: 6px;
 }
+.compare-tier-head.featured .compare-tier-name {
+  background: linear-gradient(180deg, #f5f5fa 0%, var(--indigo-glow) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 .compare-tier-price {
   display: block;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
-  color: var(--text-md);
+  color: var(--text-hi);
 }
 .compare-tier-per {
   font-family: 'JetBrains Mono', monospace;
@@ -1730,15 +1795,22 @@ nav {
   color: var(--text-lo);
   letter-spacing: 0.06em;
 }
+
+/* Body cells */
 .compare-table tbody td,
 .compare-table tbody th {
-  padding: 16px 20px;
+  padding: 14px 20px;
   border-bottom: 1px solid var(--border-faint);
   color: var(--text-hi);
   vertical-align: middle;
 }
 .compare-table tbody tr:last-child td,
 .compare-table tbody tr:last-child th { border-bottom: none; }
+
+/* Zebra striping on data rows (skips group-header rows) */
+.compare-table tbody tr.compare-data:nth-of-type(even) td:not(.featured),
+.compare-table tbody tr.compare-data:nth-of-type(even) th { background: rgba(255,255,255,0.012); }
+
 .compare-row-head {
   text-align: left;
   font-weight: 500;
@@ -1754,13 +1826,40 @@ nav {
   color: var(--text-lo);
   margin-top: 2px;
 }
+
+/* Featured column body cells inherit the side borders + softer tint */
 .compare-table tbody td.featured {
-  background: rgba(99,102,241,0.04);
+  background: rgba(99,102,241,0.05);
   border-left: 1px solid var(--border-indigo);
   border-right: 1px solid var(--border-indigo);
+  font-weight: 500;
 }
-.compare-table tbody tr:hover td:not(.featured) { background: rgba(255,255,255,0.015); }
-.compare-table tbody tr:hover td.featured { background: rgba(99,102,241,0.07); }
+.compare-table tbody tr:hover td:not(.featured) { background: rgba(255,255,255,0.022); }
+.compare-table tbody tr:hover td.featured { background: rgba(99,102,241,0.09); }
+
+/* === ROW GROUP HEADERS === */
+.compare-row-group th {
+  text-align: left;
+  padding: 22px 20px 10px;
+  background: transparent !important;
+  border-bottom: 1px solid var(--border-subtle);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--indigo-glow);
+  font-weight: 600;
+  position: relative;
+}
+.compare-row-group th::before {
+  content: '';
+  position: absolute;
+  left: 20px; bottom: -1px;
+  width: 28px; height: 1px;
+  background: var(--indigo-glow);
+}
+.compare-row-group:first-of-type th { padding-top: 12px; }
+
 .compare-check {
   display: inline-flex;
   align-items: center;
@@ -1772,15 +1871,57 @@ nav {
   color: var(--indigo-glow);
   font-weight: 700;
   font-size: 13px;
+  box-shadow: inset 0 0 0 1px rgba(129,140,248,0.25);
+}
+.compare-table tbody td.featured .compare-check {
+  background: linear-gradient(135deg, rgba(129,140,248,0.28), rgba(99,102,241,0.18));
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(165,180,252,0.5), 0 0 12px rgba(129,140,248,0.25);
 }
 .compare-dash {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.025);
   color: var(--text-faint);
   font-weight: 400;
+  font-size: 14px;
+  line-height: 1;
 }
+
+/* Single-pass row reveal on scroll-into-view */
+.compare-table tbody tr.compare-data {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 480ms cubic-bezier(0.16, 1, 0.3, 1), transform 480ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.compare-table-scroll.is-revealed tbody tr.compare-data { opacity: 1; transform: none; }
+.compare-table-scroll.is-revealed tbody tr.compare-data:nth-of-type(1)  { transition-delay:  40ms; }
+.compare-table-scroll.is-revealed tbody tr.compare-data:nth-of-type(2)  { transition-delay:  80ms; }
+.compare-table-scroll.is-revealed tbody tr.compare-data:nth-of-type(3)  { transition-delay: 120ms; }
+.compare-table-scroll.is-revealed tbody tr.compare-data:nth-of-type(4)  { transition-delay: 160ms; }
+.compare-table-scroll.is-revealed tbody tr.compare-data:nth-of-type(5)  { transition-delay: 200ms; }
+.compare-table-scroll.is-revealed tbody tr.compare-data:nth-of-type(6)  { transition-delay: 240ms; }
+.compare-table-scroll.is-revealed tbody tr.compare-data:nth-of-type(7)  { transition-delay: 280ms; }
+.compare-table-scroll.is-revealed tbody tr.compare-data:nth-of-type(8)  { transition-delay: 320ms; }
+.compare-table-scroll.is-revealed tbody tr.compare-data:nth-of-type(9)  { transition-delay: 360ms; }
+.compare-table-scroll.is-revealed tbody tr.compare-data:nth-of-type(10) { transition-delay: 400ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .compare-table tbody tr.compare-data { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .compare-tier-badge { animation: none !important; }
+}
+
 @media (max-width: 720px) {
   .compare-table-scroll { border-radius: var(--r-md); }
   .compare-feature-head { font-size: 9px; }
   .compare-tier-name { font-size: 18px; }
+  .compare-tier-price { font-size: 15px; }
+  .compare-tier-badge { font-size: 8.5px; padding: 4px 8px 4px 8px; top: -10px; }
+  .compare-row-group th { padding: 18px 16px 8px; font-size: 9.5px; }
 }
 
 /* ========== LIVE ACTIVITY TICKER (sample stream — format mockup) ========== */
@@ -1980,6 +2121,10 @@ nav {
   color: transparent;
   margin-bottom: 8px;
   display: inline-block;
+  /* italic + background-clip:text truncates the last glyph's ink in WebKit.
+     Pad the clip box right, then pull the layout box back with negative margin. */
+  padding-right: 0.14em;
+  margin-right: -0.14em;
 }
 .stat-num .stat-suffix {
   font-family: 'Inter', sans-serif;
@@ -2209,6 +2354,34 @@ nav {
 /* Industry filter hidden state (matches existing .bot-card.hidden rule) */
 .bento-card.hidden,
 .bento-cta-card.hidden { display: none !important; }
+
+/* Live count beside filter chips */
+.industry-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  margin-left: 6px;
+}
+.industry-count strong {
+  color: var(--indigo-glow);
+  font-weight: 600;
+}
+
+/* Brief flash-in when filter applied — gives the user a clear "something happened" cue */
+@keyframes filterFlashIn {
+  0%   { opacity: 0; transform: translateY(6px) scale(0.985); }
+  100% { opacity: 1; transform: none; }
+}
+.bento-card.flash-in,
+.bento-cta-card.flash-in {
+  animation: filterFlashIn 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bento-card.flash-in,
+  .bento-cta-card.flash-in { animation: none !important; }
+}
 
 /* Mobile: collapse bento to single column */
 @media (max-width: 900px) {
@@ -2441,11 +2614,377 @@ nav.scrolled {
   .atmos, .atmos-spot { transform: none !important; animation: none !important; }
 }
 
+/* ========== PRICING UPGRADES ========== */
+
+/* Section needs containing block for the radial centerpiece */
+#pricing { position: relative; isolation: isolate; }
+
+/* Big indigo radial backdrop behind the pricing grid (sits behind cards, in front of page bg) */
+#pricing::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 18%;
+  width: min(960px, 90%); height: 600px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center,
+    rgba(129,140,248,0.12) 0%,
+    rgba(99,102,241,0.05) 35%,
+    transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 1200ms ease-out;
+}
+#pricing.show::before { opacity: 1; }
+
+/* Word-by-word vertical reveal on the pricing H2 (overrides the parent .section-title fade) */
+#pricing .pricing-title { opacity: 1 !important; transform: none !important; transition: none !important; }
+#pricing .pricing-title .word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  line-height: 1.05;
+  padding-bottom: 0.05em;
+}
+#pricing .pricing-title .word-i {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 640ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+#pricing.show .pricing-title .word-i { transform: none; }
+#pricing.show .pricing-title .word:nth-of-type(1) .word-i { transition-delay:  80ms; }
+#pricing.show .pricing-title .word:nth-of-type(2) .word-i { transition-delay: 170ms; }
+#pricing.show .pricing-title .word:nth-of-type(3) .word-i { transition-delay: 260ms; }
+#pricing.show .pricing-title .word:nth-of-type(4) .word-i { transition-delay: 350ms; }
+#pricing.show .pricing-title .word:nth-of-type(5) .word-i { transition-delay: 480ms; }
+#pricing.show .pricing-title .word:nth-of-type(6) .word-i { transition-delay: 570ms; }
+#pricing.show .pricing-title .word:nth-of-type(7) .word-i { transition-delay: 660ms; }
+
+/* === Operator card — full elevation treatment === */
+.price-card.feature {
+  background: linear-gradient(180deg,
+    rgba(129,140,248,0.10) 0%,
+    rgba(99,102,241,0.03) 40%,
+    var(--surface-2) 100%);
+  border-color: rgba(129,140,248,0.30);
+  transform: scale(1.04);
+  z-index: 2;
+  box-shadow:
+    0 -14px 70px -20px rgba(129,140,248,0.30),
+    0 18px 48px -16px rgba(99,102,241,0.22),
+    0 0 0 1px rgba(129,140,248,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  animation: featurePulse 6.5s ease-in-out infinite;
+}
+@keyframes featurePulse {
+  0%, 100% {
+    box-shadow:
+      0 -14px 70px -20px rgba(129,140,248,0.30),
+      0 18px 48px -16px rgba(99,102,241,0.22),
+      0 0 0 1px rgba(129,140,248,0.08),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  50% {
+    box-shadow:
+      0 -16px 84px -20px rgba(129,140,248,0.40),
+      0 22px 56px -16px rgba(99,102,241,0.30),
+      0 0 0 1px rgba(129,140,248,0.14),
+      inset 0 1px 0 rgba(255,255,255,0.09);
+  }
+}
+
+/* Crown bar — thin gradient line, sits at card's top edge with glow pointing DOWN (away from the badge) */
+.price-card.feature::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(129,140,248,0.7) 30%, rgba(165,180,252,0.9) 50%, rgba(129,140,248,0.7) 70%, transparent 100%);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  box-shadow: 0 6px 18px -2px rgba(129,140,248,0.45);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* MOST POPULAR badge — lift above the crown, keep its own halo restrained */
+.price-card.feature::before {
+  top: -14px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  background: var(--grad-accent);
+  box-shadow:
+    0 4px 14px var(--indigo-shadow),
+    inset 0 1px 0 rgba(255,255,255,0.22);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  z-index: 3;
+}
+/* Inject a pulsing white dot before the badge text using box-shadow + a small inline marker */
+.price-card.feature {
+  --dot-x: 38px;
+}
+.price-card .feature-badge-dot {
+  display: none; /* placeholder if needed for future overrides */
+}
+
+/* Gradient price digits on Operator */
+.price-card.feature .price-amount {
+  background: linear-gradient(180deg, #f5f5fa 0%, var(--indigo-glow) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  /* italic-clip safety pad */
+  padding-right: 0.06em;
+  margin-right: -0.06em;
+}
+.price-card.feature .price-amount .currency {
+  background: inherit;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Operator check marks — brighter color, no glow halo */
+.price-card.feature .price-list li::before {
+  color: var(--indigo-glow);
+}
+.price-card.feature .price-list li.muted { display: none; } /* defensive */
+
+/* Operator CTA — subtle idle lift, no neon glow */
+.price-card.feature .price-cta {
+  box-shadow:
+    0 6px 18px var(--indigo-shadow),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+/* Mobile: no scale (would overflow single-column), softer halo (iOS OOM already strips filters) */
+@media (max-width: 720px) {
+  .price-card.feature {
+    transform: none;
+    animation: none;
+    box-shadow:
+      0 12px 36px -10px rgba(99,102,241,0.35),
+      0 0 0 1px rgba(129,140,248,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .price-card.feature { animation: none !important; }
+}
+
+/* Card scroll reveal — blur+slide-up stagger when pricing section enters viewport */
+.price-grid .price-card {
+  opacity: 0;
+  transform: translateY(18px);
+  filter: blur(8px);
+  transition:
+    opacity 620ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 720ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 620ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+#pricing.show .price-grid .price-card { opacity: 1; transform: none; filter: none; }
+/* Feature card stays scaled after reveal */
+.price-grid .price-card.feature { transform: translateY(18px) scale(1.04); }
+#pricing.show .price-grid .price-card.feature { transform: scale(1.04); }
+#pricing.show .price-grid .price-card:nth-of-type(1) { transition-delay: 200ms; }
+#pricing.show .price-grid .price-card:nth-of-type(2) { transition-delay: 340ms; }
+#pricing.show .price-grid .price-card:nth-of-type(3) { transition-delay: 480ms; }
+@media (max-width: 720px) {
+  .price-grid .price-card.feature { transform: translateY(18px); }
+  #pricing.show .price-grid .price-card.feature { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #pricing .pricing-title .word-i { transition: none !important; transform: none !important; }
+  .price-grid .price-card { transition: none !important; opacity: 1 !important; transform: none !important; filter: none !important; }
+  #pricing::before { transition: none !important; opacity: 1 !important; }
+}
+
+/* iOS Safari blur-OOM already strips filters on touch devices — but the upward halo
+   and the radial centerpiece should still leave a visible indigo tint. Fallback: */
+@media (hover: none), (pointer: coarse), (max-width: 768px) {
+  .price-card.feature {
+    background: linear-gradient(180deg, rgba(129,140,248,0.12) 0%, var(--surface-2) 100%);
+  }
+}
+
+/* ========== FOOTER UPGRADES — hover chevrons + flickering text mark ========== */
+
+/* Hover chevron on every link inside footer columns */
+.foot-col a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  width: fit-content;
+}
+.foot-col a::after {
+  content: '›';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px; height: 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 3px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--text-lo);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 220ms ease, transform 240ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms ease, color 200ms ease;
+}
+.foot-col a:hover::after {
+  opacity: 1;
+  transform: translateX(0);
+  border-color: var(--border-indigo);
+  color: var(--indigo-glow);
+}
+
+/* Flickering text mark — big "JARVIS NEXUS" canvas above the copyright row */
+.foot-flicker-wrap {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  margin: 64px 0 16px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.foot-flicker-wrap canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.foot-flicker-mask {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--surface-0) 0%, transparent 55%);
+}
+@media (max-width: 720px) {
+  .foot-flicker-wrap { height: 140px; margin: 40px 0 12px; }
+}
+
 /* Legal links in footer */
 .foot-legal { display: inline-flex; gap: 12px; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; }
 .foot-legal a { color: var(--text-md, #a8a8c2); text-decoration: none; transition: color 150ms ease; }
 .foot-legal a:hover { color: var(--text-hi, #f5f5fa); }
 .foot-legal .sep { color: var(--text-lo, #6b6b85); opacity: 0.5; }
+
+/* ========== HERO ENTRANCE — stagger fade-up + accent shimmer sweep ========== */
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+.hero-eyebrow,
+.hero-title,
+.hero-sub,
+.hero-ctas,
+.trust-strip,
+.demo-card-wrap {
+  opacity: 0;
+  animation: heroFadeUp 720ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.hero-eyebrow   { animation-delay:  80ms; }
+.hero-title     { animation-delay: 200ms; }
+.hero-sub       { animation-delay: 360ms; }
+.hero-ctas      { animation-delay: 500ms; }
+.trust-strip    { animation-delay: 640ms; }
+.demo-card-wrap { animation-delay: 380ms; animation-duration: 820ms; }
+
+/* "while you sleep" — wavy SVG underline draws itself + hover morph + hover scale */
+.hero-title .accent {
+  position: relative;
+  display: inline-block;
+  transition: transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-title .accent:hover { transform: scale(1.02); }
+
+.accent-underline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.18em;
+  width: 100%;
+  height: 0.32em;
+  overflow: visible;
+  pointer-events: none;
+}
+.accent-underline path {
+  fill: none;
+  stroke: var(--indigo-glow);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: drawAccentUnderline 1500ms cubic-bezier(0.42, 0, 0.58, 1) 900ms forwards;
+  filter: drop-shadow(0 0 6px rgba(129,140,248,0.45));
+  transition: d 800ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes drawAccentUnderline {
+  to { stroke-dashoffset: 0; }
+}
+/* Hover morph — flip the wave (Chrome 84+, Safari 16+, Firefox 129+) */
+.hero-title .accent:hover .accent-underline path {
+  d: path("M 0,10 Q 75,20 150,10 Q 225,0 300,10");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-eyebrow,
+  .hero-title,
+  .hero-sub,
+  .hero-ctas,
+  .trust-strip,
+  .demo-card-wrap {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .accent-underline path { animation: none !important; stroke-dashoffset: 0 !important; }
+  .hero-title .accent { transition: none !important; transform: none !important; }
+}
+
+/* ========== AURORA — animated indigo radial inside hero + canvas starfield ========== */
+:root { --aurora-c: rgba(99,102,241,0.85); }
+
+.hero { position: relative; isolation: isolate; overflow: hidden; }
+.hero-aurora {
+  position: absolute; inset: 0; z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(125% 125% at 50% 0%, #020617 50%, var(--aurora-c));
+  transition: background 3.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: background;
+}
+.hero .btn-primary {
+  transition: border-color 3.5s ease, box-shadow 3.5s ease,
+              transform 200ms ease, background 200ms ease !important;
+  border: 1px solid var(--aurora-c) !important;
+  box-shadow: 0 4px 24px var(--aurora-c) !important;
+}
+.hero .btn-primary:hover { transform: scale(1.015); }
+.hero .btn-primary:active { transform: scale(0.985); }
+
+#aurora-stars {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* Mobile: lighter aurora — preserve readability + avoid GPU thrash */
+@media (hover: none), (pointer: coarse), (max-width: 768px) {
+  .hero-aurora { transition: none; opacity: 0.7; }
+  #aurora-stars { opacity: 0.5; }
+}
+
+/* Freeze the aurora cycle for reduced-motion users */
+@media (prefers-reduced-motion: reduce) {
+  .hero-aurora, .hero .btn-primary { transition: none !important; }
+}
 </style>
 </head>
 <body>
@@ -2453,6 +2992,7 @@ nav.scrolled {
 <div class="grid-lines"></div>
 <div class="atmos"></div>
 <div class="atmos-spot"></div>
+<canvas id="aurora-stars" aria-hidden="true"></canvas>
 <div class="grain"></div>
 
 <nav>
@@ -2494,6 +3034,7 @@ nav.scrolled {
 
 <!-- HERO -->
 <section class="hero">
+  <div class="hero-aurora" aria-hidden="true"></div>
   <div class="hero-glow" aria-hidden="true"></div>
   <div class="wrap">
     <div class="hero-grid">
@@ -2504,7 +3045,7 @@ nav.scrolled {
           <span class="ev-chevron" aria-hidden="true">›</span>
         </a>
         <h1 class="hero-title hero-title-grad">
-          Your business runs<br><span class="accent">while you sleep.</span>
+          Your business runs<br><span class="accent">while you sleep.<svg class="accent-underline" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M 0,10 Q 75,0 150,10 Q 225,20 300,10"/></svg></span>
         </h1>
         <p class="hero-sub">
           Ten AI bots that reply to your reviews, chase your failed payments and win back your silent customers — <strong>for you, in Rand, before you've finished your morning coffee.</strong>
@@ -2734,6 +3275,7 @@ nav.scrolled {
       <button type="button" class="industry-chip" data-industry="hospitality">Airbnb · Hospitality</button>
       <button type="button" class="industry-chip" data-industry="ecom">E-commerce</button>
       <button type="button" class="industry-chip" data-industry="services">Services &amp; Freelancers</button>
+      <span class="industry-count" aria-live="polite">Showing <strong id="industryCountNum">10</strong> of 10 bots</span>
     </div>
 
     <div class="bento-grid stagger">
@@ -3017,7 +3559,7 @@ nav.scrolled {
 <section class="section" id="pricing">
   <div class="wrap">
     <div class="section-eyebrow">// PRICING</div>
-    <h2 class="section-title">Pay for the <span class="em">outcome.</span><br>Not the seat.</h2>
+    <h2 class="section-title pricing-title"><span class="word"><span class="word-i">Pay</span></span> <span class="word"><span class="word-i">for</span></span> <span class="word"><span class="word-i">the</span></span> <span class="word em"><span class="word-i">outcome.</span></span><br><span class="word"><span class="word-i">Not</span></span> <span class="word"><span class="word-i">the</span></span> <span class="word"><span class="word-i">seat.</span></span></h2>
     <p class="section-sub">Setup fee covers your custom bot configuration, brand voice and onboarding. After that, monthly. Cancel any time.</p>
 
     <div class="price-grid stagger">
@@ -3134,61 +3676,68 @@ nav.scrolled {
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr class="compare-row-group"><th colspan="4">Capacity &amp; coverage</th></tr>
+            <tr class="compare-data">
               <th class="compare-row-head">Bots included</th>
               <td>3 (pre-built pack)</td>
               <td class="featured">Any 5 bots</td>
               <td>All 10 bots</td>
             </tr>
-            <tr>
+            <tr class="compare-data">
               <th class="compare-row-head">Customer events / month</th>
               <td>500</td>
               <td class="featured">5,000</td>
               <td>Unlimited</td>
             </tr>
-            <tr>
+
+            <tr class="compare-row-group"><th colspan="4">Brand &amp; experience</th></tr>
+            <tr class="compare-data">
               <th class="compare-row-head">Daily Owner Brief</th>
               <td><span class="compare-check">✓</span></td>
               <td class="featured"><span class="compare-check">✓</span></td>
               <td><span class="compare-check">✓</span> bespoke format</td>
             </tr>
-            <tr>
+            <tr class="compare-data">
               <th class="compare-row-head">POPIA-compliant data handling</th>
               <td><span class="compare-check">✓</span></td>
               <td class="featured"><span class="compare-check">✓</span></td>
               <td><span class="compare-check">✓</span></td>
             </tr>
-            <tr>
+            <tr class="compare-data">
               <th class="compare-row-head">Custom AI tone &amp; brand voice</th>
               <td><span class="compare-dash">—</span></td>
               <td class="featured"><span class="compare-check">✓</span></td>
               <td><span class="compare-check">✓</span></td>
             </tr>
-            <tr>
+
+            <tr class="compare-row-group"><th colspan="4">Support &amp; extras</th></tr>
+            <tr class="compare-data">
               <th class="compare-row-head">Priority phone + WhatsApp support</th>
               <td><span class="compare-dash">—</span></td>
               <td class="featured"><span class="compare-check">✓</span></td>
               <td><span class="compare-check">✓</span> + Slack</td>
             </tr>
-            <tr>
+            <tr class="compare-data">
               <th class="compare-row-head">Custom integrations<span class="compare-row-hint">Yoco, PayFast, Fresha, Stitch</span></th>
               <td><span class="compare-dash">—</span></td>
               <td class="featured"><span class="compare-dash">—</span></td>
               <td><span class="compare-check">✓</span></td>
             </tr>
-            <tr>
+            <tr class="compare-data">
               <th class="compare-row-head">Quarterly strategy session</th>
               <td><span class="compare-dash">—</span></td>
               <td class="featured"><span class="compare-dash">—</span></td>
               <td><span class="compare-check">✓</span></td>
             </tr>
-            <tr>
+
+            <tr class="compare-row-group"><th colspan="4">Guarantees</th></tr>
+            <tr class="compare-data">
               <th class="compare-row-head">30-day money-back guarantee</th>
               <td><span class="compare-check">✓</span></td>
               <td class="featured"><span class="compare-check">✓</span></td>
               <td><span class="compare-check">✓</span></td>
             </tr>
-            <tr>
+            <tr class="compare-data">
               <th class="compare-row-head">Cancel any time</th>
               <td><span class="compare-check">✓</span></td>
               <td class="featured"><span class="compare-check">✓</span></td>
@@ -3256,12 +3805,17 @@ nav.scrolled {
         <a href="/playbook">The Playbook</a>
         <a href="/privacy">Privacy Policy</a>
         <a href="/terms">Terms of Service</a>
+        <a href="/refund">Refund &amp; Cancellation</a>
       </div>
       <div class="foot-col">
         <h4>Contact</h4>
         <a href="mailto:ndumisoseth12@gmail.com">ndumisoseth12@gmail.com</a>
         <a href="https://wa.me/27670994163" target="_blank" rel="noopener">WhatsApp Seth</a>
       </div>
+    </div>
+    <div class="foot-flicker-wrap" aria-hidden="true">
+      <canvas id="foot-flicker"></canvas>
+      <div class="foot-flicker-mask"></div>
     </div>
     <div class="foot-bottom">
       <span>© 2026 JARVIS NEXUS · ALL RIGHTS RESERVED</span>
@@ -3314,22 +3868,41 @@ nav.scrolled {
 // ============ INDUSTRY FILTER FOR BOT GRID ============
 (function() {
   const chips = document.querySelectorAll('.industry-chip');
-  // Matches both legacy .bot-card AND the new .bento-card / .bento-cta-card with data-industries
   const cards = document.querySelectorAll('.bot-card[data-industries], .bento-card[data-industries], .bento-cta-card[data-industries]');
+  const countEl = document.getElementById('industryCountNum');
+  // The CTA tile ("View pricing") shouldn't count toward the bot total
+  const botCards = Array.from(cards).filter(c => !c.classList.contains('bento-cta-card'));
   if (!chips.length || !cards.length) return;
+
+  function apply(filter) {
+    let visible = 0;
+    cards.forEach(card => {
+      const inds = (card.dataset.industries || '').split(/\s+/);
+      const show = filter === 'all' || inds.includes(filter);
+      card.classList.toggle('hidden', !show);
+      // Replay flash-in animation on freshly visible cards
+      if (show) {
+        card.classList.remove('flash-in');
+        // force reflow so the animation re-triggers
+        void card.offsetWidth;
+        card.classList.add('flash-in');
+        if (!card.classList.contains('bento-cta-card')) visible++;
+      }
+    });
+    if (countEl) countEl.textContent = visible;
+  }
+
   chips.forEach(chip => {
     chip.addEventListener('click', (e) => {
       e.preventDefault();
       chips.forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
-      const filter = chip.dataset.industry;
-      cards.forEach(card => {
-        const inds = (card.dataset.industries || '').split(/\s+/);
-        const show = filter === 'all' || inds.includes(filter);
-        card.classList.toggle('hidden', !show);
-      });
+      apply(chip.dataset.industry);
     });
   });
+
+  // Set initial count from the markup
+  if (countEl) countEl.textContent = botCards.length;
 })();
 
 // ============ PARALLAX TILT ON DEMO CARD ============
@@ -3441,6 +4014,260 @@ document.getElementById('routerForm').addEventListener('submit', async function(
   }
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
+})();
+</script>
+
+<script>
+/* ========== FOOTER FLICKERING TEXT MARK ========== */
+(function () {
+  var canvas = document.getElementById('foot-flicker');
+  if (!canvas || !canvas.getContext) return;
+  var wrap = canvas.parentElement;
+  var ctx = canvas.getContext('2d');
+
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var coarse  = window.matchMedia && window.matchMedia('(hover: none), (pointer: coarse), (max-width: 768px)').matches;
+
+  var SQUARE = 2;
+  var GAP    = 3;
+  var FLICKER_CHANCE = 0.10;
+  var MAX_OPACITY = 0.55;
+  var TEXT_BOOST = 0.55; // extra base brightness for cells in the text region
+  var COLOR = '129,140,248'; // indigo-glow rgb (alpha appended at draw time)
+  var TEXT_DESKTOP = 'JARVIS NEXUS';
+  var TEXT_MOBILE  = 'JOBURG';
+
+  var dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+  var cols = 0, rows = 0;
+  var squares = null;
+  var textMask = null; // Uint8Array, 1 per cell if inside text glyph
+  var inView = false;
+  var rafId = 0;
+  var lastT = 0;
+
+  function buildTextMask(w, h) {
+    var off = document.createElement('canvas');
+    off.width = w; off.height = h;
+    var oc = off.getContext('2d');
+    var text = coarse ? TEXT_MOBILE : TEXT_DESKTOP;
+    var fs = coarse ? Math.floor(h * 0.62) : Math.floor(h * 0.68);
+    oc.fillStyle = '#fff';
+    oc.font = '800 ' + fs + 'px "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    oc.textAlign = 'center';
+    oc.textBaseline = 'middle';
+    // Letter-spacing approximation: render character-by-character with extra gap
+    var letterSpacing = coarse ? 6 : 10;
+    var measured = 0;
+    for (var k = 0; k < text.length; k++) measured += oc.measureText(text.charAt(k)).width;
+    measured += letterSpacing * (text.length - 1);
+    var x = (w - measured) / 2;
+    var y = h / 2;
+    for (var i = 0; i < text.length; i++) {
+      var ch = text.charAt(i);
+      var cw = oc.measureText(ch).width;
+      oc.fillText(ch, x + cw / 2, y);
+      x += cw + letterSpacing;
+    }
+    // Sample one pixel per cell to populate the mask
+    var pitch = (SQUARE + GAP);
+    var mask = new Uint8Array(cols * rows);
+    var img = oc.getImageData(0, 0, w, h).data;
+    for (var c = 0; c < cols; c++) {
+      for (var r = 0; r < rows; r++) {
+        var px = c * pitch + Math.floor(SQUARE / 2);
+        var py = r * pitch + Math.floor(SQUARE / 2);
+        if (px >= w || py >= h) continue;
+        var idx = (py * w + px) * 4;
+        if (img[idx + 3] > 0) mask[c * rows + r] = 1;
+      }
+    }
+    return mask;
+  }
+
+  function resize() {
+    var w = wrap.clientWidth;
+    var h = wrap.clientHeight;
+    canvas.width  = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    canvas.style.width  = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var pitch = SQUARE + GAP;
+    cols = Math.ceil(w / pitch);
+    rows = Math.ceil(h / pitch);
+    squares = new Float32Array(cols * rows);
+    for (var i = 0; i < squares.length; i++) squares[i] = Math.random() * MAX_OPACITY;
+    textMask = buildTextMask(w, h);
+    draw(); // immediate paint so it's visible even before animation starts
+  }
+
+  function draw() {
+    var w = canvas.clientWidth;
+    var h = canvas.clientHeight;
+    ctx.clearRect(0, 0, w, h);
+    var pitch = SQUARE + GAP;
+    for (var c = 0; c < cols; c++) {
+      for (var r = 0; r < rows; r++) {
+        var idx = c * rows + r;
+        var op = squares[idx];
+        var hasText = textMask[idx] === 1;
+        var finalOp = hasText ? Math.min(1, op * 2.2 + TEXT_BOOST) : op * 0.5;
+        if (finalOp < 0.02) continue;
+        ctx.fillStyle = 'rgba(' + COLOR + ',' + finalOp.toFixed(3) + ')';
+        ctx.fillRect(c * pitch, r * pitch, SQUARE, SQUARE);
+      }
+    }
+  }
+
+  function frame(t) {
+    if (!inView) { rafId = 0; return; }
+    var dt = lastT ? (t - lastT) / 1000 : 0;
+    lastT = t;
+    var chance = FLICKER_CHANCE * dt;
+    for (var i = 0; i < squares.length; i++) {
+      if (Math.random() < chance) squares[i] = Math.random() * MAX_OPACITY;
+    }
+    draw();
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (rafId || reduced) return;
+    lastT = 0;
+    rafId = requestAnimationFrame(frame);
+  }
+
+  // Drive via IntersectionObserver — only animate when footer is visible
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        inView = e.isIntersecting;
+        if (inView) start();
+      });
+    }, { threshold: 0.05 });
+    obs.observe(wrap);
+  } else {
+    inView = true;
+    start();
+  }
+
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+})();
+</script>
+
+<script>
+/* ========== COMPARE TABLE — reveal rows when scrolled into view ========== */
+(function () {
+  var scroll = document.querySelector('.compare-table-scroll');
+  if (!scroll) return;
+  if (!('IntersectionObserver' in window)) {
+    scroll.classList.add('is-revealed');
+    return;
+  }
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        scroll.classList.add('is-revealed');
+        obs.disconnect();
+      }
+    });
+  }, { threshold: 0.15 });
+  obs.observe(scroll);
+})();
+</script>
+
+<script>
+/* ========== AURORA — indigo color cycle + canvas starfield ========== */
+(function () {
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var coarse  = window.matchMedia && window.matchMedia('(hover: none), (pointer: coarse), (max-width: 768px)').matches;
+
+  // ----- Indigo color cycle -----
+  var stops = [
+    'rgba(165,180,252,0.80)',
+    'rgba(129,140,248,0.85)',
+    'rgba(99,102,241,0.85)',
+    'rgba(79,70,229,0.80)'
+  ];
+  var idx = 0;
+  function step() {
+    idx = (idx + 1) % stops.length;
+    document.documentElement.style.setProperty('--aurora-c', stops[idx]);
+  }
+  document.documentElement.style.setProperty('--aurora-c', stops[0]);
+  if (!reduced) setInterval(step, 3500);
+
+  // ----- Canvas starfield -----
+  var canvas = document.getElementById('aurora-stars');
+  if (!canvas || !canvas.getContext) return;
+  var ctx = canvas.getContext('2d');
+  var dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+  var stars = [];
+  // Density-based: ~1 star per 2800 px² on desktop, ~1 per 6500 px² on mobile
+  function targetCount(w, h) {
+    var area = w * h;
+    var density = coarse ? (1 / 6500) : (1 / 2800);
+    var n = Math.round(area * density);
+    // Sane bounds
+    return Math.max(220, Math.min(n, coarse ? 380 : 1000));
+  }
+
+  function resize() {
+    var w = window.innerWidth, h = window.innerHeight;
+    canvas.width  = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    canvas.style.width  = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    seed(w, h, targetCount(w, h));
+  }
+  function seed(w, h, count) {
+    stars.length = 0;
+    for (var i = 0; i < count; i++) {
+      // Mix of sizes: most tiny, some medium, a few bright
+      var roll = Math.random();
+      var r, a;
+      if (roll < 0.75)      { r = Math.random() * 0.6 + 0.25; a = Math.random() * 0.35 + 0.15; }
+      else if (roll < 0.95) { r = Math.random() * 0.9 + 0.6;  a = Math.random() * 0.5  + 0.30; }
+      else                  { r = Math.random() * 1.4 + 1.0;  a = Math.random() * 0.4  + 0.55; }
+      stars.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: r,
+        a: a,
+        p: Math.random() * Math.PI * 2,
+        s: Math.random() * 0.5 + 0.25
+      });
+    }
+  }
+
+  var last = 0;
+  function frame(t) {
+    var dt = last ? (t - last) / 1000 : 0;
+    last = t;
+    var w = canvas.clientWidth, h = canvas.clientHeight;
+    ctx.clearRect(0, 0, w, h);
+    for (var i = 0; i < stars.length; i++) {
+      var st = stars[i];
+      st.p += dt * st.s;
+      var twinkle = (Math.sin(st.p) + 1) * 0.5;
+      var alpha = st.a * (0.35 + twinkle * 0.65);
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(165,180,252,' + alpha.toFixed(3) + ')';
+      ctx.fill();
+    }
+    if (!reduced) requestAnimationFrame(frame);
+  }
+
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  if (reduced) {
+    requestAnimationFrame(frame);
+  } else {
+    requestAnimationFrame(frame);
+  }
 })();
 </script>
 

@@ -20,6 +20,7 @@
     { "source": "/proposal",       "destination": "/proposal.html" },
     { "source": "/privacy",        "destination": "/privacy.html" },
     { "source": "/terms",          "destination": "/terms.html" },
+    { "source": "/refund",         "destination": "/refund.html" },
     { "source": "/invoice-tool",   "destination": "/invoice-tool.html" },
     { "source": "/playbook",       "destination": "/playbook.html" },
     { "source": "/salon",          "destination": "/salon.html" },
