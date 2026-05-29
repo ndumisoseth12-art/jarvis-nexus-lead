@@ -564,7 +564,7 @@ footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
             </div>
             <div class="field">
               <label>Your name</label>
-              <label class="sr-only" for="ownerName">e.g. Seth Mokoena</label><input type="text" id="ownerName" placeholder="e.g. Seth Mokoena" required>
+              <label class="sr-only" for="ownerName">e.g. Seth Mokone</label><input type="text" id="ownerName" placeholder="e.g. Seth Mokone" required>
             </div>
             <div class="field full">
               <label>Your email (where the draft lands)</label>
@@ -728,7 +728,7 @@ function toast(kind, msg) {
       ownerName:    val('ownerName'),
       ownerEmail:   val('ownerEmail'),
       reviewerName: val('reviewerName'),
-      rating:       parseInt(val('rating'), 10),
+      starRating:   val('rating'),
       source:       val('source'),
       tone:         val('tone'),
       reviewText:   val('reviewText'),
