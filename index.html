@@ -188,30 +188,13 @@ body {
   background: radial-gradient(circle, rgba(129,140,248,0.18) 0%, rgba(99,102,241,0.08) 35%, transparent 70%);
   filter: blur(40px);
 }
-.atmos::after {
-  content: '';
-  position: absolute;
-  width: 700px; height: 700px;
-  border-radius: 50%;
-  top: 200px; right: -100px;
-  background: radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
-  filter: blur(60px);
-}
-.atmos-spot {
-  position: fixed;
-  width: 500px; height: 500px;
-  bottom: -100px; left: 30%;
-  background: radial-gradient(circle, rgba(79,70,229,0.06) 0%, transparent 60%);
-  filter: blur(50px);
-  pointer-events: none;
-  z-index: 0;
-}
+/* .atmos::after and .atmos-spot removed — quieter feel, faster paint (TASK 3) */
 
 /* ========== ATMOSPHERE — FINE GRAIN ========== */
 .grain {
   position: fixed; inset: 0; z-index: 1;
   pointer-events: none;
-  opacity: 0.06;
+  opacity: 0.025;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   mix-blend-mode: overlay;
 }
@@ -261,6 +244,105 @@ nav {
   transition: color 150ms ease, background 150ms ease, font-weight 200ms ease;
 }
 .nav-link:hover { color: var(--text-hi); background: var(--surface-2); font-weight: 600; }
+
+/* ========== NAV PACKS DROPDOWN (CSS-only · hover + focus-within) ========== */
+.nav-dropdown { position: relative; }
+.nav-dropdown-trigger {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  color: var(--text-md);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 150ms ease, background 150ms ease, font-weight 200ms ease;
+}
+.nav-dropdown-trigger:hover,
+.nav-dropdown-trigger:focus-visible,
+.nav-dropdown[data-open="true"] .nav-dropdown-trigger,
+.nav-dropdown:hover .nav-dropdown-trigger,
+.nav-dropdown:focus-within .nav-dropdown-trigger {
+  color: var(--text-hi);
+  background: var(--surface-2);
+  font-weight: 600;
+  outline: none;
+}
+.nav-dropdown-trigger .caret {
+  width: 9px;
+  height: 9px;
+  display: inline-block;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-1px) rotate(45deg);
+  transition: transform 200ms ease-out;
+}
+.nav-dropdown:hover .nav-dropdown-trigger .caret,
+.nav-dropdown:focus-within .nav-dropdown-trigger .caret { transform: translateY(1px) rotate(225deg); }
+
+.nav-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  min-width: 220px;
+  padding: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(99,102,241,0.10);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 200ms ease-out, transform 200ms ease-out, visibility 0s linear 200ms;
+  z-index: 50;
+}
+.nav-dropdown:hover .nav-dropdown-panel,
+.nav-dropdown:focus-within .nav-dropdown-panel {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  transition: opacity 200ms ease-out, transform 200ms ease-out, visibility 0s;
+}
+/* Hover bridge — prevents the dropdown from closing when cursor crosses the 8px gap */
+.nav-dropdown-panel::before {
+  content: '';
+  position: absolute;
+  top: -10px; left: 0; right: 0; height: 10px;
+}
+.nav-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 12px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-md);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: color 140ms ease, background 140ms ease;
+}
+.nav-dropdown-item:hover,
+.nav-dropdown-item:focus-visible {
+  color: var(--text-hi);
+  background: rgba(99,102,241,0.12);
+  outline: none;
+}
+.nav-dropdown-item .meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+}
+.nav-dropdown-item:hover .meta,
+.nav-dropdown-item:focus-visible .meta { color: var(--indigo-glow); }
 
 .nav-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
 .status-pill {
@@ -400,8 +482,8 @@ nav {
   background: var(--indigo-soft);
   border: 1px solid var(--border-indigo);
   border-radius: 100px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
   font-weight: 500;
   color: var(--indigo-glow);
   letter-spacing: 0.08em;
@@ -451,14 +533,24 @@ nav {
 
 .trust-strip {
   display: flex; align-items: center; gap: 28px; flex-wrap: wrap;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 500;
+  font-size: 12px;
   color: var(--text-lo);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.trust-strip .item { display: inline-flex; align-items: center; gap: 7px; }
-.trust-strip .item .ico { color: var(--indigo-glow); font-size: 12px; }
+.trust-strip .item { display: inline-flex; align-items: center; gap: 9px; }
+.trust-strip .item .ico {
+  color: var(--indigo-glow);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  filter: drop-shadow(0 0 6px var(--indigo-shadow));
+}
+.trust-strip .item .ico svg { width: 16px; height: 16px; display: block; }
 
 /* ========== HERO DEMO CARD (parallax) ========== */
 .demo-card-wrap { perspective: 1000px; }
@@ -503,10 +595,11 @@ nav {
   margin-bottom: 18px;
 }
 .demo-stat-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 500;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.10em;
   color: var(--text-lo);
   margin-bottom: 6px;
 }
@@ -977,7 +1070,7 @@ nav {
 /* ---- honesty note ---- */
 .outputs-honesty {
   max-width: 720px;
-  margin: 48px auto 0;
+  margin: 0 auto 36px;
   font-size: 14px;
   line-height: 1.7;
   color: var(--text-md);
@@ -1092,9 +1185,10 @@ nav {
   margin: 32px 0 36px;
 }
 .industry-filter .label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-lo);
   margin-right: 4px;
@@ -1382,10 +1476,11 @@ nav {
 }
 .router-submit-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .router-note {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 400;
+  font-size: 13px;
   color: var(--text-lo);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.01em;
 }
 .router-success {
   display: none;
@@ -1433,10 +1528,11 @@ nav {
   background-clip: text;
 }
 .guarantee-fine {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 500;
+  font-size: 12px;
   color: var(--text-lo);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -1474,9 +1570,10 @@ nav {
   box-shadow: 0 4px 12px var(--indigo-shadow);
 }
 .price-tier {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.18em;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   color: var(--text-lo);
   margin-bottom: 14px;
@@ -2139,9 +2236,10 @@ nav {
   -webkit-text-fill-color: transparent;
 }
 .stat-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.18em;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   color: var(--text-lo);
   display: block;
@@ -2423,17 +2521,24 @@ nav {
   color: var(--text-hi);
 }
 .closer-title .em { font-style: italic; color: var(--indigo-glow); }
-.closer-sub { font-size: 17px; color: var(--text-md); max-width: 540px; margin: 0 auto 36px; line-height: 1.55; }
+.closer-sub { font-size: 17px; color: var(--text-md); max-width: 560px; margin: 0 auto 32px; line-height: 1.55; }
+.closer-ctas { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; align-items: center; margin-bottom: 28px; }
+.closer-trust { justify-content: center; gap: 24px; }
+@media (max-width: 560px) {
+  .closer-ctas { flex-direction: column; align-items: stretch; }
+  .closer-ctas .btn { width: 100%; justify-content: center; }
+  .closer-trust { gap: 14px; }
+}
 
 /* ========== FOOTER ========== */
 footer { border-top: 1px solid var(--border-subtle); padding: 64px 0 32px; }
 .foot-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
 @media (max-width: 768px) { .foot-grid { grid-template-columns: 1fr 1fr; } }
 .foot-col h4 {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   color: var(--text-lo);
   margin-bottom: 16px;
@@ -2448,13 +2553,47 @@ footer { border-top: 1px solid var(--border-subtle); padding: 64px 0 32px; }
 }
 .foot-col a:hover { color: var(--text-hi); transform: translateX(2px); }
 .foot-bio { font-size: 14px; color: var(--text-md); line-height: 1.6; max-width: 320px; margin-top: 16px; }
+
+/* ========== FOOTER TRUST BLOCK (TASK 8) ========== */
+.foot-trust {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 22px 0;
+  margin: 0 0 8px;
+  border-top: 1px solid var(--border-faint);
+  border-bottom: 1px solid var(--border-faint);
+}
+.foot-trust-item {
+  flex: 1 1 auto;
+  padding: 4px 26px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  text-align: center;
+  line-height: 1.5;
+}
+.foot-trust-item + .foot-trust-item {
+  border-left: 1px solid var(--border-faint);
+}
+@media (max-width: 768px) {
+  .foot-trust { flex-direction: column; padding: 16px 0; gap: 4px; }
+  .foot-trust-item { padding: 8px 12px; text-align: left; flex: 0 0 auto; width: 100%; }
+  .foot-trust-item + .foot-trust-item { border-left: 0; border-top: 1px solid var(--border-faint); }
+}
+
 .foot-bottom {
   padding-top: 32px;
   border-top: 1px solid var(--border-subtle);
   display: flex; justify-content: space-between; align-items: center;
   flex-wrap: wrap; gap: 16px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 500;
+  font-size: 12px;
   color: var(--text-lo);
   letter-spacing: 0.04em;
 }
@@ -2600,7 +2739,7 @@ nav.scrolled {
       backdrop-filter: none !important;
       -webkit-backdrop-filter: none !important;
     }
-    .grain, .atmos-spot { display: none !important; }
+    .grain { display: none !important; }
   }
 
 /* Respect users who ask for reduced motion */
@@ -2611,7 +2750,7 @@ nav.scrolled {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .atmos, .atmos-spot { transform: none !important; animation: none !important; }
+  .atmos { transform: none !important; animation: none !important; }
 
   /* Sample-stream ticker stays scrolling — it's an honest activity-feed mockup,
      not gratuitous motion. Slowed for politeness. */
@@ -2671,37 +2810,20 @@ nav.scrolled {
 #pricing.show .pricing-title .word:nth-of-type(6) .word-i { transition-delay: 570ms; }
 #pricing.show .pricing-title .word:nth-of-type(7) .word-i { transition-delay: 660ms; }
 
-/* === Operator card — full elevation treatment === */
+/* === Operator card — full elevation treatment (TASK 6) === */
 .price-card.feature {
-  background: linear-gradient(180deg,
-    rgba(129,140,248,0.10) 0%,
-    rgba(99,102,241,0.03) 40%,
-    var(--surface-2) 100%);
-  border-color: rgba(129,140,248,0.30);
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(180deg,
+      rgba(129,140,248,0.10) 0%,
+      rgba(99,102,241,0.03) 40%,
+      var(--surface-2) 100%) padding-box,
+    var(--grad-accent) border-box;
   transform: scale(1.04);
   z-index: 2;
   box-shadow:
-    0 -14px 70px -20px rgba(129,140,248,0.30),
-    0 18px 48px -16px rgba(99,102,241,0.22),
-    0 0 0 1px rgba(129,140,248,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.06);
-  animation: featurePulse 6.5s ease-in-out infinite;
-}
-@keyframes featurePulse {
-  0%, 100% {
-    box-shadow:
-      0 -14px 70px -20px rgba(129,140,248,0.30),
-      0 18px 48px -16px rgba(99,102,241,0.22),
-      0 0 0 1px rgba(129,140,248,0.08),
-      inset 0 1px 0 rgba(255,255,255,0.06);
-  }
-  50% {
-    box-shadow:
-      0 -16px 84px -20px rgba(129,140,248,0.40),
-      0 22px 56px -16px rgba(99,102,241,0.30),
-      0 0 0 1px rgba(129,140,248,0.14),
-      inset 0 1px 0 rgba(255,255,255,0.09);
-  }
+    0 24px 60px var(--indigo-shadow),
+    0 0 0 1px var(--border-indigo);
 }
 
 /* Crown bar — thin gradient line, sits at card's top edge with glow pointing DOWN (away from the badge) */
@@ -2717,16 +2839,18 @@ nav.scrolled {
   z-index: 1;
 }
 
-/* MOST POPULAR badge — lift above the crown, keep its own halo restrained */
+/* MOST POPULAR badge — bigger + indigo-soft chip with indigo-glow text (TASK 6) */
 .price-card.feature::before {
-  top: -14px;
-  padding: 5px 12px;
+  top: -16px;
+  padding: 7px 16px;
   border-radius: 100px;
-  background: var(--grad-accent);
+  background: var(--indigo-soft);
+  color: var(--indigo-glow);
+  border: 1px solid var(--border-indigo);
   box-shadow:
-    0 4px 14px var(--indigo-shadow),
-    inset 0 1px 0 rgba(255,255,255,0.22);
-  font-size: 9.5px;
+    0 6px 18px var(--indigo-shadow),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  font-size: 11px;
   letter-spacing: 0.18em;
   z-index: 3;
 }
@@ -2738,8 +2862,9 @@ nav.scrolled {
   display: none; /* placeholder if needed for future overrides */
 }
 
-/* Gradient price digits on Operator */
+/* Gradient price digits on Operator + 1.1x size (TASK 6) */
 .price-card.feature .price-amount {
+  font-size: 53px; /* 1.1x base 48px */
   background: linear-gradient(180deg, #f5f5fa 0%, var(--indigo-glow) 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -2879,7 +3004,7 @@ nav.scrolled {
 }
 
 /* Legal links in footer */
-.foot-legal { display: inline-flex; gap: 12px; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; }
+.foot-legal { display: inline-flex; gap: 12px; align-items: center; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 0.02em; }
 .foot-legal a { color: var(--text-md, #a8a8c2); text-decoration: none; transition: color 150ms ease; }
 .foot-legal a:hover { color: var(--text-hi, #f5f5fa); }
 .foot-legal .sep { color: var(--text-lo, #6b6b85); opacity: 0.5; }
@@ -2979,7 +3104,7 @@ nav.scrolled {
 .hero .btn-primary:active { transform: scale(0.985); }
 
 #aurora-stars {
-  position: fixed; inset: 0; z-index: 0;
+  position: absolute; inset: 0; z-index: 0;
   pointer-events: none;
   opacity: 0.85;
 }
@@ -2987,12 +3112,105 @@ nav.scrolled {
 /* Mobile: lighter aurora — preserve readability + avoid GPU thrash */
 @media (hover: none), (pointer: coarse), (max-width: 768px) {
   .hero-aurora { transition: none; opacity: 0.7; }
-  #aurora-stars { opacity: 0.5; }
+  #aurora-stars { opacity: 0.55; }
 }
 
 /* Freeze the aurora cycle for reduced-motion users */
 @media (prefers-reduced-motion: reduce) {
   .hero-aurora, .hero .btn-primary { transition: none !important; }
+}
+
+/* ========== FOUNDER SECTION (TASK 5) ========== */
+#founder .founder-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 64px;
+  align-items: center;
+}
+.founder-portrait {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--r-lg);
+  background: var(--grad-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 24px 60px var(--indigo-shadow), 0 0 0 1px var(--border-indigo);
+  isolation: isolate;
+}
+.founder-portrait::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.18) 0%, transparent 55%);
+  pointer-events: none;
+}
+.founder-portrait::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+.founder-portrait-initial {
+  position: relative;
+  z-index: 1;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 96px;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.35);
+}
+.founder-body p {
+  font-size: 16.5px;
+  line-height: 1.7;
+  color: var(--text-md);
+  max-width: 620px;
+  margin: 0 0 18px;
+}
+.founder-body p:last-of-type { margin-bottom: 32px; }
+.founder-body p strong { color: var(--text-hi); font-weight: 600; }
+.founder-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.founder-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 100px;
+  color: var(--text-hi);
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+.founder-pill::before {
+  content: '';
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--indigo-glow);
+  box-shadow: 0 0 8px var(--indigo-shadow);
+}
+.founder-pill:hover {
+  background: var(--surface-3);
+  border-color: var(--border-indigo);
+  transform: translateY(-1px);
+}
+@media (max-width: 880px) {
+  #founder .founder-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .founder-portrait { max-width: 280px; margin: 0 auto; }
+  .founder-portrait-initial { font-size: 84px; }
 }
 </style>
 </head>
@@ -3000,8 +3218,6 @@ nav.scrolled {
 
 <div class="grid-lines"></div>
 <div class="atmos"></div>
-<div class="atmos-spot"></div>
-<canvas id="aurora-stars" aria-hidden="true"></canvas>
 <div class="grain"></div>
 
 <nav>
@@ -3016,16 +3232,22 @@ nav.scrolled {
       </a>
       <div class="nav-center">
         <a href="#bots" class="nav-link">Bots</a>
-        <a href="/salon" class="nav-link">Salon Pack</a>
-        <a href="/trainer-pack" class="nav-link">Trainer Pack</a>
-        <a href="/trade-pack" class="nav-link">Trade Pack</a>
-        <a href="/airbnb-pack" class="nav-link">Airbnb Pack</a>
-        <a href="/recovery-pack" class="nav-link">Recovery Pack</a>
-        <a href="/healthcare-pack" class="nav-link">Healthcare Pack</a>
-        <a href="/playbook" class="nav-link">Playbook</a>
-        <a href="#router" class="nav-link">Router</a>
-        <a href="#faq" class="nav-link">FAQ</a>
+        <div class="nav-dropdown" data-nav-dropdown>
+          <button type="button" class="nav-dropdown-trigger" aria-haspopup="menu" aria-expanded="false" aria-controls="nav-packs-menu">
+            Packs <span class="caret" aria-hidden="true"></span>
+          </button>
+          <div class="nav-dropdown-panel" id="nav-packs-menu" role="menu">
+            <a href="/salon" class="nav-dropdown-item" role="menuitem"><span>Salon</span><span class="meta">B3 · B6 · B7</span></a>
+            <a href="/trainer-pack" class="nav-dropdown-item" role="menuitem"><span>Trainer</span><span class="meta">B3 · B5 · B8</span></a>
+            <a href="/trade-pack" class="nav-dropdown-item" role="menuitem"><span>Trade</span><span class="meta">B9 · B11 · B8</span></a>
+            <a href="/airbnb-pack" class="nav-dropdown-item" role="menuitem"><span>Airbnb</span><span class="meta">B11 · B9 · B6</span></a>
+            <a href="/recovery-pack" class="nav-dropdown-item" role="menuitem"><span>Recovery</span><span class="meta">B4 · B5 · B10</span></a>
+            <a href="/healthcare-pack" class="nav-dropdown-item" role="menuitem"><span>Healthcare</span><span class="meta">B3 · B9 · B6</span></a>
+          </div>
+        </div>
+        <a href="#how" class="nav-link">How</a>
         <a href="#pricing" class="nav-link">Pricing</a>
+        <a href="#faq" class="nav-link">FAQ</a>
       </div>
       <div class="nav-right">
         <div class="status-pill">
@@ -3050,23 +3272,23 @@ nav.scrolled {
       <div>
         <a href="#bots" class="hero-eyebrow">
           <span class="pulse"></span>
-          <span>9 bots live · built by Seth in Joburg</span>
+          <span>9 live · built by Seth in Joburg · cohort 1 onboarding now</span>
           <span class="ev-chevron" aria-hidden="true">›</span>
         </a>
         <h1 class="hero-title hero-title-grad">
-          Your business runs<br><span class="accent">while you sleep.<svg class="accent-underline" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M 0,10 Q 75,0 150,10 Q 225,20 300,10"/></svg></span>
+          The AI ops team your business <span class="accent italic">can&rsquo;t afford to hire.<svg class="accent-underline" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M 0,10 Q 75,0 150,10 Q 225,20 300,10"/></svg></span>
         </h1>
         <p class="hero-sub">
-          Ten AI bots that reply to your reviews, chase your failed payments and win back your silent customers — <strong>for you, in Rand, before you've finished your morning coffee.</strong>
+          10 bots that reply to enquiries in under 60 seconds, chase failed invoices until they&rsquo;re paid, and turn 5&#9733; reviews into referrals &mdash; <strong>for R1,990/month, in Rand, on the channels your customers actually use.</strong>
         </p>
         <div class="hero-ctas">
-          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book a 30-min demo <span class="arrow">→</span></a>
-          <a href="#bots" class="btn-text">or see the 9 bots ↓</a>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book a 30-min demo <span class="arrow">&rarr;</span></a>
+          <a href="#bots" class="btn-text">or see the suite &darr;</a>
         </div>
         <div class="trust-strip">
-          <span class="item"><span class="ico">⚡</span> Replies under 10 seconds</span>
-          <span class="item"><span class="ico">●</span> From R1,990/mo · cancel any time</span>
-          <span class="item"><span class="ico">🛡</span> 30-day money-back</span>
+          <span class="item"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></span> Replies under 60 seconds</span>
+          <span class="item"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3.5" width="18" height="6" rx="1.4"/><rect x="3" y="14.5" width="18" height="6" rx="1.4"/><circle cx="7" cy="6.5" r="0.6" fill="currentColor"/><circle cx="7" cy="17.5" r="0.6" fill="currentColor"/></svg></span> From R1,990/mo · cancel any time</span>
+          <span class="item"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 4 5.2v6.8c0 4.9 3.4 8.9 8 9.9 4.6-1 8-5 8-9.9V5.2l-8-2.7Z"/></svg></span> 30-day money-back</span>
         </div>
       </div>
 
@@ -3160,9 +3382,14 @@ nav.scrolled {
 <!-- REAL OUTPUT TEMPLATES (mockups, framed honestly) -->
 <section class="section" id="outputs">
   <div class="wrap">
-    <div class="section-eyebrow">// THE FORMAT · NO STOCK PHOTOS</div>
-    <h2 class="section-title">This is what <span class="em">actually lands</span> in your inbox.</h2>
+    <div class="section-eyebrow">// WHAT YOUR INBOX LOOKS LIKE AT 6:31AM</div>
+    <h2 class="section-title">This is what <span class="em">actually lands</span> at 6:31am.</h2>
     <p class="section-sub">Three real bot output templates — the same words your customers see, the same alert format you receive. Names and amounts are sample data.</p>
+
+    <p class="outputs-honesty">
+      <span class="honesty-pill">// Honest note</span>
+      These are mockups — Jarvis Nexus is brand new and I won&rsquo;t fake client logos. The <strong>output format is identical to what the bots actually produce on real data</strong>. Watch a real one fire on <em>your</em> business in the 30-minute demo.
+    </p>
 
     <div class="outputs-grid stagger">
 
@@ -3257,11 +3484,6 @@ nav.scrolled {
       </div>
 
     </div>
-
-    <p class="outputs-honesty">
-      <span class="honesty-pill">// Honest note</span>
-      These are mockups — Jarvis Nexus is brand new and I won't fake client logos. The <strong>output format is identical to what the bots actually produce on real data</strong>. Watch a real one fire on <em>your</em> business in the 30-minute demo.
-    </p>
   </div>
 </section>
 
@@ -3446,6 +3668,28 @@ nav.scrolled {
         <div class="how-num">03</div>
         <div class="how-title">You get the brief</div>
         <div class="how-text">Tomorrow at 7am, one email summary lands in your inbox — Telegram alerts hit in real-time as things happen. What happened, who needs you today, where the money moved. No dashboards to check. WhatsApp summaries coming Phase 3.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDER -->
+<section class="section" id="founder">
+  <div class="wrap">
+    <div class="founder-grid">
+      <div class="founder-portrait" aria-hidden="true">
+        <span class="founder-portrait-initial">S</span>
+      </div>
+      <div class="founder-body">
+        <div class="section-eyebrow">// THE FOUNDER</div>
+        <h2 class="section-title">I&rsquo;m Seth. <span class="em">I built every bot myself.</span></h2>
+        <p>I&rsquo;m a Johannesburg-based builder studying Electrical Engineering. I started Jarvis Nexus because every SA business I know &mdash; salons, trainers, plumbers, Airbnb hosts &mdash; is bleeding revenue to slow replies and missed follow-ups, while paying R30k+ for ops staff they can&rsquo;t really afford.</p>
+        <p>Every bot on this page was built, deployed, and tested by me personally. For the first 10 clients, <strong>I do the onboarding call myself, wire the bots into your Gmail and Sheets myself, and stay on WhatsApp for anything that breaks.</strong> No support tickets, no offshore call centre. Direct line to the person who built it.</p>
+        <div class="founder-pills">
+          <a href="https://wa.me/27670994163" target="_blank" rel="noopener" class="founder-pill">WhatsApp Seth</a>
+          <a href="mailto:ndumisoseth12@gmail.com" class="founder-pill">Email</a>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="founder-pill">Book 30-min call</a>
+        </div>
       </div>
     </div>
   </div>
@@ -3637,7 +3881,7 @@ nav.scrolled {
           <li>Custom AI tone &amp; brand voice</li>
           <li>Priority phone + WhatsApp support</li>
         </ul>
-        <a href="/api/payfast-subscribe?tier=operator" class="price-cta">Choose Operator →</a>
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="price-cta">Book Operator demo <span class="arrow">&rarr;</span></a>
       </div>
 
       <div class="price-card">
@@ -3763,9 +4007,17 @@ nav.scrolled {
 <section>
   <div class="wrap">
     <div class="closer">
-      <h2 class="closer-title">Stop losing customers to <span class="em">slow replies.</span></h2>
-      <p class="closer-sub">A 30-minute demo. Your bots running on your own data within a week. Cancel any time.</p>
-      <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book your demo <span class="arrow">→</span></a>
+      <h2 class="closer-title">You can keep losing customers to slow replies. <span class="em">Or you can let Jarvis run point.</span></h2>
+      <p class="closer-sub">30-minute demo. Your bots on your data within a week. R1,990/month. Cancel any time. 30-day money-back.</p>
+      <div class="closer-ctas">
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book your demo <span class="arrow">&rarr;</span></a>
+        <a href="https://wa.me/27670994163" target="_blank" rel="noopener" class="btn btn-secondary">WhatsApp Seth directly <span class="arrow">&rarr;</span></a>
+      </div>
+      <div class="trust-strip closer-trust">
+        <span class="item"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></span> Replies under 60 seconds</span>
+        <span class="item"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3.5" width="18" height="6" rx="1.4"/><rect x="3" y="14.5" width="18" height="6" rx="1.4"/><circle cx="7" cy="6.5" r="0.6" fill="currentColor"/><circle cx="7" cy="17.5" r="0.6" fill="currentColor"/></svg></span> From R1,990/mo &middot; cancel any time</span>
+        <span class="item"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 4 5.2v6.8c0 4.9 3.4 8.9 8 9.9 4.6-1 8-5 8-9.9V5.2l-8-2.7Z"/></svg></span> 30-day money-back</span>
+      </div>
     </div>
   </div>
 </section>
@@ -3823,8 +4075,14 @@ nav.scrolled {
       </div>
     </div>
     <div class="foot-flicker-wrap" aria-hidden="true">
+      <canvas id="aurora-stars"></canvas>
       <canvas id="foot-flicker"></canvas>
       <div class="foot-flicker-mask"></div>
+    </div>
+    <div class="foot-trust">
+      <span class="foot-trust-item">POPIA &middot; Your data stays in your Google account</span>
+      <span class="foot-trust-item">Operating as sole proprietor &middot; Entity registration Q3 2026</span>
+      <span class="foot-trust-item">Built with responsible AI &middot; No customer data trains third-party models</span>
     </div>
     <div class="foot-bottom">
       <span>© 2026 JARVIS NEXUS · ALL RIGHTS RESERVED</span>
@@ -4024,6 +4282,46 @@ document.getElementById('routerForm').addEventListener('submit', async function(
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 })();
+
+/* ========== NAV PACKS DROPDOWN — aria-expanded sync + ESC to close ========== */
+(function () {
+  var dropdowns = document.querySelectorAll('[data-nav-dropdown]');
+  if (!dropdowns.length) return;
+  dropdowns.forEach(function (dd) {
+    var trigger = dd.querySelector('.nav-dropdown-trigger');
+    var panel = dd.querySelector('.nav-dropdown-panel');
+    if (!trigger || !panel) return;
+
+    function setExpanded(open) {
+      dd.setAttribute('data-open', open ? 'true' : 'false');
+      trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    dd.addEventListener('mouseenter', function () { setExpanded(true); });
+    dd.addEventListener('mouseleave', function () { setExpanded(false); });
+    dd.addEventListener('focusin', function () { setExpanded(true); });
+    dd.addEventListener('focusout', function (e) {
+      if (!dd.contains(e.relatedTarget)) setExpanded(false);
+    });
+
+    trigger.addEventListener('click', function (e) {
+      e.preventDefault();
+      var open = trigger.getAttribute('aria-expanded') === 'true';
+      setExpanded(!open);
+      if (!open) {
+        var first = panel.querySelector('.nav-dropdown-item');
+        if (first) first.focus();
+      }
+    });
+
+    dd.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        setExpanded(false);
+        trigger.focus();
+      }
+    });
+  });
+})();
 </script>
 
 <script>
@@ -4207,23 +4505,27 @@ document.getElementById('routerForm').addEventListener('submit', async function(
   document.documentElement.style.setProperty('--aurora-c', stops[0]);
   if (!reduced) setInterval(step, 3500);
 
-  // ----- Canvas starfield -----
+  // ----- Canvas starfield (footer-scoped — TASK 3) -----
   var canvas = document.getElementById('aurora-stars');
   if (!canvas || !canvas.getContext) return;
+  var wrap = canvas.parentElement;
+  if (!wrap) return;
   var ctx = canvas.getContext('2d');
   var dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
   var stars = [];
-  // Density-based: ~1 star per 2800 px² on desktop, ~1 per 6500 px² on mobile
+  var inView = false;
+  var rafId = 0;
+  // Lower density now that the surface is ~200px tall, not full viewport
   function targetCount(w, h) {
     var area = w * h;
-    var density = coarse ? (1 / 6500) : (1 / 2800);
+    var density = coarse ? (1 / 1800) : (1 / 1100);
     var n = Math.round(area * density);
-    // Sane bounds
-    return Math.max(220, Math.min(n, coarse ? 380 : 1000));
+    return Math.max(80, Math.min(n, coarse ? 180 : 420));
   }
 
   function resize() {
-    var w = window.innerWidth, h = window.innerHeight;
+    var w = wrap.clientWidth, h = wrap.clientHeight;
+    if (w < 2 || h < 2) return;
     canvas.width  = Math.floor(w * dpr);
     canvas.height = Math.floor(h * dpr);
     canvas.style.width  = w + 'px';
@@ -4234,7 +4536,6 @@ document.getElementById('routerForm').addEventListener('submit', async function(
   function seed(w, h, count) {
     stars.length = 0;
     for (var i = 0; i < count; i++) {
-      // Mix of sizes: most tiny, some medium, a few bright
       var roll = Math.random();
       var r, a;
       if (roll < 0.75)      { r = Math.random() * 0.6 + 0.25; a = Math.random() * 0.35 + 0.15; }
@@ -4253,6 +4554,7 @@ document.getElementById('routerForm').addEventListener('submit', async function(
 
   var last = 0;
   function frame(t) {
+    if (!inView) { rafId = 0; return; }
     var dt = last ? (t - last) / 1000 : 0;
     last = t;
     var w = canvas.clientWidth, h = canvas.clientHeight;
@@ -4267,15 +4569,36 @@ document.getElementById('routerForm').addEventListener('submit', async function(
       ctx.fillStyle = 'rgba(165,180,252,' + alpha.toFixed(3) + ')';
       ctx.fill();
     }
-    if (!reduced) requestAnimationFrame(frame);
+    if (!reduced) rafId = requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (rafId || reduced) return;
+    last = 0;
+    rafId = requestAnimationFrame(frame);
   }
 
   resize();
   window.addEventListener('resize', resize, { passive: true });
+
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        inView = e.isIntersecting;
+        if (inView) start();
+      });
+    }, { threshold: 0.05 });
+    obs.observe(wrap);
+  } else {
+    inView = true;
+    start();
+  }
+
   if (reduced) {
+    inView = true;
     requestAnimationFrame(frame);
   } else {
-    requestAnimationFrame(frame);
+    // start() will fire when observer triggers; do a one-frame paint now so it's not blank pre-scroll
   }
 })();
 </script>
