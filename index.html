@@ -217,6 +217,20 @@ body {
   .section-glow { transition: none; }
 }
 
+/* Mobile: scale glows down significantly — they were blasting on phones (P5 TASK 2) */
+@media (max-width: 768px) {
+  .section-glow {
+    width: 420px;
+    height: 500px;
+    filter: blur(50px);
+    background: radial-gradient(circle, rgba(129,140,248,0.14) 0%, rgba(99,102,241,0.06) 40%, transparent 70%);
+  }
+  .section-glow.left   { left: -120px; }
+  .section-glow.right  { right: -120px; }
+  .section-glow.top    { top: -60px; }
+  .section-glow.bottom { bottom: -60px; }
+}
+
 /* ========== ATMOSPHERE — FINE GRAIN ========== */
 .grain {
   position: fixed; inset: 0; z-index: 1;
@@ -532,7 +546,7 @@ nav {
 .hero-title {
   font-family: 'Instrument Serif', serif;
   font-weight: 400;
-  font-size: clamp(56px, 8vw, 104px);
+  font-size: clamp(38px, 9vw, 104px);
   line-height: 0.94;
   letter-spacing: -0.035em;
   margin-bottom: 32px;
@@ -566,6 +580,16 @@ nav {
   color: var(--text-lo);
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+/* Mobile: stack vertically, no ragged wrap (P5 TASK 3) */
+@media (max-width: 768px) {
+  .trust-strip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 11px;
+  }
+  .trust-strip .item { width: 100%; }
 }
 .trust-strip .item { display: inline-flex; align-items: center; gap: 9px; }
 .trust-strip .item .ico {
@@ -687,6 +711,17 @@ nav {
   border-left-color: var(--indigo-glow);
 }
 .price-card.feature .price-best-for-text { color: rgba(255,255,255,0.85); }
+/* Mobile: label above text, not inline (P5 TASK 4) */
+@media (max-width: 768px) {
+  .price-best-for {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 10px 12px;
+  }
+  .price-best-for-label { font-size: 9px; }
+  .price-best-for-text { font-size: 13px; }
+}
 .demo-card-footer {
   display: flex;
   align-items: center;
@@ -776,6 +811,11 @@ nav {
   color: var(--text-hi);
   letter-spacing: -0.01em;
   margin-bottom: 10px;
+}
+/* Mobile: elegant rather than cramped (P5 TASK 7) */
+@media (max-width: 768px) {
+  .mock-mail-subject { font-size: 19px; line-height: 1.28; }
+  .mock-mail-body { font-size: 13px; }
 }
 .mock-mail-body {
   font-size: 13.5px;
@@ -3335,8 +3375,167 @@ nav.scrolled {
   .founder-portrait-initial { font-size: 84px; }
 }
 
+/* ========== MOBILE NAV — hamburger + sliding panel (P5 TASK 1) ========== */
+.nav-mobile-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 8px;
+}
+.nav-mobile-bar {
+  display: block;
+  width: 18px;
+  height: 1.5px;
+  background: var(--text-hi);
+  border-radius: 1px;
+  transition: transform 240ms ease, opacity 200ms ease;
+  transform-origin: center;
+}
+.nav-mobile-toggle[aria-expanded="true"] .nav-mobile-bar:nth-child(1) {
+  transform: translateY(6.5px) rotate(45deg);
+}
+.nav-mobile-toggle[aria-expanded="true"] .nav-mobile-bar:nth-child(2) { opacity: 0; }
+.nav-mobile-toggle[aria-expanded="true"] .nav-mobile-bar:nth-child(3) {
+  transform: translateY(-6.5px) rotate(-45deg);
+}
+
+.nav-mobile-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(8,8,12,0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 280ms ease;
+  overflow-y: auto;
+  padding-top: 80px;
+}
+.nav-mobile-panel.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.nav-mobile-inner {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.nav-mobile-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--indigo-soft);
+  border: 1px solid var(--border-indigo);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--indigo-glow);
+  letter-spacing: 0.14em;
+  margin-bottom: 16px;
+  align-self: flex-start;
+}
+.nav-mobile-status .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 6px var(--ok);
+}
+.nav-mobile-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 16px 4px;
+  border-bottom: 1px solid var(--border-faint);
+  color: var(--text-hi);
+  font-size: 17px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.nav-mobile-link .meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--text-lo);
+  letter-spacing: 0.12em;
+}
+.nav-mobile-group {
+  padding: 16px 4px;
+  border-bottom: 1px solid var(--border-faint);
+}
+.nav-mobile-group-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-lo);
+  letter-spacing: 0.18em;
+  margin-bottom: 12px;
+}
+.nav-mobile-sublink {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 10px 0;
+  color: var(--text-md);
+  font-size: 15px;
+  text-decoration: none;
+}
+.nav-mobile-sublink .meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-lo);
+  letter-spacing: 0.12em;
+}
+.nav-mobile-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  margin-top: 24px;
+  background: var(--grad-accent);
+  color: #fff;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  box-shadow: 0 12px 32px var(--indigo-shadow);
+}
+.nav-mobile-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--text-lo);
+}
+.nav-mobile-foot a { color: var(--text-md); text-decoration: none; }
+
+@media (max-width: 880px) { .nav-mobile-toggle { display: inline-flex; } }
+@media (min-width: 881px) { .nav-mobile-panel { display: none !important; } }
+
+/* Prevent body scroll when menu is open */
+body.menu-open { overflow: hidden; }
+
 /* ========== BUILD LOG SECTION (P4 TASK 1) ========== */
 .build-log { padding-top: 80px; padding-bottom: 80px; }
+/* Mobile: tighter vertical padding (P5 TASK 6) */
+@media (max-width: 768px) {
+  .build-log { padding-top: 48px; padding-bottom: 48px; }
+  .build-log-head { margin-bottom: 32px; }
+}
 .build-log-head { max-width: 720px; margin-bottom: 56px; }
 
 .build-log-list {
@@ -3493,9 +3692,43 @@ nav.scrolled {
         <span class="kbd-hint">⌘ K</span>
         <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary-sm">Book demo <span class="arrow">→</span></a>
       </div>
+      <button type="button" class="nav-mobile-toggle" id="navMobileToggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-mobile-panel">
+        <span class="nav-mobile-bar"></span>
+        <span class="nav-mobile-bar"></span>
+        <span class="nav-mobile-bar"></span>
+      </button>
     </div>
   </div>
 </nav>
+
+<div class="nav-mobile-panel" id="nav-mobile-panel" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="nav-mobile-inner">
+    <div class="nav-mobile-status">
+      <span class="dot"></span>
+      <span>9 LIVE &middot; 1 IN PHASE 3</span>
+    </div>
+    <a href="#bots" class="nav-mobile-link">Bots <span class="meta">10-bot suite</span></a>
+    <div class="nav-mobile-group">
+      <div class="nav-mobile-group-label">PACKS</div>
+      <a href="/salon" class="nav-mobile-sublink">Salon <span class="meta">B3 &middot; B6 &middot; B7</span></a>
+      <a href="/trainer-pack" class="nav-mobile-sublink">Trainer <span class="meta">B3 &middot; B5 &middot; B8</span></a>
+      <a href="/trade-pack" class="nav-mobile-sublink">Trade <span class="meta">B9 &middot; B11 &middot; B8</span></a>
+      <a href="/airbnb-pack" class="nav-mobile-sublink">Airbnb <span class="meta">B11 &middot; B9 &middot; B6</span></a>
+      <a href="/recovery-pack" class="nav-mobile-sublink">Recovery <span class="meta">B4 &middot; B5 &middot; B10</span></a>
+      <a href="/healthcare-pack" class="nav-mobile-sublink">Healthcare <span class="meta">B3 &middot; B9 &middot; B6</span></a>
+    </div>
+    <a href="#how" class="nav-mobile-link">How it works</a>
+    <a href="#pricing" class="nav-mobile-link">Pricing</a>
+    <a href="#faq" class="nav-mobile-link">FAQ</a>
+    <a href="#founder" class="nav-mobile-link">The Founder</a>
+    <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="nav-mobile-cta">Book a 30-min demo <span>&rarr;</span></a>
+    <div class="nav-mobile-foot">
+      <a href="https://wa.me/27670994163" target="_blank" rel="noopener">WhatsApp Seth</a>
+      <span>&middot;</span>
+      <a href="mailto:ndumisoseth12@gmail.com">Email</a>
+    </div>
+  </div>
+</div>
 
 <main>
 
@@ -4944,6 +5177,43 @@ document.getElementById('routerForm').addEventListener('submit', async function(
   } else {
     // start() will fire when observer triggers; do a one-frame paint now so it's not blank pre-scroll
   }
+})();
+</script>
+
+<script>
+/* ========== MOBILE NAV — toggle, link-tap close, ESC close, body scroll lock ========== */
+(function () {
+  var toggle = document.getElementById('navMobileToggle');
+  var panel = document.getElementById('nav-mobile-panel');
+  if (!toggle || !panel) return;
+
+  function openMenu () {
+    panel.classList.add('is-open');
+    panel.setAttribute('aria-hidden', 'false');
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.setAttribute('aria-label', 'Close menu');
+    document.body.classList.add('menu-open');
+  }
+  function closeMenu () {
+    panel.classList.remove('is-open');
+    panel.setAttribute('aria-hidden', 'true');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Open menu');
+    document.body.classList.remove('menu-open');
+  }
+
+  toggle.addEventListener('click', function () {
+    if (panel.classList.contains('is-open')) closeMenu();
+    else openMenu();
+  });
+
+  panel.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('click', closeMenu);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && panel.classList.contains('is-open')) closeMenu();
+  });
 })();
 </script>
 
