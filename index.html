@@ -4956,6 +4956,22 @@ document.getElementById('routerForm').addEventListener('submit', async function(
   }
 });
 
+// ============ REFRESH-TO-TOP (mobile bug: refresh was jumping to #pricing) ============
+// Disable browser scroll restoration + on actual refresh, force top + strip any leftover hash.
+// Marketing links like /index.html#pricing still jump correctly on fresh navigation.
+if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+window.addEventListener('load', function () {
+  var nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || null;
+  if (nav && nav.type === 'reload') {
+    window.scrollTo(0, 0);
+    if (window.location.hash) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  } else if (!window.location.hash) {
+    window.scrollTo(0, 0);
+  }
+});
+
 // ============ NAV SCROLL STATE (lightweight — no parallax to keep iOS Safari happy) ============
 (function() {
   const nav = document.querySelector('nav');
