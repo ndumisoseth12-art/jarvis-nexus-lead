@@ -131,7 +131,7 @@
   border: 0;
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: clip; }
 
 body {
   font-family: 'Inter', -apple-system, sans-serif;
@@ -209,7 +209,7 @@ body {
 .section-glow.top    { top: -100px; }
 .section-glow.bottom { bottom: -100px; }
 
-#outputs, #bots, #how, #founder, #router, #pricing, #faq, #build-log { position: relative; }
+#outputs, #bots, #how, #founder, #router, #pricing, #faq, #build-log { position: relative; overflow: hidden; }
 #outputs > .wrap, #bots > .wrap, #how > .wrap, #founder > .wrap,
 #router > .wrap, #pricing > .wrap, #faq > .wrap, #build-log > .wrap { position: relative; z-index: 1; }
 
