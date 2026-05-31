@@ -500,9 +500,16 @@ nav {
 @media (max-width: 880px) {
   .nav-center { display: none; }
   .kbd-hint { display: none; }
+  .nav-inner { gap: 14px; }
 }
 @media (max-width: 540px) {
   .status-pill { display: none; }
+}
+/* Smallest phones (iPhone SE etc): tighten Book demo + nav gaps (P6 TASK 2) */
+@media (max-width: 420px) {
+  .btn-primary-sm { padding: 8px 12px; font-size: 12.5px; }
+  .btn-primary-sm .arrow { display: none; }
+  .nav-inner { gap: 10px; }
 }
 
 /* ========== HERO ========== */
@@ -3378,8 +3385,8 @@ nav.scrolled {
 /* ========== MOBILE NAV — hamburger + sliding panel (P5 TASK 1) ========== */
 .nav-mobile-toggle {
   display: none;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -3390,6 +3397,8 @@ nav.scrolled {
   cursor: pointer;
   padding: 0;
   margin-left: 8px;
+  position: relative;
+  z-index: 2;
 }
 .nav-mobile-bar {
   display: block;
@@ -3411,7 +3420,7 @@ nav.scrolled {
 .nav-mobile-panel {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 90;
   background: rgba(8,8,12,0.96);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -3526,8 +3535,12 @@ nav.scrolled {
 @media (max-width: 880px) { .nav-mobile-toggle { display: inline-flex; } }
 @media (min-width: 881px) { .nav-mobile-panel { display: none !important; } }
 
-/* Prevent body scroll when menu is open */
-body.menu-open { overflow: hidden; }
+/* Prevent body scroll when menu is open — iOS-safe position-fixed pattern (P6 TASK 3) */
+body.menu-open {
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+}
 
 /* ========== BUILD LOG SECTION (P4 TASK 1) ========== */
 .build-log { padding-top: 80px; padding-bottom: 80px; }
@@ -5181,18 +5194,21 @@ document.getElementById('routerForm').addEventListener('submit', async function(
 </script>
 
 <script>
-/* ========== MOBILE NAV — toggle, link-tap close, ESC close, body scroll lock ========== */
+/* ========== MOBILE NAV — toggle, link-tap close, ESC close, iOS-safe scroll lock ========== */
 (function () {
   var toggle = document.getElementById('navMobileToggle');
   var panel = document.getElementById('nav-mobile-panel');
   if (!toggle || !panel) return;
 
+  var savedScrollY = 0;
   function openMenu () {
+    savedScrollY = window.scrollY || window.pageYOffset || 0;
     panel.classList.add('is-open');
     panel.setAttribute('aria-hidden', 'false');
     toggle.setAttribute('aria-expanded', 'true');
     toggle.setAttribute('aria-label', 'Close menu');
     document.body.classList.add('menu-open');
+    document.body.style.top = '-' + savedScrollY + 'px';
   }
   function closeMenu () {
     panel.classList.remove('is-open');
@@ -5200,6 +5216,8 @@ document.getElementById('routerForm').addEventListener('submit', async function(
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-label', 'Open menu');
     document.body.classList.remove('menu-open');
+    document.body.style.top = '';
+    window.scrollTo(0, savedScrollY);
   }
 
   toggle.addEventListener('click', function () {
