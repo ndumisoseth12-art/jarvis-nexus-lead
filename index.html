@@ -1749,6 +1749,79 @@ nav {
 }
 .price-card.feature .price-cta:hover { transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 12px 32px var(--indigo-shadow); }
 
+/* ========== PAYFAST GATE — CTA toggle (P7) ========== */
+
+/* Dual-CTA stack inside each pricing card */
+.price-cta-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+}
+
+/* PAYFAST button (subscribe) — hidden by default until flag flipped */
+.price-cta-payfast { display: none; }
+
+/* PAYFAST microcopy — appears below subscribe button when live */
+.price-cta-microcopy {
+  display: none;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-lo);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* "or book a demo first" — when PayFast live, demo becomes the SECONDARY action */
+.price-cta-demo-secondary {
+  display: none;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--text-md);
+  text-decoration: none;
+  padding: 6px;
+  transition: color 160ms ease;
+}
+.price-cta-demo-secondary:hover { color: var(--text-hi); }
+.price-cta-demo-secondary .arrow { margin-left: 4px; }
+
+/* ========== STATE: PAYFAST PENDING (current default) ========== */
+body[data-payfast="pending"] .price-cta-payfast,
+body[data-payfast="pending"] .price-cta-microcopy,
+body[data-payfast="pending"] .price-cta-demo-secondary { display: none; }
+body[data-payfast="pending"] .price-cta-demo-primary { display: inline-flex; }
+
+/* ========== STATE: PAYFAST LIVE (flip when verified) ========== */
+body[data-payfast="live"] .price-cta-payfast { display: inline-flex; }
+body[data-payfast="live"] .price-cta-microcopy { display: block; }
+body[data-payfast="live"] .price-cta-demo-primary { display: none; }
+body[data-payfast="live"] .price-cta-demo-secondary { display: block; }
+
+/* PayFast subscribe button visual treatment — indigo gradient, paid-action signal */
+.price-cta-payfast {
+  background: var(--grad-accent);
+  color: #fff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    0 12px 32px var(--indigo-shadow);
+  border: 0;
+}
+.price-cta-payfast:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.28),
+    0 16px 40px var(--indigo-shadow);
+}
+/* On the Operator (featured) tier, give the PayFast button extra inset depth */
+.price-card.feature .price-cta-payfast {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.30),
+    inset 0 0 0 1px rgba(255,255,255,0.15),
+    0 16px 44px var(--indigo-shadow);
+}
+
 /* ========== PACK PICKER (inside Starter price card) ========== */
 .pack-picker {
   display: grid;
@@ -3662,7 +3735,18 @@ body.menu-open {
 }
 </style>
 </head>
-<body>
+<!--
+  ============================================================
+  PAYFAST GATE — DO NOT FLIP UNTIL VERIFICATION CONFIRMED
+  ============================================================
+  When PayFast verification email arrives:
+    1. Change data-payfast="pending" to data-payfast="live"
+    2. Test one transaction in PayFast sandbox mode first
+    3. Push to production
+  That is the entire deployment. No other changes needed.
+  ============================================================
+-->
+<body data-payfast="pending">
 
 <div class="grid-lines"></div>
 <div class="atmos"></div>
@@ -4446,7 +4530,18 @@ body.menu-open {
           <li>30-day money-back · cancel any time</li>
           <li class="muted">Custom AI voice (Operator tier)</li>
         </ul>
-        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="price-cta">Book a demo for your pack →</a>
+        <div class="price-cta-stack">
+          <a href="/api/payfast-subscribe?tier=starter" class="price-cta price-cta-payfast">
+            Subscribe to Starter <span class="arrow">&rarr;</span>
+          </a>
+          <div class="price-cta-microcopy">Cancel anytime &middot; 30-day money-back</div>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="price-cta-demo-secondary">
+            or book a demo first <span class="arrow">&rarr;</span>
+          </a>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="price-cta price-cta-demo-primary">
+            Book a demo for your pack <span class="arrow">&rarr;</span>
+          </a>
+        </div>
       </div>
 
       <div class="price-card feature">
@@ -4467,7 +4562,18 @@ body.menu-open {
           <li>Custom AI tone &amp; brand voice</li>
           <li>Priority phone + WhatsApp support</li>
         </ul>
-        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="price-cta">Book Operator demo <span class="arrow">&rarr;</span></a>
+        <div class="price-cta-stack">
+          <a href="/api/payfast-subscribe?tier=operator" class="price-cta price-cta-payfast">
+            Subscribe to Operator <span class="arrow">&rarr;</span>
+          </a>
+          <div class="price-cta-microcopy">Cancel anytime &middot; 30-day money-back</div>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="price-cta-demo-secondary">
+            or book a demo first <span class="arrow">&rarr;</span>
+          </a>
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="price-cta price-cta-demo-primary">
+            Book Operator demo <span class="arrow">&rarr;</span>
+          </a>
+        </div>
       </div>
 
       <div class="price-card">
@@ -4672,7 +4778,6 @@ body.menu-open {
     <div class="foot-trust">
       <span class="foot-trust-item">POPIA &middot; Your data stays in your Google account</span>
       <span class="foot-trust-item">Operating as sole proprietor &middot; Entity registration Q3 2026</span>
-      <span class="foot-trust-item">Built with responsible AI &middot; No customer data trains third-party models</span>
     </div>
     <div class="foot-bottom">
       <span>© 2026 JARVIS NEXUS · ALL RIGHTS RESERVED</span>
