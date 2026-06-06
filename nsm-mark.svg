@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 64" width="200" height="64" role="img" aria-label="NSM">
+  <!-- Compact wordmark-only lockup (no subtext) for nav bars, email headers, favicons.
+       Wordmark inherits currentColor (set color:#f5f5fa on dark, color:#08080c on light);
+       the signature sweep keeps the indigo gradient so the accent survives on any ink. -->
+  <defs>
+    <linearGradient id="markAccent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"  stop-color="#818cf8"/>
+      <stop offset="50%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+
+  <text x="98" y="44"
+        font-family="'Inter', -apple-system, 'Segoe UI', system-ui, Arial, sans-serif"
+        font-weight="800" font-size="46"
+        letter-spacing="0"
+        text-anchor="middle"
+        fill="currentColor">NSM</text>
+
+  <path d="M 32 54 Q 98 47 160 54"
+        stroke="url(#markAccent)" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+  <circle cx="168" cy="54" r="2.6" fill="#4f46e5"/>
+</svg>

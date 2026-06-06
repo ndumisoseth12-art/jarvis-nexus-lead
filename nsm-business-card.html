@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NSM — business card (print-ready)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ===== Print-ready NSM business card · Concept C ·  85×55mm trim · 3mm bleed · 5mm safe area =====
+     To print: open in Chrome → Print → "Save as PDF" → paper A4 → Margins: None →
+     enable "Background graphics". Each card is one full page at 91×61mm (bleed box).
+     Send the PDF to any printer with trim marks at 85×55mm. */
+
+  :root {
+    --indigo-glow:#818cf8; --indigo:#6366f1; --indigo-deep:#4f46e5;
+    --surface-0:#08080c; --surface-1:#0e0e15;
+    --text-hi:#f5f5fa; --text-md:#a8a8c2; --text-lo:#6b6b85;
+    --grad-accent:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);
+    --bleed:3mm; --trim-w:85mm; --trim-h:55mm; --safe:5mm;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { background:#2a2a33; }
+  body {
+    font-family:'Inter',-apple-system,Arial,sans-serif;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+    padding:24px; display:flex; flex-direction:column; gap:22px; align-items:flex-start;
+  }
+  .hint {
+    color:#cfcfe0; font-size:13px; line-height:1.6; max-width:600px;
+    background:#14141d; border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px 16px;
+  }
+  .hint code { font-family:'JetBrains Mono',monospace; color:var(--indigo-glow); }
+
+  /* full card = trim + bleed on every side */
+  .card {
+    width: calc(var(--trim-w) + 2*var(--bleed));
+    height: calc(var(--trim-h) + 2*var(--bleed));
+    background: var(--surface-0);
+    color: var(--text-hi);
+    position: relative; overflow: hidden;
+    border-radius: 2px; /* screen only — printer trims square */
+  }
+  /* content sits inside the safe area (bleed + safe margin from each edge) */
+  .safe {
+    position:absolute;
+    inset: calc(var(--bleed) + var(--safe));
+    display:flex; flex-direction:column;
+  }
+  /* indigo atmosphere */
+  .card::before {
+    content:''; position:absolute; width:60mm; height:60mm; border-radius:50%;
+    background: radial-gradient(circle, rgba(99,102,241,0.30) 0%, transparent 70%);
+    top:-20mm; right:-15mm;
+  }
+  .card::after {
+    content:''; position:absolute; width:40mm; height:40mm; border-radius:50%;
+    background: radial-gradient(circle, rgba(129,140,248,0.16) 0%, transparent 70%);
+    bottom:-14mm; left:-10mm;
+  }
+
+  /* ---------- FRONT ---------- */
+  .front .safe { align-items:center; justify-content:center; text-align:center; }
+  .wm { position:relative; display:inline-block; padding:0 9pt 7pt 0; }
+  .wm-name { font-weight:800; font-size:34pt; letter-spacing:0.005em; color:var(--text-hi); line-height:1; }
+  .wm-dot { color:var(--indigo-deep); }
+  .wm-sweep {
+    position:absolute; left:1pt; right:9pt; bottom:1pt; height:3pt;
+    background:var(--grad-accent); border-radius:2pt;
+  }
+  .front-sub {
+    font-family:'Instrument Serif',Georgia,serif; font-style:italic; font-size:13pt;
+    color:var(--text-md); margin-top:9pt; letter-spacing:0.01em;
+  }
+  .front-tag {
+    font-family:'JetBrains Mono',monospace; font-size:6.5pt; font-weight:600;
+    letter-spacing:0.28em; text-transform:uppercase; color:var(--indigo-glow); margin-top:11pt;
+  }
+
+  /* ---------- BACK ---------- */
+  .back .safe { justify-content:space-between; }
+  .back-top { display:flex; flex-direction:column; }
+  .b-name { font-family:'Instrument Serif',Georgia,serif; font-style:italic; font-size:20pt; line-height:1; color:var(--text-hi); }
+  .b-role { font-family:'JetBrains Mono',monospace; font-size:6.5pt; font-weight:600; letter-spacing:0.22em; text-transform:uppercase; color:var(--indigo-glow); margin-top:6pt; }
+  .b-rule { height:1px; background:linear-gradient(90deg, rgba(99,102,241,0.5), transparent); margin:9pt 0; width:55%; }
+  .contacts { display:flex; flex-direction:column; gap:5.5pt; }
+  .c-row { display:flex; align-items:baseline; gap:8pt; }
+  .c-label { font-family:'JetBrains Mono',monospace; font-size:5.5pt; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--text-lo); width:58pt; flex-shrink:0; }
+  .c-val { font-size:8.5pt; color:var(--text-hi); font-weight:500; }
+  .back-foot { display:flex; align-items:center; justify-content:space-between; }
+  .mini-wm { position:relative; display:inline-block; padding:0 5pt 4pt 0; }
+  .mini-name { font-weight:800; font-size:11pt; color:var(--text-hi); }
+  .mini-dot { color:var(--indigo-deep); }
+  .mini-sweep { position:absolute; left:0.5pt; right:5pt; bottom:0; height:1.6pt; background:var(--grad-accent); border-radius:1pt; }
+  .joburg { font-family:'JetBrains Mono',monospace; font-size:5.5pt; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-lo); }
+
+  @media print {
+    html, body { background:#fff; }
+    body { padding:0; gap:0; display:block; }
+    .hint { display:none; }
+    .card { border-radius:0; page-break-after:always; break-after:page; }
+    .card:last-child { page-break-after:auto; break-after:auto; }
+    @page { size: 91mm 61mm; margin: 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="hint">
+    <strong>Print-ready · Concept C.</strong> Two pages below: <strong>front</strong> (logo) and <strong>back</strong> (contact).
+    Each page is <code>91×61mm</code> = 85×55mm trim + 3mm bleed. To export: <code>Print → Save as PDF</code>,
+    set Margins to <code>None</code> and tick <code>Background graphics</code>. Hand the PDF to any print shop and ask
+    them to trim to <code>85×55mm</code>. Safe area is 5mm in from the trim — nothing important crosses it.
+  </div>
+
+  <!-- FRONT -->
+  <div class="card front">
+    <div class="safe">
+      <span class="wm">
+        <span class="wm-name">NSM<span class="wm-dot">.</span></span>
+        <span class="wm-sweep"></span>
+      </span>
+      <div class="front-sub">Operations, Automated.</div>
+      <div class="front-tag">Neural Systems Management</div>
+    </div>
+  </div>
+
+  <!-- BACK -->
+  <div class="card back">
+    <div class="safe">
+      <div class="back-top">
+        <div class="b-name">Seth Mokone</div>
+        <div class="b-role">Founder · Automation Engineer</div>
+      </div>
+      <div class="b-rule"></div>
+      <div class="contacts">
+        <div class="c-row"><span class="c-label">WhatsApp</span><span class="c-val">+27 67 099 4163</span></div>
+        <div class="c-row"><span class="c-label">Email</span><span class="c-val">ndumisoseth12@gmail.com</span></div>
+        <div class="c-row"><span class="c-label">Book a call</span><span class="c-val">cal.com/ndumiso-mokone-limbt0/30min</span></div>
+        <div class="c-row"><span class="c-label">Web</span><span class="c-val">jarvis-nexus-lead-jkon.vercel.app</span></div>
+      </div>
+      <div class="back-foot">
+        <span class="mini-wm">
+          <span class="mini-name">NSM<span class="mini-dot">.</span></span>
+          <span class="mini-sweep"></span>
+        </span>
+        <span class="joburg">Built in Joburg · ZA</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

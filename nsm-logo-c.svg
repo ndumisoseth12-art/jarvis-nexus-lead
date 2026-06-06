@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" width="400" height="160" role="img" aria-label="NSM — Neural Systems Management — concept C: signature accent">
+  <defs>
+    <linearGradient id="cAccent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"  stop-color="#818cf8"/>
+      <stop offset="50%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Wordmark -->
+  <text x="200" y="80"
+        font-family="'Inter', -apple-system, 'Segoe UI', system-ui, Arial, sans-serif"
+        font-weight="800" font-size="62"
+        letter-spacing="0"
+        text-anchor="middle"
+        fill="#f5f5fa">NSM</text>
+
+  <!-- Signature accent line — sweeping under the wordmark like a confident underline -->
+  <path d="M 130 100 Q 200 92 270 100"
+        stroke="url(#cAccent)" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+  <!-- Punctuation dot — the period from "Operations, Automated." -->
+  <circle cx="278" cy="100" r="3" fill="#4f46e5"/>
+
+  <!-- Subtext -->
+  <text x="200" y="135"
+        font-family="'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace"
+        font-weight="500" font-size="10"
+        letter-spacing="3.5"
+        text-anchor="middle"
+        fill="#818cf8">NEURAL SYSTEMS MANAGEMENT</text>
+</svg>

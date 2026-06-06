@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" width="400" height="160" role="img" aria-label="NSM — Neural Systems Management — concept B: bracketed wordmark">
+  <defs>
+    <linearGradient id="bBracket" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Left bracket -->
+  <path d="M 100 38 L 80 38 L 80 92 L 100 92"
+        stroke="url(#bBracket)" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+
+  <!-- Right bracket -->
+  <path d="M 300 38 L 320 38 L 320 92 L 300 92"
+        stroke="url(#bBracket)" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+
+  <!-- Wordmark -->
+  <text x="200" y="80"
+        font-family="'Inter', -apple-system, 'Segoe UI', system-ui, Arial, sans-serif"
+        font-weight="800" font-size="56"
+        letter-spacing="2"
+        text-anchor="middle"
+        fill="#f5f5fa">NSM</text>
+
+  <!-- Subtext -->
+  <text x="200" y="130"
+        font-family="'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace"
+        font-weight="500" font-size="10"
+        letter-spacing="3.5"
+        text-anchor="middle"
+        fill="#818cf8">NEURAL SYSTEMS MANAGEMENT</text>
+</svg>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NSM logo concepts</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --surface-0: #08080c;
+    --surface-1: #0e0e15;
+    --surface-2: #14141d;
+    --indigo: #6366f1;
+    --indigo-glow: #818cf8;
+    --text-hi: #f5f5fa;
+    --text-md: #a8a8c2;
+    --text-lo: #6b6b85;
+    --border-faint: rgba(255,255,255,0.04);
+    --border-subtle: rgba(255,255,255,0.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 60px 24px 80px;
+    background: var(--surface-0);
+    color: var(--text-hi);
+    font-family: 'Inter', -apple-system, Arial, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 700;
+    color: var(--indigo-glow);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .h1 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic; font-weight: 400;
+    font-size: 44px; line-height: 1.05; letter-spacing: -0.02em;
+    margin: 0 0 18px 0;
+  }
+  .sub {
+    color: var(--text-md);
+    font-size: 15px; line-height: 1.7;
+    max-width: 640px;
+    margin: 0 0 48px 0;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 32px;
+  }
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    padding: 28px;
+    transition: border-color 200ms ease, transform 200ms ease;
+  }
+  .card:hover {
+    border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-2px);
+  }
+  .card-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; font-weight: 700;
+    color: var(--indigo-glow);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .card-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic; font-weight: 400;
+    font-size: 24px; color: var(--text-hi);
+    margin: 0 0 8px 0;
+  }
+  .card-desc {
+    color: var(--text-md);
+    font-size: 13.5px; line-height: 1.6;
+    margin: 0 0 22px 0;
+  }
+  .logo-stage {
+    background: var(--surface-2);
+    border: 1px solid var(--border-faint);
+    border-radius: 12px;
+    padding: 28px 16px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+  }
+  .logo-stage svg { max-width: 100%; height: auto; display: block; }
+  .logo-stage.light {
+    background: #f5f5fa;
+    border-color: rgba(0,0,0,0.06);
+  }
+  .logo-stage.light svg text:first-of-type { fill: #08080c; }
+  .pros-cons {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    font-size: 12px; line-height: 1.55;
+  }
+  .pros-cons strong {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px; letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .pros strong { color: #10b981; }
+  .cons strong { color: #f59e0b; }
+  .pros li, .cons li { color: var(--text-md); margin: 4px 0; padding-left: 14px; position: relative; }
+  .pros li::before, .cons li::before {
+    content: ''; position: absolute; left: 0; top: 7px;
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .pros li::before { background: #10b981; }
+  .cons li::before { background: #f59e0b; }
+  .pros ul, .cons ul { list-style: none; padding: 0; margin: 0; }
+  .scale-row {
+    display: grid;
+    grid-template-columns: 32px 64px 1fr;
+    gap: 16px; align-items: center;
+    padding: 14px 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-faint);
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  .scale-row svg { display: block; }
+  .scale-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-lo);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .next {
+    margin-top: 48px;
+    padding: 24px 28px;
+    background: var(--surface-1);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-radius: 14px;
+  }
+  .next-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic; font-size: 22px;
+    margin: 0 0 12px 0;
+  }
+  .next p { margin: 0; color: var(--text-md); font-size: 14px; line-height: 1.7; }
+  .card.selected { border-color: rgba(99,102,241,0.55); box-shadow: 0 0 0 1px rgba(99,102,241,0.35), 0 24px 60px rgba(99,102,241,0.18); }
+  .badge-selected {
+    display: inline-block; margin-left: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+    letter-spacing: 0.18em; color: #10b981;
+    background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 5px; padding: 2px 7px; vertical-align: middle;
+  }
+  .variants { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 18px; }
+  .variant { background: var(--surface-2); border: 1px solid var(--border-faint); border-radius: 10px; padding: 18px; }
+  .variant.light { background: #f5f5fa; border-color: rgba(0,0,0,0.06); }
+  .variant img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+  .variant-name { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-lo); letter-spacing: 0.12em; margin-top: 14px; text-align: center; }
+  .variant.light .variant-name { color: #6b6b85; }
+  .fav-row { display: flex; gap: 18px; align-items: center; justify-content: center; }
+  .fav-row img { margin: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">// NSM · BRAND CONCEPTS</div>
+  <h1 class="h1">Three logo directions.</h1>
+  <p class="sub">All three use the locked NSM wordmark and `Neural Systems Management` subtext. They differ in the supporting motif. Each scales from favicon to business card. Pick one — or tell me which two to merge.</p>
+
+  <div class="grid">
+    <!-- Concept A -->
+    <div class="card">
+      <div class="card-label">CONCEPT A</div>
+      <h2 class="card-title">Connected nodes.</h2>
+      <p class="card-desc">Three nodes connected by a gradient line above the wordmark. Suggests neural network / connected systems. Speaks to the AI-and-automation positioning directly.</p>
+      <div class="logo-stage"><img src="nsm-logo-a.svg" alt="Concept A logo on dark"></div>
+      <div class="logo-stage light"><img src="nsm-logo-a.svg" alt="Concept A logo on light"></div>
+      <div class="pros-cons">
+        <div class="pros"><strong>PROS</strong><ul>
+          <li>Story you can explain: 3 nodes = N·S·M</li>
+          <li>Reads as tech / AI</li>
+          <li>Scales: single node = favicon</li>
+        </ul></div>
+        <div class="cons"><strong>CONS</strong><ul>
+          <li>Network logos are common in tech</li>
+          <li>Could be mistaken for IT services</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <!-- Concept B -->
+    <div class="card">
+      <div class="card-label">CONCEPT B</div>
+      <h2 class="card-title">Bracketed.</h2>
+      <p class="card-desc">Indigo square brackets framing the wordmark. Matches the existing JetBrains Mono / code-CLI aesthetic on the portal. Says "we're operators, not marketers."</p>
+      <div class="logo-stage"><img src="nsm-logo-b.svg" alt="Concept B logo on dark"></div>
+      <div class="logo-stage light"><img src="nsm-logo-b.svg" alt="Concept B logo on light"></div>
+      <div class="pros-cons">
+        <div class="pros"><strong>PROS</strong><ul>
+          <li>Highly distinctive in the SA SMB space</li>
+          <li>Matches your code-tinted design system</li>
+          <li>Favicon: just `[N]` or `[…]`</li>
+        </ul></div>
+        <div class="cons"><strong>CONS</strong><ul>
+          <li>"Code-y" might feel too technical for some clients</li>
+          <li>Brackets can read as decorative</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <!-- Concept C -->
+    <div class="card selected">
+      <div class="card-label">CONCEPT C <span class="badge-selected">✓ SELECTED · 2026-06-06</span></div>
+      <h2 class="card-title">Signature accent.</h2>
+      <p class="card-desc">Wordmark with a confident gradient sweep underneath ending in the period from `Operations, Automated.` The accent IS the tagline made visual. Most premium-consultancy feel of the three.</p>
+      <div class="logo-stage"><img src="nsm-logo-c.svg" alt="Concept C logo on dark"></div>
+      <div class="logo-stage light"><img src="nsm-logo-c.svg" alt="Concept C logo on light"></div>
+      <div class="pros-cons">
+        <div class="pros"><strong>PROS</strong><ul>
+          <li>Most ownable — no one else does this</li>
+          <li>Ties logo to tagline visually</li>
+          <li>Reads premium / consultancy</li>
+        </ul></div>
+        <div class="cons"><strong>CONS</strong><ul>
+          <li>Less obvious story than A or B</li>
+          <li>Period dot can get lost at very small sizes</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="next">
+    <h3 class="next-title">Delivered — Concept C variant set</h3>
+    <p>Concept C is locked. The variant family below is shipped to <code>portal/_brand/</code>, and the lockup is wired live into the portal nav + footer (all 29 pages) and the B13 welcome email.</p>
+
+    <div class="variants">
+      <div class="variant"><img src="nsm-logo-c.svg" alt="Master — dark"><div class="variant-name">nsm-logo-c.svg · MASTER (dark)</div></div>
+      <div class="variant light"><img src="nsm-logo-c-light.svg" alt="Light"><div class="variant-name">nsm-logo-c-light.svg · LIGHT</div></div>
+      <div class="variant"><img src="nsm-logo-c-mono.svg" alt="Mono" style="color:#f5f5fa"><div class="variant-name">nsm-logo-c-mono.svg · MONO (currentColor)</div></div>
+      <div class="variant" style="color:#f5f5fa"><img src="nsm-mark.svg" alt="Compact mark"><div class="variant-name">nsm-mark.svg · COMPACT (no subtext)</div></div>
+      <div class="variant"><div class="fav-row"><img src="nsm-favicon.svg" width="48" height="48" alt="Favicon 48"><img src="nsm-favicon.svg" width="32" height="32" alt="Favicon 32"><img src="nsm-favicon.svg" width="16" height="16" alt="Favicon 16"></div><div class="variant-name">nsm-favicon.svg · 48 / 32 / 16</div></div>
+      <div class="variant"><div class="fav-row"><img src="nsm-favicon-512.png" width="64" height="64" alt="Favicon PNG"></div><div class="variant-name">nsm-favicon-*.png · 1024 / 512 / 192 / 180 / 32</div></div>
+    </div>
+
+    <p style="margin-top: 18px;">PNG raster exports shipped (<code>nsm-favicon-1024/512/192/180/32.png</code>) for app stores &amp; social uploads, plus a print-ready double-sided business card at <code><a href="nsm-business-card.html" style="color:var(--indigo-glow)">nsm-business-card.html</a></code> (85×55mm trim + 3mm bleed). Full concept-C set is complete.</p>
+  </div>
+</div>
+</body>
+</html>

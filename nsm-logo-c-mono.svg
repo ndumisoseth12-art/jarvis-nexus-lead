@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" width="400" height="160" role="img" aria-label="NSM — Neural Systems Management — concept C signature accent (monochrome)">
+  <!-- Single-ink version for print, fax, embroidery, single-colour contexts.
+       Uses currentColor so it inherits ink from the host (set color: on the parent,
+       or override fill/stroke). Defaults to warm-black if no color is set. -->
+  <g fill="currentColor" stroke="currentColor" color="#08080c">
+
+    <!-- Wordmark -->
+    <text x="200" y="80"
+          font-family="'Inter', -apple-system, 'Segoe UI', system-ui, Arial, sans-serif"
+          font-weight="800" font-size="62"
+          letter-spacing="0"
+          text-anchor="middle"
+          stroke="none">NSM</text>
+
+    <!-- Signature accent sweep -->
+    <path d="M 130 100 Q 200 92 270 100"
+          stroke-width="3" stroke-linecap="round" fill="none"/>
+
+    <!-- Period from "Operations, Automated." -->
+    <circle cx="278" cy="100" r="3" stroke="none"/>
+
+    <!-- Subtext -->
+    <text x="200" y="135"
+          font-family="'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace"
+          font-weight="500" font-size="10"
+          letter-spacing="3.5"
+          text-anchor="middle"
+          stroke="none">NEURAL SYSTEMS MANAGEMENT</text>
+  </g>
+</svg>

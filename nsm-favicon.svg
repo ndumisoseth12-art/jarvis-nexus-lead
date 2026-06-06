@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="NSM">
+  <!-- Favicon: concept C reduced to the glyph that survives at 16px — the "N"
+       plus the signature period from "Operations, Automated." on the indigo tile. -->
+  <defs>
+    <linearGradient id="favGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"  stop-color="#818cf8"/>
+      <stop offset="50%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#favGrad)"/>
+  <text x="12.5" y="23"
+        font-family="'Inter', -apple-system, 'Segoe UI', system-ui, Arial, sans-serif"
+        font-weight="800" font-size="20"
+        text-anchor="middle"
+        fill="#ffffff">N</text>
+  <circle cx="24" cy="22" r="2.4" fill="#ffffff"/>
+</svg>

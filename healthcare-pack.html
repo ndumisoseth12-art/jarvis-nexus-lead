@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Healthcare Pack · Jarvis Nexus — 3 AI bots built for SA practices</title>
+<title>The Healthcare Pack · NSM — 3 AI bots built for SA practices</title>
 <meta name="description" content="Your patients won't remember. The bot will. Three AI bots — No-Show Rescue, Patient Recall, Practice Brief — built specifically for South African independent dentists, physios, GPs and clinics. POPIA-compliant. From R1,990/month. Built in Joburg.">
 
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Jarvis Nexus">
+<meta property="og:site_name" content="NSM">
 <meta property="og:title" content="The Healthcare Pack — 3 AI bots built for SA practices">
 <meta property="og:description" content="Your patients won't remember. The bot will. Three AI bots built for SA dentists, physios, GPs and independent practices. POPIA-compliant. From R1,990/month.">
 <meta property="og:url" content="https://jarvis-nexus-lead-jkon.vercel.app/healthcare-pack">
@@ -23,8 +23,8 @@
 
 <link rel="canonical" href="https://jarvis-nexus-lead-jkon.vercel.app/healthcare-pack">
 <meta name="theme-color" content="#08080c">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Crect x='9' y='9' width='14' height='14' rx='2' fill='none' stroke='white' stroke-width='1.8' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Crect x='52' y='52' width='76' height='76' rx='10' fill='none' stroke='white' stroke-width='10' transform='rotate(45 90 90)'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Ctext x='12.5' y='23' font-family='Inter,Arial,sans-serif' font-weight='800' font-size='20' text-anchor='middle' fill='white'%3EN%3C/text%3E%3Ccircle cx='24' cy='22' r='2.4' fill='white'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Ctext x='70' y='128' font-family='Inter,Arial,sans-serif' font-weight='800' font-size='112' text-anchor='middle' fill='white'%3EN%3C/text%3E%3Ccircle cx='135' cy='124' r='13' fill='white'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1280,6 +1280,24 @@ footer {
 }
 .hero-eyebrow:hover .ev-chevron { transform: translateX(3px); }
 .pain-stat .pain-stat-num { display: inline-block; }
+
+/* ===== Concept C signature-accent logo (brand-locked 2026-06-06) ===== */
+.logo { gap:10px; }
+.logo-name {
+  position:relative; display:inline-block;
+  font-weight:800; font-size:19px; color:var(--text-hi); letter-spacing:0.01em;
+  padding-bottom:5px; padding-right:7px;
+}
+.logo-name::after {
+  content:''; position:absolute; left:1px; right:7px; bottom:1px; height:2px;
+  background:var(--grad-accent,linear-gradient(135deg,#818cf8,#6366f1,#4f46e5)); border-radius:2px;
+}
+.logo-name::before {
+  content:''; position:absolute; right:0; bottom:0; width:3px; height:3px;
+  border-radius:50%; background:var(--indigo-deep,#4f46e5);
+}
+.logo-tag { font-family:'JetBrains Mono',ui-monospace,monospace; font-weight:500; font-size:9.5px; color:var(--text-lo); letter-spacing:0.18em; text-transform:uppercase; margin-top:3px; }
+
 </style>
 </head>
 <body>
@@ -1291,10 +1309,9 @@ footer {
 <nav>
   <div class="wrap">
     <div class="nav-inner">
-      <a href="/" class="logo" aria-label="Jarvis Nexus home">
-        <div class="logo-mark"></div>
+      <a href="/" class="logo" aria-label="NSM home">
         <div class="logo-text">
-          <div class="logo-name">JARVIS NEXUS</div>
+          <div class="logo-name">NSM</div>
           <div class="logo-tag">AI · Built in Joburg</div>
         </div>
       </a>
@@ -1603,7 +1620,7 @@ footer {
 
     <p class="outputs-honesty">
       <span class="honesty-pill">// Honest note</span>
-      These are mockups, not screenshots — Jarvis Nexus is brand new and I won't fake patient logos or testimonials. <strong>The output format is identical to what the bots actually produce on real practice data</strong>. Want to see one fire on your practice? That's what the 10-min demo is for. No patient data ever leaves your Google account during the demo.
+      These are mockups, not screenshots — NSM is brand new and I won't fake patient logos or testimonials. <strong>The output format is identical to what the bots actually produce on real practice data</strong>. Want to see one fire on your practice? That's what the 10-min demo is for. No patient data ever leaves your Google account during the demo.
     </p>
   </div>
 </section>
@@ -1620,7 +1637,7 @@ footer {
         <div class="founder-avatar">S</div>
         <div>
           <div class="founder-name">Seth Mokone</div>
-          <div class="founder-role">Founder · Jarvis Nexus · Joburg</div>
+          <div class="founder-role">Founder · NSM · Joburg</div>
         </div>
       </div>
     </div>
@@ -1642,7 +1659,7 @@ footer {
           <span class="faq-toggle" aria-hidden="true">+</span>
         </summary>
         <div class="faq-a">
-          <p>Yes — by design, not by accident. <strong>Three core principles:</strong> (1) The bots only touch administrative data (name, contact details, appointment time, treatment category). <strong>Never clinical notes, diagnoses, lab results or scripts.</strong> (2) All patient data lives in your own Google Sheets, in your own Google Workspace account — Jarvis Nexus never stores patient data on our infrastructure. (3) Every patient-facing message includes an explicit opt-out link, and opt-outs are honoured in real time. Full details in the <a href="/privacy" style="color: var(--indigo-glow); text-decoration: underline;">privacy policy</a> — happy to walk through it on the demo call.</p>
+          <p>Yes — by design, not by accident. <strong>Three core principles:</strong> (1) The bots only touch administrative data (name, contact details, appointment time, treatment category). <strong>Never clinical notes, diagnoses, lab results or scripts.</strong> (2) All patient data lives in your own Google Sheets, in your own Google Workspace account — NSM never stores patient data on our infrastructure. (3) Every patient-facing message includes an explicit opt-out link, and opt-outs are honoured in real time. Full details in the <a href="/privacy" style="color: var(--indigo-glow); text-decoration: underline;">privacy policy</a> — happy to walk through it on the demo call.</p>
         </div>
       </details>
 
@@ -1682,7 +1699,7 @@ footer {
           <span class="faq-toggle" aria-hidden="true">+</span>
         </summary>
         <div class="faq-a">
-          <p>Only you. <strong>Patient data lives in your own Google Sheets, in your own Google Workspace.</strong> Jarvis Nexus reads from it via your authorisation (you grant n8n access during onboarding, and you can revoke it any time from your Google account). I personally don't see any patient records unless you specifically share them with me to debug a problem. Practice staff who have Sheets access already (front-desk, hygienist, billing) keep that access — the bots don't change anything there.</p>
+          <p>Only you. <strong>Patient data lives in your own Google Sheets, in your own Google Workspace.</strong> NSM reads from it via your authorisation (you grant n8n access during onboarding, and you can revoke it any time from your Google account). I personally don't see any patient records unless you specifically share them with me to debug a problem. Practice staff who have Sheets access already (front-desk, hygienist, billing) keep that access — the bots don't change anything there.</p>
         </div>
       </details>
 
@@ -1778,13 +1795,12 @@ footer {
     <div class="foot-grid">
       <div>
         <a href="/" class="logo" style="margin-bottom: 14px;">
-          <div class="logo-mark"></div>
           <div class="logo-text">
-            <div class="logo-name">JARVIS NEXUS</div>
+            <div class="logo-name">NSM</div>
             <div class="logo-tag">AI · Built in Joburg</div>
           </div>
         </a>
-        <p class="foot-bio">The Healthcare Pack is part of Jarvis Nexus — a 10-bot AI automation suite built for South African small businesses.</p>
+        <p class="foot-bio">The Healthcare Pack is part of NSM — a 10-bot AI automation suite built for South African small businesses.</p>
       </div>
       <div class="foot-links">
         <a href="/" class="foot-link">All bots</a>

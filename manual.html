@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Owner's Manual · Jarvis Nexus</title>
+<title>Owner's Manual · NSM</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#08080c">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Crect x='9' y='9' width='14' height='14' rx='2' fill='none' stroke='white' stroke-width='1.8' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Ctext x='12.5' y='23' font-family='Inter,Arial,sans-serif' font-weight='800' font-size='20' text-anchor='middle' fill='white'%3EN%3C/text%3E%3Ccircle cx='24' cy='22' r='2.4' fill='white'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -301,6 +301,24 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
   .s-title { font-size:28px; }
   .wrap { padding:32px 18px 64px; }
 }
+
+/* ===== Concept C signature-accent logo (brand-locked 2026-06-06) ===== */
+.logo { gap:10px; }
+.logo-name {
+  position:relative; display:inline-block;
+  font-weight:800; font-size:19px; color:var(--text-hi); letter-spacing:0.01em;
+  padding-bottom:5px; padding-right:7px;
+}
+.logo-name::after {
+  content:''; position:absolute; left:1px; right:7px; bottom:1px; height:2px;
+  background:var(--grad-accent,linear-gradient(135deg,#818cf8,#6366f1,#4f46e5)); border-radius:2px;
+}
+.logo-name::before {
+  content:''; position:absolute; right:0; bottom:0; width:3px; height:3px;
+  border-radius:50%; background:var(--indigo-deep,#4f46e5);
+}
+.logo-tag { font-family:'JetBrains Mono',ui-monospace,monospace; font-weight:500; font-size:9.5px; color:var(--text-lo); letter-spacing:0.18em; text-transform:uppercase; margin-top:3px; }
+
 </style>
 </head>
 <body>
@@ -326,7 +344,7 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
   <nav class="nav">
     <div class="brand">
       <div class="brand-mark"></div>
-      <div class="brand-name">Jarvis Nexus</div>
+      <div class="brand-name">NSM</div>
     </div>
     <span class="nav-pill">Owner's Manual</span>
   </nav>
@@ -360,7 +378,7 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
     <div class="s-eyebrow">// Section 01</div>
     <h2 class="s-title">The product in 60 seconds</h2>
     <div class="s-body">
-      <p>Jarvis Nexus is an <strong>AI automation agency for South African small businesses</strong>. You sell a bundle of bots that runs the boring-but-important admin work a small business owner usually drops the ball on — chasing no-shows, getting paid, replying to reviews, waking up customers who went quiet, asking happy ones for referrals.</p>
+      <p>NSM is an <strong>AI automation agency for South African small businesses</strong>. You sell a bundle of bots that runs the boring-but-important admin work a small business owner usually drops the ball on — chasing no-shows, getting paid, replying to reviews, waking up customers who went quiet, asking happy ones for referrals.</p>
       <p>You sell it in three ways:</p>
       <p><strong>Industry packs</strong> (Salon, Airbnb, Recovery, Healthcare) — pre-bundled 3-bot kits for a specific kind of business, R2,500 setup + R1,990/month. This is the main sales motion.</p>
       <p><strong>Operator tier</strong> — pick any 5 bots, mid-priced. For businesses that already know what they need.</p>
@@ -574,7 +592,7 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
 
       <li><strong>Create their Google Sheets (duplicate your templates)</strong><span>In your Google Drive, find each template sheet you use (B3 Bookings, B4 Invoices, etc. — only the ones included in their pack). Right-click → Make a copy → rename it "{Client Name} · B3 Bookings", etc. Move them into a new folder called "Clients / {Client Name}".  Share each one with the client's owner email (Editor access) and your own. Copy the sheet ID from each URL — you'll need them in step 4.</span></li>
 
-      <li><strong>Create their Telegram chat</strong><span>In Telegram, create a new group named "{Client Name} · Jarvis Nexus alerts". Add the client + yourself. Send any message in the chat, then visit api.telegram.org/bot&lt;YOUR_BOT_TOKEN&gt;/getUpdates in a browser — find the chat ID for the new group (it'll be a negative number like -1001234...). Save it; you'll paste it into n8n in step 4.</span></li>
+      <li><strong>Create their Telegram chat</strong><span>In Telegram, create a new group named "{Client Name} · NSM alerts". Add the client + yourself. Send any message in the chat, then visit api.telegram.org/bot&lt;YOUR_BOT_TOKEN&gt;/getUpdates in a browser — find the chat ID for the new group (it'll be a negative number like -1001234...). Save it; you'll paste it into n8n in step 4.</span></li>
 
       <li><strong>Duplicate the workflows in n8n</strong><span>For each bot in their pack: open the existing workflow → click the "..." menu → Duplicate → rename "B3 No-Show Rescue · {Client Name}". In the duplicate, open each Google Sheets node and change the Document URL to the client's sheet from step 2. Open each Telegram node and change the chatId to the new group from step 3. Open each Gmail node and update the recipient/owner-email field. Open the "Edit Fields — Setup" node (where it exists) and update businessName + ownerEmail + ownerFirstName fields.</span></li>
 
@@ -685,7 +703,7 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
   </section>
 
   <div class="foot">
-    Jarvis Nexus · Built in Joburg · Owner's Manual v1
+    NSM · Built in Joburg · Owner's Manual v1
   </div>
 
 </div>
