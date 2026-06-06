@@ -31,9 +31,10 @@
     { "source": "/trade-pack",     "destination": "/trade-pack.html" },
     { "source": "/manual",         "destination": "/manual.html" },
 
-    { "source": "/api/router",            "destination": "https://n8n-production-71d9.up.railway.app/webhook/master-router" },
-    { "source": "/api/payfast-subscribe", "destination": "https://n8n-production-71d9.up.railway.app/webhook/payfast-subscribe" },
-    { "source": "/api/webhook/:path*",    "destination": "https://n8n-production-71d9.up.railway.app/webhook/:path*" }
+    { "source": "/api/router",             "destination": "https://n8n-production-71d9.up.railway.app/webhook/master-router" },
+    { "source": "/api/payfast-subscribe",  "destination": "https://n8n-production-71d9.up.railway.app/webhook/payfast-subscribe" },
+    { "source": "/api/paystack-subscribe", "destination": "https://n8n-production-71d9.up.railway.app/webhook/paystack-subscribe" },
+    { "source": "/api/webhook/:path*",     "destination": "https://n8n-production-71d9.up.railway.app/webhook/:path*" }
   ],
   "headers": [
     {
