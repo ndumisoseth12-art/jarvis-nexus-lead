@@ -583,6 +583,17 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
 
     <div class="callout"><strong>Architecture honesty:</strong> the bots are currently <em>single-tenant</em> — built for one business. To onboard a new client, you duplicate the workflow + sheets and point them at that client's data. This is heavy by design (works fine for the first 3–10 clients) and will become a proper multi-tenant system at ~15 clients. Don't try to fix it before then.</div>
 
+    <div class="callout">
+      <strong style="color:var(--text-hi);">⭐ The easy way — generate the client's page + workflow files in 2 minutes.</strong>
+      <br><br>Open a terminal in the project folder (<span class="mono">JarvisNexus</span>) and run:
+      <div class="mono" style="margin:12px 0; padding:12px 14px; background:var(--surface-2,#14141d); border:1px solid var(--border-indigo); border-radius:var(--r-sm,8px); color:var(--text-hi); font-size:13px;">node kit/new-client.js</div>
+      It asks plain-English questions — business name, industry (salon / trade / trainer / airbnb / healthcare), owner email, phone, brand colour, and an optional price list — then builds everything into <span class="mono">kit/output/&lt;web-name&gt;/</span>:
+      <br>· <strong style="color:var(--text-hi);">intake.html</strong> — the client's branded landing page. Double-click it to preview in your browser, then deploy it.
+      <br>· <strong style="color:var(--text-hi);">workflows/</strong> — all 12 bot JSONs, pre-filled with the client's name, owner email and webhook path.
+      <br>· <strong style="color:var(--text-hi);">SETUP_NOTES.md</strong> — a per-client checklist that mirrors the steps below.
+      <br><br><strong>You never edit a config file by hand.</strong> The wizard does the typing. The numbered steps below are the n8n wiring you still do yourself (sheets, Telegram, activation) — the wizard deliberately leaves the Google Sheet IDs blank for you to paste in at step 4.
+    </div>
+
     <p style="margin:24px 0 12px; color:var(--text-md); font-size:14px;"><strong style="color:var(--text-hi);">Before the demo call:</strong> nothing. Just talk to them, use the pack page that fits their business as a visual aid.</p>
 
     <p style="margin:24px 0 12px; color:var(--text-md); font-size:14px;"><strong style="color:var(--text-hi);">After they sign the pilot agreement, you do this once per client:</strong></p>
@@ -594,14 +605,25 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
 
       <li><strong>Create their Telegram chat</strong><span>In Telegram, create a new group named "{Client Name} · NSM alerts". Add the client + yourself. Send any message in the chat, then visit api.telegram.org/bot&lt;YOUR_BOT_TOKEN&gt;/getUpdates in a browser — find the chat ID for the new group (it'll be a negative number like -1001234...). Save it; you'll paste it into n8n in step 4.</span></li>
 
-      <li><strong>Duplicate the workflows in n8n</strong><span>For each bot in their pack: open the existing workflow → click the "..." menu → Duplicate → rename "B3 No-Show Rescue · {Client Name}". In the duplicate, open each Google Sheets node and change the Document URL to the client's sheet from step 2. Open each Telegram node and change the chatId to the new group from step 3. Open each Gmail node and update the recipient/owner-email field. Open the "Edit Fields — Setup" node (where it exists) and update businessName + ownerEmail + ownerFirstName fields.</span></li>
+      <li><strong>Duplicate the workflows in n8n</strong><span>For each bot in their pack: open the existing workflow → click the "..." menu → Duplicate → rename "B3 No-Show Rescue · {Client Name}". In the duplicate, open each Google Sheets node and change the Document URL to the client's sheet from step 2. Open each Telegram node and change the chatId to the new group from step 3. Open each Gmail node and update the recipient/owner-email field. Open the "Edit Fields — Setup" node (where it exists) and update businessName + ownerEmail + ownerFirstName fields. <em>Shortcut: if you ran <span class="mono">node kit/new-client.js</span>, import the ready-made JSONs from <span class="mono">kit/output/&lt;web-name&gt;/workflows/</span> instead of duplicating by hand — the client's name, owner email and webhook path are already filled in, so you only paste in each Google Sheet ID.</em></span></li>
 
-      <li><strong>Test one bot end-to-end before activating the rest</strong><span>Pick the simplest bot in their pack (usually B3 No-Show Rescue or B11 Review Pro). Fire the webhook manually with test data (Postman / curl / the n8n "Execute Workflow" button). Confirm: email lands in their inbox, Telegram alert lands in the new group, sheet row appears. Once one bot works end-to-end, the pattern repeats — the others will work too.</span></li>
+      <li><strong>Test one bot end-to-end before activating the rest</strong><span>Pick the simplest bot in their pack (usually B3 No-Show Rescue or B11 Review Pro). Fire a test submission at it — easiest is <span class="mono">node kit/test-form.js &lt;web-name&gt;</span>, which sends a clearly-marked "NSM TEST" entry for you and tells you if it's connected (or use the n8n "Execute Workflow" button). Confirm: email lands in their inbox, Telegram alert lands in the new group, sheet row appears. Once one bot works end-to-end, the pattern repeats — the others will work too.</span></li>
 
       <li><strong>Activate all their workflows</strong><span>Toggle each one to Active. The scheduled bots (B2/B8/B10/B14) will fire at their next cron window. The event-triggered bots (B3/B4/B6/B7/B9/B11) wait for real customer events from the client's booking system or webhook.</span></li>
 
       <li><strong>Hand over the client onboarding doc</strong><span>Send the client a short email with: their portal links, what the daily 7am B8 brief looks like, who to contact if something seems wrong (you), and the day-25 check-in date for the pilot conversion conversation.</span></li>
     </ol>
+
+    <div class="callout">
+      <strong style="color:var(--text-hi);">🔒 Golden rule — test before you hand over.</strong>
+      <br><br>Never give a client their form link until you've proven it works. Once their workflow is activated, run:
+      <div class="mono" style="margin:12px 0; padding:12px 14px; background:var(--surface-2,#14141d); border:1px solid var(--border-indigo); border-radius:var(--r-sm,8px); color:var(--text-hi); font-size:13px;">node kit/test-form.js &lt;web-name&gt;</div>
+      It fires a clearly-marked "NSM TEST" submission at the client's webhook and tells you straight:
+      <br>· <strong style="color:var(--text-hi);">✅ CONNECTED &amp; LIVE</strong> — then confirm the test row landed in the Sheet + the Telegram alert + the email. If all three arrived, it's safe to hand over.
+      <br>· <strong style="color:var(--text-hi);">❌ NOT LIVE</strong> — the workflow isn't activated yet (or the webhook path is wrong). Fix it in n8n and re-test.
+      <br>· <strong style="color:var(--text-hi);">⚠️ CONNECTED BUT ERRORED</strong> — usually a missing Sheet ID; check the workflow's Executions tab in n8n.
+      <br><br>This one habit means a customer never sees a broken form in front of your client.
+    </div>
 
     <div class="callout"><strong>Gotchas you'll only learn the hard way (so I'm telling you now):</strong>
     <br>· When you duplicate a workflow in n8n, the credentials stay attached to the original. Sometimes the duplicate doesn't inherit them — re-pick the credential in each Google Sheets / Gmail / Telegram / Header Auth node if needed.
