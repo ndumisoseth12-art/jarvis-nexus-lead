@@ -61,29 +61,25 @@ html, body {
   pointer-events:none;
 }
 
-/* Top-left brand chip */
-.chip {
+/* Top-left brand lockup — Concept C signature accent */
+.brand-lockup {
   position:absolute;
-  top:50px; left:60px;
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  padding:9px 16px;
-  background:rgba(99,102,241,0.10);
-  border:1px solid rgba(99,102,241,0.25);
-  border-radius:999px;
-  font-family:'JetBrains Mono', monospace;
-  font-size:13px;
-  font-weight:500;
-  letter-spacing:0.08em;
-  color:#a8a8c2;
-  text-transform:uppercase;
+  top:48px; left:60px;
+  display:flex; flex-direction:column; gap:9px;
 }
-.chip .dot {
-  width:8px; height:8px;
-  border-radius:50%;
-  background:#10b981;
-  box-shadow:0 0 12px #10b981;
+.bl-word {
+  position:relative; display:inline-block; align-self:flex-start;
+  font-weight:800; font-size:38px; color:#f5f5fa; letter-spacing:0.01em;
+  padding:0 13px 9px 0; line-height:1;
+}
+.bl-word .dot { color:#4f46e5; }
+.bl-word::after {
+  content:''; position:absolute; left:1px; right:13px; bottom:0; height:3px;
+  background:linear-gradient(90deg,#818cf8,#6366f1,#4f46e5); border-radius:2px;
+}
+.bl-sub {
+  font-family:'JetBrains Mono', monospace; font-size:12.5px; font-weight:600;
+  letter-spacing:0.24em; text-transform:uppercase; color:#818cf8;
 }
 
 /* Main content */
@@ -203,15 +199,14 @@ html, body {
   <div class="grid-lines"></div>
   <div class="grain"></div>
 
-  <div class="chip">
-    <span class="dot"></span>
-    <span>NSM // V3</span>
+  <div class="brand-lockup">
+    <span class="bl-word">NSM<span class="dot">.</span></span>
+    <span class="bl-sub">Neural Systems Management</span>
   </div>
 
   <div class="content">
-    <div class="eyebrow">// AI Automation for South African SMBs</div>
-    <h1 class="headline">Ten bots.<br>One <span class="grad">operator.</span></h1>
-    <p class="sub">Catch leads, recover revenue, win back customers, protect your reviews — automatically, in Rand, on the work day.</p>
+    <h1 class="headline">Operations,<br><span class="grad">Automated.</span></h1>
+    <p class="sub">10 bots that catch leads, recover revenue, win back customers and protect your reviews — automatically, in Rand, on the work day.</p>
   </div>
 
   <div class="divider"></div>
@@ -223,7 +218,7 @@ html, body {
       <span class="sep">·</span>
       <span>MONTHLY</span>
       <span class="sep">·</span>
-      <span>JARVIS-NEXUS.VERCEL.APP</span>
+      <span>IN RAND</span>
     </span>
   </div>
 </div>

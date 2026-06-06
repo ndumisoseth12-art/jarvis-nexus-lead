@@ -368,6 +368,7 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
       <li><a href="#onboard">Setting up the bots for a new client (the real checklist)</a></li>
       <li><a href="#sell">How you sell this — pilots, then paid</a></li>
       <li><a href="#money">The money side (pricing, packs, what a sale looks like)</a></li>
+      <li><a href="#brand">Your brand — logo, colours, and the kit</a></li>
       <li><a href="#refs">Quick reference (URLs and things you forget)</a></li>
       <li><a href="#closing">A note from the bots to the founder</a></li>
     </ol>
@@ -671,8 +672,50 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
   </section>
 
   <!-- ============ 9. REFERENCE ============ -->
-  <section id="refs">
+  <section id="brand">
     <div class="s-eyebrow">// Section 09</div>
+    <h2 class="s-title">Your brand — logo, colours, and the kit</h2>
+    <p class="s-sub">NSM stands for <strong>Neural Systems Management</strong>. Use the full name on first contact (homepage, email signatures, legal, business cards); use just <strong>NSM</strong> everywhere else. The tagline is <em>Operations, Automated.</em> — always with the capital A and the full stop.</p>
+
+    <p style="margin:28px 0 10px; font-size:15px;"><strong style="color:var(--text-hi);">The logo</strong></p>
+    <p style="color:var(--text-md); font-size:14px;">The logo <em>is</em> the NSM wordmark — with a gradient sweep underline that ends in the period from "Operations, Automated." There is <strong style="color:var(--text-hi);">no separate icon or square</strong>; the old rotated-diamond mark is retired — don't bring it back. On a browser tab or app icon it shrinks to just <span class="mono">N.</span> on an indigo tile.</p>
+
+    <p style="margin:28px 0 10px; font-size:15px;"><strong style="color:var(--text-hi);">Colours</strong></p>
+    <div style="display:flex; gap:16px; flex-wrap:wrap; margin:8px 0 8px;">
+      <span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:18px; height:18px; border-radius:5px; background:#818cf8; display:inline-block;"></span><span class="mono" style="font-size:12px; color:var(--text-md);">#818cf8 glow</span></span>
+      <span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:18px; height:18px; border-radius:5px; background:#6366f1; display:inline-block;"></span><span class="mono" style="font-size:12px; color:var(--text-md);">#6366f1 indigo</span></span>
+      <span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:18px; height:18px; border-radius:5px; background:#4f46e5; display:inline-block;"></span><span class="mono" style="font-size:12px; color:var(--text-md);">#4f46e5 deep</span></span>
+      <span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:18px; height:18px; border-radius:5px; background:#08080c; border:1px solid var(--border-subtle); display:inline-block;"></span><span class="mono" style="font-size:12px; color:var(--text-md);">#08080c warm-black</span></span>
+    </div>
+    <p style="color:var(--text-md); font-size:14px;">The indigo gradient (glow → indigo → deep) is the signature, on warm-black surfaces. Green / amber / red are for <em>status only</em> (good / warning / bad) — never decoration.</p>
+
+    <p style="margin:28px 0 10px; font-size:15px;"><strong style="color:var(--text-hi);">Fonts</strong></p>
+    <p style="color:var(--text-md); font-size:14px;"><strong style="color:var(--text-hi);">Inter</strong> — body, buttons, UI. <strong style="color:var(--text-hi);">Instrument Serif</strong> (italic) — headlines, hero words, big numbers. <strong style="color:var(--text-hi);">JetBrains Mono</strong> — labels, IDs, timestamps, the <span class="mono">// comment</span> markers.</p>
+
+    <p style="margin:28px 0 10px; font-size:15px;"><strong style="color:var(--text-hi);">The brand kit — where the files live</strong></p>
+    <div class="mono" style="margin:12px 0; padding:12px 14px; background:var(--surface-2,#14141d); border:1px solid var(--border-indigo); border-radius:var(--r-sm,8px); color:var(--text-hi); font-size:13px;">portal/_brand/</div>
+    <p style="color:var(--text-md); font-size:14px;">These are your source files for when you need to hand a logo to a printer, a directory, or a social profile. The live website doesn't read them (its logo is baked into the pages), so nothing breaks if you move the folder.</p>
+    <ul style="margin:10px 0 0; padding-left:20px; color:var(--text-md); font-size:14px; line-height:1.75;">
+      <li><span class="mono">nsm-logo-c.svg</span> — master logo, for dark backgrounds.</li>
+      <li><span class="mono">nsm-logo-c-light.svg</span> — for white / light backgrounds (dark ink).</li>
+      <li><span class="mono">nsm-logo-c-mono.svg</span> — single colour, for print / embroidery / stamps.</li>
+      <li><span class="mono">nsm-mark.svg</span> — compact wordmark, no subtext, for tight spaces.</li>
+      <li><span class="mono">nsm-favicon.svg</span> + <span class="mono">nsm-favicon-*.png</span> — the "N." icon for browser tabs, app stores, social avatars (1024 biggest → 32 smallest).</li>
+      <li><span class="mono">nsm-business-card.html</span> — print-ready card. Open in Chrome → Print → Save as PDF → hand to a printer.</li>
+      <li><span class="mono">preview.html</span> — shows the 3 original concepts with C chosen. Reference only.</li>
+    </ul>
+
+    <div class="callout">
+      <strong style="color:var(--text-hi);">Brand golden rules:</strong>
+      <br>· Never recolour the logo — the indigo gradient is fixed. The only single-colour version is <span class="mono">nsm-logo-c-mono.svg</span>.
+      <br>· On light backgrounds use the <span class="mono">-light</span> file, never the dark master.
+      <br>· The full stop after NSM is part of the logo — it ties to "Automated." Keep it.
+      <br>· The picture that appears when you paste a link (WhatsApp, LinkedIn) is <span class="mono">portal/og-cover.png</span> — it's rendered from <span class="mono">og-cover.html</span>. If the brand ever changes, update the HTML and re-screenshot it at 1200×630.
+    </div>
+  </section>
+
+  <section id="refs">
+    <div class="s-eyebrow">// Section 10</div>
     <h2 class="s-title">Quick reference</h2>
     <p class="s-sub">The URLs and identifiers you'll need every now and then. Save this page.</p>
 
@@ -714,7 +757,7 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
 
   <!-- ============ 10. CLOSING ============ -->
   <section id="closing">
-    <div class="s-eyebrow">// Section 10</div>
+    <div class="s-eyebrow">// Section 11</div>
     <h2 class="s-title">A note from the bots to the founder</h2>
     <div class="s-body">
       <p>You spent months heads-down building this. It's normal to look at it now and feel disoriented — that's just what it feels like to ship something bigger than you can hold in your head at once.</p>
