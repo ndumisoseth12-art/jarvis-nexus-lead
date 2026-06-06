@@ -19,177 +19,90 @@ html, body {
   -moz-osx-font-smoothing:grayscale;
 }
 
-.canvas {
-  position:relative;
-  width:1200px;
-  height:630px;
-  overflow:hidden;
-}
+.canvas { position:relative; width:1200px; height:630px; overflow:hidden; }
 
-/* Atmosphere — indigo radial gradients */
+/* Atmosphere — indigo radial glows, soft like the business card */
 .atmos-1 {
-  position:absolute;
-  top:-200px; left:-200px;
-  width:700px; height:700px;
-  background:radial-gradient(circle, rgba(99,102,241,0.35) 0%, rgba(99,102,241,0) 70%);
+  position:absolute; top:-220px; left:-160px;
+  width:680px; height:680px;
+  background:radial-gradient(circle, rgba(99,102,241,0.30) 0%, rgba(99,102,241,0) 68%);
   pointer-events:none;
 }
 .atmos-2 {
-  position:absolute;
-  bottom:-250px; right:-200px;
-  width:800px; height:800px;
-  background:radial-gradient(circle, rgba(129,140,248,0.25) 0%, rgba(129,140,248,0) 70%);
+  position:absolute; bottom:-240px; right:-180px;
+  width:760px; height:760px;
+  background:radial-gradient(circle, rgba(129,140,248,0.20) 0%, rgba(129,140,248,0) 68%);
   pointer-events:none;
 }
 
 /* 12-column vertical grid lines */
 .grid-lines {
-  position:absolute;
-  inset:0;
-  background-image:
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  position:absolute; inset:0;
+  background-image:linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
   background-size:100px 100%;
   pointer-events:none;
 }
 
 /* Subtle noise */
 .grain {
-  position:absolute;
-  inset:0;
-  opacity:0.06;
+  position:absolute; inset:0; opacity:0.06;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
   pointer-events:none;
 }
 
-/* Top-left brand lockup — Concept C signature accent */
-.brand-lockup {
-  position:absolute;
-  top:48px; left:60px;
-  display:flex; flex-direction:column; gap:9px;
-}
-.bl-word {
-  position:relative; display:inline-block; align-self:flex-start;
-  font-weight:800; font-size:38px; color:#f5f5fa; letter-spacing:0.01em;
-  padding:0 13px 9px 0; line-height:1;
-}
-.bl-word .dot { color:#4f46e5; }
-.bl-word::after {
-  content:''; position:absolute; left:1px; right:13px; bottom:0; height:3px;
-  background:linear-gradient(90deg,#818cf8,#6366f1,#4f46e5); border-radius:2px;
-}
-.bl-sub {
-  font-family:'JetBrains Mono', monospace; font-size:12.5px; font-weight:600;
-  letter-spacing:0.24em; text-transform:uppercase; color:#818cf8;
+/* Centered lockup — mirrors the business-card front */
+.lockup {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center;
 }
 
-/* Main content */
-.content {
-  position:absolute;
-  top:50%; left:60px;
-  transform:translateY(-50%);
-  max-width:900px;
+/* The NSM wordmark IS the hero — signature sweep + the period from the tagline */
+.wm {
+  position:relative; display:inline-block;
+  font-weight:800; font-size:158px; line-height:1;
+  color:#f5f5fa; letter-spacing:0.005em;
+  padding:0 0 30px 0;
+}
+.wm .dot { color:#4f46e5; }
+.wm::after {
+  content:''; position:absolute; left:5px; right:42px; bottom:2px; height:8px;
+  background:linear-gradient(90deg,#818cf8,#6366f1,#4f46e5);
+  border-radius:4px;
+  box-shadow:0 0 26px rgba(129,140,248,0.45);
 }
 
-.eyebrow {
-  font-family:'JetBrains Mono', monospace;
-  font-size:14px;
-  font-weight:500;
-  letter-spacing:0.18em;
-  text-transform:uppercase;
-  color:#818cf8;
-  margin-bottom:24px;
-}
-
-.headline {
+.tagline {
   font-family:'Instrument Serif', Georgia, serif;
-  font-style:italic;
-  font-size:128px;
-  font-weight:400;
-  line-height:0.95;
-  letter-spacing:-0.03em;
-  color:#f5f5fa;
-  margin-bottom:28px;
+  font-style:italic; font-weight:400;
+  font-size:52px; line-height:1; letter-spacing:-0.01em;
+  color:#f5f5fa; margin-top:34px;
 }
-.headline .grad {
+.tagline .grad {
   background:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);
-  -webkit-background-clip:text;
-  background-clip:text;
-  -webkit-text-fill-color:transparent;
-  color:transparent;
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; color:transparent;
 }
 
-.sub {
-  font-family:'Inter', sans-serif;
-  font-size:30px;
-  font-weight:500;
-  line-height:1.35;
-  letter-spacing:-0.015em;
-  color:#a8a8c2;
-  max-width:780px;
-}
-
-/* Divider */
-.divider {
-  position:absolute;
-  left:60px; right:60px;
-  bottom:90px;
-  height:1px;
-  background:linear-gradient(90deg, transparent 0%, rgba(99,102,241,0.5) 50%, transparent 100%);
-}
-
-/* Footer row */
-.footer {
-  position:absolute;
-  left:60px; right:60px;
-  bottom:42px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+.tag {
   font-family:'JetBrains Mono', monospace;
-  font-size:14px;
-  font-weight:500;
-  letter-spacing:0.12em;
-  text-transform:uppercase;
+  font-size:16px; font-weight:600;
+  letter-spacing:0.34em; text-transform:uppercase;
+  color:#818cf8; margin-top:32px;
+}
+
+/* Bottom ribbon — quiet, like the card's footer line */
+.foot {
+  position:absolute; left:0; right:0; bottom:42px;
+  text-align:center;
+  font-family:'JetBrains Mono', monospace;
+  font-size:14px; font-weight:500;
+  letter-spacing:0.2em; text-transform:uppercase;
   color:#6b6b85;
 }
-.footer .pill {
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-}
-.footer .pill .sq {
-  width:8px; height:8px;
-  background:#facc15;
-}
-.footer .right {
-  display:inline-flex;
-  align-items:center;
-  gap:18px;
-}
-.footer .right span:not(.sep) {
-  color:#a8a8c2;
-}
-.footer .sep {
-  color:#3a3a52;
-}
-
-/* ===== Concept C signature-accent logo (brand-locked 2026-06-06) ===== */
-.logo { gap:10px; }
-.logo-name {
-  position:relative; display:inline-block;
-  font-weight:800; font-size:19px; color:var(--text-hi); letter-spacing:0.01em;
-  padding-bottom:5px; padding-right:7px;
-}
-.logo-name::after {
-  content:''; position:absolute; left:1px; right:7px; bottom:1px; height:2px;
-  background:var(--grad-accent,linear-gradient(135deg,#818cf8,#6366f1,#4f46e5)); border-radius:2px;
-}
-.logo-name::before {
-  content:''; position:absolute; right:0; bottom:0; width:3px; height:3px;
-  border-radius:50%; background:var(--indigo-deep,#4f46e5);
-}
-.logo-tag { font-family:'JetBrains Mono',ui-monospace,monospace; font-weight:500; font-size:9.5px; color:var(--text-lo); letter-spacing:0.18em; text-transform:uppercase; margin-top:3px; }
-
+.foot .sep { color:#3a3a52; margin:0 14px; }
+.foot .hi { color:#a8a8c2; }
 </style>
 </head>
 <body>
@@ -199,27 +112,14 @@ html, body {
   <div class="grid-lines"></div>
   <div class="grain"></div>
 
-  <div class="brand-lockup">
-    <span class="bl-word">NSM<span class="dot">.</span></span>
-    <span class="bl-sub">Neural Systems Management</span>
+  <div class="lockup">
+    <span class="wm">NSM<span class="dot">.</span></span>
+    <div class="tagline">Operations, <span class="grad">Automated.</span></div>
+    <div class="tag">Neural Systems Management</div>
   </div>
 
-  <div class="content">
-    <h1 class="headline">Operations,<br><span class="grad">Automated.</span></h1>
-    <p class="sub">10 bots that catch leads, recover revenue, win back customers and protect your reviews — automatically, in Rand, on the work day.</p>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="footer">
-    <span class="pill"><span class="sq"></span>BUILT IN JOBURG</span>
-    <span class="right">
-      <span>10 BOTS</span>
-      <span class="sep">·</span>
-      <span>MONTHLY</span>
-      <span class="sep">·</span>
-      <span>IN RAND</span>
-    </span>
+  <div class="foot">
+    <span class="hi">Built in Joburg</span><span class="sep">·</span>10 Bots<span class="sep">·</span>In Rand
   </div>
 </div>
 </body>
