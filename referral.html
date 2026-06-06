@@ -768,6 +768,18 @@ a.hero-eyebrow:hover { background: rgba(99,102,241,0.16); }
 .hero-eyebrow:hover .ev-chevron { transform: translateX(3px); }
 @media (prefers-reduced-motion: reduce) { .hero-glow::before, .hero-glow::after { animation: none; } }
 
+
+/* ===== Standardised nav Book-demo button (matches index.html) ===== */
+.nav-book {
+  position:relative; display:inline-flex; align-items:center; justify-content:center;
+  text-decoration:none; font-family:'Inter',-apple-system,sans-serif; font-weight:600; font-size:13.5px;
+  padding:10px 16px; border-radius:7px; border:none; cursor:pointer; color:#fff; white-space:nowrap; flex-shrink:0;
+  background:var(--grad-accent,linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.20), 0 1px 2px rgba(0,0,0,0.3);
+  transition:transform 150ms ease, box-shadow 200ms ease; -webkit-tap-highlight-color:transparent;
+}
+.nav-book:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 18px var(--indigo-shadow,rgba(99,102,241,0.40)); }
+
 </style>
 </head>
 <body>
@@ -788,7 +800,7 @@ a.hero-eyebrow:hover { background: rgba(99,102,241,0.16); }
       <a href="/" class="nav-back">← All bots</a>
       <div class="nav-right">
         <span class="bot-id-pill"><span class="dot"></span>B7 · LIVE</span>
-        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary-sm">Book demo <span class="arrow">→</span></a>
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="nav-book">Book demo</a>
       </div>
     </div>
   </div>
@@ -804,7 +816,7 @@ a.hero-eyebrow:hover { background: rgba(99,102,241,0.16); }
         <a href="#try-it" class="hero-eyebrow"><span class="pulse"></span><span>B7 · REFERRAL ENGINE · LIVE</span><span class="ev-chevron" aria-hidden="true">›</span></a>
         <h1 class="hero-title hero-title-grad">Your best customers,<br><span class="accent">your best salespeople.</span></h1>
         <p class="hero-sub">
-          Referrals are your highest-quality, lowest-cost customers — but most owners never ask, because writing personalised referral emails is awkward and the rewards admin is a nightmare. Referral Engine sends an <strong>AI-drafted personal ask</strong> with a <strong>unique code per advocate</strong>, tracks the conversion when their friend buys, and fires the dual reward automatically.
+          Referrals are the best customers you'll ever get — and the ones most owners never ask for, because the asking feels awkward and the reward admin is a mess. Referral Engine sends a <strong>personal, AI-drafted ask</strong> with a unique code per advocate, tracks the sale when their friend buys, and pays out both rewards automatically. You just watch them roll in.
         </p>
         <div class="hero-ctas">
           <a href="#try-it" class="btn btn-primary">Send a referral ask <span class="arrow">→</span></a>

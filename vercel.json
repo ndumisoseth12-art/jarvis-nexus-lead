@@ -30,6 +30,7 @@
     { "source": "/trainer-pack",   "destination": "/trainer-pack.html" },
     { "source": "/trade-pack",     "destination": "/trade-pack.html" },
     { "source": "/manual",         "destination": "/manual.html" },
+    { "source": "/outreach",       "destination": "/outreach.html" },
 
     { "source": "/api/router",             "destination": "https://n8n-production-71d9.up.railway.app/webhook/master-router" },
     { "source": "/api/payfast-subscribe",  "destination": "https://n8n-production-71d9.up.railway.app/webhook/payfast-subscribe" },

@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSM — Sales Playbook (internal)</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Ctext x='12.5' y='23' font-family='Inter,Arial,sans-serif' font-weight='800' font-size='20' text-anchor='middle' fill='white'%3EN%3C/text%3E%3Ccircle cx='24' cy='22' r='2.4' fill='white'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --indigo-glow:#818cf8; --indigo:#6366f1; --indigo-deep:#4f46e5;
+  --indigo-shadow:rgba(99,102,241,0.40); --indigo-soft:rgba(99,102,241,0.10);
+  --surface-0:#08080c; --surface-1:#0e0e15; --surface-2:#14141d;
+  --surface-3:#1c1c28; --surface-4:#25253a;
+  --border-faint:rgba(255,255,255,0.04); --border-subtle:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.15); --border-indigo:rgba(99,102,241,0.25);
+  --text-hi:#f5f5fa; --text-md:#a8a8c2; --text-lo:#6b6b85; --text-faint:#3a3a52;
+  --ok:#10b981; --warn:#f59e0b; --bad:#f43f5e; --info:#22d3ee; --gold:#facc15;
+  --grad-accent:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);
+  --grad-divider:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.5) 50%,transparent 100%);
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--surface-0); color:var(--text-hi);
+  font-size:15px; line-height:1.6; font-weight:400;
+  letter-spacing:-0.005em; min-height:100vh;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+.serif { font-family:'Instrument Serif',serif; font-weight:400; letter-spacing:-0.02em; }
+.mono { font-family:'JetBrains Mono',monospace; }
+
+/* ============ GATE ============ */
+#gate {
+  position:fixed; inset:0; z-index:9999;
+  background:var(--surface-0);
+  display:grid; place-items:center; padding:24px;
+}
+#gate.hidden { display:none; }
+.gate-card {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:48px 40px;
+  max-width:420px; width:100%; text-align:center; position:relative;
+  box-shadow:0 24px 64px rgba(0,0,0,0.5);
+}
+.gate-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider);
+}
+.gate-mark {
+  width:48px; height:48px; margin:0 auto 20px;
+  background:var(--grad-accent); border-radius:12px;
+  display:grid; place-items:center; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset, 0 8px 24px var(--indigo-shadow);
+}
+.gate-eyebrow {
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px; color:var(--indigo-glow);
+  letter-spacing:0.18em; text-transform:uppercase; margin-bottom:12px;
+}
+.gate-title {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:32px; line-height:1.1; letter-spacing:-0.02em;
+  color:var(--text-hi); margin-bottom:10px;
+}
+.gate-sub { font-size:14px; color:var(--text-md); margin-bottom:28px; }
+.gate-input {
+  width:100%; padding:14px 16px; background:var(--surface-3);
+  border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  color:var(--text-hi); font-size:15px; font-family:'Inter',sans-serif;
+  margin-bottom:12px; outline:none; text-align:center; letter-spacing:0.04em;
+  transition:border-color 200ms ease, box-shadow 200ms ease;
+}
+.gate-input:focus { border-color:var(--border-indigo); box-shadow:0 0 0 4px var(--indigo-soft); }
+.gate-btn {
+  width:100%; padding:14px; background:var(--grad-accent); color:#fff;
+  border:none; border-radius:var(--r-md); cursor:pointer;
+  font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 16px var(--indigo-shadow);
+  transition:transform 150ms ease, box-shadow 200ms ease;
+}
+.gate-btn:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 8px 24px var(--indigo-shadow); }
+.gate-error {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--bad); margin-top:14px; min-height:14px;
+  letter-spacing:0.06em; text-transform:uppercase;
+}
+
+/* ============ ATMOS ============ */
+.atmos { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.atmos::before {
+  content:''; position:absolute; width:900px; height:900px; border-radius:50%;
+  top:-300px; right:-200px;
+  background:radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
+  filter:blur(60px);
+}
+.atmos::after {
+  content:''; position:absolute; width:700px; height:700px; border-radius:50%;
+  bottom:-200px; left:-150px;
+  background:radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 60%);
+  filter:blur(60px);
+}
+.grid-lines {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size:calc(100% / 12) 100%;
+  max-width:1400px; margin:0 auto;
+  left:50%; transform:translateX(-50%); width:100%;
+}
+
+/* ============ LAYOUT ============ */
+.wrap { max-width:980px; margin:0 auto; padding:48px 24px 96px; position:relative; z-index:1; }
+.nav {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:16px 0 32px; border-bottom:1px solid var(--border-faint); margin-bottom:48px;
+}
+.brand { display:flex; align-items:center; gap:12px; }
+.brand-mark {
+  width:32px; height:32px; background:var(--grad-accent); border-radius:7px;
+  display:grid; place-items:center; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset;
+}
+.brand-mark::before {
+  content:''; position:absolute; inset:7px;
+  border:1.6px solid white; border-radius:3px;
+  transform:rotate(45deg);
+}
+.brand-name { font-weight:600; font-size:15px; }
+.nav-pill {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  padding:6px 12px; background:var(--indigo-soft);
+  border:1px solid var(--border-indigo); border-radius:99px;
+}
+
+/* ============ HERO ============ */
+.eyebrow {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:16px;
+}
+.hero h1 {
+  font-family:'Instrument Serif',serif; font-style:italic; font-weight:400;
+  font-size:56px; line-height:1.05; letter-spacing:-0.025em;
+  margin-bottom:18px;
+}
+.hero h1 em { font-style:italic; color:var(--indigo-glow); }
+.hero-sub { font-size:17px; color:var(--text-md); max-width:720px; margin-bottom:32px; }
+
+/* ============ TOC ============ */
+.toc {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:24px 28px; margin-bottom:64px;
+}
+.toc-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.toc ol { list-style:none; counter-reset:toc; }
+.toc li { counter-increment:toc; padding:6px 0; }
+.toc li::before {
+  content:counter(toc,decimal-leading-zero);
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); margin-right:14px;
+}
+.toc a { color:var(--text-hi); text-decoration:none; font-size:15px; }
+.toc a:hover { color:var(--indigo-glow); }
+
+/* ============ SECTION ============ */
+section { margin-bottom:80px; scroll-margin-top:32px; }
+.s-eyebrow {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.s-title {
+  font-family:'Instrument Serif',serif; font-style:italic; font-weight:400;
+  font-size:38px; line-height:1.1; letter-spacing:-0.02em; margin-bottom:24px;
+}
+.s-sub { font-size:16px; color:var(--text-md); margin-bottom:28px; max-width:760px; }
+.s-body p { margin-bottom:18px; color:var(--text-hi); }
+.s-body p + p { margin-top:0; }
+.s-body strong { color:var(--text-hi); font-weight:600; }
+.s-body em { color:var(--indigo-glow); font-style:italic; }
+
+.callout {
+  background:var(--surface-1); border:1px solid var(--border-indigo);
+  border-radius:var(--r-md); padding:18px 22px; margin:24px 0;
+  font-size:14px; color:var(--text-md);
+}
+.callout strong { color:var(--text-hi); }
+
+/* ============ BOT CARDS ============ */
+.bots-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; margin-top:24px; }
+.bot-card {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:20px; position:relative;
+  transition:border-color 200ms ease, transform 200ms ease;
+}
+.bot-card:hover { border-color:var(--border-indigo); transform:translateY(-2px); }
+.bot-id {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:8px;
+}
+.bot-name { font-weight:600; font-size:16px; margin-bottom:12px; }
+.bot-one-liner { color:var(--text-md); font-size:13.5px; line-height:1.55; margin-bottom:14px; }
+.bot-meta { display:flex; gap:14px; flex-wrap:wrap; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-lo); letter-spacing:0.04em; }
+.bot-meta span { display:inline-flex; align-items:center; gap:6px; }
+.dot { display:inline-block; width:6px; height:6px; border-radius:50%; }
+.dot.client { background:var(--info); }
+.dot.owner { background:var(--ok); }
+.dot.you { background:var(--gold); }
+.dot.parked { background:var(--text-faint); }
+
+.legend {
+  display:flex; gap:24px; margin:24px 0; padding:14px 18px;
+  background:var(--surface-1); border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-md);
+  flex-wrap:wrap;
+}
+.legend > span { display:inline-flex; align-items:center; gap:8px; }
+
+/* ============ STACK / FLOW DIAGRAM ============ */
+.stack-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-top:24px; }
+.stack-item {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:18px;
+}
+.stack-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:8px;
+}
+.stack-name { font-weight:600; font-size:14px; margin-bottom:6px; }
+.stack-desc { font-size:13px; color:var(--text-md); }
+
+/* ============ FLOW ============ */
+.flow {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:24px; margin-top:24px;
+  font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text-md);
+  line-height:1.9; overflow-x:auto;
+}
+.flow strong { color:var(--text-hi); }
+.flow .arrow { color:var(--indigo-glow); }
+
+/* ============ QUICK REFERENCE ============ */
+.ref-list { display:grid; gap:12px; }
+.ref-item {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:16px 20px;
+  display:grid; grid-template-columns:160px 1fr; gap:20px; align-items:start;
+}
+.ref-key {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--indigo-glow); letter-spacing:0.06em;
+}
+.ref-val { font-size:14px; color:var(--text-hi); word-break:break-all; }
+.ref-val .small { font-size:12px; color:var(--text-md); display:block; margin-top:4px; }
+@media (max-width:600px){ .ref-item { grid-template-columns:1fr; } }
+
+/* ============ ORDERED LIST ============ */
+.ord { counter-reset:ord; list-style:none; }
+.ord li {
+  counter-increment:ord; position:relative; padding:14px 0 14px 56px;
+  border-bottom:1px solid var(--border-faint);
+}
+.ord li:last-child { border-bottom:none; }
+.ord li::before {
+  content:counter(ord,decimal-leading-zero);
+  position:absolute; left:0; top:14px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--indigo-glow); letter-spacing:0.06em;
+  padding:4px 10px; background:var(--indigo-soft);
+  border:1px solid var(--border-indigo); border-radius:6px;
+}
+.ord li strong { color:var(--text-hi); display:block; margin-bottom:4px; }
+.ord li span { color:var(--text-md); font-size:14px; }
+
+/* ============ FOOTER ============ */
+.foot {
+  margin-top:96px; padding-top:32px; border-top:1px solid var(--border-faint);
+  text-align:center; font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.12em; text-transform:uppercase;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:680px){
+  .hero h1 { font-size:38px; }
+  .s-title { font-size:28px; }
+  .wrap { padding:32px 18px 64px; }
+}
+
+/* ===== Concept C signature-accent logo (brand-locked 2026-06-06) ===== */
+.logo { gap:10px; }
+.logo-name {
+  position:relative; display:inline-block;
+  font-weight:800; font-size:19px; color:var(--text-hi); letter-spacing:0.01em;
+  padding-bottom:5px; padding-right:7px;
+}
+.logo-name::after {
+  content:''; position:absolute; left:1px; right:7px; bottom:1px; height:2px;
+  background:var(--grad-accent,linear-gradient(135deg,#818cf8,#6366f1,#4f46e5)); border-radius:2px;
+}
+.logo-name::before {
+  content:''; position:absolute; right:0; bottom:0; width:3px; height:3px;
+  border-radius:50%; background:var(--indigo-deep,#4f46e5);
+}
+.logo-tag { font-family:'JetBrains Mono',ui-monospace,monospace; font-weight:500; font-size:9.5px; color:var(--text-lo); letter-spacing:0.18em; text-transform:uppercase; margin-top:3px; }
+
+
+/* ===== Sales playbook: copy blocks + helpers ===== */
+.script-box { margin:18px 0; border:1px solid var(--border-subtle,rgba(255,255,255,0.08)); border-radius:var(--r-md,12px); background:var(--surface-2,#14141d); overflow:hidden; }
+.script-head { display:flex; justify-content:space-between; align-items:center; padding:10px 16px; background:var(--surface-3,#1c1c28); border-bottom:1px solid var(--border-faint,rgba(255,255,255,0.04)); font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-lo,#6b6b85); }
+.copy-btn { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--indigo-glow,#818cf8); background:var(--indigo-soft,rgba(99,102,241,0.10)); border:1px solid var(--border-indigo,rgba(99,102,241,0.25)); border-radius:6px; padding:4px 11px; cursor:pointer; transition:background 150ms, color 150ms; }
+.copy-btn:hover { background:rgba(99,102,241,0.20); }
+.copy-btn.copied { color:var(--ok,#10b981); border-color:rgba(16,185,129,0.40); background:rgba(16,185,129,0.12); }
+.script { margin:0; padding:18px 16px; white-space:pre-wrap; word-break:break-word; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--text-md,#a8a8c2); background:transparent; }
+.subj-label, .blk-label { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-lo,#6b6b85); margin:22px 0 8px; }
+.subj { list-style:none; padding:0; margin:0 0 6px; }
+.subj li { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--text-hi,#f5f5fa); background:var(--surface-2,#14141d); border:1px solid var(--border-faint,rgba(255,255,255,0.04)); border-radius:7px; padding:9px 13px; margin-bottom:7px; }
+.obj { list-style:none; padding:0; margin:14px 0 0; }
+.obj li { padding:14px 0; border-top:1px solid var(--border-faint,rgba(255,255,255,0.04)); color:var(--text-md,#a8a8c2); font-size:14px; line-height:1.6; }
+.obj li .q { display:block; color:var(--text-hi,#f5f5fa); font-style:italic; margin-bottom:5px; }
+.target { color:var(--text-md,#a8a8c2); font-size:14px; line-height:1.7; margin:8px 0 0; padding-left:20px; }
+.never { list-style:none; padding:0; margin:8px 0 0; }
+.never li { position:relative; padding-left:24px; margin-bottom:8px; color:var(--text-md,#a8a8c2); font-size:14px; }
+.never li::before { content:'✕'; position:absolute; left:0; top:0; color:var(--bad,#f43f5e); font-weight:700; }
+/* psychology cards */
+.psy { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0 0; }
+@media (max-width:720px){ .psy { grid-template-columns:1fr; } }
+.psy-card { background:var(--surface-2,#14141d); border:1px solid var(--border-faint,rgba(255,255,255,0.04)); border-left:3px solid var(--indigo,#6366f1); border-radius:var(--r-md,12px); padding:16px 18px; }
+.psy-card h4 { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--indigo-glow,#818cf8); margin:0 0 8px; font-weight:600; }
+.psy-card p { margin:0; color:var(--text-md,#a8a8c2); font-size:14px; line-height:1.6; }
+.psy-card .said { color:var(--text-hi,#f5f5fa); font-style:italic; }
+.flow { list-style:none; counter-reset:flow; padding:0; margin:16px 0 0; }
+.flow > li { position:relative; padding:0 0 22px 52px; }
+.flow > li::before { counter-increment:flow; content:counter(flow,decimal-leading-zero); position:absolute; left:0; top:-2px; font-family:'Instrument Serif',serif; font-style:italic; font-size:30px; color:var(--indigo-glow,#818cf8); }
+.flow h4 { margin:0 0 4px; color:var(--text-hi,#f5f5fa); font-size:15px; }
+.flow p { margin:0 0 8px; color:var(--text-md,#a8a8c2); font-size:14px; line-height:1.6; }
+.flow .say { display:block; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text-md,#a8a8c2); background:var(--surface-2,#14141d); border:1px solid var(--border-faint,rgba(255,255,255,0.04)); border-left:2px solid var(--indigo,#6366f1); border-radius:6px; padding:10px 12px; line-height:1.55; }
+</style>
+</head>
+<body>
+
+<!-- ============ GATE OVERLAY ============ -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-mark"></div>
+    <div class="gate-eyebrow">// Operator only</div>
+    <div class="gate-title">Sales Playbook</div>
+    <div class="gate-sub">Internal sales psychology + scripts. Passphrase required.</div>
+    <input type="password" id="gate-input" class="gate-input" placeholder="Passphrase" autocomplete="off" autofocus>
+    <button id="gate-btn" class="gate-btn">Unlock</button>
+    <div id="gate-error" class="gate-error"></div>
+  </div>
+</div>
+
+<div class="atmos"></div>
+<div class="grid-lines"></div>
+
+<div class="wrap" id="content" style="display:none;">
+
+  <nav class="nav">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-name">NSM</div>
+    </div>
+    <span class="nav-pill">Sales Playbook</span>
+  </nav>
+
+  <header class="hero">
+    <div class="eyebrow">// Operator only · internal</div>
+    <h1>Who you’re selling to, <em>and exactly what to say.</em></h1>
+    <p class="hero-sub">The psychology of the SA owner-operator + the scripts that move them — for every pack and every channel. One rule above all: <strong>honest persuasion only.</strong> Your buyer has been burned by slick before. Naming the real pain, the real loss and the real fear out-converts any trick — and it’s the only version that survives contact with a skeptic.</p>
+  </header>
+
+  <div class="toc">
+    <div class="toc-label">// The playbook</div>
+    <ol>
+      <li><a href="#buyer">Who you’re really selling to</a></li>
+      <li><a href="#triggers">Emotional triggers &amp; hidden objections</a></li>
+      <li><a href="#script">The universal script (the flow)</a></li>
+      <li><a href="#channels">WhatsApp, phone &amp; the closer</a></li>
+      <li><a href="#followup">The follow-up sequence</a></li>
+      <li><a href="#principles">Founder principles</a></li>
+      <li><a href="#salon">Salon pack scripts</a></li>
+      <li><a href="#airbnb">Airbnb pack scripts</a></li>
+      <li><a href="#recovery">Recovery pack scripts</a></li>
+      <li><a href="#healthcare">Healthcare pack scripts</a></li>
+      <li><a href="#targets">Week-1 target list</a></li>
+      <li><a href="#tracking">Tracking sheet</a></li>
+      <li><a href="#legal">Legal / POPIA notes</a></li>
+    </ol>
+  </div>
+  <section id="buyer">
+    <div class="s-eyebrow">// Section 01</div>
+    <h2 class="s-title">Who you’re really selling to</h2>
+    <p class="s-sub">Not “a business”. One tired owner-operator who built this with their hands, wears every hat, and quietly knows money is leaking out the back — they just can’t watch all of it at once.</p>
+    <div class="psy">
+      <div class="psy-card"><h4>The emotional need</h4><p>Relief, and the feeling of being <span class="said">on top of it</span>. They don’t want software — they want to stop carrying the unreplied review, the client who never came back, the invoice they never chased, all in their head at once.</p></div>
+      <div class="psy-card"><h4>The identity they want</h4><p>To be <span class="said">a real, professional business</span> — not a hustle, not someone scrambling. Someone whose customers feel looked-after even when the owner is flat out.</p></div>
+      <div class="psy-card"><h4>The risk they’re avoiding</h4><p>Being made a fool of again. They’ve paid for a booking app / “marketing guy” / agency that did nothing. And the deeper fear: tech that <span class="said">embarrasses them in front of their own customers</span>.</p></div>
+      <div class="psy-card"><h4>The outcome they secretly hope for</h4><p>That it just… works. Quietly, in the background, making them look good and on top of things — <span class="said">without more work for them.</span></p></div>
+    </div>
+    <p class="blk-label">What they’re thinking but not saying</p>
+    <ul class="target">
+      <li>“This kid is 19 — is he going to disappear in three months?” <em>(your age is both the disarm and the doubt — address it head-on.)</em></li>
+      <li>“AI will sound fake and make me look amateur to people who know me.”</li>
+      <li>“I’ll have to learn something complicated or change my whole system.”</li>
+      <li>“Another monthly fee I’ll forget to cancel.”</li>
+      <li>“If this is free, what’s the catch? What are you taking?”</li>
+    </ul>
+    <p class="blk-label">Why they say yes (the actual mechanism)</p>
+    <ul class="target">
+      <li><strong style="color:var(--text-hi);">Risk reversal</strong> — “free, nothing owed” unclenches the wallet. Their money is personal; this is the only frame that gets past it.</li>
+      <li><strong style="color:var(--text-hi);">Being understood</strong> — you name their pain more precisely than they would. “This person actually gets it.”</li>
+      <li><strong style="color:var(--text-hi);">“In your voice”</strong> — kills the fake-AI fear instantly.</li>
+      <li><strong style="color:var(--text-hi);">“I do all the setup”</strong> — kills the effort fear.</li>
+      <li><strong style="color:var(--text-hi);">Disarming candour</strong> — 19, Joburg, honest about what it can’t do yet. Trust through honesty, not polish.</li>
+    </ul>
+    <p class="blk-label">Per-segment nuance (same buyer, different pressure point)</p>
+    <ul class="target">
+      <li><strong style="color:var(--text-hi);">Salon:</strong> a no-show feels like personal disrespect <em>and</em> a dead chair. IG-native, relationship-driven. Lead with the rebook + their rating.</li>
+      <li><strong style="color:var(--text-hi);">Airbnb:</strong> Superhost status anxiety + time-poverty. Review timing literally is money. Lead with “Superhost stays Superhost while you sleep.”</li>
+      <li><strong style="color:var(--text-hi);">Recovery / B2B:</strong> writing off money feels like personal failure; they’re tone-sensitive and allergic to “debt collector.” Lead with “your polite voice, flat fee, no % cut.”</li>
+      <li><strong style="color:var(--text-hi);">Healthcare:</strong> POPIA + clinical-system fear dominates everything. Lead with “doesn’t touch your PMS, admin data only, you own it.” Earn trust before you sell outcomes.</li>
+    </ul>
+  </section>
+  <section id="triggers">
+    <div class="s-eyebrow">// Section 02</div>
+    <h2 class="s-title">Emotional triggers &amp; hidden objections</h2>
+    <p class="s-sub">Pull these levers — honestly. Every one is grounded in something true about the product.</p>
+    <div class="psy">
+      <div class="psy-card"><h4>Relief</h4><p>“You don’t have to hold all of this in your head anymore.” The dominant feeling you’re selling. Lead here.</p></div>
+      <div class="psy-card"><h4>Loss made concrete</h4><p>Loss aversion — but with <span class="said">real</span> numbers. “~R6,000/mo already walking out the door” lands harder than any feature, and it’s true.</p></div>
+      <div class="psy-card"><h4>Pride / professionalism</h4><p>Replies in <span class="said">their</span> voice. They look more on-top-of-it to their own customers, not less human.</p></div>
+      <div class="psy-card"><h4>Control</h4><p>The 7am brief = they start every day already knowing. Owners crave the feeling of a cockpit.</p></div>
+      <div class="psy-card"><h4>Belonging</h4><p>“Built by someone like me, here in Joburg.” Anti-corporate, anti-overseas-SaaS. They’d rather back a local who gets it.</p></div>
+      <div class="psy-card"><h4>Reciprocity</h4><p>You give first (free pilot, you do the setup). The instinct to reciprocate is strong once it’s clearly worked.</p></div>
+    </div>
+    <p class="blk-label">Hidden objections → how you defuse each (before they raise it)</p>
+    <ul class="obj"><li><span class="q">“You’ll disappear / this is a side project.”</span>Name it first: “I’m 19 and building this full-tilt from Joburg — that’s exactly why I do all the setup myself and why I’m only taking 3 pilots: so each one actually gets my attention.”</li><li><span class="q">“AI will sound fake / embarrass me.”</span>“Every message goes out in your voice, and you approve the first one for tone before anything sends. You’ll see exactly what your customers see.”</li><li><span class="q">“It’s complicated / I’ll have to change my system.”</span>“You change nothing. I wire it into your Gmail and a Google Sheet you already understand. If you can read an email, you can run it.”</li><li><span class="q">“Another fee I’ll forget to cancel.”</span>“Free for 30 days, no card. At day 25 you look at what it recovered and decide. If it didn’t earn its keep, you owe nothing and we stop.”</li><li><span class="q">“If it’s free, what’s the catch?”</span>“The catch is honest: I need 3 real results I can point to. You get 30 days free; if it works, I earn a client and a testimonial. That’s the whole deal.”</li></ul>
+  </section>
+  <section id="script">
+    <div class="s-eyebrow">// Section 03</div>
+    <h2 class="s-title">The universal script (the flow)</h2>
+    <p class="s-sub">This is the spine under every channel. Don’t recite it — internalise the moves, then talk like a human. The order matters: earn the right to each step before the next.</p>
+    <ol class="flow">
+      <li><h4>Opening hook — disarm, don’t pitch</h4><p>Pattern-interrupt the “here comes a sale” reflex.</p><span class="say">“Hi — I’m Seth. I’m not selling you anything today. I’m 19, building a small thing for SA [salons/practices/hosts], and I just want to ask you one question.”</span></li>
+      <li><h4>Rapport questions — genuine, short</h4><p>Two questions, real curiosity. Let them talk.</p><span class="say">“How long have you run [place]? Is it just you, or do you have a team?”</span></li>
+      <li><h4>Discovery — make them describe the pain</h4><p>Don’t tell them the problem. Ask, and let them say it in their words (this becomes their testimonial later).</p><span class="say">“When a [client doesn’t show / review lands / invoice goes overdue] — walk me through what actually happens right now. Do you chase it? Or does it just slip?”</span></li>
+      <li><h4>Problem amplification — gently, with their number</h4><p>Reflect the cost back. Remove blame — it’s not that they don’t care, it’s that they’re at the chair.</p><span class="say">“So that’s maybe R[X] a month? And it’s not that you don’t care — it’s that you can’t be at the chair AND chasing rebooks at the same time. Nobody can.”</span></li>
+      <li><h4>Future pacing — let them feel the relief</h4><p>Paint the specific Monday morning.</p><span class="say">“Picture Monday: one email at 7am, two minutes, and you already know what got recovered over the weekend and the one client to call. The rest ran while you slept.”</span></li>
+      <li><h4>The ask — low-stakes, specific</h4><p>Small yes, not a big one.</p><span class="say">“I’m taking 3 businesses on a free 30-day pilot. No card, I do all the setup. Want to be one of them?”</span></li>
+      <li><h4>Objection handling — answer the hidden one</h4><p>Whatever they say, hear the fear underneath (see Section 02) and answer that, not just the words.</p></li>
+    </ol>
+  </section>
+  <section id="channels">
+    <div class="s-eyebrow">// Section 04</div>
+    <h2 class="s-title">WhatsApp, phone &amp; the closer</h2>
+    <p class="s-sub">Same flow, three pressures. WhatsApp = warm replies only (never cold — ToS + POPIA). Phone = full discovery. Closer = day-25, pilot → paid.</p>
+    <div class="script-box"><div class="script-head"><span>WhatsApp — warm reply (they messaged or replied first)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hey [Name] — really glad you replied 🙏
+
+Quick version: I take 3 SA [salons] on a free 30-day pilot. I do all the setup, it runs in your voice, no card, nothing owed if it doesn't earn its keep.
+
+Easiest next step is a 20-min call where I show you 1–2 real examples on your kind of business. Does [tomorrow morning / Thursday] work? Or I can send a couple of times.</pre></div>
+    <div class="script-box"><div class="script-head"><span>Phone call — talk track</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">OPEN (disarm):
+"Hi [Name], it's Seth — the one building the AI thing for SA [salons]. Two minutes okay? I'm not here to hard-sell, I actually just want to understand how you handle one thing."
+
+DISCOVERY (let them talk):
+"When a client doesn't show — what happens right now? Do you call them, or does it usually just go?"
+[Listen. Don't fill silence.]
+
+AMPLIFY (their number, no blame):
+"So that's a few hundred rand a week sitting empty. And it's not that you don't care — you literally can't be at the chair and chasing rebooks at once."
+
+FUTURE-PACE:
+"Imagine the chair texts the client itself within 10 minutes, in your voice, and half of them rebook. You just see the result."
+
+ASK:
+"I'm running 3 free 30-day pilots. I do all the setup, you risk nothing. Want me to set yours up this week?"
+
+IF YES → "Great — I'll send a Cal.com link, let's do a 20-min screen-share so you see it on your business."
+IF NOT NOW → "All good. Can I check back in [month]? And I'll send the page so you've got it."</pre></div>
+    <div class="script-box"><div class="script-head"><span>High-ticket closer — day 25 (pilot → paid)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">"So we're 25 days in. Let's look at what actually happened: the system recovered R[X] for you this month — [Y] rebooked no-shows, [Z] reviews replied, all in your voice. You spent two minutes a day on the brief.
+
+Here's the simple part. To keep it running it's R2,500 once to lock in your setup, then R1,990 a month — and you can stop any month you want. Just on the no-shows it saved, it's already paid for itself [N] times over this month alone.
+
+I'd love to keep it running for you. Want me to switch it from pilot to live today?"
+
+[Silence. Let them decide.]
+
+IF PRICE WOBBLE → "Totally fair. Look at it this way: it's R66 a day, and it recovered R[X] in 30 days. If it ever stops doing that, you stop paying. The risk is mine, not yours."
+IF YES → send Paystack link, confirm go-live date, book a 15-min handover.</pre></div>
+    <div class="callout"><strong style="color:var(--text-hi);">Upsell only when earned:</strong> if a pilot is clearly slammed (multi-location, 10+ listings, 2–3 staff), that’s the Operator tier (R3,990/mo) — but never pitch it before the Starter pack has visibly worked. Land the relief first, grow the account later.</div>
+  </section>
+  <section id="followup">
+    <div class="s-eyebrow">// Section 05</div>
+    <h2 class="s-title">The follow-up sequence</h2>
+    <p class="s-sub">Four touches, each with one psychological job. Then stop — chasing past day 14 burns the brand. (Pack-specific copy is in each pack section; these are the universal shapes.)</p>
+    <div class="script-box"><div class="script-head"><span>Touch 1 · Day 0 — the opener</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Job: be understood, not impressive. Name their specific pain, offer the free pilot, one clear link. (Use the pack cold-email below.)</pre></div>
+    <div class="script-box"><div class="script-head"><span>Touch 2 · Day 3–5 — the soft bump</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hi [Name] — quick one, no new pitch. Two pilot slots still open.
+
+Even a "not now, check back in [month]" is a useful answer for me — I'd rather know than keep wondering.
+
+— Seth</pre></div>
+    <div class="script-box"><div class="script-head"><span>Touch 3 · Day 10–12 — the math reframe</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hi [Name] — last useful nudge from me.
+
+The math: [their pain] is costing roughly R[X]/month. The pack is R1,990/mo and free for 30 days — it pays for itself if it saves you [small number] this month.
+
+If the timing's wrong, no stress. If it's not: [Cal.com link]
+
+— Seth</pre></div>
+    <div class="script-box"><div class="script-head"><span>Touch 4 · Day 14 — the honest breakup</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hi [Name] — I'll stop here so I'm not cluttering your inbox.
+
+If [the pain] ever moves up your list, the page is [pack link] and my number's below. No hard feelings either way — I'd rather earn it than nag for it.
+
+— Seth</pre></div>
+    <div class="callout"><strong style="color:var(--text-hi);">Why the breakup works:</strong> walking away calmly signals you’re not desperate — which makes you more credible, not less. A surprising number reply <em>to the breakup</em>. After day 14, move them to “check back in 90 days” and genuinely stop.</div>
+  </section>
+  <section id="principles">
+    <div class="s-eyebrow">// Section 06</div>
+    <h2 class="s-title">Founder principles</h2>
+    <p class="s-sub">The rules that keep outreach honest, legal and effective. Read once before sending.</p>
+    <div class="callout"><strong style="color:var(--text-hi);">Strategic frame:</strong> this is <strong>pilot outreach, not paid outreach</strong>. You need 3–4 real testimonials before paid cold outreach converts. Posture until then: free 30-day pilot, then R2,500 setup + R1,990/mo if it worked.</div>
+    <p class="blk-label">Before sending</p>
+    <ul class="target">
+      <li>Personalise every message — name, suburb, a recent review, the listing. Never blast.</li>
+      <li>Business hours only — Tue/Wed 10–11am email; weekday mornings DM. Never nights/weekends.</li>
+      <li>One channel at a time — email OR DM OR walk-in. All three at once is harassment.</li>
+      <li>Link to the relevant <em>pack page</em>, never the homepage.</li>
+    </ul>
+    <p class="blk-label">Never do</p>
+    <ul class="never">
+      <li>Fake social proof (“100s of clients”, fake testimonials, “trusted by”).</li>
+      <li>AI-buzzword bingo (“AI revolution”, “10x your revenue”, “digital transformation”).</li>
+      <li>Promise WhatsApp delivery — Phase 3. Email + SMS only right now.</li>
+      <li>Undercut your price — pilots are free OR R1,990, nothing between.</li>
+      <li>Cold-WhatsApp strangers — POPIA + WhatsApp ToS forbid it. Warm replies only.</li>
+      <li>Mass-CC or BCC. Always 1:1.</li>
+    </ul>
+    <div class="callout"><strong style="color:var(--text-hi);">Cadence:</strong> Day 0 first contact · Day 3–5 soft bump · Day 10–14 final bump · Day 14+ stop, move to “check back in 90 days.”</div>
+    <div class="callout"><strong style="color:var(--text-hi);">POPIA hygiene:</strong> every cold email ends with “Reply STOP and I won’t follow up.” Publicly-listed business contact info only — never scrape personal data. Keep a do-not-contact list and honour it.</div>
+  </section>
+  <section id="salon"><div class="s-eyebrow">// Section 07 · /salon</div><h2 class="s-title">Salon pack</h2><p class="blk-label">Target</p><ul class="target"><li>Independent SA salon owners, 1–3 chair operations.</li><li>Hotspots: Soweto, Sandton, Rosebank, Maboneng (JHB) · Sea Point, Camps Bay, Observatory (CT).</li><li>Find them via: walking in · Instagram · Google Maps listings · local Facebook groups.</li></ul><div class="subj-label">Cold email — subject options (A/B as you go)</div><ul class="subj"><li>Boitumelo, R6,000/month walking out your door?</li><li>About no-shows at [Salon Name]</li><li>[Salon Name] — would you trade 8 hours/week of admin for a coffee?</li></ul><div class="script-box"><div class="script-head"><span>Cold email — body</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hi [Name],
+
+I'm Seth — I'm 19, based in Joburg, and I've spent the last 6 months building a small
+AI system specifically for SA salons.
+
+The problem I keep hearing (my mom's friend runs a salon in Soweto, losing nearly
+R6,000/month to no-shows): you can't be at the chair AND chasing rebooks AND
+replying to Google reviews AND tracking which clients haven't been back in 3 months.
+So you do the chair, and everything else slips.
+
+The system has three small bots that handle just that admin side:
+
+1. No-Show Rescue — when a client doesn't show, an SMS goes out within 10 minutes
+   offering a same-week rebook in your voice. Average 35% rescue rate.
+
+2. Review Pro — replies to every Google review (5-star and the awkward ones) in
+   your voice. Your rating climbs without you typing.
+
+3. Owner Brief — one email at 7am with yesterday's recoveries, today's appointments,
+   and any reviews that need your eyes. Two minutes, then you're done with admin.
+
+I'm looking for 3 SA salons to run this FREE for 30 days. No card, no contract,
+just real-world testing. If it works for you, R2,500 setup + R1,990/mo after the
+pilot. If not, we shake hands and you got 30 days of free chase-SMS.
+
+Example outputs and the full page: https://jarvis-nexus-lead-jkon.vercel.app/salon
+20-min demo: https://cal.com/ndumiso-mokone-limbt0/30min
+
+— Seth Mokone
++27 67 099 4163
+ndumisoseth12@gmail.com
+
+(Reply STOP and I won't follow up.)</pre></div><div class="script-box"><div class="script-head"><span>Instagram DM (short — IG punishes long DMs)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hey [Name] — I'm Seth, 19, building a small AI tool for SA salons that auto-rebooks
+no-shows + replies to your Google reviews in your voice.
+
+Looking for 3 salons to run it free for 30 days. Would [Salon Name] be open to a
+quick 20-min demo? Page → jarvis-nexus-lead-jkon.vercel.app/salon</pre></div><div class="script-box"><div class="script-head"><span>Walk-in opener (best channel for salons)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">"Hi — I'm Seth, I'm 19, I'm building a small thing for SA salons. I'm not selling
+anything today, I just want to ask one question: when a client doesn't show up for
+their appointment, what do you currently do? Call them? WhatsApp them? Let it go?"
+
+[Listen.]
+
+"That's the exact problem I've automated. I'm looking for 3 salons to test it
+for free for a month. Here's my card — if you ever want to see it in action,
+the page is here:"
+
+[Card front: SETH MOKONE · NSM · +27 67 099 4163]
+[Card back: jarvis-nexus-lead-jkon.vercel.app/salon]</pre></div><div class="script-box"><div class="script-head"><span>Follow-up #1 (Day 3)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hi [Name] — quick bump. Two of my pilot slots are still open.
+
+Salon page if you missed it: jarvis-nexus-lead-jkon.vercel.app/salon
+
+Even a "not now, check back in October" is a useful answer for me.
+
+— Seth</pre></div><div class="script-box"><div class="script-head"><span>Follow-up #2 (Day 10)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hi [Name] — last bump from me.
+
+Math: an average SA salon loses ~R6,000/mo to no-shows. The pack is R1,990/mo,
+free for 30 days. It pays for itself if it saves you 2.5 missed appointments
+in a month.
+
+If it's not a fit, no worries — I'll get out of your inbox.
+If it is: https://cal.com/ndumiso-mokone-limbt0/30min
+
+— Seth</pre></div><p class="blk-label">Likely objections + handlers</p><ul class="obj"><li><span class="q">“My clients only use WhatsApp.”</span>“Right now the bots send via email + SMS — SMS hits 98% of SA phones with no data needed. WhatsApp Business launches Phase 3. Email + SMS gets you 95% of the way.”</li><li><span class="q">“I already have a booking app.”</span>“Perfect — the bot doesn’t replace it. It triggers OFF your booking app the moment a no-show happens. We wire it in during setup.”</li><li><span class="q">“How much again?”</span>“Free for 30 days. After that, R2,500 setup + R1,990/mo — about 2.5 missed appointments at R800.”</li></ul></section>
+  <section id="airbnb"><div class="s-eyebrow">// Section 08 · /airbnb-pack</div><h2 class="s-title">Airbnb pack</h2><p class="blk-label">Target</p><ul class="target"><li>SA hosts with 1–5 listings (above 5 → upsell to Operator tier).</li><li>Hotspots: Sea Point, Camps Bay, Tamboerskloof, Constantia (CT) · Sandton, Rosebank, Maboneng, Melville (JHB).</li><li>Find them via: Airbnb listing → host profile → IG/LinkedIn · SA Airbnb Hosts FB groups · Superhost meetups.</li></ul><div class="subj-label">Cold email — subject options (A/B as you go)</div><ul class="subj"><li>Your [Sea Point / Camps Bay] listing — quick question on reviews</li><li>Thabo, the 2am review problem</li><li>[Listing name] — would you save 6 hours/week?</li></ul><div class="script-box"><div class="script-head"><span>Cold email — body</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hi [Name],
+
+I'm Seth — 19, based in Joburg. My cousin manages 4 short-term listings in Cape
+Town between her actual job and her kids. The thing that keeps her up at night
+isn't cleaning — it's:
+
+- Reviews left at 11pm that she replies to at 6am after the Superhost-window has
+  already started costing her
+- Damage claims that go cold because she didn't follow up at exactly day 3
+- Knowing which listing is actually pulling its weight this month vs which one
+  she's been quietly ignoring
+
+I built three AI bots that handle exactly that:
+
+1. Review Pro — replies to every Airbnb review in your voice within minutes
+   (3-star and below get flagged to you for approval first). Superhost stays
+   Superhost.
+
+2. Revenue Recovery — chases damage claims and disputed payments automatically
+   through Airbnb's resolution window. Average 70% recovery on claims under 30
+   days old.
+
+3. Owner Brief — one email at 7am: yesterday's revenue + reviews + this week's
+   flags across all your listings. One screen, two minutes, done.
+
+I'm looking for 3 SA hosts to run this FREE for 30 days. If it works, R2,500
+setup + R1,990/mo after. If not, nothing owed and you keep the review log.
+
+Example outputs: https://jarvis-nexus-lead-jkon.vercel.app/airbnb-pack
+20-min demo: https://cal.com/ndumiso-mokone-limbt0/30min
+
+— Seth Mokone
++27 67 099 4163
+ndumisoseth12@gmail.com
+
+(Reply STOP and I won't follow up.)</pre></div><div class="script-box"><div class="script-head"><span>Instagram / LinkedIn DM</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hey [Name] — Seth here, 19, from Joburg. I built a small AI tool that auto-replies
+to Airbnb reviews + chases damage claims for SA hosts.
+
+Looking for 3 hosts to pilot it free for 30 days. Saw your [Sea Point / Camps Bay]
+listing — open to a 20-min demo?
+
+Page → jarvis-nexus-lead-jkon.vercel.app/airbnb-pack</pre></div><div class="script-box"><div class="script-head"><span>Follow-up #1 (Day 3)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hi [Name] — bump. Two pilot slots left.
+
+If review-reply timing is a chronic pain, the demo is 20 mins.
+If it's not, that's also a fine answer — just close the loop with a "not now".
+
+— Seth</pre></div><div class="script-box"><div class="script-head"><span>Follow-up #2 (Day 10)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hi [Name] — last note from me.
+
+Math: 1 missed review-reply window ≈ 0.1 Superhost rating drop ≈ R500–R800/mo
+in lost premium pricing per listing. The bot replies in your voice within minutes
+of a review landing.
+
+Free 30 days. R1,990/mo after if it actually helps.
+https://cal.com/ndumiso-mokone-limbt0/30min
+
+— Seth</pre></div><p class="blk-label">Likely objections + handlers</p><ul class="obj"><li><span class="q">“My guests prefer WhatsApp.”</span>“Right now Revenue Recovery chases via email + SMS. WhatsApp Business launches Phase 3 — email + SMS reaches 95% of international guests anyway. When WhatsApp goes live, you upgrade for free.”</li><li><span class="q">“I have 12 listings — does this scale?”</span>“The pack is sized for 1–5. For 10+ listings, Operator tier (R3,990/mo, 5,000 events, custom AI voice per listing) is the right fit. Book a call and I’ll size you correctly.”</li><li><span class="q">“What about Booking.com / Vrbo?”</span>“Same flow — the bot reads reviews from any platform that lets you export or email-forward. We wire it during onboarding.”</li></ul></section>
+  <section id="recovery"><div class="s-eyebrow">// Section 09 · /recovery-pack</div><h2 class="s-title">Recovery pack</h2><p class="blk-label">Target</p><ul class="target"><li>SA accountants, attorneys, freelancers, electricians, B2B service businesses, e-commerce stores.</li><li>Best channels: LinkedIn (B2B), cold email via website contact form, business directories, Chamber of Commerce.</li><li>Avoid Instagram/Facebook for this pack — wrong audience.</li></ul><div class="subj-label">Cold email — subject options (A/B as you go)</div><ul class="subj"><li>[Firm Name] — the R8,000–R12,000/mo you’re already earning</li><li>Cape Town accountants and the 47-day-overdue problem</li><li>A polite chase for [Business Name]</li></ul><div class="script-box"><div class="script-head"><span>Cold email — body</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hi [Name],
+
+I'm Seth Mokone — 19, based in Joburg, founder of NSM.
+
+A friend of my dad runs a small accounting firm here. He writes off
+R8,000–R12,000 a month in unpaid invoices — not because clients refuse to
+pay, but because nobody follows up at the right moment, in the right tone,
+three times in a row.
+
+I built three AI bots specifically for that gap:
+
+1. Revenue Recovery — chases overdue invoices in your voice on a polite
+   ladder (day 7 friendly, day 14 firm-friendly, day 30 firm). Stops the
+   moment payment lands. Pings you on Telegram before any escalation.
+
+2. Reactivation — finds the customers who used to buy from you and went
+   quiet 60+ days ago. Sends a personalised re-engagement message in your
+   voice. Average reactivation rate: 8–15%.
+
+3. Churn Radar — watches for behaviour signals (skipped renewal, ignored
+   last 2 emails, missed usual order cycle) and flags them on Telegram
+   BEFORE they cancel — so you can have the save-conversation in time.
+
+How this differs from a debt collector:
+- Your voice, not aggressive
+- Flat R1,990/mo regardless of volume (collectors take 25–40% of recoveries, forever)
+- Stops automatically the moment payment lands or a dispute is opened
+- You approve the first chase email for tone; you see every message after
+
+I'm looking for 3 SA businesses to pilot this FREE for 30 days. If it
+recovers real money for you, R2,500 setup + R1,990/mo after. If not,
+nothing owed.
+
+Page: https://jarvis-nexus-lead-jkon.vercel.app/recovery-pack
+25-min demo: https://cal.com/ndumiso-mokone-limbt0/30min
+
+Regards,
+Seth Mokone
++27 67 099 4163
+ndumisoseth12@gmail.com
+NSM, Joburg
+
+(Reply STOP and I won't follow up.)</pre></div><div class="script-box"><div class="script-head"><span>LinkedIn DM (direct, no fluff)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hi [Name] — Seth from NSM, Joburg.
+
+Built a small AI system that chases overdue invoices + reactivates lapsed
+customers for SA businesses in your voice (not a debt collector — flat fee,
+no % cut).
+
+Looking for 3 firms to pilot it free for 30 days. Would [Business Name] be
+open to a 25-min demo?
+
+Page: jarvis-nexus-lead-jkon.vercel.app/recovery-pack</pre></div><div class="script-box"><div class="script-head"><span>Follow-up #1 (Day 4)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hi [Name] — bumping this.
+
+Concrete pilot shape:
+- I get read-only access to your overdue-invoices list (your sheet, QuickBooks,
+  Xero, Sage — whatever you use)
+- Bot drafts the chase ladder · YOU approve the first email for tone
+- 30 days of audit log, you decide at day 25 if it earns its keep
+
+https://cal.com/ndumiso-mokone-limbt0/30min
+
+— Seth</pre></div><div class="script-box"><div class="script-head"><span>Follow-up #2 (Day 12)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Hi [Name] — last note from me.
+
+If invoice-chasing is on your "I'll figure it out next quarter" list, I'll
+get out of your inbox. If it's costing you R5,000+/mo and the math suddenly
+looks different at "free for 30 days":
+
+https://cal.com/ndumiso-mokone-limbt0/30min
+
+— Seth</pre></div><p class="blk-label">Likely objections + handlers</p><ul class="obj"><li><span class="q">“How are you different from [debt collector]?”</span>Tone — yours is a polite voice, not confrontational. Cost — they take 25–40% of recoveries forever; this is flat R1,990/mo. If it ever needs to go legal, the bot stops and hands off to you.</li><li><span class="q">“My invoices live in QuickBooks / Xero / Sage.”</span>“Yep — we bridge via Sheets, daily sync, no direct API risk to your accounting system. Wired during onboarding.”</li><li><span class="q">“What if a customer disputes mid-chase?”</span>“The bot detects ‘dispute’ / ‘wrong amount’ / ‘cancel’ in any reply and stops instantly + pings you on Telegram. You handle the human conversation.”</li></ul></section>
+  <section id="healthcare"><div class="s-eyebrow">// Section 10 · /healthcare-pack</div><h2 class="s-title">Healthcare pack</h2><p class="blk-label">Target</p><ul class="target"><li>SA independent practices: dentists, physios, GPs, optometrists, chiropractors.</li><li>Solo or small (1–3 practitioners). Above that → Operator.</li><li>Hotspots: Sandton, Rosebank, Bryanston, Fourways, Centurion (JHB) · Claremont, Sea Point, Constantia (CT).</li><li>Best channels: cold email via practice website · walk-in with a printed card · practice-manager LinkedIn.</li></ul><div class="subj-label">Cold email — subject options (A/B as you go)</div><ul class="subj"><li>Dr [Name] — POPIA-compliant patient recall, no PMS risk</li><li>[Practice Name] and the 6-month recall problem</li><li>A 5-minute idea for [Practice Name]</li></ul><div class="script-box"><div class="script-head"><span>Cold email — body</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Dr [Name],
+
+I'm Seth Mokone, a 19-year-old founder in Joburg. My aunt is a dental
+hygienist at a Joburg practice and watches the same pattern every month:
+patients come in for a cleaning, get told "see you in 6 months", and then
+never come back — not because they're unhappy, but because life happens
+and nobody reaches out at the right moment.
+
+I built three AI bots specifically for SA independent practices:
+
+1. No-Show Rescue — when a patient doesn't arrive within 10 minutes of
+   their slot, an SMS goes out asking if they'd like to rebook this week.
+   Average 35% rescue rate.
+
+2. Patient Recall — at the right interval per treatment (3-month follow-up,
+   6-month cleaning, 12-month eye check), patients get a warm reminder with
+   a personal note. Average 25% return vs ~5% with no recall.
+
+3. Practice Brief — one email at 7am: yesterday's no-shows + recoveries,
+   today's appointments + flagged patients, this week's recall queue.
+
+Why this is built differently for healthcare:
+- POPIA-compliant by design. Admin data only (no clinical info touches the
+  bot), all data stays in YOUR Google Sheet, STOP opt-out on every message,
+  Information Officer details available before any pilot.
+- Works alongside your PMS (GoodX, Healthbridge, Vericlinic, Elixir) via a
+  Sheets bridge — daily sync. Doesn't touch your clinical system.
+- It does NOT do medical aid pre-authorisation. That's roadmap, not built.
+  I won't pretend otherwise.
+
+Patient-facing messages come from "Dr [Name] & the team" — your voice.
+
+I'm looking for 3 SA independent practices to pilot this FREE for 30 days.
+If it fills slots and brings patients back, R2,500 setup + R1,990/mo after.
+If not, nothing owed and you keep the recall sheet.
+
+Page with full POPIA stance: https://jarvis-nexus-lead-jkon.vercel.app/healthcare-pack
+25-min demo: https://cal.com/ndumiso-mokone-limbt0/30min
+
+Kind regards,
+Seth Mokone
++27 67 099 4163
+ndumisoseth12@gmail.com
+NSM, Joburg
+
+(Reply STOP and I won't follow up.)</pre></div><div class="script-box"><div class="script-head"><span>Walk-in / drop-off (medical reception)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">"Hi — I built a small AI system for SA practices like this one. Could I
+leave this card with you for Dr [Name]?
+
+I'm looking for 3 practices to test it free for 30 days. POPIA-compliant,
+doesn't touch the clinical system, just helps with no-shows and recall.
+
+If they're curious, the website link is on the back of the card."
+
+[Card front: SETH MOKONE · NSM · +27 67 099 4163]
+[Card back: jarvis-nexus-lead-jkon.vercel.app/healthcare-pack · POPIA-compliant]</pre></div><div class="script-box"><div class="script-head"><span>Follow-up #1 (Day 5 — longer gap for medical)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Dr [Name],
+
+Bumping my previous note. To be specific about a pilot:
+
+- POPIA: full data-handling policy + Information Officer details shared
+  BEFORE the pilot starts. You sign off on the policy first.
+- 30-day pilot: read-only access to your appointment calendar; messages
+  drafted, you approve the first one for tone.
+- No PMS risk: works alongside GoodX/Healthbridge/Vericlinic via Sheets
+  bridge, never touches your clinical system.
+
+https://cal.com/ndumiso-mokone-limbt0/30min
+
+Kind regards,
+Seth</pre></div><div class="script-box"><div class="script-head"><span>Follow-up #2 (Day 14)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Dr [Name],
+
+Final note from me.
+
+Math: 22% SA healthcare no-show rate × R1,200 average slot = ~R5,300/mo
+bleeding from a single practitioner's diary. The pack is R1,990/mo and
+the pilot is free for 30 days.
+
+If the math doesn't add up for [Practice Name], that's a fine answer.
+If it does: https://cal.com/ndumiso-mokone-limbt0/30min
+
+Kind regards,
+Seth Mokone</pre></div><p class="blk-label">Likely objections + handlers</p><ul class="obj"><li><span class="q">“Is this POPIA-compliant?”</span>“Yes, by design. Admin data only (no clinical info), data lives in YOUR Google Sheet, STOP opt-out on every message. I can share the full Information Officer policy before the pilot.”</li><li><span class="q">“Does it integrate with GoodX / Healthbridge / Vericlinic / Elixir?”</span>“Native: Cal.com bookings. Via Sheets bridge (daily sync): GoodX, Healthbridge, Vericlinic, Elixir. Wired during onboarding — never touches your clinical system.”</li><li><span class="q">“Does it do medical aid pre-auth?”</span>“No, not yet — roadmap for Operator/Command. The Healthcare Pack is no-show rescue + patient recall + practice brief only. I won’t pretend it does more.”</li><li><span class="q">“My patients only use WhatsApp.”</span>“Honest answer: email + SMS only right now. WhatsApp Business is Phase 3 (Meta is stricter for healthcare senders). SMS reaches 98% of SA patients and the elderly read it more reliably than WhatsApp.”</li></ul></section>
+  <section id="targets">
+    <div class="s-eyebrow">// Section 11</div>
+    <h2 class="s-title">Week-1 target list</h2>
+    <p class="s-sub">Pick 10–12 prospects total across all 4 packs, so you’re not one-vertical-dependent.</p>
+    <ul class="target">
+      <li><strong style="color:var(--text-hi);">Salon (3):</strong> 1 Soweto · 1 Sandton/Rosebank (premium per-slot) · 1 Cape Town (Sea Point/Observatory).</li>
+      <li><strong style="color:var(--text-hi);">Airbnb (3):</strong> 1 Sea Point (1–2 listings) · 1 Camps Bay (premium) · 1 Joburg (Sandton/Maboneng).</li>
+      <li><strong style="color:var(--text-hi);">Recovery (3):</strong> 1 Joburg-North accounting firm · 1 small attorney · 1 Shopify SA store.</li>
+      <li><strong style="color:var(--text-hi);">Healthcare (3):</strong> 1 Sandton/Rosebank dentist · 1 Bryanston/Fourways physio · 1 Sandton optometrist.</li>
+    </ul>
+    <div class="callout"><strong style="color:var(--text-hi);">After week 1:</strong> 0 demos → rewrite subjects, switch channel, get one trusted read. 1–2 → keep cadence, don’t onboard pilot #4 yet. 3+ → pause outreach, run the pilots well.</div>
+  </section>
+
+  <section id="tracking">
+    <div class="s-eyebrow">// Section 12</div>
+    <h2 class="s-title">Tracking sheet</h2>
+    <p class="s-sub">Build this before your first send — a sheet called <span class="mono">outreach-tracker</span>:</p>
+    <div class="script-box"><div class="script-head"><span>Columns</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Pack | Prospect | Channel | First sent | F-up 1 | F-up 2 | Status | Notes</pre></div>
+    <p class="target"><strong style="color:var(--text-hi);">Status values:</strong> sent · bumped · replied · demo-booked · pilot-active · paid · not-interested · do-not-contact.</p>
+    <div class="callout">Review every Monday. Anything <span class="mono">bumped</span> &gt;14 days → <span class="mono">not-interested</span>.</div>
+  </section>
+
+  <section id="legal">
+    <div class="s-eyebrow">// Section 13</div>
+    <h2 class="s-title">Legal / POPIA notes</h2>
+    <ul class="target">
+      <li><strong style="color:var(--text-hi);">Cold B2B:</strong> SA law permits unsolicited B2B contact to a publicly-listed business address IF personalised, with a clear opt-out, and you stop on request. The “Reply STOP” line keeps you compliant.</li>
+      <li><strong style="color:var(--text-hi);">Healthcare:</strong> the contact email belongs to the practice, not the patient. Patient comms only happen during the pilot, under the agreement + POPIA policy.</li>
+      <li><strong style="color:var(--text-hi);">WhatsApp:</strong> unsolicited WhatsApp to non-customers can get the number banned. Warm replies only until B1 is live in Phase 3.</li>
+      <li><strong style="color:var(--text-hi);">Attorney review</strong> of privacy/terms is pending — don’t add new compliance claims beyond what’s already on the pack pages.</li>
+    </ul>
+    <div class="callout"><strong style="color:var(--text-hi);">Ship the first 3 emails this week.</strong> Personalise, send Tuesday/Wednesday morning. Don’t perfect — send.</div>
+  </section>
+
+  <div class="foot">
+    NSM · Built in Joburg · Sales Playbook v1
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var KEY = 'jn_op_unlocked_v1';
+  var PASS = 'LoveGod12';
+  var gate = document.getElementById('gate');
+  var content = document.getElementById('content');
+  var input = document.getElementById('gate-input');
+  var btn = document.getElementById('gate-btn');
+  var err = document.getElementById('gate-error');
+
+  function unlock(){
+    localStorage.setItem(KEY, 'true');
+    gate.classList.add('hidden');
+    content.style.display = 'block';
+  }
+  function fail(){
+    err.textContent = 'Wrong passphrase';
+    input.value = '';
+    input.focus();
+    setTimeout(function(){ err.textContent = ''; }, 2400);
+  }
+
+  if (localStorage.getItem(KEY) === 'true') {
+    unlock();
+  } else {
+    btn.addEventListener('click', function(){
+      if (input.value === PASS) unlock(); else fail();
+    });
+    input.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') {
+        if (input.value === PASS) unlock(); else fail();
+      }
+    });
+  }
+})();
+</script>
+
+
+<script>
+(function(){
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var box = btn.closest('.script-box'); var pre = box && box.querySelector('.script');
+      if (!pre) return; var text = pre.innerText;
+      function done(){ btn.classList.add('copied'); var t=btn.textContent; btn.textContent='Copied'; setTimeout(function(){ btn.classList.remove('copied'); btn.textContent=t; }, 1600); }
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).then(done, function(){ fb(text); done(); }); }
+      else { fb(text); done(); }
+    });
+  });
+  function fb(text){ var ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); }
+})();
+</script>
+</body>
+</html>
