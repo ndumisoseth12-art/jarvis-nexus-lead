@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script data-title-anim-guard>if('IntersectionObserver' in window)document.documentElement.classList.add('js');</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NSM — Operations, Automated.</title>
 <meta name="description" content="A 10-bot AI ops suite for South African businesses. Reply to enquiries in seconds, recover failed payments, win back silent customers, protect reviews. From R1,990/month, in Rand, on email and Telegram.">
@@ -3732,28 +3731,6 @@ body.menu-open {
   .build-log-text { font-size: 13.5px; }
 }
 
-/* === Big-title reveal (word cascade + hero rise) === */
-.tr{opacity:1 !important;transform:none !important;transition:none !important;}
-.tr .word{display:inline-block;}
-.tr .word-i{display:inline-block;opacity:0;}
-@keyframes wordRise{from{opacity:0;transform:translateY(0.5em);}to{opacity:1;transform:none;}}
-.section.show .tr .word-i{animation:wordRise 680ms cubic-bezier(0.16,1,0.3,1) both;}
-.section.show .tr .word:nth-of-type(1) .word-i{animation-delay:60ms;}
-.section.show .tr .word:nth-of-type(2) .word-i{animation-delay:160ms;}
-.section.show .tr .word:nth-of-type(3) .word-i{animation-delay:260ms;}
-.section.show .tr .word:nth-of-type(4) .word-i{animation-delay:360ms;}
-.section.show .tr .word:nth-of-type(5) .word-i{animation-delay:460ms;}
-.section.show .tr .word:nth-of-type(6) .word-i{animation-delay:560ms;}
-.section.show .tr .word:nth-of-type(7) .word-i{animation-delay:660ms;}
-.section.show .tr .word:nth-of-type(8) .word-i{animation-delay:760ms;}
-.section.show .tr .word:nth-of-type(9) .word-i{animation-delay:860ms;}
-.section.show .tr .word:nth-of-type(10) .word-i{animation-delay:960ms;}
-.section.show .tr .word:nth-of-type(11) .word-i{animation-delay:1060ms;}
-.section.show .tr .word:nth-of-type(12) .word-i{animation-delay:1160ms;}
-@keyframes heroRise{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:none;}}
-html.js .hero-rise{opacity:0;animation:heroRise 680ms cubic-bezier(0.16,1,0.3,1) both;}
-html.js .hero-rise.d1{animation-delay:60ms}html.js .hero-rise.d2{animation-delay:160ms}html.js .hero-rise.d3{animation-delay:280ms}html.js .hero-rise.d4{animation-delay:380ms}
-@media (prefers-reduced-motion:reduce){.tr .word-i,html.js .hero-rise{transform:none!important;opacity:1!important;transition:none!important;animation:none!important;}}
 </style>
 </head>
 <!--
@@ -3861,14 +3838,14 @@ html.js .hero-rise.d1{animation-delay:60ms}html.js .hero-rise.d2{animation-delay
           <span>9 live · built solo in Joburg · POPIA-safe</span>
           <span class="ev-chevron" aria-hidden="true">›</span>
         </a>
-        <div class="hero-kicker hero-rise d1" style="font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:22px;line-height:1.1;color:var(--text-md);letter-spacing:-0.01em;margin:14px 0 10px;">Operations, Automated<span style="color:var(--indigo-deep,#4f46e5);">.</span></div>
-        <h1 class="hero-title hero-title-grad hero-rise d2">
+        <div class="hero-kicker" style="font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:22px;line-height:1.1;color:var(--text-md);letter-spacing:-0.01em;margin:14px 0 10px;">Operations, Automated<span style="color:var(--indigo-deep,#4f46e5);">.</span></div>
+        <h1 class="hero-title hero-title-grad">
           You can&rsquo;t be <span class="accent italic">everywhere.<svg class="accent-underline" viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="accentUnderlineGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#818cf8"/><stop offset="50%" stop-color="#6366f1"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs><path pathLength="1" d="M 0,10 Q 75,0 150,10 Q 225,20 300,10"/></svg></span>
         </h1>
-        <p class="hero-sub hero-rise d3">
+        <p class="hero-sub">
           The enquiries you can&rsquo;t get to. The invoices nobody chased. The 5&#9733; reviews left hanging. That&rsquo;s revenue slipping out the back while you&rsquo;re heads-down on the work. NSM&rsquo;s 9 bots handle it for you, in your voice, automatically. <strong>From R1,990/month, in Rand, on email and Telegram (WhatsApp lands Phase 3).</strong>
         </p>
-        <div class="hero-ctas hero-rise d4">
+        <div class="hero-ctas">
           <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book a 30-min demo <span class="arrow">&rarr;</span></a>
           <a href="#bots" class="btn-text">or see the suite &darr;</a>
         </div>
@@ -3954,7 +3931,7 @@ html.js .hero-rise.d1{animation-delay:60ms}html.js .hero-rise.d2{animation-delay
   <div class="wrap">
     <div class="build-log-head">
       <div class="section-eyebrow">// THE BUILD LOG</div>
-      <h2 class="section-title tr"><span class="word"><span class="word-i">Shipping</span></span> <span class="word"><span class="word-i"><span class="em">every week.</span></span></span> <span class="word"><span class="word-i">Here&rsquo;s</span></span> <span class="word"><span class="word-i">the</span></span> <span class="word"><span class="word-i">receipt.</span></span></h2>
+      <h2 class="section-title">Shipping <span class="em">every week.</span> Here&rsquo;s the receipt.</h2>
       <p class="section-sub">Backing a solo founder is a fair thing to hesitate over &mdash; so here&rsquo;s the proof I show up. Every entry below is a real shipment, built solo, updated as I push. No vapourware.</p>
     </div>
 
@@ -4049,7 +4026,7 @@ html.js .hero-rise.d1{animation-delay:60ms}html.js .hero-rise.d2{animation-delay
   <div class="section-glow left top" aria-hidden="true"></div>
   <div class="wrap">
     <div class="section-eyebrow">// WHAT YOUR INBOX LOOKS LIKE AT 6:31AM</div>
-    <h2 class="section-title tr"><span class="word"><span class="word-i">This</span></span> <span class="word"><span class="word-i">is</span></span> <span class="word"><span class="word-i">what</span></span> <span class="word"><span class="word-i"><span class="em">actually lands</span></span></span> <span class="word"><span class="word-i">at</span></span> <span class="word"><span class="word-i">6:31am.</span></span></h2>
+    <h2 class="section-title">This is what <span class="em">actually lands</span> at 6:31am.</h2>
     <p class="section-sub">Three real output templates — the exact words your customers get (in your voice, not a robot&rsquo;s) and the exact alert you wake up to. Names and amounts are sample data.</p>
 
     <p class="outputs-honesty">
@@ -4158,7 +4135,7 @@ html.js .hero-rise.d1{animation-delay:60ms}html.js .hero-rise.d2{animation-delay
   <div class="section-glow right top" aria-hidden="true"></div>
   <div class="wrap">
     <div class="section-eyebrow">// THE SUITE</div>
-    <h2 class="section-title tr"><span class="word"><span class="word-i">Ten</span></span> <span class="word"><span class="word-i">jobs.</span></span> <span class="word"><span class="word-i"><span class="em">Ten bots.</span></span></span> <span class="word"><span class="word-i">Zero</span></span> <span class="word"><span class="word-i">overtime.</span></span></h2>
+    <h2 class="section-title">Ten jobs. <span class="em">Ten bots.</span> Zero overtime.</h2>
     <p class="section-sub">Each bot does one job — and does it whether you&rsquo;re awake or not. Start with the one that fixes your biggest leak today; add the rest as you grow.</p>
 
     <div class="phase3-note">
@@ -4318,7 +4295,7 @@ html.js .hero-rise.d1{animation-delay:60ms}html.js .hero-rise.d2{animation-delay
   <div class="section-glow left top" aria-hidden="true"></div>
   <div class="wrap">
     <div class="section-eyebrow">// HOW IT WORKS</div>
-    <h2 class="section-title tr"><span class="word"><span class="word-i">From</span></span> <span class="word"><span class="word-i"><span class="em">enquiry</span></span></span> <span class="word"><span class="word-i">to</span></span> <span class="word"><span class="word-i"><span class="em">paid</span></span></span> <span class="word"><span class="word-i">—</span></span> <span class="word"><span class="word-i">without</span></span> <span class="word"><span class="word-i">you</span></span> <span class="word"><span class="word-i">in</span></span> <span class="word"><span class="word-i">the</span></span> <span class="word"><span class="word-i">loop.</span></span></h2>
+    <h2 class="section-title">From <span class="em">enquiry</span> to <span class="em">paid</span> — without you in the loop.</h2>
     <p class="section-sub"><em>If you can check your email, you can use these bots.</em> The setup we handle. After that, your business runs in the background.</p>
 
     <div class="how-grid stagger">
@@ -4362,7 +4339,7 @@ html.js .hero-rise.d1{animation-delay:60ms}html.js .hero-rise.d2{animation-delay
       </div>
       <div class="founder-body">
         <div class="section-eyebrow">// THE FOUNDER</div>
-        <h2 class="section-title tr"><span class="word"><span class="word-i">I&rsquo;m</span></span> <span class="word"><span class="word-i">Seth.</span></span> <span class="word"><span class="word-i"><span class="em">I built every bot myself.</span></span></span></h2>
+        <h2 class="section-title">I&rsquo;m Seth. <span class="em">I built every bot myself.</span></h2>
         <p>I&rsquo;m a Johannesburg-based builder studying Electrical Engineering. I started NSM because every SA business I know &mdash; salons, trainers, plumbers, Airbnb hosts &mdash; is bleeding revenue to slow replies and missed follow-ups, while paying R30k+ for ops staff they can&rsquo;t really afford. NSM is that ops team &mdash; minus the R30k salary, and it never calls in sick.</p>
         <p>Every bot on this page was built, deployed, and tested by me personally. For the first 10 clients, <strong>I do the onboarding call myself, wire the bots into your Gmail and Sheets myself, and stay on WhatsApp for anything that breaks.</strong> No support tickets, no offshore call centre. Direct line to the person who built it.</p>
         <div class="founder-pills">
@@ -4381,7 +4358,7 @@ html.js .hero-rise.d1{animation-delay:60ms}html.js .hero-rise.d2{animation-delay
   <div class="wrap">
     <div class="router" id="routerCard">
       <div class="router-head">// THE AI ROUTER</div>
-      <h2 class="router-title tr"><span class="word"><span class="word-i">Not</span></span> <span class="word"><span class="word-i">sure</span></span> <span class="word"><span class="word-i">which</span></span> <span class="word"><span class="word-i">bot?</span></span> <span class="word"><span class="word-i"><span class="em">Tell us your headache.</span></span></span></h2>
+      <h2 class="router-title">Not sure which bot? <span class="em">Tell us your headache.</span></h2>
       <p class="router-sub">Type your biggest business headache below. The AI Router picks your bot in seconds — and Seth WhatsApps a personal follow-up within 2 hours.</p>
 
       <form class="router-form" id="routerForm">
@@ -4409,7 +4386,7 @@ html.js .hero-rise.d1{animation-delay:60ms}html.js .hero-rise.d2{animation-delay
   <div class="section-glow left top" aria-hidden="true"></div>
   <div class="wrap">
     <div class="section-eyebrow">// HONEST ANSWERS</div>
-    <h2 class="section-title tr"><span class="word"><span class="word-i">The</span></span> <span class="word"><span class="word-i">questions</span></span> <span class="word"><span class="word-i"><span class="em">everyone asks me</span></span></span> <span class="word"><span class="word-i">before</span></span> <span class="word"><span class="word-i">they</span></span> <span class="word"><span class="word-i">sign</span></span> <span class="word"><span class="word-i">up.</span></span></h2>
+    <h2 class="section-title">The questions <span class="em">everyone asks me</span> before they sign up.</h2>
     <p class="section-sub">No marketing fluff. Tap any question.</p>
 
     <div class="faq-list stagger">
