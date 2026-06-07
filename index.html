@@ -1956,6 +1956,8 @@ body[data-payfast="live"] .price-cta-demo-secondary { display: block; }
 @media (max-width: 768px) {
   .compare-tier-head.featured,
   .compare-table tbody td.featured { border-left: none !important; border-right: none !important; }
+  /* the right-edge scroll-fade band overlays the column at the screen edge and cuts the text — drop it on mobile */
+  .compare-table-scroll::after { display: none !important; }
 }
 }
 
