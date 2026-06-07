@@ -312,6 +312,28 @@ body {
 .footer a { color:var(--text-lo); text-decoration:none; border-bottom:1px solid var(--border-subtle); }
 .footer a:hover { color:var(--text-md); }
 .powered { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.05em; }
+/* Inline validation + anti-spam honeypot */
+.hp-field { position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none; }
+.req { color:var(--bad); font-weight:400; }
+.field-msg { display:block; font-size:12px; color:var(--bad); margin-top:6px; opacity:0; transform:translateY(-3px); transition:opacity 160ms ease, transform 160ms ease; }
+.field-msg.show { opacity:1; transform:none; }
+.field input.invalid { border-color:var(--bad); }
+.field input.invalid:focus { box-shadow:0 0 0 3px rgba(244,63,94,0.14); }
+/* Concept-C signature accent on the NSM mark — always NSM indigo, never the client primary */
+.powered a {
+  position:relative; display:inline-block;
+  color:var(--text-md); font-weight:700; text-decoration:none;
+  border-bottom:none; padding:0 6px 3px 0; transition:color 160ms ease;
+}
+.powered a::after {
+  content:''; position:absolute; left:0; right:6px; bottom:0; height:1.5px;
+  background:linear-gradient(90deg,#818cf8,#6366f1,#4f46e5); border-radius:2px;
+}
+.powered a::before {
+  content:''; position:absolute; right:0; bottom:0; width:2.5px; height:2.5px;
+  border-radius:50%; background:#4f46e5;
+}
+.powered a:hover { color:var(--text-hi); }
 </style>
 </head>
 <body>
@@ -356,17 +378,23 @@ body {
         <p class="form-sub">{{FORM_SUB}}</p>
 
         <form id="intake-form" novalidate>
+          <div class="hp-field" aria-hidden="true">
+            <label for="company_website">Company website</label>
+            <input type="text" id="company_website" name="company_website" tabindex="-1" autocomplete="off">
+          </div>
           <div class="field">
-            <label for="name">Your name</label>
+            <label for="name">Your name <span class="req" aria-hidden="true">*</span></label>
             <input type="text" id="name" name="name" required autocomplete="name">
           </div>
           <div class="field">
-            <label for="phone">Phone</label>
+            <label for="phone">Phone <span class="req" aria-hidden="true">*</span></label>
             <input type="tel" id="phone" name="phone" required autocomplete="tel" placeholder="082 ...">
+            <span class="field-msg" id="msg-phone" role="alert"></span>
           </div>
           <div class="field">
-            <label for="email">Email</label>
+            <label for="email">Email <span class="req" aria-hidden="true">*</span></label>
             <input type="email" id="email" name="email" required autocomplete="email">
+            <span class="field-msg" id="msg-email" role="alert"></span>
           </div>
 
           <!-- Industry-specific fields injected here -->
@@ -401,7 +429,7 @@ body {
   <footer class="footer">
     <div>{{BUSINESS_NAME}} · {{FOOTER_LINE}}</div>
     <div class="powered">
-      Powered by <a href="https://jarvis-nexus-lead-jkon.vercel.app" target="_blank" rel="noopener">Jarvis Nexus</a>
+      Powered by <a href="https://jarvis-nexus-lead-jkon.vercel.app" target="_blank" rel="noopener">NSM</a>
     </div>
   </footer>
 
@@ -429,14 +457,39 @@ body {
     f.addEventListener('blur', updateProgress);
   });
 
+  // --- inline validation (email + phone) ---
+  var emailEl = form.querySelector('#email'), emailMsg = document.getElementById('msg-email');
+  var phoneEl = form.querySelector('#phone'), phoneMsg = document.getElementById('msg-phone');
+  function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v || '').trim()); }
+  function validPhone(v) { return (v || '').replace(/[^0-9]/g, '').length >= 9; }
+  function setMsg(field, msgEl, text) {
+    if (!field || !msgEl) return;
+    if (text) { field.classList.add('invalid'); msgEl.textContent = text; msgEl.classList.add('show'); }
+    else { field.classList.remove('invalid'); msgEl.textContent = ''; msgEl.classList.remove('show'); }
+  }
+  if (emailEl) {
+    emailEl.addEventListener('blur', function () { var v = emailEl.value.trim(); setMsg(emailEl, emailMsg, v && !validEmail(v) ? 'Please enter a valid email address.' : ''); });
+    emailEl.addEventListener('input', function () { if (emailEl.classList.contains('invalid') && validEmail(emailEl.value)) setMsg(emailEl, emailMsg, ''); });
+  }
+  if (phoneEl) {
+    phoneEl.addEventListener('blur', function () { var v = phoneEl.value.trim(); setMsg(phoneEl, phoneMsg, v && !validPhone(v) ? 'Please enter a valid phone number.' : ''); });
+    phoneEl.addEventListener('input', function () { if (phoneEl.classList.contains('invalid') && validPhone(phoneEl.value)) setMsg(phoneEl, phoneMsg, ''); });
+  }
+
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const data = Object.fromEntries(new FormData(form));
-    if (!data.name || !data.phone || !data.email) {
-      alert('Please fill in your name, phone and email.');
-      return;
-    }
+
+    // anti-spam honeypot — a filled hidden field means a bot; show success, send nothing
+    if (data.company_website) { progress.style.width = '100%'; card.hidden = true; success.hidden = false; return; }
+    delete data.company_website;
+
+    var bad = null;
+    if (!data.name || !data.name.trim()) bad = form.querySelector('#name');
+    else if (!validPhone(data.phone)) { setMsg(phoneEl, phoneMsg, 'Please enter a valid phone number.'); bad = phoneEl; }
+    else if (!validEmail(data.email)) { setMsg(emailEl, emailMsg, 'Please enter a valid email address.'); bad = emailEl; }
+    if (bad) { bad.focus(); return; }
 
     btn.disabled = true;
     btn.classList.add('is-loading');
