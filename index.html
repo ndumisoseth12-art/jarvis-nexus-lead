@@ -1951,7 +1951,7 @@ body[data-payfast="live"] .price-cta-demo-secondary { display: block; }
   transition: opacity 200ms ease;
 }
 @media (max-width: 720px) {
-  .compare-table-scroll::after { opacity: 1; }
+  .compare-table-scroll.is-scrollable::after { opacity: 1; }
 }
 
 .compare-table {
@@ -4753,6 +4753,7 @@ body.menu-open {
         <a href="/support">Smart Support</a>
         <a href="/lifetime">Lifetime &amp; Next Action</a>
         <a href="/reviews">Review Pro</a>
+        <a href="/cashflow">Cash Flow Forecast</a>
       </div>
       <div class="foot-col">
         <h4>Company</h4>
@@ -5199,6 +5200,15 @@ window.addEventListener('load', function () {
     });
   }, { threshold: 0.15 });
   obs.observe(scroll);
+  // Right-edge fade only when the table actually overflows AND isn't scrolled to the end.
+  function updateFade() {
+    var overflowing = scroll.scrollWidth > scroll.clientWidth + 2;
+    var atEnd = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 2;
+    scroll.classList.toggle('is-scrollable', overflowing && !atEnd);
+  }
+  updateFade();
+  scroll.addEventListener('scroll', updateFade, { passive: true });
+  window.addEventListener('resize', updateFade);
 })();
 </script>
 

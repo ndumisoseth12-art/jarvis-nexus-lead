@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSM — Instagram Playbook (internal)</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Ctext x='12.5' y='23' font-family='Inter,Arial,sans-serif' font-weight='800' font-size='20' text-anchor='middle' fill='white'%3EN%3C/text%3E%3Ccircle cx='24' cy='22' r='2.4' fill='white'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --indigo-glow:#818cf8; --indigo:#6366f1; --indigo-deep:#4f46e5;
+  --indigo-shadow:rgba(99,102,241,0.40); --indigo-soft:rgba(99,102,241,0.10);
+  --surface-0:#08080c; --surface-1:#0e0e15; --surface-2:#14141d;
+  --surface-3:#1c1c28; --surface-4:#25253a;
+  --border-faint:rgba(255,255,255,0.04); --border-subtle:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.15); --border-indigo:rgba(99,102,241,0.25);
+  --text-hi:#f5f5fa; --text-md:#a8a8c2; --text-lo:#6b6b85; --text-faint:#3a3a52;
+  --ok:#10b981; --warn:#f59e0b; --bad:#f43f5e; --info:#22d3ee; --gold:#facc15;
+  --grad-accent:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);
+  --grad-divider:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.5) 50%,transparent 100%);
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; overflow-x:clip; }
+body {
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--surface-0); color:var(--text-hi);
+  font-size:15px; line-height:1.6; font-weight:400;
+  letter-spacing:-0.005em; min-height:100vh;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+.serif { font-family:'Instrument Serif',serif; font-weight:400; letter-spacing:-0.02em; }
+.mono { font-family:'JetBrains Mono',monospace; }
+
+/* ============ GATE ============ */
+#gate {
+  position:fixed; inset:0; z-index:9999;
+  background:var(--surface-0);
+  display:grid; place-items:center; padding:24px;
+}
+#gate.hidden { display:none; }
+.gate-card {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:48px 40px;
+  max-width:420px; width:100%; text-align:center; position:relative;
+  box-shadow:0 24px 64px rgba(0,0,0,0.5);
+}
+.gate-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider);
+}
+.gate-mark {
+  width:48px; height:48px; margin:0 auto 20px;
+  background:var(--grad-accent); border-radius:12px;
+  display:grid; place-items:center; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset, 0 8px 24px var(--indigo-shadow);
+}
+.gate-eyebrow {
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px; color:var(--indigo-glow);
+  letter-spacing:0.18em; text-transform:uppercase; margin-bottom:12px;
+}
+.gate-title {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:32px; line-height:1.1; letter-spacing:-0.02em;
+  color:var(--text-hi); margin-bottom:10px;
+}
+.gate-sub { font-size:14px; color:var(--text-md); margin-bottom:28px; }
+.gate-input {
+  width:100%; padding:14px 16px; background:var(--surface-3);
+  border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  color:var(--text-hi); font-size:15px; font-family:'Inter',sans-serif;
+  margin-bottom:12px; outline:none; text-align:center; letter-spacing:0.04em;
+  transition:border-color 200ms ease, box-shadow 200ms ease;
+}
+.gate-input:focus { border-color:var(--border-indigo); box-shadow:0 0 0 4px var(--indigo-soft); }
+.gate-btn {
+  width:100%; padding:14px; background:var(--grad-accent); color:#fff;
+  border:none; border-radius:var(--r-md); cursor:pointer;
+  font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 16px var(--indigo-shadow);
+  transition:transform 150ms ease, box-shadow 200ms ease;
+}
+.gate-btn:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 8px 24px var(--indigo-shadow); }
+.gate-error {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--bad); margin-top:14px; min-height:14px;
+  letter-spacing:0.06em; text-transform:uppercase;
+}
+
+/* ============ ATMOS ============ */
+.atmos { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.atmos::before {
+  content:''; position:absolute; width:900px; height:900px; border-radius:50%;
+  top:-300px; right:-200px;
+  background:radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
+  filter:blur(60px);
+}
+.atmos::after {
+  content:''; position:absolute; width:700px; height:700px; border-radius:50%;
+  bottom:-200px; left:-150px;
+  background:radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 60%);
+  filter:blur(60px);
+}
+.grid-lines {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size:calc(100% / 12) 100%;
+  max-width:1400px; margin:0 auto;
+  left:50%; transform:translateX(-50%); width:100%;
+}
+
+/* ============ LAYOUT ============ */
+.wrap { max-width:980px; margin:0 auto; padding:48px 24px 96px; position:relative; z-index:1; }
+.nav {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:16px 0 32px; border-bottom:1px solid var(--border-faint); margin-bottom:48px;
+}
+.brand { display:flex; align-items:center; gap:12px; }
+.brand-mark {
+  width:32px; height:32px; background:var(--grad-accent); border-radius:7px;
+  display:grid; place-items:center; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset;
+}
+.brand-mark::before {
+  content:''; position:absolute; inset:7px;
+  border:1.6px solid white; border-radius:3px;
+  transform:rotate(45deg);
+}
+.brand-name { font-weight:600; font-size:15px; }
+.nav-pill {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  padding:6px 12px; background:var(--indigo-soft);
+  border:1px solid var(--border-indigo); border-radius:99px;
+}
+
+/* ============ HERO ============ */
+.eyebrow {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:16px;
+}
+.hero h1 {
+  font-family:'Instrument Serif',serif; font-style:italic; font-weight:400;
+  font-size:56px; line-height:1.05; letter-spacing:-0.025em;
+  margin-bottom:18px;
+}
+.hero h1 em { font-style:italic; color:var(--indigo-glow); }
+.hero-sub { font-size:17px; color:var(--text-md); max-width:720px; margin-bottom:32px; }
+
+/* ============ TOC ============ */
+.toc {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:24px 28px; margin-bottom:64px;
+}
+.toc-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.toc ol { list-style:none; counter-reset:toc; }
+.toc li { counter-increment:toc; padding:6px 0; }
+.toc li::before {
+  content:counter(toc,decimal-leading-zero);
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); margin-right:14px;
+}
+.toc a { color:var(--text-hi); text-decoration:none; font-size:15px; }
+.toc a:hover { color:var(--indigo-glow); }
+
+/* ============ SECTION ============ */
+section { margin-bottom:80px; scroll-margin-top:32px; }
+.s-eyebrow {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.s-title {
+  font-family:'Instrument Serif',serif; font-style:italic; font-weight:400;
+  font-size:38px; line-height:1.1; letter-spacing:-0.02em; margin-bottom:24px;
+}
+.s-sub { font-size:16px; color:var(--text-md); margin-bottom:28px; max-width:760px; }
+.s-body p { margin-bottom:18px; color:var(--text-hi); }
+.s-body p + p { margin-top:0; }
+.s-body strong { color:var(--text-hi); font-weight:600; }
+.s-body em { color:var(--indigo-glow); font-style:italic; }
+
+.callout {
+  background:var(--surface-1); border:1px solid var(--border-indigo);
+  border-radius:var(--r-md); padding:18px 22px; margin:24px 0;
+  font-size:14px; color:var(--text-md);
+}
+.callout strong { color:var(--text-hi); }
+
+/* ============ BOT CARDS ============ */
+.bots-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; margin-top:24px; }
+.bot-card {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:20px; position:relative;
+  transition:border-color 200ms ease, transform 200ms ease;
+}
+.bot-card:hover { border-color:var(--border-indigo); transform:translateY(-2px); }
+.bot-id {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:8px;
+}
+.bot-name { font-weight:600; font-size:16px; margin-bottom:12px; }
+.bot-one-liner { color:var(--text-md); font-size:13.5px; line-height:1.55; margin-bottom:14px; }
+.bot-meta { display:flex; gap:14px; flex-wrap:wrap; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-lo); letter-spacing:0.04em; }
+.bot-meta span { display:inline-flex; align-items:center; gap:6px; }
+.dot { display:inline-block; width:6px; height:6px; border-radius:50%; }
+.dot.client { background:var(--info); }
+.dot.owner { background:var(--ok); }
+.dot.you { background:var(--gold); }
+.dot.parked { background:var(--text-faint); }
+
+.legend {
+  display:flex; gap:24px; margin:24px 0; padding:14px 18px;
+  background:var(--surface-1); border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-md);
+  flex-wrap:wrap;
+}
+.legend > span { display:inline-flex; align-items:center; gap:8px; }
+
+/* ============ STACK / FLOW DIAGRAM ============ */
+.stack-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-top:24px; }
+.stack-item {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:18px;
+}
+.stack-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:8px;
+}
+.stack-name { font-weight:600; font-size:14px; margin-bottom:6px; }
+.stack-desc { font-size:13px; color:var(--text-md); }
+
+/* ============ FLOW ============ */
+.flow {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:24px; margin-top:24px;
+  font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text-md);
+  line-height:1.9; overflow-x:auto;
+}
+.flow strong { color:var(--text-hi); }
+.flow .arrow { color:var(--indigo-glow); }
+
+/* ============ QUICK REFERENCE ============ */
+.ref-list { display:grid; gap:12px; }
+.ref-item {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:16px 20px;
+  display:grid; grid-template-columns:160px 1fr; gap:20px; align-items:start;
+}
+.ref-key {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--indigo-glow); letter-spacing:0.06em;
+}
+.ref-val { font-size:14px; color:var(--text-hi); word-break:break-all; }
+.ref-val .small { font-size:12px; color:var(--text-md); display:block; margin-top:4px; }
+@media (max-width:600px){ .ref-item { grid-template-columns:1fr; } }
+
+/* ============ ORDERED LIST ============ */
+.ord { counter-reset:ord; list-style:none; }
+.ord li {
+  counter-increment:ord; position:relative; padding:14px 0 14px 56px;
+  border-bottom:1px solid var(--border-faint);
+}
+.ord li:last-child { border-bottom:none; }
+.ord li::before {
+  content:counter(ord,decimal-leading-zero);
+  position:absolute; left:0; top:14px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--indigo-glow); letter-spacing:0.06em;
+  padding:4px 10px; background:var(--indigo-soft);
+  border:1px solid var(--border-indigo); border-radius:6px;
+}
+.ord li strong { color:var(--text-hi); display:block; margin-bottom:4px; }
+.ord li span { color:var(--text-md); font-size:14px; }
+
+/* ============ FOOTER ============ */
+.foot {
+  margin-top:96px; padding-top:32px; border-top:1px solid var(--border-faint);
+  text-align:center; font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.12em; text-transform:uppercase;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:680px){
+  .hero h1 { font-size:38px; }
+  .s-title { font-size:28px; }
+  .wrap { padding:32px 18px 64px; }
+}
+
+/* ===== Concept C signature-accent logo (brand-locked 2026-06-06) ===== */
+.logo { gap:10px; }
+.logo-name {
+  position:relative; display:inline-block;
+  font-weight:800; font-size:19px; color:var(--text-hi); letter-spacing:0.01em;
+  padding-bottom:5px; padding-right:7px;
+}
+.logo-name::after {
+  content:''; position:absolute; left:1px; right:7px; bottom:1px; height:2px;
+  background:var(--grad-accent,linear-gradient(135deg,#818cf8,#6366f1,#4f46e5)); border-radius:2px;
+}
+.logo-name::before {
+  content:''; position:absolute; right:0; bottom:0; width:3px; height:3px;
+  border-radius:50%; background:var(--indigo-deep,#4f46e5);
+}
+.logo-tag { font-family:'JetBrains Mono',ui-monospace,monospace; font-weight:500; font-size:9.5px; color:var(--text-lo); letter-spacing:0.18em; text-transform:uppercase; margin-top:3px; }
+
+
+/* ===== Instagram playbook: copy-paste blocks ===== */
+.script-box { margin:18px 0; border:1px solid var(--border-subtle,rgba(255,255,255,0.08)); border-radius:var(--r-md,12px); background:var(--surface-2,#14141d); overflow:hidden; }
+.script-head { display:flex; justify-content:space-between; align-items:center; padding:10px 16px; background:var(--surface-3,#1c1c28); border-bottom:1px solid var(--border-faint,rgba(255,255,255,0.04)); font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-lo,#6b6b85); }
+.copy-btn { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--indigo-glow,#818cf8); background:var(--indigo-soft,rgba(99,102,241,0.10)); border:1px solid var(--border-indigo,rgba(99,102,241,0.25)); border-radius:6px; padding:4px 11px; cursor:pointer; transition:background 150ms,color 150ms; }
+.copy-btn:hover { background:rgba(99,102,241,0.20); }
+.copy-btn.copied { color:var(--ok,#10b981); border-color:rgba(16,185,129,0.40); background:rgba(16,185,129,0.12); }
+.script { margin:0; padding:18px 16px; white-space:pre-wrap; word-break:break-word; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--text-md,#a8a8c2); background:transparent; }
+.blk-label { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-lo,#6b6b85); margin:22px 0 8px; }
+.pts { color:var(--text-md,#a8a8c2); font-size:14px; line-height:1.7; margin:8px 0 0; padding-left:20px; }
+.never { list-style:none; padding:0; margin:8px 0 0; }
+.never li { position:relative; padding-left:24px; margin-bottom:8px; color:var(--text-md,#a8a8c2); font-size:14px; }
+.never li::before { content:'✕'; position:absolute; left:0; top:0; color:var(--bad,#f43f5e); font-weight:700; }
+.pillar { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0 0; }
+@media (max-width:720px){ .pillar { grid-template-columns:1fr; } }
+.pillar-card { background:var(--surface-2,#14141d); border:1px solid var(--border-faint,rgba(255,255,255,0.04)); border-left:3px solid var(--indigo,#6366f1); border-radius:var(--r-md,12px); padding:16px 18px; }
+.pillar-card h4 { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--indigo-glow,#818cf8); margin:0 0 8px; font-weight:600; }
+.pillar-card p { margin:0; color:var(--text-md,#a8a8c2); font-size:14px; line-height:1.6; }
+.pillar-card .ratio { color:var(--text-hi,#f5f5fa); font-weight:600; }
+</style>
+</head>
+<body>
+
+<!-- ============ GATE OVERLAY ============ -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-mark"></div>
+    <div class="gate-eyebrow">// Operator only</div>
+    <div class="gate-title">Instagram Playbook</div>
+    <div class="gate-sub">Internal Instagram playbook. Passphrase required.</div>
+    <input type="password" id="gate-input" class="gate-input" placeholder="Passphrase" autocomplete="off" autofocus>
+    <button id="gate-btn" class="gate-btn">Unlock</button>
+    <div id="gate-error" class="gate-error"></div>
+  </div>
+</div>
+
+<div class="atmos"></div>
+<div class="grid-lines"></div>
+
+<div class="wrap" id="content" style="display:none;">
+
+  <nav class="nav">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-name">NSM</div>
+    </div>
+    <span class="nav-pill">Instagram Playbook</span>
+  </nav>
+
+  <header class="hero">
+    <div class="eyebrow">// Operator only · internal</div>
+    <h1>The Instagram <em>playbook.</em></h1>
+    <p class="hero-sub">How to run NSM&rsquo;s Instagram so it earns trust before a prospect ever replies. This is a <strong>credibility surface, not a vanity project</strong> &mdash; every post should make a sceptical SA business owner think &ldquo;this guy is real and he gets my problem.&rdquo; Post 3&ndash;4×/week, stay honest, and let the cold outreach do the closing.</p>
+  </header>
+
+  <div class="toc">
+    <div class="toc-label">// What&rsquo;s in here</div>
+    <ol>
+      <li><a href="#play">The play (why we post)</a></li>
+      <li><a href="#pillars">Content pillars</a></li>
+      <li><a href="#cadence">Weekly cadence</a></li>
+      <li><a href="#captions">Caption templates</a></li>
+      <li><a href="#hashtags">Hashtag sets</a></li>
+      <li><a href="#stories">Stories &amp; highlights</a></li>
+      <li><a href="#bio">Bio &amp; DM-to-demo</a></li>
+      <li><a href="#rules">Rules (don&rsquo;t break these)</a></li>
+    </ol>
+  </div>
+
+  <section id="play">
+    <div class="s-eyebrow">// Section 01</div>
+    <h2 class="s-title">The play</h2>
+    <p class="s-sub">IG isn&rsquo;t where you close &mdash; it&rsquo;s where you become believable. When you DM or email a prospect and they tap your profile, the page has to confirm: real person, real work, understands SA small business.</p>
+    <ul class="pts">
+      <li><strong style="color:var(--text-hi);">Goal:</strong> a profile that makes a cold prospect trust you in 10 seconds &mdash; and a slow trickle of warm inbound DMs.</li>
+      <li><strong style="color:var(--text-hi);">Not the goal:</strong> follower count, viral reels, or posting for the algorithm. Ignore vanity metrics.</li>
+      <li><strong style="color:var(--text-hi);">The test for every post:</strong> would this make a salon owner / plumber / dentist think &ldquo;he actually gets it&rdquo;? If not, don&rsquo;t post it.</li>
+      <li><strong style="color:var(--text-hi);">Your edge:</strong> you&rsquo;re 19, building solo in Joburg, in public. Lean into it &mdash; that&rsquo;s the opposite of a faceless agency, and it&rsquo;s why people will root for you.</li>
+    </ul>
+  </section>
+
+  <section id="pillars">
+    <div class="s-eyebrow">// Section 02</div>
+    <h2 class="s-title">Content pillars</h2>
+    <p class="s-sub">Five buckets. Rotate them so the feed mixes proof, teaching, and personality. Roughly: 40% build-in-public, 25% pain/teaching, 20% bot demos, 15% founder.</p>
+    <div class="pillar">
+      <div class="pillar-card"><h4>1 · Build in public</h4><p><span class="ratio">~40%</span> &mdash; what you shipped this week, screenshots of a real workflow, a bug you fixed, a milestone. Proof you&rsquo;re actively building, not coasting. Ties to the homepage build-log.</p></div>
+      <div class="pillar-card"><h4>2 · SA SMB pain</h4><p><span class="ratio">~25%</span> &mdash; relatable problems your buyer feels: &ldquo;R6,000/mo walking out to no-shows&rdquo;, the 2am review, the invoice nobody chased. Name the pain better than they can.</p></div>
+      <div class="pillar-card"><h4>3 · Bot demos</h4><p><span class="ratio">~20%</span> &mdash; 15&ndash;30s screen recordings of one bot doing one job (a no-show rebook firing, a review reply drafting). Show, don&rsquo;t tell. Sample data only.</p></div>
+      <div class="pillar-card"><h4>4 · Founder</h4><p><span class="ratio">~15%</span> &mdash; you. Studying electrical engineering, building this between classes, why you started, the aunt with the salon. Human, honest, no flexing.</p></div>
+      <div class="pillar-card"><h4>5 · Results (later)</h4><p>ONLY once real pilots land &mdash; a genuine before/after with the client&rsquo;s permission. Until then, zero results posts. No fake numbers, ever.</p></div>
+    </div>
+  </section>
+
+  <section id="cadence">
+    <div class="s-eyebrow">// Section 03</div>
+    <h2 class="s-title">Weekly cadence</h2>
+    <p class="s-sub">3&ndash;4 feed posts + light stories. Consistency beats volume &mdash; better 3 solid posts than 7 rushed ones.</p>
+    <ul class="pts">
+      <li><strong style="color:var(--text-hi);">Mon</strong> &mdash; Build-in-public: &ldquo;Shipped this week&rdquo; (mirror the homepage build-log).</li>
+      <li><strong style="color:var(--text-hi);">Wed</strong> &mdash; Pain/teaching carousel: one SA SMB problem + how it gets solved.</li>
+      <li><strong style="color:var(--text-hi);">Fri</strong> &mdash; Bot demo reel (15&ndash;30s) OR founder post, alternating.</li>
+      <li><strong style="color:var(--text-hi);">Stories</strong> &mdash; 2&ndash;3×/week: behind-the-scenes, a poll (&ldquo;how do you handle no-shows?&rdquo;), repost a reply. Keep it light.</li>
+      <li><strong style="color:var(--text-hi);">Best times (SA):</strong> weekday mornings 7&ndash;9am or evenings 7&ndash;9pm. Post, then reply to every comment for the first hour.</li>
+    </ul>
+  </section>
+
+  <section id="captions">
+    <div class="s-eyebrow">// Section 04</div>
+    <h2 class="s-title">Caption templates</h2>
+    <p class="s-sub">Starting points &mdash; always personalise. First line is the hook (it&rsquo;s all most people read). One clear ask at the end. Tap Copy.</p>
+    <div class="script-box"><div class="script-head"><span>Build-in-public post</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">Week [N] building NSM. 🛠️
+
+This week I shipped [thing] — [one line on what it does for an SA business].
+
+I'm 19, in Joburg, building an AI automation suite for small businesses solo, in public. Some weeks are slow. This one wasn't.
+
+If you run a [salon / practice / trade / Airbnb] and you're drowning in admin, that's exactly what I'm building for.
+
+DM me "DEMO" and I'll show you what it does on your kind of business.</pre></div>
+    <div class="script-box"><div class="script-head"><span>Pain-point carousel (slide 1 hook)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">An average SA salon loses ~R6,000 a month to no-shows. 💸
+
+Not because owners don't care — because you can't be at the chair AND chasing rebooks at the same time.
+
+[Swipe → how to fix it without hiring anyone]
+
+—
+
+(Slide 2) What actually happens: client doesn't show, the slot dies, nobody follows up, they're too embarrassed to rebook.
+(Slide 3) The fix: an SMS goes out within 10 min in your voice offering a same-week rebook. ~35% come back.
+(Slide 4) That's one of 10 small bots I build for SA businesses. DM "DEMO".</pre></div>
+    <div class="script-box"><div class="script-head"><span>Bot demo reel caption</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">This is what happens the moment a customer leaves a review. ↓
+
+[15s screen recording of Review Pro drafting a reply]
+
+No typing. No 2am stress. A reply in your voice, ready before you've even seen it — 5-star or the awkward ones.
+
+(Sample data — NSM is new, I won't fake client work.)
+
+Run a business with reviews to manage? DM "DEMO".</pre></div>
+    <div class="script-box"><div class="script-head"><span>Founder post</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">I'm Seth. I'm 19, studying electrical engineering in Joburg, and I've spent the last 6 months building an AI automation suite for South African small businesses — on my own.
+
+Why? My [aunt/mom's friend] runs a salon and loses real money every month to admin she can't get to. Multiply that by every salon, plumber and Airbnb host I know.
+
+I can't fix the economy. But I can build the small things that stop money leaking out the back.
+
+Building it in public, one bot at a time. Follow along.</pre></div>
+    <div class="script-box"><div class="script-head"><span>Soft CTA caption (use sparingly)</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">I'm taking on 3 SA businesses for a free 30-day pilot. 🤝
+
+No card, no contract. I set everything up, it runs in your voice, and if it doesn't earn its keep you owe nothing.
+
+Salons, trades, Airbnb hosts, small practices — if admin is eating your week, DM me "PILOT".</pre></div>
+  </section>
+
+  <section id="hashtags">
+    <div class="s-eyebrow">// Section 05</div>
+    <h2 class="s-title">Hashtag sets</h2>
+    <p class="s-sub">Use 8&ndash;15, mixing local + niche. Rotate sets so you don&rsquo;t look spammy. SA-specific tags reach the right people.</p>
+    <div class="script-box"><div class="script-head"><span>Core / SA small business</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">#southafrica #smallbusinesssa #sasmallbusiness #joburg #johannesburg #capetown #entrepreneursa #sabusiness #localbusinesssa #smmesa #buildinpublic #automation</pre></div>
+    <div class="script-box"><div class="script-head"><span>Salon / beauty</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">#salonsa #hairsalonjohannesburg #capetownsalon #salonowner #beautybusinesssa #salonbooking #southafricansalons</pre></div>
+    <div class="script-box"><div class="script-head"><span>Trades / services</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">#plumbersa #electriciansa #tradiesa #servicebusiness #smallbusinessowner #joburgbusiness #handymansa</pre></div>
+    <div class="script-box"><div class="script-head"><span>Airbnb / hosting</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">#airbnbsa #superhost #capetownairbnb #shorttermrental #airbnbhost #propertymanagementsa</pre></div>
+  </section>
+
+  <section id="stories">
+    <div class="s-eyebrow">// Section 06</div>
+    <h2 class="s-title">Stories &amp; highlights</h2>
+    <ul class="pts">
+      <li><strong style="color:var(--text-hi);">Story ideas:</strong> a 10s clip of a bot firing · a poll (&ldquo;What eats most of your admin time?&rdquo;) · &ldquo;building this today&rdquo; desk shot · reshare a comment/DM (with permission) · a quick &ldquo;did you know SA salons lose ~R6k/mo to no-shows?&rdquo; stat.</li>
+      <li><strong style="color:var(--text-hi);">Highlights to pin:</strong> &ldquo;The Bots&rdquo; (one cover per bot), &ldquo;Build Log&rdquo;, &ldquo;Pilots&rdquo;, &ldquo;About Seth&rdquo;.</li>
+      <li><strong style="color:var(--text-hi);">Always</strong> end a story with a tap-forward or a DM nudge &mdash; stories are where warm DMs start.</li>
+    </ul>
+  </section>
+
+  <section id="bio">
+    <div class="s-eyebrow">// Section 07</div>
+    <h2 class="s-title">Bio &amp; DM-to-demo</h2>
+    <div class="script-box"><div class="script-head"><span>Bio</span><button class="copy-btn" type="button">Copy</button></div><pre class="script">NSM · Neural Systems Management
+AI automation for SA small businesses 🇿🇦
+10 bots that chase no-shows, get you paid & reply to reviews
+🛠️ Built solo in Joburg · in public
+👇 Free 30-day pilot — DM "DEMO"</pre></div>
+    <p class="blk-label">Link in bio</p>
+    <p class="pts" style="padding-left:0;"><span class="mono">jarvis-nexus-lead-jkon.vercel.app</span> &mdash; or link straight to the pack page that matches whoever you&rsquo;re targeting that week (<span class="mono">/salon</span>, <span class="mono">/trade-pack</span>, etc.).</p>
+    <p class="blk-label">When someone DMs "DEMO" or "PILOT"</p>
+    <ol class="ord">
+      <li><strong>Reply fast &amp; human</strong><span>&ldquo;Hey [name] — glad you reached out 🙏&rdquo;. No copy-paste wall. (Warm DM template is in the Sales Playbook.)</span></li>
+      <li><strong>One question</strong><span>Ask what they run and their biggest admin headache — let them say the pain in their words.</span></li>
+      <li><strong>Move to a call</strong><span>Send the Cal.com link for a 20-min demo. Don&rsquo;t try to sell the whole thing in DMs.</span></li>
+      <li><strong>Log it</strong><span>Add them to the outreach tracker as <span class="mono">replied</span> → <span class="mono">demo-booked</span>.</span></li>
+    </ol>
+  </section>
+
+  <section id="rules">
+    <div class="s-eyebrow">// Section 08</div>
+    <h2 class="s-title">Rules — don&rsquo;t break these</h2>
+    <ul class="never">
+      <li>No fake results, fake clients, or &ldquo;trusted by&rdquo; until real pilots land (same rule as the site).</li>
+      <li>No real customer data in demos — sample data only, and say so. POPIA + trust.</li>
+      <li>No cold-DM spam to strangers. DM warm replies and people who engage — not random businesses (IG limits + it reads desperate).</li>
+      <li>Don&rsquo;t buy followers or engagement. A small real audience &gt; a big fake one for a credibility play.</li>
+      <li>No AI-buzzword bingo (&ldquo;revolutionary&rdquo;, &ldquo;10x&rdquo;). Plain language, real pain.</li>
+      <li>Reply to every genuine comment &amp; DM within a day. The whole point is being reachable and real.</li>
+    </ul>
+    <div class="callout"><strong style="color:var(--text-hi);">North star:</strong> post like the honest 19-year-old builder you are. The feed&rsquo;s only job is to make &ldquo;is this guy legit?&rdquo; answer itself before they even reply.</div>
+  </section>
+
+  <div class="foot">
+    NSM · Built in Joburg · Instagram Playbook v1
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var KEY = 'jn_op_unlocked_v1';
+  var PASS = 'LoveGod12';
+  var gate = document.getElementById('gate');
+  var content = document.getElementById('content');
+  var input = document.getElementById('gate-input');
+  var btn = document.getElementById('gate-btn');
+  var err = document.getElementById('gate-error');
+
+  function unlock(){
+    localStorage.setItem(KEY, 'true');
+    gate.classList.add('hidden');
+    content.style.display = 'block';
+  }
+  function fail(){
+    err.textContent = 'Wrong passphrase';
+    input.value = '';
+    input.focus();
+    setTimeout(function(){ err.textContent = ''; }, 2400);
+  }
+
+  if (localStorage.getItem(KEY) === 'true') {
+    unlock();
+  } else {
+    btn.addEventListener('click', function(){
+      if (input.value === PASS) unlock(); else fail();
+    });
+    input.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') {
+        if (input.value === PASS) unlock(); else fail();
+      }
+    });
+  }
+})();
+</script>
+
+
+<script>
+(function(){
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var box=btn.closest('.script-box'), pre=box&&box.querySelector('.script'); if(!pre)return;
+      var text=pre.innerText;
+      function done(){ btn.classList.add('copied'); var t=btn.textContent; btn.textContent='Copied'; setTimeout(function(){btn.classList.remove('copied');btn.textContent=t;},1600); }
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){fb(text);done();});}else{fb(text);done();}
+    });
+  });
+  function fb(t){var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cash Flow Forecast — NSM</title>
+<meta name="description" content="Know what is landing in your bank account 7, 14 and 30 days out. Every Friday at 6am, NSM forecasts your expected receipts, flags concentration risk, and tells you exactly who to chase first.">
+
+<!-- Open Graph / WhatsApp / LinkedIn -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NSM">
+<meta property="og:title" content="Cash Flow Forecast — NSM">
+<meta property="og:description" content="Your cash flow, three weeks ahead. Every Friday: expected receipts at 7/14/30 days, concentration risk, and who to chase first.">
+<meta property="og:url" content="https://jarvis-nexus-lead-jkon.vercel.app/cashflow">
+<meta property="og:image" content="https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="NSM — Cash Flow Forecast">
+<meta property="og:locale" content="en_ZA">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cash Flow Forecast — NSM">
+<meta name="twitter:description" content="Know your cash 7/14/30 days out — and exactly who to chase first. Every Friday at 6am.">
+<meta name="twitter:image" content="https://jarvis-nexus-lead-jkon.vercel.app/og-cover.png">
+
+<link rel="canonical" href="https://jarvis-nexus-lead-jkon.vercel.app/cashflow">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Ctext x='12.5' y='23' font-family='Inter,Arial,sans-serif' font-weight='800' font-size='20' text-anchor='middle' fill='white'%3EN%3C/text%3E%3Ccircle cx='24' cy='22' r='2.4' fill='white'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Ctext x='70' y='128' font-family='Inter,Arial,sans-serif' font-weight='800' font-size='112' text-anchor='middle' fill='white'%3EN%3C/text%3E%3Ccircle cx='135' cy='124' r='13' fill='white'/%3E%3C/svg%3E">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Cash Flow Forecast",
+  "url": "https://jarvis-nexus-lead-jkon.vercel.app/cashflow",
+  "description": "Forecasts your expected receipts 7, 14 and 30 days out every Friday, flags debtor concentration risk, and ranks who to chase first.",
+  "provider": {
+    "@type": "Organization",
+    "name": "NSM",
+    "url": "https://jarvis-nexus-lead-jkon.vercel.app"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "South Africa"
+  }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --indigo-glow:#818cf8; --indigo:#6366f1; --indigo-deep:#4f46e5;
+  --indigo-shadow:rgba(99,102,241,0.40); --indigo-soft:rgba(99,102,241,0.10);
+  --surface-0:#08080c; --surface-1:#0e0e15; --surface-2:#14141d;
+  --surface-3:#1c1c28; --surface-4:#25253a;
+  --border-faint:rgba(255,255,255,0.04); --border-subtle:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.15); --border-indigo:rgba(99,102,241,0.25);
+  --text-hi:#f5f5fa; --text-md:#a8a8c2; --text-lo:#6b6b85; --text-faint:#3a3a52;
+  --ok:#10b981; --warn:#f59e0b; --bad:#f43f5e; --info:#22d3ee;
+  --grad-accent:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);
+  --grad-shimmer:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.18) 50%,transparent 100%);
+  --grad-divider:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.5) 50%,transparent 100%);
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+/* Screen-reader-only — accessible labels without visual clutter */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+html { scroll-behavior:smooth; }
+body {
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--surface-0); color:var(--text-hi);
+  font-size:16px; line-height:1.6; font-weight:400;
+  letter-spacing:-0.01em; min-height:100vh;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+
+.serif { font-family:'Instrument Serif',serif; font-weight:400; letter-spacing:-0.02em; }
+.italic { font-style:italic; }
+.mono { font-family:'JetBrains Mono',monospace; }
+
+.grid-lines {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size:calc(100% / 12) 100%;
+  max-width:1280px; margin:0 auto;
+  left:50%; transform:translateX(-50%); width:100%;
+}
+.atmos { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.atmos::before {
+  content:''; position:absolute; width:1000px; height:1000px; border-radius:50%;
+  top:-350px; left:-250px;
+  background:radial-gradient(circle, rgba(129,140,248,0.18) 0%, rgba(99,102,241,0.08) 35%, transparent 70%);
+  filter:blur(40px);
+}
+.atmos::after {
+  content:''; position:absolute; width:700px; height:700px; border-radius:50%;
+  top:200px; right:-100px;
+  background:radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
+  filter:blur(60px);
+}
+.grain {
+  position:fixed; inset:0; z-index:1; pointer-events:none;
+  opacity:0.06; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+main, nav, footer { position:relative; z-index:2; }
+
+nav {
+  position:sticky; top:0;
+  background:rgba(8,8,12,0.72);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid var(--border-faint);
+  z-index:100;
+}
+.wrap { max-width:1200px; margin:0 auto; padding:0 32px; }
+.nav-inner { display:flex; align-items:center; justify-content:space-between; height:72px; gap:32px; }
+.logo { display:flex; align-items:center; gap:12px; text-decoration:none; flex-shrink:0; }
+.logo-mark {
+  width:32px; height:32px; background:var(--grad-accent);
+  border-radius:8px; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset, 0 8px 24px var(--indigo-shadow);
+}
+.logo-mark::before {
+  content:''; position:absolute; inset:6px;
+  border:1.5px solid rgba(255,255,255,0.92);
+  border-radius:4px;
+  border-bottom-color:transparent; border-right-color:transparent;
+  transform:rotate(45deg);
+}
+.logo-text { display:flex; flex-direction:column; line-height:1.1; }
+.logo-name { font-weight:800; font-size:15px; color:var(--text-hi); letter-spacing:0.02em; }
+.logo-tag { font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--text-lo); letter-spacing:0.18em; text-transform:uppercase; margin-top:2px; }
+
+.nav-back {
+  display:inline-flex; align-items:center; gap:8px;
+  color:var(--text-md); text-decoration:none;
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  letter-spacing:0.08em; text-transform:uppercase;
+  padding:7px 12px; border-radius:6px;
+  transition:color 150ms ease, background 150ms ease;
+}
+.nav-back:hover { color:var(--text-hi); background:var(--surface-2); }
+
+.nav-right { display:flex; align-items:center; gap:14px; flex-shrink:0; }
+.bot-id-pill {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 11px;
+  background:var(--indigo-soft); border:1px solid var(--border-indigo);
+  border-radius:100px;
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:600;
+  letter-spacing:0.1em; color:var(--indigo-glow);
+}
+.bot-id-pill .dot { width:5px; height:5px; border-radius:50%; background:var(--ok); box-shadow:0 0 6px var(--ok); animation:pulse-ok 1.6s infinite; }
+@keyframes pulse-ok { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+@media (max-width:640px) { .nav-back { display:none; } }
+
+.btn {
+  position:relative;
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  text-decoration:none; font-weight:600;
+  font-family:'Inter',sans-serif; cursor:pointer; border:none;
+  overflow:hidden;
+  transition:transform 150ms ease, box-shadow 200ms ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn .arrow { display:inline-block; transition:transform 200ms ease; }
+.btn:hover .arrow { transform:translateX(4px); }
+.btn:active { transform:translateY(1px) scale(0.99); }
+.btn::after {
+  content:''; position:absolute; top:0; left:-100%;
+  width:100%; height:100%;
+  background:var(--grad-shimmer);
+  transition:left 600ms ease; pointer-events:none;
+}
+.btn:hover::after { left:100%; }
+.btn-primary-sm {
+  padding:10px 16px; font-size:13.5px;
+  background:var(--grad-accent); color:#fff; border-radius:7px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.20), 0 1px 2px rgba(0,0,0,0.3);
+}
+.btn-primary-sm:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 18px var(--indigo-shadow); }
+.btn-primary {
+  padding:16px 26px; font-size:15px;
+  background:var(--grad-accent); color:#fff; border-radius:var(--r-sm);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.20), 0 1px 2px rgba(0,0,0,0.4);
+}
+.btn-primary:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 12px 32px var(--indigo-shadow); }
+.btn-secondary {
+  padding:16px 26px; font-size:15px;
+  background:transparent; color:var(--text-hi); border-radius:var(--r-sm);
+  border:1px solid var(--border-strong); box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.btn-secondary:hover { background:var(--surface-2); border-color:var(--border-indigo); }
+.btn-secondary::after { display:none; }
+
+/* HERO */
+.hero { padding:80px 0 100px; }
+.hero-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:64px; align-items:center; }
+@media (max-width:980px) { .hero-grid { grid-template-columns:1fr; gap:48px; } }
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:10px;
+  padding:6px 14px;
+  background:var(--indigo-soft); border:1px solid var(--border-indigo);
+  border-radius:100px;
+  font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:500;
+  color:var(--indigo-glow); letter-spacing:0.08em;
+  margin-bottom:28px; text-transform:uppercase;
+}
+.hero-eyebrow .pulse {
+  width:6px; height:6px; background:var(--indigo-glow);
+  border-radius:50%; animation:pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow:0 0 0 0 rgba(129,140,248,0.7); }
+  70% { box-shadow:0 0 0 8px rgba(129,140,248,0); }
+  100% { box-shadow:0 0 0 0 rgba(129,140,248,0); }
+}
+.hero-title {
+  font-family:'Instrument Serif',serif; font-weight:400;
+  font-size:clamp(44px,6.5vw,84px);
+  line-height:0.96; letter-spacing:-0.035em;
+  margin-bottom:32px; color:var(--text-hi);
+}
+.hero-title .accent {
+  font-style:italic;
+  background:var(--grad-accent);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.hero-sub {
+  font-size:18px; line-height:1.6;
+  color:var(--text-md); max-width:540px;
+  margin-bottom:36px;
+}
+.hero-sub strong { color:var(--text-hi); font-weight:600; }
+.hero-ctas { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:36px; }
+.hero-honest {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.04em;
+  display:flex; align-items:center; gap:10px;
+  padding-top:20px; border-top:1px solid var(--border-faint);
+}
+.hero-honest .dot { width:5px; height:5px; border-radius:50%; background:var(--ok); }
+
+/* DEMO CARD */
+.demo-card-wrap { perspective:1000px; }
+.demo-card {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:28px;
+  position:relative; overflow:hidden;
+  box-shadow:0 24px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition:transform 200ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  transform-style:preserve-3d;
+}
+.demo-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider); opacity:0.6;
+}
+.demo-head {
+  display:flex; align-items:center; justify-content:space-between;
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  text-transform:uppercase; letter-spacing:0.14em; color:var(--text-lo);
+  margin-bottom:20px;
+}
+.demo-head .live { display:inline-flex; align-items:center; gap:6px; color:var(--bad); }
+.demo-head .live .dot {
+  width:5px; height:5px; border-radius:50%; background:var(--bad);
+  box-shadow:0 0 6px var(--bad); animation:pulse-bad 1.6s infinite;
+}
+@keyframes pulse-bad { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+.risk-block { margin-bottom:22px; }
+.risk-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  text-transform:uppercase; letter-spacing:0.14em;
+  color:var(--text-lo); margin-bottom:6px;
+}
+.risk-customer {
+  font-size:18px; font-weight:600; color:var(--text-hi);
+  margin-bottom:6px; letter-spacing:-0.01em;
+}
+.risk-meta {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-md); letter-spacing:0.04em;
+  margin-bottom:14px;
+}
+.risk-tag {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:5px 12px;
+  background:rgba(244,63,94,0.12); color:var(--bad);
+  border-radius:6px;
+  font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700;
+  letter-spacing:0.12em; text-transform:uppercase;
+}
+.demo-divider { height:1px; background:var(--border-faint); margin:18px 0; }
+.demo-list-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  text-transform:uppercase; letter-spacing:0.14em;
+  color:var(--text-lo); margin-bottom:12px;
+}
+.demo-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 0; border-bottom:1px solid var(--border-faint);
+}
+.demo-row:last-child { border-bottom:none; }
+.demo-row-label { font-size:13px; color:var(--text-hi); font-weight:500; }
+.demo-row-val { font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600; letter-spacing:0.04em; }
+.val-bad { color:var(--bad); }
+.val-warn { color:var(--warn); }
+.val-mid { color:var(--text-md); }
+.demo-action {
+  margin-top:18px; padding:14px 16px;
+  background:var(--indigo-soft); border:1px solid var(--border-indigo);
+  border-radius:var(--r-md);
+}
+.demo-action-label {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  color:var(--indigo-glow); letter-spacing:0.14em; text-transform:uppercase;
+  margin-bottom:6px;
+}
+.demo-action-text { font-size:13px; color:var(--text-hi); font-weight:500; line-height:1.5; }
+
+/* SECTION */
+.section { padding:100px 0; position:relative; }
+.section::before {
+  content:''; position:absolute; top:0; left:5%; right:5%; height:1px;
+  background:var(--grad-divider); opacity:0.4;
+}
+.section-eyebrow {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:500;
+  text-transform:uppercase; letter-spacing:0.18em;
+  color:var(--indigo-glow); margin-bottom:16px; display:inline-block;
+}
+.section-title {
+  font-family:'Instrument Serif',serif; font-weight:400;
+  font-size:clamp(36px,5.5vw,60px);
+  line-height:1.05; letter-spacing:-0.025em;
+  margin-bottom:20px; max-width:780px; color:var(--text-hi);
+}
+.section-title .em { font-style:italic; color:var(--indigo-glow); }
+.section-sub {
+  font-size:17px; color:var(--text-md);
+  max-width:600px; margin-bottom:48px; line-height:1.6;
+}
+
+/* WEEKLY BRIEF EMAIL MOCKUP */
+.email-card {
+  max-width:680px; margin:0 auto;
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); overflow:hidden;
+  box-shadow:0 32px 64px rgba(0,0,0,0.4);
+}
+.email-bar {
+  padding:14px 20px; background:var(--surface-3);
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--border-subtle);
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.06em;
+}
+.email-bar .dots { display:flex; gap:6px; }
+.email-bar .dots span { width:9px; height:9px; border-radius:50%; }
+.email-bar .dots span:nth-child(1) { background:#f43f5e; }
+.email-bar .dots span:nth-child(2) { background:#f59e0b; }
+.email-bar .dots span:nth-child(3) { background:#10b981; }
+
+.email-hero {
+  padding:32px 36px 24px;
+  background:linear-gradient(135deg, rgba(99,102,241,0.10) 0%, rgba(244,63,94,0.06) 100%);
+  border-bottom:1px solid var(--border-faint);
+}
+.email-hero-eye {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--indigo-glow); letter-spacing:0.16em; text-transform:uppercase;
+  margin-bottom:10px;
+}
+.email-hero-title {
+  font-size:24px; font-weight:700; color:var(--text-hi);
+  letter-spacing:-0.02em; margin-bottom:6px;
+}
+.email-hero-date {
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  color:var(--text-md); letter-spacing:0.06em;
+}
+
+.email-body { padding:28px 36px; }
+.email-summary {
+  font-size:15px; color:var(--text-md); line-height:1.7; margin-bottom:24px;
+}
+.email-summary strong { color:var(--text-hi); font-weight:600; }
+.email-summary .em { color:var(--bad); font-weight:600; }
+
+.kpi-mini {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+  margin-bottom:24px;
+}
+.kpi-tile {
+  background:var(--surface-3); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:14px;
+  text-align:center;
+}
+.kpi-tile-label {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  color:var(--text-lo); letter-spacing:0.14em; text-transform:uppercase;
+  margin-bottom:6px;
+}
+.kpi-tile-val {
+  font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:600;
+  color:var(--text-hi); letter-spacing:-0.01em;
+}
+.kpi-tile-val.bad { color:var(--bad); }
+.kpi-tile-val.warn { color:var(--warn); }
+.kpi-tile-val.ok { color:var(--ok); }
+
+.email-list-label {
+  font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  color:var(--indigo-glow); letter-spacing:0.14em; text-transform:uppercase;
+  margin-bottom:12px;
+}
+.email-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 0; border-bottom:1px solid var(--border-faint);
+  gap:12px;
+}
+.email-row:last-child { border-bottom:none; }
+.email-row-info { min-width:0; flex:1; }
+.email-row-name { font-size:14px; font-weight:600; color:var(--text-hi); margin-bottom:3px; }
+.email-row-meta { font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-lo); letter-spacing:0.04em; }
+.email-row-tag {
+  font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700;
+  letter-spacing:0.12em; padding:4px 8px; border-radius:4px;
+  text-transform:uppercase; flex-shrink:0;
+}
+.tag-crit { background:rgba(244,63,94,0.12); color:var(--bad); }
+.tag-warn { background:rgba(245,158,11,0.12); color:var(--warn); }
+.tag-watch { background:rgba(34,211,238,0.10); color:var(--info); }
+
+.email-foot {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.04em;
+  text-align:center; padding-top:20px;
+  border-top:1px solid var(--border-faint);
+  margin-top:8px;
+}
+
+/* HOW IT WORKS */
+.how-grid {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+  gap:14px;
+}
+.how-step {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:32px;
+}
+.how-num {
+  font-family:'Instrument Serif',serif; font-size:64px;
+  font-style:italic; line-height:1; color:var(--indigo-glow);
+  margin-bottom:20px;
+}
+.how-title { font-size:20px; font-weight:700; margin-bottom:10px; letter-spacing:-0.02em; color:var(--text-hi); }
+.how-text { font-size:14px; color:var(--text-md); line-height:1.65; }
+
+/* CRITERIA */
+.crit-grid {
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+  gap:14px;
+}
+.crit-card {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:24px;
+  transition:border-color 200ms ease, transform 200ms ease;
+}
+.crit-card:hover { border-color:var(--border-indigo); transform:translateY(-2px); }
+.crit-letter {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:32px; line-height:1; color:var(--indigo-glow);
+  margin-bottom:14px;
+}
+.crit-name { font-size:16px; font-weight:700; margin-bottom:6px; color:var(--text-hi); }
+.crit-desc { font-size:13.5px; color:var(--text-md); line-height:1.55; }
+
+/* SEQUENCE */
+.seq-wrap {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); padding:48px 44px;
+  position:relative; overflow:hidden;
+}
+.seq-wrap::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider);
+}
+.seq-track {
+  display:grid; grid-template-columns:repeat(3, 1fr); gap:20px;
+  position:relative;
+}
+@media (max-width:780px) { .seq-track { grid-template-columns:1fr; } }
+.seq-track::before {
+  content:''; position:absolute;
+  top:36px; left:60px; right:60px; height:1px;
+  background:linear-gradient(90deg,var(--ok) 0%,var(--warn) 50%,var(--bad) 100%);
+  opacity:0.3; z-index:0;
+}
+@media (max-width:780px) { .seq-track::before { display:none; } }
+.seq-stage {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:24px;
+  position:relative; z-index:1;
+}
+.seq-stage-num {
+  position:absolute; top:-2px; left:50%; transform:translate(-50%,-50%);
+  width:48px; height:48px; border-radius:50%;
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  display:grid; place-items:center;
+  font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700;
+  color:var(--text-hi);
+  z-index:2;
+}
+.seq-stage.s1 .seq-stage-num { color:var(--ok); border-color:var(--ok); box-shadow:0 0 12px rgba(16,185,129,0.3); }
+.seq-stage.s2 .seq-stage-num { color:var(--warn); border-color:var(--warn); box-shadow:0 0 12px rgba(245,158,11,0.3); }
+.seq-stage.s3 .seq-stage-num { color:var(--bad); border-color:var(--bad); box-shadow:0 0 12px rgba(244,63,94,0.3); }
+.seq-stage-day {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text-lo); letter-spacing:0.14em; text-transform:uppercase;
+  margin-top:32px; margin-bottom:8px; text-align:center;
+}
+.seq-stage-tone {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:24px; color:var(--text-hi);
+  margin-bottom:10px; letter-spacing:-0.02em; text-align:center;
+}
+.seq-stage.s1 .seq-stage-tone { color:var(--ok); }
+.seq-stage.s2 .seq-stage-tone { color:var(--warn); }
+.seq-stage.s3 .seq-stage-tone { color:var(--bad); }
+.seq-stage-text {
+  font-size:13.5px; color:var(--text-md); line-height:1.6;
+  text-align:center;
+}
+
+/* CLOSER */
+.closer {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-xl); padding:64px 48px;
+  text-align:center; margin:48px 0 80px;
+  position:relative; overflow:hidden;
+}
+.closer::before {
+  content:''; position:absolute; top:-50%; left:50%;
+  transform:translateX(-50%);
+  width:600px; height:600px;
+  background:radial-gradient(circle, var(--indigo-soft) 0%, transparent 70%);
+  filter:blur(60px); pointer-events:none;
+}
+.closer > * { position:relative; z-index:1; }
+.closer-eye {
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--indigo-glow); letter-spacing:0.16em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.closer-title {
+  font-family:'Instrument Serif',serif; font-size:clamp(28px,4vw,42px);
+  line-height:1.15; letter-spacing:-0.02em;
+  margin-bottom:12px; color:var(--text-hi);
+}
+.closer-title .em { font-style:italic; color:var(--indigo-glow); }
+.closer-sub { font-size:15px; color:var(--text-md); max-width:520px; margin:0 auto 28px; line-height:1.55; }
+.closer-ctas { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+/* FOOTER */
+footer { border-top:1px solid var(--border-subtle); padding:32px 0; }
+.foot-line {
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:16px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.06em;
+}
+.joburg-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 12px;
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:100px;
+  letter-spacing:0.1em; color:var(--text-md);
+}
+.joburg-badge::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:var(--indigo-glow); box-shadow:0 0 8px var(--indigo-shadow);
+}
+
+/* WA FLOAT */
+.wa-float {
+  position:fixed; bottom:24px; right:24px;
+  width:56px; height:56px; background:#25D366;
+  border-radius:50%; display:grid; place-items:center;
+  text-decoration:none;
+  box-shadow:0 8px 24px rgba(37,211,102,0.4);
+  z-index:50; transition:transform 200ms ease;
+}
+.wa-float:hover { transform:scale(1.08); }
+.wa-float svg { width:28px; height:28px; fill:#fff; }
+
+@media (max-width:768px) {
+  .wrap { padding:0 20px; }
+  .hero { padding:60px 0 60px; }
+  .section { padding:60px 0; }
+  .seq-wrap, .closer { padding:32px 24px; }
+  .hero-ctas { flex-direction:column; align-items:stretch; }
+  .btn-primary, .btn-secondary { justify-content:center; }
+  .email-body, .email-hero { padding:24px 20px; }
+  .kpi-mini { grid-template-columns:1fr; }
+}
+
+  /* iOS Safari memory fix — heavy blur/backdrop-filter on large fixed elements
+     crashes WebKit with 'A problem repeatedly occurred'. Drop all filters on touch devices. */
+  @media (hover: none), (pointer: coarse), (max-width: 768px) {
+    *, *::before, *::after {
+      filter: none !important;
+      -webkit-filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    .grain, .atmos-spot { display: none !important; }
+  }
+
+/* Legal links in footer */
+.foot-legal { display: inline-flex; gap: 12px; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; }
+.foot-legal a { color: var(--text-md, #a8a8c2); text-decoration: none; transition: color 150ms ease; }
+.foot-legal a:hover { color: var(--text-hi, #f5f5fa); }
+.foot-legal .sep { color: var(--text-lo, #6b6b85); opacity: 0.5; }
+
+/* ===== Concept C signature-accent logo (brand-locked 2026-06-06) ===== */
+.logo { gap:10px; }
+.logo-name {
+  position:relative; display:inline-block;
+  font-weight:800; font-size:19px; color:var(--text-hi); letter-spacing:0.01em;
+  padding-bottom:5px; padding-right:7px;
+}
+.logo-name::after {
+  content:''; position:absolute; left:1px; right:7px; bottom:1px; height:2px;
+  background:var(--grad-accent,linear-gradient(135deg,#818cf8,#6366f1,#4f46e5)); border-radius:2px;
+}
+.logo-name::before {
+  content:''; position:absolute; right:0; bottom:0; width:3px; height:3px;
+  border-radius:50%; background:var(--indigo-deep,#4f46e5);
+}
+.logo-tag { font-family:'JetBrains Mono',ui-monospace,monospace; font-weight:500; font-size:9.5px; color:var(--text-lo); letter-spacing:0.18em; text-transform:uppercase; margin-top:3px; }
+
+
+/* ===== Phase 3 premium hero polish (lifted from index.html · 2026-06-06) ===== */
+.hero { position: relative; }
+.hero > .wrap { position: relative; z-index: 1; }
+.hero-glow { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.hero-glow::before, .hero-glow::after {
+  content: ''; position: absolute; width: 720px; height: 720px; border-radius: 50%;
+  filter: blur(80px); opacity: 0.40; animation: heroGlowPulse 8s ease-in-out infinite; will-change: opacity;
+}
+.hero-glow::before { top: -240px; left: -180px; background: radial-gradient(circle, rgba(129,140,248,0.45) 0%, transparent 60%); }
+.hero-glow::after { top: -120px; right: -200px; background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 60%); animation-delay: -4s; }
+@keyframes heroGlowPulse { 0%, 100% { opacity: 0.32; } 50% { opacity: 0.55; } }
+.hero-title-grad { background: linear-gradient(180deg,#f5f5fa 0%,#f5f5fa 60%,rgba(245,245,250,0.55) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+.hero-title-grad .accent { background: linear-gradient(135deg,#818cf8 0%,#6366f1 60%,#4f46e5 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; filter: drop-shadow(0 0 28px rgba(129,140,248,0.35)); }
+.hero-eyebrow { position: relative; text-decoration: none; transition: background 200ms ease; }
+a.hero-eyebrow:hover { background: rgba(99,102,241,0.16); }
+.hero-eyebrow .ev-chevron { display: inline-block; margin-left: 2px; transition: transform 200ms ease; color: var(--indigo-glow); font-weight: 600; font-size: 13px; line-height: 1; }
+.hero-eyebrow:hover .ev-chevron { transform: translateX(3px); }
+@media (prefers-reduced-motion: reduce) { .hero-glow::before, .hero-glow::after { animation: none; } }
+
+
+/* ===== Standardised nav Book-demo button (matches index.html) ===== */
+.nav-book {
+  position:relative; display:inline-flex; align-items:center; justify-content:center;
+  text-decoration:none; font-family:'Inter',-apple-system,sans-serif; font-weight:600; font-size:13.5px;
+  padding:10px 16px; border-radius:7px; border:none; cursor:pointer; color:#fff; white-space:nowrap; flex-shrink:0;
+  background:var(--grad-accent,linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.20), 0 1px 2px rgba(0,0,0,0.3);
+  transition:transform 150ms ease, box-shadow 200ms ease; -webkit-tap-highlight-color:transparent;
+}
+.nav-book:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 18px var(--indigo-shadow,rgba(99,102,241,0.40)); }
+
+</style>
+</head>
+<body>
+
+<div class="grid-lines"></div>
+<div class="atmos"></div>
+<div class="grain"></div>
+
+<nav>
+  <div class="wrap">
+    <div class="nav-inner">
+      <a href="/" class="logo">
+        <div class="logo-text">
+          <div class="logo-name">NSM</div>
+          <div class="logo-tag">Cash Flow Forecast</div>
+        </div>
+      </a>
+      <a href="/" class="nav-back">← All bots</a>
+      <div class="nav-right">
+        <span class="bot-id-pill"><span class="dot"></span>B15 · LIVE</span>
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="nav-book">Book demo</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+<!-- HERO -->
+<section class="hero">
+      <div class="hero-glow" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <a href="#windows" class="hero-eyebrow"><span class="pulse"></span><span>B15 · CASH FLOW FORECAST · LIVE</span><span class="ev-chevron" aria-hidden="true">›</span></a>
+        <h1 class="hero-title hero-title-grad">Know what&rsquo;s landing.<br><span class="accent">Three weeks out.</span></h1>
+        <p class="hero-sub">
+          Most owners only find out about a cash gap when the account&rsquo;s already short. Every Friday at 6am, Cash Flow Forecast shows you exactly <strong>what&rsquo;s due to land in 7, 14 and 30 days</strong> &mdash; flags when one debtor is too big a slice of your fortnight, and tells you who to chase first. You walk into the weekend knowing.
+        </p>
+        <div class="hero-ctas">
+          <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book a 20-min demo <span class="arrow">→</span></a>
+          <a href="#windows" class="btn btn-secondary">See the 3 horizons</a>
+        </div>
+        <div class="hero-honest">
+          <span class="dot"></span>
+          <span>RUNS FRIDAY 06:00 SAST · NO EXTRA COST · IN RAND</span>
+        </div>
+      </div>
+
+      <div class="demo-card-wrap">
+        <div class="demo-card">
+          <div class="demo-head">
+            <span>// FRIDAY FORECAST</span>
+            <span class="live"><span class="dot"></span>READY</span>
+          </div>
+          <div class="risk-block">
+            <div class="risk-label">Expected · next 14 days</div>
+            <div class="risk-customer">R 84,200</div>
+            <div class="risk-meta">across 6 invoices · weekend of 8 May</div>
+            <span class="risk-tag">⚠ 1 DEBTOR = 62% OF THIS</span>
+          </div>
+          <div class="demo-divider"></div>
+          <div class="demo-list-label">Expected receipts</div>
+          <div class="demo-row"><span class="demo-row-label">Next 7 days</span><span class="demo-row-val val-mid">R 31,400</span></div>
+          <div class="demo-row"><span class="demo-row-label">Next 14 days</span><span class="demo-row-val val-warn">R 84,200</span></div>
+          <div class="demo-row"><span class="demo-row-label">Next 30 days</span><span class="demo-row-val val-mid">R 156,900</span></div>
+          <div class="demo-row"><span class="demo-row-label">Biggest debtor</span><span class="demo-row-val val-bad">Pieter · R52K</span></div>
+          <div class="demo-action">
+            <div class="demo-action-label">Recommended next step</div>
+            <div class="demo-action-text">Chase Pieter&rsquo;s R52,000 invoice first &mdash; it&rsquo;s 62% of your fortnight. If it slips, your two-week runway halves.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FRIDAY FORECAST EMAIL MOCKUP -->
+<section class="section">
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:48px;">
+      <div class="section-eyebrow">// THE OUTPUT</div>
+      <h2 class="section-title" style="margin:0 auto 14px;">This lands <span class="em">every Friday at 6am.</span></h2>
+      <p class="section-sub" style="margin:0 auto;">One email, before the weekend. What&rsquo;s coming in, where the risk is, and exactly who to chase first.</p>
+    </div>
+
+    <div class="email-card">
+      <div class="email-bar">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <span>📧 INBOX · FRI 06:01 SAST</span>
+      </div>
+      <div class="email-hero">
+        <div class="email-hero-eye">// NSM — CASH FLOW FORECAST</div>
+        <div class="email-hero-title">Your 30-Day Cash Outlook</div>
+        <div class="email-hero-date">Friday 8 May 2026</div>
+      </div>
+      <div class="email-body">
+        <div class="email-summary">
+          You have <strong>R156,900 in expected receipts</strong> over the next 30 days &mdash; but <strong>R84,200 lands in the next fortnight</strong>, and one debtor, <span class="em">Pieter (R52,000)</span>, is 62% of that. If he slips, your fortnight halves. <strong>Chase him first.</strong>
+        </div>
+
+        <div class="kpi-mini">
+          <div class="kpi-tile">
+            <div class="kpi-tile-label">Next 7d</div>
+            <div class="kpi-tile-val">R31.4k</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-tile-label">Next 14d</div>
+            <div class="kpi-tile-val warn">R84.2k</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-tile-label">Next 30d</div>
+            <div class="kpi-tile-val ok">R156.9k</div>
+          </div>
+        </div>
+
+        <div class="email-list-label">// WHO&rsquo;S DUE — CHASE IN THIS ORDER</div>
+
+        <div class="email-row">
+          <div class="email-row-info">
+            <div class="email-row-name">Pieter van der Merwe</div>
+            <div class="email-row-meta">R52,000 · due in 5d · 62% of your fortnight</div>
+          </div>
+          <span class="email-row-tag tag-crit">Chase 1st</span>
+        </div>
+        <div class="email-row">
+          <div class="email-row-info">
+            <div class="email-row-name">Lerato Khumalo</div>
+            <div class="email-row-meta">R18,400 · due in 9d · steady payer</div>
+          </div>
+          <span class="email-row-tag tag-warn">Chase 2nd</span>
+        </div>
+        <div class="email-row">
+          <div class="email-row-info">
+            <div class="email-row-name">Sipho Mokoena</div>
+            <div class="email-row-meta">R13,800 · due in 12d · first invoice</div>
+          </div>
+          <span class="email-row-tag tag-watch">Watch</span>
+        </div>
+
+        <div class="email-foot">OPEN SHEET · MARK PAID · POWERED BY NSM</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-eyebrow">// HOW IT WORKS</div>
+    <h2 class="section-title">Three steps. <span class="em">Runs itself every Friday.</span></h2>
+    <p class="section-sub">No new admin. It reads the invoice data you already keep.</p>
+
+    <div class="how-grid">
+      <div class="how-step">
+        <div class="how-num">01</div>
+        <div class="how-title">Reads your invoices</div>
+        <div class="how-text">Every Friday at 6am the bot pulls due dates and amounts from your invoice sheet and your Paystack receipts. Nothing for you to update &mdash; it uses what&rsquo;s already there.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">02</div>
+        <div class="how-title">Projects 7 / 14 / 30 days</div>
+        <div class="how-text">It sums what&rsquo;s expected in each window, then checks concentration &mdash; if a single debtor is more than half your fortnight, it gets flagged as a risk.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">03</div>
+        <div class="how-title">Sends the Friday brief</div>
+        <div class="how-text">One email before the weekend: the three totals, the concentration flag, and one recommended action &mdash; ranked by which chase protects the most cash.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CRITERIA -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-eyebrow">// WHAT IT TELLS YOU</div>
+    <h2 class="section-title">Four answers. <span class="em">Every Friday.</span></h2>
+    <p class="section-sub">Not a dashboard you have to go check. A plain-English read on the only number that keeps owners up at night.</p>
+
+    <div class="crit-grid">
+      <div class="crit-card">
+        <div class="crit-letter">∑</div>
+        <div class="crit-name">What&rsquo;s coming</div>
+        <div class="crit-desc">Expected receipts at 7, 14 and 30 days &mdash; the money you can actually count on for payroll, stock and rent.</div>
+      </div>
+      <div class="crit-card">
+        <div class="crit-letter">⚠</div>
+        <div class="crit-name">Where the risk is</div>
+        <div class="crit-desc">Flags concentration &mdash; when one debtor is too big a share of your fortnight, so one late payment can&rsquo;t blindside you.</div>
+      </div>
+      <div class="crit-card">
+        <div class="crit-letter">→</div>
+        <div class="crit-name">Who to chase first</div>
+        <div class="crit-desc">Ranks your debtors by cash impact, not just amount &mdash; so the first call you make is the one that protects the most runway.</div>
+      </div>
+      <div class="crit-card">
+        <div class="crit-letter">R</div>
+        <div class="crit-name">In Rand, no cost</div>
+        <div class="crit-desc">Built on the invoices you already track. No new fees, no AI bill, no extra admin &mdash; it just reuses your data once a week.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE THREE HORIZONS -->
+<section class="section" id="windows">
+  <div class="wrap">
+    <div class="section-eyebrow">// THE THREE HORIZONS</div>
+    <h2 class="section-title">Seven days. <span class="em">Fourteen. Thirty.</span></h2>
+    <p class="section-sub">Three windows, one glance &mdash; so you can plan this week, this fortnight, and this month with your eyes open.</p>
+
+    <div class="seq-wrap">
+      <div class="seq-track">
+        <div class="seq-stage s1">
+          <div class="seq-stage-num">7</div>
+          <div class="seq-stage-day">NEXT 7 DAYS</div>
+          <div class="seq-stage-tone">This week</div>
+          <div class="seq-stage-text">What&rsquo;s actually due to land before next Friday &mdash; the cash you can rely on for this week&rsquo;s payroll and stock.</div>
+        </div>
+        <div class="seq-stage s2">
+          <div class="seq-stage-num">14</div>
+          <div class="seq-stage-day">NEXT 14 DAYS</div>
+          <div class="seq-stage-tone">The fortnight</div>
+          <div class="seq-stage-text">Your two-week runway &mdash; with the concentration flag that warns you if a single debtor is carrying too much of it.</div>
+        </div>
+        <div class="seq-stage s3">
+          <div class="seq-stage-num">30</div>
+          <div class="seq-stage-day">NEXT 30 DAYS</div>
+          <div class="seq-stage-tone">The month</div>
+          <div class="seq-stage-text">The full month&rsquo;s expected receipts, so you can commit to a big spend, a hire or a stock order without guessing.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSER -->
+<section>
+  <div class="wrap">
+    <div class="closer">
+      <div class="closer-eye">// READY TO SEE YOUR CASH THREE WEEKS OUT?</div>
+      <h2 class="closer-title">Cash Flow Forecast is included in <span class="em">Operator</span> &amp; <span class="em">Command</span> plans.</h2>
+      <p class="closer-sub">Book a 20-minute call. We&rsquo;ll wire it to your invoices and you&rsquo;ll get your first Friday forecast this week.</p>
+      <div class="closer-ctas">
+        <a href="https://cal.com/ndumiso-mokone-limbt0/30min" target="_blank" rel="noopener" class="btn btn-primary">Book your demo <span class="arrow">→</span></a>
+        <a href="/#pricing" class="btn btn-secondary">See pricing</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-line">
+      <span>NSM // B15 CASH FLOW FORECAST // © 2026</span>
+      <span class="foot-legal"><a href="/privacy">PRIVACY</a><span class="sep">·</span><a href="/terms">TERMS</a></span>
+      <span class="joburg-badge">PROUDLY BUILT IN JOHANNESBURG</span>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/27670994163?text=Hi%20Seth%2C%20I%20saw%20the%20Cash%20Flow%20Forecast%20bot%20and%20I%27d%20like%20to%20learn%20more" target="_blank" rel="noopener" class="wa-float" aria-label="WhatsApp Seth">
+  <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.7-.4-1.5-.7-2.4-1.6-.7-.6-1.1-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.2.3-.4.1-.2 0-.3 0-.4 0-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2 0 1.2.9 2.4 1 2.5.1.2 1.7 2.6 4.1 3.6 1.5.6 2.1.7 2.8.6.4-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1 0-.1-.2-.2-.5-.3z M12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z M12 20c-1.5 0-3-.4-4.3-1.1l-.3-.2-3.2.8.9-3.1-.2-.3C4.4 14.9 4 13.5 4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8z"/></svg>
+</a>
+
+</body>
+</html>

@@ -31,6 +31,8 @@
     { "source": "/trade-pack",     "destination": "/trade-pack.html" },
     { "source": "/manual",         "destination": "/manual.html" },
     { "source": "/outreach",       "destination": "/outreach.html" },
+    { "source": "/cashflow",       "destination": "/cashflow.html" },
+    { "source": "/instagram",      "destination": "/instagram.html" },
 
     { "source": "/api/router",             "destination": "https://n8n-production-71d9.up.railway.app/webhook/master-router" },
     { "source": "/api/payfast-subscribe",  "destination": "https://n8n-production-71d9.up.railway.app/webhook/payfast-subscribe" },
