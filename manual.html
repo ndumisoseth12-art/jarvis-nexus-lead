@@ -361,7 +361,7 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
     <div class="toc-label">// What's in this manual</div>
     <ol>
       <li><a href="#product">The product in 60 seconds</a></li>
-      <li><a href="#bots">The 12 bots, explained simply</a></li>
+      <li><a href="#bots">The 13 bots, explained simply</a></li>
       <li><a href="#stack">Where everything lives (the stack)</a></li>
       <li><a href="#flow">How a single customer event flows through the system</a></li>
       <li><a href="#daily">Your daily routine (what to check, what to ignore)</a></li>
@@ -391,7 +391,7 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
   <!-- ============ 2. BOTS ============ -->
   <section id="bots">
     <div class="s-eyebrow">// Section 02</div>
-    <h2 class="s-title">The 12 bots, explained simply</h2>
+    <h2 class="s-title">The 13 bots, explained simply</h2>
     <p class="s-sub">Each bot does one job. The colour dot tells you who sees its output.</p>
 
     <div class="legend">
@@ -481,6 +481,13 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
       </div>
 
       <div class="bot-card">
+        <div class="bot-id">B15</div>
+        <div class="bot-name">Cash Flow Forecast</div>
+        <p class="bot-one-liner">Friday 6am email to the client: expected receipts at 7 / 14 / 30 days, a concentration-risk flag when one debtor dominates the fortnight, and who to chase first. Reads B4 invoices + the payment log — no extra LLM cost.</p>
+        <div class="bot-meta"><span><span class="dot client"></span>client</span><span>weekly Fri 6am</span></div>
+      </div>
+
+      <div class="bot-card">
         <div class="bot-id">B1</div>
         <div class="bot-name">WhatsApp Lead Catcher</div>
         <p class="bot-one-liner">Designed, not live. Waiting on Meta's WhatsApp Business approval for South Africa. Every public page already says "WhatsApp coming Phase 3" so you're not lying to prospects.</p>
@@ -489,7 +496,7 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
 
     </div>
 
-    <div class="callout"><strong>B12 and B13</strong> are billing plumbing (PayFast subscribe + listener), not bots. They handle subscription payments. Sandbox-pending until your merchant verification clears.</div>
+    <div class="callout"><strong>B12 and B13</strong> are billing plumbing (Paystack subscribe + listener), not bots. They handle subscription payments. Sandbox-pending until your Paystack KYC clears — then follow the <span class="mono">/golive</span> runbook.</div>
   </section>
 
   <!-- ============ 3. STACK ============ -->
@@ -526,8 +533,8 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
       </div>
       <div class="stack-item">
         <div class="stack-label">// Billing</div>
-        <div class="stack-name">PayFast (sandbox)</div>
-        <div class="stack-desc">Subscription billing for paying clients. Sandbox now, switches to live after merchant verification.</div>
+        <div class="stack-name">Paystack (sandbox)</div>
+        <div class="stack-desc">Subscription billing for paying clients. Sandbox now — switches to live once Paystack KYC clears, then you follow the <span class="mono">/golive</span> runbook. (PayFast was dropped after no verification.)</div>
       </div>
     </div>
   </section>
@@ -571,7 +578,7 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
       <li><strong>Morning (5 min) · Check Telegram</strong><span>Any Parse Fail Alerts? Any unhappy-customer alerts from B6? Any VIP fanouts from B2/B4? If nothing scary in Telegram, your bots had a normal night.</span></li>
       <li><strong>Once a week (Monday morning) · Read B14</strong><span>Your B14 Bot Health Brief lands at 6am SAST. Skim it. Any silent bots? Any prompt versions flagged amber/red? If everything's green, close the email and get on with your day.</span></li>
       <li><strong>Whenever you sign a new client · Connect their sheets</strong><span>The bots are single-tenant right now — one Google Sheet per bot. When you onboard a new client, you'll duplicate the sheet, update the sheet ID in their workflow, and import. Phase 3 work will make this multi-tenant.</span></li>
-      <li><strong>When PayFast verification clears · Flip B12/B13 to live mode</strong><span>Right now billing is sandbox. Once your merchant account is approved, set the MODE env var to live in Railway and you can take real payments.</span></li>
+      <li><strong>When Paystack KYC clears · Flip B12/B13 to live mode</strong><span>Right now billing is sandbox. Once your Paystack account is approved, open <span class="mono">/golive</span> and follow the runbook (Paystack keys + webhook + flip the subscribe button) to take real payments.</span></li>
       <li><strong>Never · Manually edit a Google Sheet header</strong><span>The bots match columns by name. If you rename or add a stray space ("Email " vs "Email"), things break silently. If you really need to add a column, do it at the END of row 1 and update the workflow schema too.</span></li>
     </ol>
   </section>
@@ -623,6 +630,7 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
       <br>· <strong style="color:var(--text-hi);">✅ CONNECTED &amp; LIVE</strong> — then confirm the test row landed in the Sheet + the Telegram alert + the email. If all three arrived, it's safe to hand over.
       <br>· <strong style="color:var(--text-hi);">❌ NOT LIVE</strong> — the workflow isn't activated yet (or the webhook path is wrong). Fix it in n8n and re-test.
       <br>· <strong style="color:var(--text-hi);">⚠️ CONNECTED BUT ERRORED</strong> — usually a missing Sheet ID; check the workflow's Executions tab in n8n.
+      <br><br><strong style="color:var(--text-hi);">One catch:</strong> <span class="mono">test-form.js</span> runs from your laptop (server-side), so it proves the bot is <em>reachable</em> but can't see a browser's CORS check. After it goes green, also <strong style="color:var(--text-hi);">open the live page and submit the form once from your phone or browser</strong> — that's the only way to prove the whole chain works for a real customer. (The client webhooks are already CORS-enabled so a standalone page works; if you ever host the form under the main portal instead, its strict security policy blocks the direct call — post through the <span class="mono">/api/webhook/</span> proxy there.)
       <br><br>This one habit means a customer never sees a broken form in front of your client.
     </div>
 
@@ -662,7 +670,9 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
       <p><strong>Pricing</strong>: R2,500 once-off setup + R1,990/month. Industry packs and Operator tier are both at this price. Command tier (all 11 bots) costs more — set it when you have a buyer who needs everything.</p>
 
       <p><strong>What a sale looks like:</strong></p>
-      <p>Prospect lands on a pack page (e.g. salon.html) → clicks "Book Demo" → lands on your Cal.com → you do a 20-minute call → if interested, you send them the PILOT_AGREEMENT.md → 30-day free pilot starts → day 25 you ask for the upgrade → if they say yes, you send the PayFast subscribe link → they're paying R1,990/month from there forward.</p>
+      <p>Prospect lands on a pack page (e.g. salon.html) → clicks "Book Demo" → lands on your Cal.com → you do a 20-minute call → if interested, you send them the PILOT_AGREEMENT.md → 30-day free pilot starts → day 25 you ask for the upgrade → if they say yes, you send the Paystack subscribe link → they're paying R1,990/month from there forward.</p>
+
+      <p><strong>Turning billing on:</strong> Paystack is in sandbox until your KYC is approved. The day it clears, open <span class="mono">/golive</span> (gated, passphrase below) and follow the plain-English runbook — it walks you through the Paystack keys, the webhook, and flipping the subscribe button live, step by step.</p>
 
       <p><strong>Your monthly costs (per client roughly):</strong></p>
       <p>Groq AI calls: <strong>~R30–R80</strong> depending on volume. Railway n8n hosting: <strong>~R200 flat</strong> (covers all your clients). Google Sheets + Gmail + Telegram: <strong>R0</strong>. So your margin per client is roughly <strong>R1,700–R1,950</strong> after AI costs, minus your share of the Railway flat fee.</p>
@@ -751,8 +761,12 @@ section { margin-bottom:80px; scroll-margin-top:32px; }
         <div class="ref-val">tCPKWW0HMiCXUriY<span class="small">Every workflow points to this for error handling. Never delete or change.</span></div>
       </div>
       <div class="ref-item">
+        <div class="ref-key">Operator tools (gated)</div>
+        <div class="ref-val">/manual · /outreach · /instagram · /golive · /dashboard<span class="small">Private pages on the portal, all behind the passphrase <span class="mono">LoveGod12</span>. /manual = this page · /outreach = the full sales playbook + cold scripts · /instagram = the IG content playbook · /golive = the Paystack go-live runbook (open it the day KYC clears) · /dashboard = the live bot health monitor.</span></div>
+      </div>
+      <div class="ref-item">
         <div class="ref-key">Docs you'll re-read</div>
-        <div class="ref-val">CLAUDE.md · STATE.md · OUTREACH.md · PILOT_AGREEMENT.md<span class="small">All in repo root. CLAUDE.md = canonical conventions. STATE.md = current state. OUTREACH.md = cold scripts. PILOT_AGREEMENT.md = onboarding doc.</span></div>
+        <div class="ref-val">CLAUDE.md · STATE.md · OUTREACH.md · PILOT_AGREEMENT.md · NSM_PAYSTACK_GOLIVE.md<span class="small">All in repo root. CLAUDE.md = canonical conventions. STATE.md = current state. OUTREACH.md = cold scripts. PILOT_AGREEMENT.md = onboarding doc. NSM_PAYSTACK_GOLIVE.md = the source for the /golive runbook.</span></div>
       </div>
     </div>
   </section>

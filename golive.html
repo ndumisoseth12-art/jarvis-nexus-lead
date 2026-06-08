@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSM — Paystack Go-Live (internal)</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23818cf8'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234f46e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Ctext x='12.5' y='23' font-family='Inter,Arial,sans-serif' font-weight='800' font-size='20' text-anchor='middle' fill='white'%3EN%3C/text%3E%3Ccircle cx='24' cy='22' r='2.4' fill='white'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --indigo-glow:#818cf8; --indigo:#6366f1; --indigo-deep:#4f46e5;
+  --indigo-shadow:rgba(99,102,241,0.40); --indigo-soft:rgba(99,102,241,0.10);
+  --surface-0:#08080c; --surface-1:#0e0e15; --surface-2:#14141d;
+  --surface-3:#1c1c28; --surface-4:#25253a;
+  --border-faint:rgba(255,255,255,0.04); --border-subtle:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.15); --border-indigo:rgba(99,102,241,0.25);
+  --text-hi:#f5f5fa; --text-md:#a8a8c2; --text-lo:#6b6b85; --text-faint:#3a3a52;
+  --ok:#10b981; --warn:#f59e0b; --bad:#f43f5e; --info:#22d3ee; --gold:#facc15;
+  --grad-accent:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);
+  --grad-divider:linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.5) 50%,transparent 100%);
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; overflow-x:clip; }
+body {
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--surface-0); color:var(--text-hi);
+  font-size:15px; line-height:1.6; font-weight:400;
+  letter-spacing:-0.005em; min-height:100vh;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+.serif { font-family:'Instrument Serif',serif; font-weight:400; letter-spacing:-0.02em; }
+.mono { font-family:'JetBrains Mono',monospace; }
+
+/* ============ GATE ============ */
+#gate {
+  position:fixed; inset:0; z-index:9999;
+  background:var(--surface-0);
+  display:grid; place-items:center; padding:24px;
+}
+#gate.hidden { display:none; }
+.gate-card {
+  background:var(--surface-2); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:48px 40px;
+  max-width:420px; width:100%; text-align:center; position:relative;
+  box-shadow:0 24px 64px rgba(0,0,0,0.5);
+}
+.gate-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:var(--grad-divider);
+}
+.gate-mark {
+  width:48px; height:48px; margin:0 auto 20px;
+  background:var(--grad-accent); border-radius:12px;
+  display:grid; place-items:center; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset, 0 8px 24px var(--indigo-shadow);
+}
+.gate-eyebrow {
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px; color:var(--indigo-glow);
+  letter-spacing:0.18em; text-transform:uppercase; margin-bottom:12px;
+}
+.gate-title {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  font-size:32px; line-height:1.1; letter-spacing:-0.02em;
+  color:var(--text-hi); margin-bottom:10px;
+}
+.gate-sub { font-size:14px; color:var(--text-md); margin-bottom:28px; }
+.gate-input {
+  width:100%; padding:14px 16px; background:var(--surface-3);
+  border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  color:var(--text-hi); font-size:15px; font-family:'Inter',sans-serif;
+  margin-bottom:12px; outline:none; text-align:center; letter-spacing:0.04em;
+  transition:border-color 200ms ease, box-shadow 200ms ease;
+}
+.gate-input:focus { border-color:var(--border-indigo); box-shadow:0 0 0 4px var(--indigo-soft); }
+.gate-btn {
+  width:100%; padding:14px; background:var(--grad-accent); color:#fff;
+  border:none; border-radius:var(--r-md); cursor:pointer;
+  font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 16px var(--indigo-shadow);
+  transition:transform 150ms ease, box-shadow 200ms ease;
+}
+.gate-btn:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,0.25), 0 8px 24px var(--indigo-shadow); }
+.gate-error {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--bad); margin-top:14px; min-height:14px;
+  letter-spacing:0.06em; text-transform:uppercase;
+}
+
+/* ============ ATMOS ============ */
+.atmos { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.atmos::before {
+  content:''; position:absolute; width:900px; height:900px; border-radius:50%;
+  top:-300px; right:-200px;
+  background:radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 65%);
+  filter:blur(60px);
+}
+.atmos::after {
+  content:''; position:absolute; width:700px; height:700px; border-radius:50%;
+  bottom:-200px; left:-150px;
+  background:radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 60%);
+  filter:blur(60px);
+}
+.grid-lines {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size:calc(100% / 12) 100%;
+  max-width:1400px; margin:0 auto;
+  left:50%; transform:translateX(-50%); width:100%;
+}
+
+/* ============ LAYOUT ============ */
+.wrap { max-width:980px; margin:0 auto; padding:48px 24px 96px; position:relative; z-index:1; }
+.nav {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:16px 0 32px; border-bottom:1px solid var(--border-faint); margin-bottom:48px;
+}
+.brand { display:flex; align-items:center; gap:12px; }
+.brand-mark {
+  width:32px; height:32px; background:var(--grad-accent); border-radius:7px;
+  display:grid; place-items:center; position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset;
+}
+.brand-mark::before {
+  content:''; position:absolute; inset:7px;
+  border:1.6px solid white; border-radius:3px;
+  transform:rotate(45deg);
+}
+.brand-name { font-weight:600; font-size:15px; }
+.nav-pill {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  padding:6px 12px; background:var(--indigo-soft);
+  border:1px solid var(--border-indigo); border-radius:99px;
+}
+
+/* ============ HERO ============ */
+.eyebrow {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:16px;
+}
+.hero h1 {
+  font-family:'Instrument Serif',serif; font-style:italic; font-weight:400;
+  font-size:56px; line-height:1.05; letter-spacing:-0.025em;
+  margin-bottom:18px;
+}
+.hero h1 em { font-style:italic; color:var(--indigo-glow); }
+.hero-sub { font-size:17px; color:var(--text-md); max-width:720px; margin-bottom:32px; }
+
+/* ============ TOC ============ */
+.toc {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-lg); padding:24px 28px; margin-bottom:64px;
+}
+.toc-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.toc ol { list-style:none; counter-reset:toc; }
+.toc li { counter-increment:toc; padding:6px 0; }
+.toc li::before {
+  content:counter(toc,decimal-leading-zero);
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); margin-right:14px;
+}
+.toc a { color:var(--text-hi); text-decoration:none; font-size:15px; }
+.toc a:hover { color:var(--indigo-glow); }
+
+/* ============ SECTION ============ */
+section { margin-bottom:80px; scroll-margin-top:32px; }
+.s-eyebrow {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.s-title {
+  font-family:'Instrument Serif',serif; font-style:italic; font-weight:400;
+  font-size:38px; line-height:1.1; letter-spacing:-0.02em; margin-bottom:24px;
+}
+.s-sub { font-size:16px; color:var(--text-md); margin-bottom:28px; max-width:760px; }
+.s-body p { margin-bottom:18px; color:var(--text-hi); }
+.s-body p + p { margin-top:0; }
+.s-body strong { color:var(--text-hi); font-weight:600; }
+.s-body em { color:var(--indigo-glow); font-style:italic; }
+
+.callout {
+  background:var(--surface-1); border:1px solid var(--border-indigo);
+  border-radius:var(--r-md); padding:18px 22px; margin:24px 0;
+  font-size:14px; color:var(--text-md);
+}
+.callout strong { color:var(--text-hi); }
+
+/* ============ BOT CARDS ============ */
+.bots-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; margin-top:24px; }
+.bot-card {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:20px; position:relative;
+  transition:border-color 200ms ease, transform 200ms ease;
+}
+.bot-card:hover { border-color:var(--border-indigo); transform:translateY(-2px); }
+.bot-id {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:8px;
+}
+.bot-name { font-weight:600; font-size:16px; margin-bottom:12px; }
+.bot-one-liner { color:var(--text-md); font-size:13.5px; line-height:1.55; margin-bottom:14px; }
+.bot-meta { display:flex; gap:14px; flex-wrap:wrap; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-lo); letter-spacing:0.04em; }
+.bot-meta span { display:inline-flex; align-items:center; gap:6px; }
+.dot { display:inline-block; width:6px; height:6px; border-radius:50%; }
+.dot.client { background:var(--info); }
+.dot.owner { background:var(--ok); }
+.dot.you { background:var(--gold); }
+.dot.parked { background:var(--text-faint); }
+
+.legend {
+  display:flex; gap:24px; margin:24px 0; padding:14px 18px;
+  background:var(--surface-1); border:1px solid var(--border-subtle); border-radius:var(--r-md);
+  font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-md);
+  flex-wrap:wrap;
+}
+.legend > span { display:inline-flex; align-items:center; gap:8px; }
+
+/* ============ STACK / FLOW DIAGRAM ============ */
+.stack-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-top:24px; }
+.stack-item {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:18px;
+}
+.stack-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--indigo-glow); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:8px;
+}
+.stack-name { font-weight:600; font-size:14px; margin-bottom:6px; }
+.stack-desc { font-size:13px; color:var(--text-md); }
+
+/* ============ FLOW ============ */
+.flow {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:24px; margin-top:24px;
+  font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text-md);
+  line-height:1.9; overflow-x:auto;
+}
+.flow strong { color:var(--text-hi); }
+.flow .arrow { color:var(--indigo-glow); }
+
+/* ============ QUICK REFERENCE ============ */
+.ref-list { display:grid; gap:12px; }
+.ref-item {
+  background:var(--surface-1); border:1px solid var(--border-subtle);
+  border-radius:var(--r-md); padding:16px 20px;
+  display:grid; grid-template-columns:160px 1fr; gap:20px; align-items:start;
+}
+.ref-key {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--indigo-glow); letter-spacing:0.06em;
+}
+.ref-val { font-size:14px; color:var(--text-hi); word-break:break-all; }
+.ref-val .small { font-size:12px; color:var(--text-md); display:block; margin-top:4px; }
+@media (max-width:600px){ .ref-item { grid-template-columns:1fr; } }
+
+/* ============ ORDERED LIST ============ */
+.ord { counter-reset:ord; list-style:none; }
+.ord li {
+  counter-increment:ord; position:relative; padding:14px 0 14px 56px;
+  border-bottom:1px solid var(--border-faint);
+}
+.ord li:last-child { border-bottom:none; }
+.ord li::before {
+  content:counter(ord,decimal-leading-zero);
+  position:absolute; left:0; top:14px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--indigo-glow); letter-spacing:0.06em;
+  padding:4px 10px; background:var(--indigo-soft);
+  border:1px solid var(--border-indigo); border-radius:6px;
+}
+.ord li strong { color:var(--text-hi); display:block; margin-bottom:4px; }
+.ord li span { color:var(--text-md); font-size:14px; }
+
+/* ============ FOOTER ============ */
+.foot {
+  margin-top:96px; padding-top:32px; border-top:1px solid var(--border-faint);
+  text-align:center; font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--text-lo); letter-spacing:0.12em; text-transform:uppercase;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:680px){
+  .hero h1 { font-size:38px; }
+  .s-title { font-size:28px; }
+  .wrap { padding:32px 18px 64px; }
+}
+
+/* ===== Concept C signature-accent logo (brand-locked 2026-06-06) ===== */
+.logo { gap:10px; }
+.logo-name {
+  position:relative; display:inline-block;
+  font-weight:800; font-size:19px; color:var(--text-hi); letter-spacing:0.01em;
+  padding-bottom:5px; padding-right:7px;
+}
+.logo-name::after {
+  content:''; position:absolute; left:1px; right:7px; bottom:1px; height:2px;
+  background:var(--grad-accent,linear-gradient(135deg,#818cf8,#6366f1,#4f46e5)); border-radius:2px;
+}
+.logo-name::before {
+  content:''; position:absolute; right:0; bottom:0; width:3px; height:3px;
+  border-radius:50%; background:var(--indigo-deep,#4f46e5);
+}
+.logo-tag { font-family:'JetBrains Mono',ui-monospace,monospace; font-weight:500; font-size:9.5px; color:var(--text-lo); letter-spacing:0.18em; text-transform:uppercase; margin-top:3px; }
+
+
+/* ===== Go-live page ===== */
+.gintro { font-size:16px; color:var(--text-md); line-height:1.7; max-width:720px; }
+.gintro strong { color:var(--text-hi); }
+/* where you work — orientation cards */
+.gwhere-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin:20px 0 8px; }
+.gwhere-card { background:var(--surface-2,#14141d); border:1px solid var(--border-faint,rgba(255,255,255,0.04)); border-radius:var(--r-md,12px); padding:16px 18px; }
+.gwhere-card .tag { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--indigo-glow,#818cf8); margin-bottom:6px; }
+.gwhere-card p { margin:0; color:var(--text-md,#a8a8c2); font-size:13.5px; line-height:1.55; }
+/* step card */
+.gstep { background:var(--surface-1,#0e0e15); border:1px solid var(--border-subtle,rgba(255,255,255,0.08)); border-radius:var(--r-lg,20px); padding:26px 28px; margin:18px 0; position:relative; }
+.gstep-head { display:flex; align-items:center; gap:14px; margin-bottom:6px; flex-wrap:wrap; }
+.gstep-num { font-family:'Instrument Serif',serif; font-style:italic; font-size:40px; line-height:1; color:var(--indigo-glow,#818cf8); }
+.gstep-title { font-size:21px; font-weight:700; color:var(--text-hi,#f5f5fa); letter-spacing:-0.01em; }
+.gwhere { font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:4px 10px; border-radius:99px; white-space:nowrap; }
+.gwhere.paystack { background:rgba(99,102,241,0.14); color:var(--indigo-glow,#818cf8); border:1px solid var(--border-indigo,rgba(99,102,241,0.25)); }
+.gwhere.railway { background:rgba(34,211,238,0.12); color:var(--info,#22d3ee); border:1px solid rgba(34,211,238,0.3); }
+.gwhere.github { background:rgba(245,158,11,0.12); color:var(--warn,#f59e0b); border:1px solid rgba(245,158,11,0.3); }
+.gwhere.watch { background:rgba(16,185,129,0.12); color:var(--ok,#10b981); border:1px solid rgba(16,185,129,0.3); }
+.gstep-why { color:var(--text-md,#a8a8c2); font-size:14.5px; line-height:1.65; margin:8px 0 16px; }
+.gstep-why .term { color:var(--text-hi,#f5f5fa); font-weight:600; }
+.gstep ol { margin:0 0 0 2px; padding:0; list-style:none; counter-reset:gs; }
+.gstep ol li { position:relative; padding:8px 0 8px 30px; color:var(--text-md,#a8a8c2); font-size:14.5px; line-height:1.6; border-top:1px solid var(--border-faint,rgba(255,255,255,0.04)); }
+.gstep ol li:first-child { border-top:none; }
+.gstep ol li::before { counter-increment:gs; content:counter(gs); position:absolute; left:0; top:8px; width:20px; height:20px; border-radius:50%; background:var(--indigo-soft,rgba(99,102,241,0.10)); border:1px solid var(--border-indigo,rgba(99,102,241,0.25)); color:var(--indigo-glow,#818cf8); font-family:'JetBrains Mono',monospace; font-size:11px; display:grid; place-items:center; }
+.gstep ol li strong { color:var(--text-hi,#f5f5fa); }
+/* copy box */
+.copybox { display:flex; align-items:center; gap:10px; margin:10px 0; background:var(--surface-2,#14141d); border:1px solid var(--border-subtle,rgba(255,255,255,0.08)); border-radius:8px; padding:9px 10px 9px 14px; }
+.copybox code { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--text-hi,#f5f5fa); word-break:break-all; flex:1; }
+.copy-btn { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--indigo-glow,#818cf8); background:var(--indigo-soft,rgba(99,102,241,0.10)); border:1px solid var(--border-indigo,rgba(99,102,241,0.25)); border-radius:6px; padding:5px 11px; cursor:pointer; flex-shrink:0; transition:background 150ms,color 150ms; }
+.copy-btn:hover { background:rgba(99,102,241,0.2); }
+.copy-btn.copied { color:var(--ok,#10b981); border-color:rgba(16,185,129,0.4); background:rgba(16,185,129,0.12); }
+/* checklist */
+.gcheck { list-style:none; padding:0; margin:10px 0 0; }
+.gcheck li { position:relative; padding:10px 0 10px 30px; color:var(--text-md,#a8a8c2); font-size:14.5px; line-height:1.55; border-top:1px solid var(--border-faint,rgba(255,255,255,0.04)); }
+.gcheck li:first-child { border-top:none; }
+.gcheck li::before { content:''; position:absolute; left:0; top:13px; width:16px; height:16px; border-radius:4px; border:1.5px solid var(--border-strong,rgba(255,255,255,0.15)); }
+.gcheck li strong { color:var(--text-hi,#f5f5fa); }
+.gnote { background:var(--surface-2,#14141d); border:1px solid var(--border-indigo,rgba(99,102,241,0.25)); border-radius:var(--r-md,12px); padding:14px 18px; margin:14px 0; font-size:14px; color:var(--text-md,#a8a8c2); line-height:1.6; }
+.gnote.warn { border-color:rgba(245,158,11,0.35); }
+.gnote strong { color:var(--text-hi,#f5f5fa); }
+</style>
+</head>
+<body>
+
+<!-- ============ GATE OVERLAY ============ -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-mark"></div>
+    <div class="gate-eyebrow">// Operator only</div>
+    <div class="gate-title">Go-Live Runbook</div>
+    <div class="gate-sub">Paystack go-live steps. Passphrase required.</div>
+    <input type="password" id="gate-input" class="gate-input" placeholder="Passphrase" autocomplete="off" autofocus>
+    <button id="gate-btn" class="gate-btn">Unlock</button>
+    <div id="gate-error" class="gate-error"></div>
+  </div>
+</div>
+
+<div class="atmos"></div>
+<div class="grid-lines"></div>
+
+<div class="wrap" id="content" style="display:none;">
+
+  <nav class="nav">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-name">NSM</div>
+    </div>
+    <span class="nav-pill">Paystack Go-Live</span>
+  </nav>
+
+  <header class="hero">
+    <div class="eyebrow">// Operator only · open this when KYC is approved</div>
+    <h1>Going live with <em>Paystack.</em></h1>
+    <p class="gintro">The day your Paystack approval email lands, open this page and go top to bottom. It takes about <strong>30 minutes</strong>, and <strong>you barely touch any code</strong> — almost all of it is clicking around two dashboards (Paystack and Railway). There's exactly <strong>one</strong> tiny website change at the end. Take your time, tick each box, and don't skip the test payment.</p>
+  </header>
+
+  <section id="need">
+    <div class="s-eyebrow">// First</div>
+    <h2 class="s-title">Have these ready</h2>
+    <ul class="gcheck">
+      <li>Your <strong>Paystack approval email</strong> (the reason you're here).</li>
+      <li>Logged into <strong>Paystack</strong> as <span class="mono">ndumisoseth12@gmail.com</span>.</li>
+      <li>Logged into <strong>Railway</strong> (where your bots live).</li>
+      <li>Logged into <strong>GitHub</strong> (your website code).</li>
+      <li>A <strong>real card</strong> with about R2,000 free — you'll charge yourself once to test, then refund it.</li>
+      <li>~30 quiet minutes.</li>
+    </ul>
+  </section>
+
+  <section id="places">
+    <div class="s-eyebrow">// Orientation</div>
+    <h2 class="s-title">The 3 places you'll work</h2>
+    <p class="s-sub">Every step below has a coloured tag telling you which of these to be in. That's all it is — three browser tabs.</p>
+    <div class="gwhere-grid">
+      <div class="gwhere-card"><div class="tag">🟣 Paystack</div><p>The payment company's dashboard. You get your keys, make your plans, and do the test payment here. Just clicking.</p></div>
+      <div class="gwhere-card"><div class="tag">🚂 Railway</div><p>Where your bots run. You paste your live keys in here so the bots use real money instead of test money. Just clicking.</p></div>
+      <div class="gwhere-card"><div class="tag">🐙 GitHub</div><p>Your website's code. The only place you edit anything — and it's literally one word, at the very end.</p></div>
+    </div>
+  </section>
+
+  <section id="steps">
+    <div class="s-eyebrow">// The steps</div>
+    <h2 class="s-title">Eight steps, in order</h2><div class="gstep"><div class="gstep-head"><span class="gstep-num">1</span><span class="gstep-title">Get your real keys</span><span class="gwhere paystack">🟣 Paystack</span></div><p class="gstep-why">A <span class="term">secret key</span> is like a master password that lets your system actually charge cards. Paystack gives you a test one (fake money) and a live one (real money). Right now you're on test — you're switching to live.</p><ol><li>Open <strong>dashboard.paystack.com</strong>.</li><li>Top-right, flip the <strong>Test / Live</strong> toggle to <strong>Live</strong>.</li><li>Left menu → <strong>Settings → API Keys & Webhooks</strong>.</li><li>Copy the <strong>Live Secret Key</strong> (it starts with <span class="mono">sk_live_</span>). Paste it into your phone notes for a minute — you'll need it in Step 3.</li></ol></div><div class="gnote warn"><strong>⚠ Never share that secret key.</strong> Anyone who has it can charge cards through your account. Don't paste it into a chat, screenshot, or anywhere public.</div><div class="gstep"><div class="gstep-head"><span class="gstep-num">2</span><span class="gstep-title">Make your 3 plans again</span><span class="gwhere paystack">🟣 Paystack</span></div><p class="gstep-why">Paystack keeps <span class="term">test</span> and <span class="term">live</span> completely separate — like two different accounts. The plans you set up while testing don't exist on the live side, so you make them one more time.</p><ol><li>Still in Live mode → left menu → <strong>Plans</strong> → <strong>Create Plan</strong>.</li><li>Make these three (name, amount in Rand, Monthly, ZAR):</li><li>After each one, copy its new <strong>plan code</strong> (starts with <span class="mono">PLN_</span>) into your notes, labelled Starter / Operator / Command. You'll need all three in Step 3.</li></ol></div><div class="copybox"><code>NSM Starter · 1990 · Monthly · ZAR</code><button class="copy-btn" type="button">Copy</button></div><div class="copybox"><code>NSM Operator · 3990 · Monthly · ZAR</code><button class="copy-btn" type="button">Copy</button></div><div class="copybox"><code>NSM Command · 9990 · Monthly · ZAR</code><button class="copy-btn" type="button">Copy</button></div><div class="gstep"><div class="gstep-head"><span class="gstep-num">3</span><span class="gstep-title">Tell your bots the new keys</span><span class="gwhere railway">🚂 Railway</span></div><p class="gstep-why">Your bots read their keys from <span class="term">settings</span> in Railway (called "variables"). You're swapping the four test values for your live ones, so the bots start using real money.</p><ol><li>Open <strong>railway.app</strong> → your n8n project → click the <strong>n8n service</strong> → <strong>Variables</strong> tab.</li><li>Replace the value of each of these four (the names stay the same — you're only changing the values):</li><li>Paste your <span class="mono">sk_live_</span> key into the first, and the three <span class="mono">PLN_</span> plan codes from Step 2 into the others.</li><li>A <strong>Deploy</strong> banner appears → click it (or wait). Give it ~30 seconds to finish.</li></ol></div><div class="copybox"><code>PAYSTACK_SECRET_KEY</code><button class="copy-btn" type="button">Copy</button></div><div class="copybox"><code>PAYSTACK_PLAN_STARTER</code><button class="copy-btn" type="button">Copy</button></div><div class="copybox"><code>PAYSTACK_PLAN_OPERATOR</code><button class="copy-btn" type="button">Copy</button></div><div class="copybox"><code>PAYSTACK_PLAN_COMMAND</code><button class="copy-btn" type="button">Copy</button></div><div class="gnote"><strong>Leave these two alone</strong> if you see them — <span class="mono">N8N_BLOCK_ENV_ACCESS_IN_NODE</span> and <span class="mono">NODE_FUNCTION_ALLOW_BUILTIN</span>. They stay exactly as they are.</div><div class="gstep"><div class="gstep-head"><span class="gstep-num">4</span><span class="gstep-title">Check the "webhook" is set</span><span class="gwhere paystack">🟣 Paystack</span></div><p class="gstep-why">A <span class="term">webhook</span> is just a little message Paystack pings to your system the instant someone pays, so your bots know to send the welcome email and log the sale. You're only checking the address is filled in.</p><ol><li>Paystack (Live mode) → <strong>Settings → API Keys & Webhooks</strong> → scroll to <strong>Webhook URL</strong>.</li><li>Confirm it shows the address below. If it's empty or different, paste this in and <strong>Save</strong>:</li></ol></div><div class="copybox"><code>https://n8n-production-71d9.up.railway.app/webhook/paystack-webhook</code><button class="copy-btn" type="button">Copy</button></div><div class="gstep"><div class="gstep-head"><span class="gstep-num">5</span><span class="gstep-title">Do one real test payment</span><span class="gwhere paystack">🟣 Paystack</span></div><p class="gstep-why">This is the important one. You'll pay <span class="term">yourself</span> the real Starter price (R1,990) to prove the whole chain works before any customer touches it. <strong>You refund it in the next step</strong> — so it costs you nothing, just a few days' float.</p><ol><li>Open a <strong>private/incognito</strong> browser window.</li><li>Paste this link, swapping <span class="mono">YOUR_EMAIL</span> for your real email:</li><li>You'll land on Paystack's checkout. Pay with your <strong>real card</strong> (approve the OTP/3DS from your bank if asked).</li><li>You should be sent to the <strong>thank-you</strong> page. Then check the four things in the next box. ↓</li></ol></div><div class="copybox"><code>https://n8n-production-71d9.up.railway.app/webhook/paystack-subscribe?tier=starter&email=YOUR_EMAIL</code><button class="copy-btn" type="button">Copy</button></div><p class="blk-label" style="margin:14px 0 6px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-lo);">Within ~30 seconds, these 4 should happen:</p><ul class="gcheck"><li><strong>Telegram ping</strong> on your phone: "NEW CUSTOMER · STARTER" with your name + email.</li><li><strong>Welcome email</strong> to the address you used — the premium indigo one.</li><li><strong>Paystack receipt</strong> email (separate, automatic, from Paystack).</li><li><strong>A new row</strong> in your subscriptions sheet (Tier = Starter, Status = success).</li></ul><div class="gnote">If one of those didn't happen → jump to <strong>"If something goes wrong"</strong> at the bottom. Don't do Step 7 until all four work.</div><div class="gstep"><div class="gstep-head"><span class="gstep-num">6</span><span class="gstep-title">Refund yourself</span><span class="gwhere paystack">🟣 Paystack</span></div><p class="gstep-why">Give yourself the R1,990 back, and stop it from charging you again next month.</p><ol><li>Paystack → <strong>Transactions</strong> → click your test charge from Step 5.</li><li>Click <strong>Refund</strong> → full amount → reason "Live smoke test" → confirm. (Lands back on your card in a few days.)</li><li>Then → <strong>Customers</strong> → find yourself → open the active subscription → <strong>Cancel subscription</strong>, so it doesn't bill you again in 30 days.</li></ol></div><div class="gstep"><div class="gstep-head"><span class="gstep-num">7</span><span class="gstep-title">Turn the Subscribe buttons on</span><span class="gwhere github">🐙 GitHub</span></div><p class="gstep-why">This is the <strong>only</strong> code change in the whole process — and it's one word. Until now, visitors only see "Book a demo". After this, they see "Subscribe" buttons too. You do it right in GitHub in your browser.</p><ol><li>Open your repo on <strong>github.com</strong> (<span class="mono">jarvis-nexus-lead-jkon</span>) → click <span class="mono">index.html</span> → click the <strong>pencil ✏️</strong> (Edit this file).</li><li>Press <strong>Ctrl+F</strong> and search for the text in the box below.</li><li>Change that one word from <span class="mono">pending</span> to <span class="mono">live</span> (so it reads <span class="mono">data-payfast="live"</span>). <strong>Touch nothing else.</strong></li><li>Scroll down → <strong>Commit changes</strong> → message "go live with paystack" → <strong>Commit directly to the main branch</strong>.</li><li>Wait ~30 seconds, then open your live site in a private window — the <strong>Subscribe</strong> buttons should now be there.</li></ol></div><div class="copybox"><code>data-payfast="pending"</code><button class="copy-btn" type="button">Copy</button></div><div class="gnote"><strong>Changed your mind / something looks off?</strong> Repeat the same steps and flip <span class="mono">live</span> back to <span class="mono">pending</span>, commit. The buttons vanish again in ~30 seconds. Nothing breaks.</div><div class="gstep"><div class="gstep-head"><span class="gstep-num">8</span><span class="gstep-title">Your first real customer</span><span class="gwhere watch">📱 Watch</span></div><p class="gstep-why">You're done — this is just what to expect when a real person (not you) subscribes.</p><ol><li>You get the <strong>Telegram ping</strong> with their name, email and tier.</li><li>A row appears in your subscriptions sheet, and they get the welcome email.</li><li><strong>Your job:</strong> reach out within 24 hours to book their onboarding call (the welcome email tells them you will).</li></ol></div></section>
+  <section id="trouble">
+    <div class="s-eyebrow">// If something goes wrong</div>
+    <h2 class="s-title">The 3 things that usually break</h2>
+    <div class="gnote"><strong>"I paid but no Telegram / no sheet row."</strong><br>The payment didn't reach your bots, or a bot errored. Open n8n → <strong>Executions</strong>. No execution at all → in Paystack, Settings → Webhooks → Recent events → click the failed one → <strong>Resend</strong>. An execution with a red ✕ on "Verify Signature" → your live secret key in Railway (Step 3) is wrong or still the test one — fix it and redeploy.</div>
+    <div class="gnote"><strong>"The Subscribe button gives a blank white page."</strong><br>The subscribe bot errored before showing checkout — almost always the <span class="mono">PAYSTACK_SECRET_KEY</span> in Railway isn't set or is wrong. Re-check Step 3.</div>
+    <div class="gnote"><strong>"Welcome email says the customer's name is 'New Customer'."</strong><br>Paystack didn't capture their name at checkout. That's fine — it's the safe fallback. To collect names, turn on name fields in Paystack → Settings → Preferences → Checkout fields.</div>
+    <div class="gnote">Still stuck? Paystack support: <span class="mono">support@paystack.com</span> (replies within a day). Or message me — but this page has the 95% case.</div>
+  </section>
+
+  <section id="done">
+    <div class="s-eyebrow">// When it's done</div>
+    <h2 class="s-title">That's it — you're taking real money.</h2>
+    <p class="gintro">Once Step 7 is deployed and your test payment in Step 5 worked end-to-end, the very next person who subscribes is a real paying client. This was the bottleneck for the whole build. <strong>Well done.</strong></p>
+  </section>
+
+  <div class="foot">
+    NSM · Built in Joburg · Paystack Go-Live v1
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var KEY = 'jn_op_unlocked_v1';
+  var PASS = 'LoveGod12';
+  var gate = document.getElementById('gate');
+  var content = document.getElementById('content');
+  var input = document.getElementById('gate-input');
+  var btn = document.getElementById('gate-btn');
+  var err = document.getElementById('gate-error');
+
+  function unlock(){
+    localStorage.setItem(KEY, 'true');
+    gate.classList.add('hidden');
+    content.style.display = 'block';
+  }
+  function fail(){
+    err.textContent = 'Wrong passphrase';
+    input.value = '';
+    input.focus();
+    setTimeout(function(){ err.textContent = ''; }, 2400);
+  }
+
+  if (localStorage.getItem(KEY) === 'true') {
+    unlock();
+  } else {
+    btn.addEventListener('click', function(){
+      if (input.value === PASS) unlock(); else fail();
+    });
+    input.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') {
+        if (input.value === PASS) unlock(); else fail();
+      }
+    });
+  }
+})();
+</script>
+
+
+<script>
+(function(){
+  document.querySelectorAll('.copy-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      var box=b.closest('.copybox'), code=box&&box.querySelector('code'); if(!code)return;
+      var t=code.innerText;
+      function done(){ b.classList.add('copied'); var o=b.textContent; b.textContent='Copied'; setTimeout(function(){b.classList.remove('copied');b.textContent=o;},1500); }
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){fb(t);done();});}else{fb(t);done();}
+    });
+  });
+  function fb(t){var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);}
+})();
+</script>
+</body>
+</html>

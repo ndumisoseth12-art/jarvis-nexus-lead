@@ -5535,6 +5535,8 @@ window.addEventListener('load', function () {
   var tierLabel = document.getElementById('ps-modal-tier-label');
   var goBtn = document.getElementById('ps-modal-go');
   var currentTier = 'starter';
+  // Payment rail: 'payfast' (verified, live) or 'paystack' (pending KYC). One-word switch.
+  var PAY_PROVIDER = 'payfast';
 
   function open(tier) {
     currentTier = (tier || 'starter').toLowerCase();
@@ -5560,7 +5562,7 @@ window.addEventListener('load', function () {
     errEl.textContent = '';
     goBtn.disabled = true;
     goBtn.textContent = 'Securing checkout…';
-    var url = '/api/paystack-subscribe?tier=' + encodeURIComponent(currentTier) + '&email=' + encodeURIComponent(email);
+    var url = '/api/' + PAY_PROVIDER + '-subscribe?tier=' + encodeURIComponent(currentTier) + '&email=' + encodeURIComponent(email);
     window.location.href = url;
   }
 

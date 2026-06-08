@@ -33,6 +33,7 @@
     { "source": "/outreach",       "destination": "/outreach.html" },
     { "source": "/cashflow",       "destination": "/cashflow.html" },
     { "source": "/instagram",      "destination": "/instagram.html" },
+    { "source": "/golive",         "destination": "/golive.html" },
 
     { "source": "/api/router",             "destination": "https://n8n-production-71d9.up.railway.app/webhook/master-router" },
     { "source": "/api/payfast-subscribe",  "destination": "https://n8n-production-71d9.up.railway.app/webhook/payfast-subscribe" },
