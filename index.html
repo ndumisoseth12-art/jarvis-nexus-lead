@@ -4546,7 +4546,7 @@ body.menu-open {
           <li class="muted">Custom AI voice (Operator tier)</li>
         </ul>
         <div class="price-cta-stack">
-          <button type="button" data-paystack-tier="starter" class="price-cta price-cta-payfast">
+          <button type="button" data-payfast-tier="starter" class="price-cta price-cta-payfast">
             Subscribe to Starter <span class="arrow">&rarr;</span>
           </button>
           <div class="price-cta-microcopy">Cancel anytime &middot; 30-day money-back</div>
@@ -4578,7 +4578,7 @@ body.menu-open {
           <li>Priority phone + WhatsApp support</li>
         </ul>
         <div class="price-cta-stack">
-          <button type="button" data-paystack-tier="operator" class="price-cta price-cta-payfast">
+          <button type="button" data-payfast-tier="operator" class="price-cta price-cta-payfast">
             Subscribe to Operator <span class="arrow">&rarr;</span>
           </button>
           <div class="price-cta-microcopy">Cancel anytime &middot; 30-day money-back</div>
@@ -5395,7 +5395,7 @@ window.addEventListener('load', function () {
 })();
 </script>
 
-<!-- Paystack email-capture modal -->
+<!-- PayFast email-capture modal -->
 <style>
 .ps-modal {
   position: fixed; inset: 0; z-index: 9999;
@@ -5509,7 +5509,7 @@ window.addEventListener('load', function () {
 }
 </style>
 
-<div id="paystack-modal" class="ps-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="ps-modal-title">
+<div id="payfast-modal" class="ps-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="ps-modal-title">
   <div class="ps-modal-backdrop" data-ps-close></div>
   <div class="ps-modal-card" role="document">
     <button type="button" class="ps-modal-close" data-ps-close aria-label="Close">&times;</button>
@@ -5528,15 +5528,14 @@ window.addEventListener('load', function () {
 
 <script>
 (function () {
-  var modal = document.getElementById('paystack-modal');
+  var modal = document.getElementById('payfast-modal');
   if (!modal) return;
   var emailInput = document.getElementById('ps-modal-email');
   var errEl = document.getElementById('ps-modal-error');
   var tierLabel = document.getElementById('ps-modal-tier-label');
   var goBtn = document.getElementById('ps-modal-go');
   var currentTier = 'starter';
-  // Payment rail: 'payfast' (verified, live) or 'paystack' (pending KYC). One-word switch.
-  var PAY_PROVIDER = 'payfast';
+  // Payment rail: PayFast (verified, live)
 
   function open(tier) {
     currentTier = (tier || 'starter').toLowerCase();
@@ -5562,14 +5561,14 @@ window.addEventListener('load', function () {
     errEl.textContent = '';
     goBtn.disabled = true;
     goBtn.textContent = 'Securing checkout…';
-    var url = '/api/' + PAY_PROVIDER + '-subscribe?tier=' + encodeURIComponent(currentTier) + '&email=' + encodeURIComponent(email);
+    var url = '/api/payfast-subscribe?tier=' + encodeURIComponent(currentTier) + '&email=' + encodeURIComponent(email);
     window.location.href = url;
   }
 
-  document.querySelectorAll('[data-paystack-tier]').forEach(function (btn) {
+  document.querySelectorAll('[data-payfast-tier]').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
       e.preventDefault();
-      open(btn.getAttribute('data-paystack-tier'));
+      open(btn.getAttribute('data-payfast-tier'));
     });
   });
   modal.querySelectorAll('[data-ps-close]').forEach(function (el) {
