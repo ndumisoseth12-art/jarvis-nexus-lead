@@ -1,0 +1,415 @@
+{
+  "name": "Proposal Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "proposal",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f5d123e4-b1a3-479f-9582-1d17241d9015",
+      "name": "Webhook",
+      "webhookId": "f58b3fa2-e62f-47b8-9f3e-ffc8f7ca99ab"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0ab3864d-23ee-4807-8d3c-9284eb3425f8",
+              "name": "leadName",
+              "value": "={{ $json['body']['leadName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "8d990f1d-bd93-4912-ae1a-aa81243f5715",
+              "name": "businessName",
+              "value": "={{ $json['body']['businessName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "bc5091bd-de29-4087-bd35-ce41211a7ec3",
+              "name": "email",
+              "value": "={{ $json['body']['email'] }}",
+              "type": "string"
+            },
+            {
+              "id": "f907c044-109e-4efa-8d17-69e992c49523",
+              "name": "phone",
+              "value": "={{ $json['body']['phone'] }}",
+              "type": "string"
+            },
+            {
+              "id": "a91728dc-f53b-497e-9af9-f6f4584f9392",
+              "name": "challenge",
+              "value": "={{ $json['body']['challenge'] }}",
+              "type": "string"
+            },
+            {
+              "id": "3c519c9d-e4dc-441f-8e08-64bb91d848c8",
+              "name": "recommendedBot",
+              "value": "={{ $json['body']['recommendedBot'] }}",
+              "type": "string"
+            },
+            {
+              "id": "11039786-4b37-47fb-a3da-ab8f1c8ee673",
+              "name": "recommendedPlan",
+              "value": "={{ $json['body']['recommendedPlan'] }}",
+              "type": "string"
+            },
+            {
+              "id": "8b90d823-10d8-437a-aa41-d5d9aa0138aa",
+              "name": "setupFee",
+              "value": "={{ $json['body']['setupFee'] }}",
+              "type": "string"
+            },
+            {
+              "id": "e756226e-128c-42f9-b7ac-300c9cad441f",
+              "name": "monthlyFee",
+              "value": "={{ $json['body']['monthlyFee'] }}",
+              "type": "string"
+            },
+            {
+              "id": "49bf97c4-3acc-4e65-b157-1b5f6d2192e1",
+              "name": "dateSent",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        160,
+        0
+      ],
+      "id": "47d3636f-4a42-4216-8ede-8c829a9c0f5b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are Seth, founder of NSM, a South African AI automation agency. Write a warm, confident, personalised opening paragraph for a business proposal. Rules: 1. Address the lead by first name. 2. Reference their specific business challenge directly. 3. Show you understand their pain. 4. Position NSM as the solution. 5. Keep it under 80 words. 6. Warm SA tone — not corporate. 7. Plain text only — no formatting, no bullet points.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Lead name: {{ $('Edit Fields').item.json['leadName'] }}\\nBusiness: {{ $('Edit Fields').item.json['businessName'] }}\\nChallenge: {{ $('Edit Fields').item.json['challenge'] }}\\nRecommended solution: {{ $('Edit Fields').item.json['recommendedBot'] }}\"\n    }\n  ],\n  \"temperature\": 0.7,\n  \"max_tokens\": 150\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        320,
+        0
+      ],
+      "id": "8c9fbadf-a5f7-4a69-9f89-206e18f18f61",
+      "name": "HTTP Request",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=📋 PROPOSAL SENT  👤 {{ $('Edit Fields').item.json['leadName'] }} 🏢 {{ $('Edit Fields').item.json['businessName'] }} 📧 {{ $('Edit Fields').item.json['email'] }} 📦 {{ $('Edit Fields').item.json['recommendedPlan'] }} 🤖 {{ $('Edit Fields').item.json['recommendedBot'] }} 💵 R{{ $('Edit Fields').item.json['setupFee'] }} setup + R{{ $('Edit Fields').item.json['monthlyFee'] }}/month  Logged in Proposal Tracker.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "16ccbc8a-4870-448f-8c4c-630a6f1109d7",
+      "name": "Send a text message",
+      "webhookId": "580d9b63-0fce-43be-a478-bf44066a67d1",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "Response Code: 200\nBody: { \"status\": \"success\" }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1232,
+        0
+      ],
+      "id": "cae7c590-61db-4f7d-b928-68694179ce86",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json['email'] }}",
+        "subject": "=Your NSM Proposal — {{ $('Edit Fields').item.json['businessName'] }}",
+        "message": "=<!DOCTYPE html> <html> <head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head> <body style=\"margin:0;padding:0;background:#f4f6fa;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;\"> <div style=\"max-width:620px;margin:40px auto;background:#020208;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);\">    <!-- HEADER -->   <div style=\"padding:40px;background:linear-gradient(135deg,#8b5cf6,#3b82f6,#22d3ee);position:relative;\">     <div style=\"font-size:26px;font-weight:800;color:#fff;letter-spacing:1px;\">NSM</div>     <div style=\"font-size:11px;color:rgba(255,255,255,0.75);letter-spacing:3px;text-transform:uppercase;margin-top:5px;\">AI Automation for SA Businesses</div>     <div style=\"margin-top:20px;font-size:13px;color:rgba(255,255,255,0.8);\">Prepared exclusively for</div>     <div style=\"font-size:28px;font-weight:800;color:#fff;margin-top:4px;\">{{ $('Edit Fields').item.json['businessName'] }}</div>     <div style=\"font-size:13px;color:rgba(255,255,255,0.65);margin-top:4px;\">{{ $('Edit Fields').item.json['dateSent'] }}</div>   </div>    <div style=\"padding:40px;\">      <!-- PERSONALISED INTRO -->     <div style=\"margin-bottom:36px;\">       <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8b5cf6;margin-bottom:14px;\">A Message From Seth</div>       <div style=\"font-size:16px;color:#e8e8ff;line-height:1.8;\">Hi {{ $('Edit Fields').item.json['leadName'] }},</div>       <div style=\"font-size:15px;color:#a0a0c0;line-height:1.8;margin-top:10px;\">{{ $json['choices'][0]['message']['content'] }}</div>     </div>      <!-- THE PROBLEM -->     <div style=\"background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:14px;padding:24px;margin-bottom:20px;\">       <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ef4444;margin-bottom:12px;\">The Problem</div>       <div style=\"font-size:15px;color:#e8e8ff;line-height:1.7;\">{{ $('Edit Fields').item.json['challenge'] }}</div>       <div style=\"font-size:13px;color:#a0a0c0;margin-top:10px;line-height:1.6;\">Most SA businesses lose customers not because of bad products — but because of slow responses. Every unanswered review, missed lead and delayed reply costs you real money.</div>     </div>      <!-- THE SOLUTION -->     <div style=\"background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:14px;padding:24px;margin-bottom:20px;\">       <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8b5cf6;margin-bottom:12px;\">The Solution</div>       <div style=\"font-size:18px;font-weight:700;color:#ffffff;margin-bottom:10px;\">{{ $('Edit Fields').item.json['recommendedBot'] }}</div>       <div style=\"font-size:13px;color:#a0a0c0;line-height:1.7;\">NSM deploys an AI automation system that responds to your customers instantly — 24 hours a day, 7 days a week. No staff needed. No missed messages. No frustrated customers.</div>       <div style=\"margin-top:16px;\">         <div style=\"display:inline-block;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:#10b981;margin:4px 4px 4px 0;\">⚡ 10 second response time</div>         <div style=\"display:inline-block;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:#10b981;margin:4px 4px 4px 0;\">✓ 100% response rate</div>         <div style=\"display:inline-block;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:#10b981;margin:4px;\">🌍 Built for SA businesses</div>       </div>     </div>      <!-- INVESTMENT -->     <div style=\"background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:24px;margin-bottom:20px;\">       <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#a0a0c0;margin-bottom:16px;\">Your Investment</div>       <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;\">         <div style=\"background:rgba(255,255,255,0.04);border-radius:10px;padding:16px;text-align:center;\">           <div style=\"font-size:11px;color:#a0a0c0;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;\">Once-Off Setup</div>           <div style=\"font-size:28px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;\">R{{ $('Edit Fields').item.json['setupFee'] }}</div>         </div>         <div style=\"background:rgba(255,255,255,0.04);border-radius:10px;padding:16px;text-align:center;\">           <div style=\"font-size:11px;color:#a0a0c0;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;\">Monthly Retainer</div>           <div style=\"font-size:28px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;\">R{{ $('Edit Fields').item.json['monthlyFee'] }}</div>         </div>       </div>       <div style=\"background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:10px;padding:14px;font-size:13px;color:#10b981;text-align:center;font-weight:600;\">         30-Day Guarantee — 100% response rate or your money back       </div>     </div>      <!-- WHAT'S INCLUDED -->     <div style=\"margin-bottom:28px;\">       <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#a0a0c0;margin-bottom:14px;\">What's Included</div>       <div style=\"display:flex;align-items:center;gap:10px;margin-bottom:10px;\"><div style=\"width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#10b981;flex-shrink:0;\">✓</div><div style=\"font-size:14px;color:#e8e8ff;\">{{ $('Edit Fields').item.json['recommendedBot'] }} — fully configured</div></div>       <div style=\"display:flex;align-items:center;gap:10px;margin-bottom:10px;\"><div style=\"width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#10b981;flex-shrink:0;\">✓</div><div style=\"font-size:14px;color:#e8e8ff;\">Live within 48 hours of sign-off</div></div>       <div style=\"display:flex;align-items:center;gap:10px;margin-bottom:10px;\"><div style=\"width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#10b981;flex-shrink:0;\">✓</div><div style=\"font-size:14px;color:#e8e8ff;\">Monthly performance reports</div></div>       <div style=\"display:flex;align-items:center;gap:10px;margin-bottom:10px;\"><div style=\"width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#10b981;flex-shrink:0;\">✓</div><div style=\"font-size:14px;color:#e8e8ff;\">Ongoing support via email and WhatsApp</div></div>       <div style=\"display:flex;align-items:center;gap:10px;\"><div style=\"width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#10b981;flex-shrink:0;\">✓</div><div style=\"font-size:14px;color:#e8e8ff;\">No lock-in — cancel anytime</div></div>     </div>      <!-- NEXT STEPS -->     <div style=\"background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(34,211,238,0.06));border:1px solid rgba(139,92,246,0.25);border-radius:14px;padding:24px;margin-bottom:28px;\">       <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8b5cf6;margin-bottom:14px;\">Next Steps</div>       <div style=\"font-size:14px;color:#a0a0c0;line-height:1.8;\">         1. Reply to this email with any questions<br>         2. Book a free 10-minute demo call to see it live<br>         3. Confirm and we go live within 48 hours       </div>     </div>      <!-- CTA -->     <div style=\"text-align:center;margin-bottom:32px;\">       <a href=\"https://cal.com/seth-mokone-limbt0/30min\" style=\"display:inline-block;background:linear-gradient(135deg,#8b5cf6,#3b82f6,#22d3ee);color:#fff;font-weight:800;padding:16px 36px;border-radius:14px;text-decoration:none;font-size:15px;box-shadow:0 8px 30px rgba(139,92,246,0.3);\">Book Your Free Demo Call →</a>       <div style=\"font-size:12px;color:#a0a0c0;margin-top:12px;\">Or reply to this email · WhatsApp: +27 67 099 4163</div>     </div>      <!-- FOOTER -->     <div style=\"border-top:1px solid rgba(255,255,255,0.08);padding-top:20px;text-align:center;font-size:12px;color:#a0a0c0;line-height:1.7;\">       Seth · NSM · ndumisoseth12@gmail.com · +27 67 099 4163<br>       <span style=\"color:#8b5cf6;font-weight:600;\">AI Automation for South African Businesses</span>     </div>    </div> </div> </body> </html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        0
+      ],
+      "id": "94cb3837-acf2-4118-967e-9eb69d995e4c",
+      "name": "Gmail — Proposal to Lead",
+      "webhookId": "32015f78-f0d5-43b0-b40f-7f57058221c5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=📋 Proposal Sent — {{ $('Edit Fields').item.json['businessName'] }} — {{ $('Edit Fields').item.json['recommendedPlan'] }}",
+        "message": "=📋 Proposal Sent — {{ $('Edit Fields').item.json['businessName'] }} — {{ $('Edit Fields').item.json['recommendedPlan'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        688,
+        0
+      ],
+      "id": "cf8a0fa7-8a4b-44c4-9114-1f54209f0dab",
+      "name": "Gmail — Proposal Copy to Seth",
+      "webhookId": "32015f78-f0d5-43b0-b40f-7f57058221c5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1mkZFrbfOW8D1bXfliGFWN07xM4LcXRp4ECjVypJejWE/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mkZFrbfOW8D1bXfliGFWN07xM4LcXRp4ECjVypJejWE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date Sent": "={{ $('Edit Fields').item.json['dateSent'] }}",
+            "Lead Name": "={{ $('Edit Fields').item.json['leadName'] }}",
+            "Business Name": "={{ $('Edit Fields').item.json['businessName'] }}",
+            "Email": "={{ $('Edit Fields').item.json['email'] }}",
+            "Challenge": "={{ $('Edit Fields').item.json['challenge'] }}",
+            "Recommended Plan": "={{ $('Edit Fields').item.json['recommendedPlan'] }}",
+            "Status": "Sent"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date Sent",
+              "displayName": "Date Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lead Name",
+              "displayName": "Lead Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business Name",
+              "displayName": "Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Challenge",
+              "displayName": "Challenge",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recommended Plan",
+              "displayName": "Recommended Plan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        864,
+        0
+      ],
+      "id": "6101e3fa-8d67-4c9d-b7c1-6847b12d26e4",
+      "name": "Google Sheets — Proposal Tracker",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "retryOnFail": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Proposal to Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Proposal to Lead": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Proposal Copy to Seth",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Proposal Copy to Seth": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets — Proposal Tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets — Proposal Tracker": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "877fedb0-5a65-46df-8689-f7705eb91645",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "lhDhNmLZRRwXJeET",
+  "tags": []
+}

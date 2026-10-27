@@ -1,0 +1,192 @@
+{
+  "name": "B12 PayFast Subscribe",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "payfast-subscribe",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b12a1b2c-d4e5-f6a7-b8c9-d0e1f2c12001",
+      "name": "Webhook — Subscribe",
+      "webhookId": "b12-payfast-subscribe"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-t-1",
+              "name": "tier",
+              "value": "={{ ($json['query']?.['tier'] ?? 'starter').toLowerCase() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ],
+      "id": "b12a1b2c-d4e5-f6a7-b8c9-d0e1f2c12002",
+      "name": "Edit Fields — Tier"
+    },
+    {
+      "parameters": {
+        "jsCode": "// B12 PayFast Subscribe — Build the payload + the string to hash.\n// Hashing happens in the next node (Crypto) so we don't need require('crypto').\n//\n// LIVE credentials are read from Railway env vars — set these BEFORE flipping to 'live':\n//   PAYFAST_MERCHANT_ID\n//   PAYFAST_MERCHANT_KEY\n//   PAYFAST_PASSPHRASE\n// (PayFast must also have verified the merchant account before live mode works.)\n\n// ============ MODE — flip to 'live' when ready to take real money ============\nconst MODE = 'live'; // 'sandbox' (test, no real money) or 'live' (real charges)\n// =============================================================================\n\n// Sandbox uses PayFast's public test credentials (anyone can use these — safe to commit).\nconst MERCHANT_ID  = MODE === 'live' ? ($env['PAYFAST_MERCHANT_ID']  || '') : '10000100';\nconst MERCHANT_KEY = MODE === 'live' ? ($env['PAYFAST_MERCHANT_KEY'] || '') : '46f0cd694581a';\nconst PASSPHRASE   = MODE === 'live' ? ($env['PAYFAST_PASSPHRASE']   || '') : 'jt7NOE43FZPn';\n\nconst PAYFAST_URL = MODE === 'live'\n  ? 'https://www.payfast.co.za/eng/process'\n  : 'https://sandbox.payfast.co.za/eng/process';\n\nconst RETURN_URL = 'https://jarvis-nexus-lead-jkon.vercel.app/thank-you';\nconst CANCEL_URL = 'https://jarvis-nexus-lead-jkon.vercel.app/#pricing';\nconst NOTIFY_URL = 'https://n8n-production-71d9.up.railway.app/webhook/payfast-itn';\n\n// Tier config — initial = setup fee + first month (charged today),\n// recurring = monthly amount charged 30 days later, then monthly forever.\nconst TIERS = {\n  starter: {\n    name: 'Starter',\n    amount: 4490.00,\n    recurring: 1990.00,\n    itemName: 'NSM · Starter Plan',\n    itemDescription: 'Setup fee (R2,500) + first month (R1,990). Then R1,990/month auto-billed. Cancel anytime.'\n  },\n  operator: {\n    name: 'Operator',\n    amount: 8490.00,\n    recurring: 3990.00,\n    itemName: 'NSM · Operator Plan',\n    itemDescription: 'Setup fee (R4,500) + first month (R3,990). Then R3,990/month auto-billed. 30-day guarantee.'\n  },\n  command: {\n    name: 'Command',\n    amount: 18490.00,\n    recurring: 9990.00,\n    itemName: 'NSM · Command Plan',\n    itemDescription: 'Setup fee (R8,500) + first month (R9,990). Then R9,990/month auto-billed. White-glove support.'\n  }\n};\n\nconst tierKey = ($('Edit Fields — Tier').item.json['tier'] || 'starter').toLowerCase();\nconst tier = TIERS[tierKey] || TIERS.starter;\nconst paymentId = 'JN-' + Date.now() + '-' + Math.floor(Math.random() * 10000);\n\n// Build payload in PayFast's documented field order (order matters for signature)\nconst data = {\n  merchant_id: MERCHANT_ID,\n  merchant_key: MERCHANT_KEY,\n  return_url: RETURN_URL,\n  cancel_url: CANCEL_URL,\n  notify_url: NOTIFY_URL,\n  m_payment_id: paymentId,\n  amount: tier.amount.toFixed(2),\n  item_name: tier.itemName,\n  item_description: tier.itemDescription,\n  custom_str1: tierKey,\n  subscription_type: '1',\n  recurring_amount: tier.recurring.toFixed(2),\n  frequency: '3',  // 3 = Monthly\n  cycles: '0'      // 0 = indefinite\n};\n\n// PayFast URL encoding: must match PHP urlencode() exactly.\n// JS encodeURIComponent leaves !'()*~ unencoded; PHP urlencode does encode them.\n// Spaces become '+' (PHP style), not '%20' (JS style).\nfunction pfEncode(value) {\n  return encodeURIComponent(String(value).trim())\n    .replace(/%20/g, '+')\n    .replace(/!/g, '%21')\n    .replace(/'/g, '%27')\n    .replace(/\\(/g, '%28')\n    .replace(/\\)/g, '%29')\n    .replace(/\\*/g, '%2A')\n    .replace(/~/g, '%7E');\n}\n\nconst orderedKeys = Object.keys(data).filter(k => data[k] !== '' && data[k] != null);\nconst queryString = orderedKeys.map(k => k + '=' + pfEncode(data[k])).join('&');\nconst stringToHash = PASSPHRASE\n  ? queryString + '&passphrase=' + pfEncode(PASSPHRASE)\n  : queryString;\n\nreturn [{\n  json: {\n    stringToHash: stringToHash,\n    data: data,\n    paymentId: paymentId,\n    tierName: tier.name,\n    payfastUrl: PAYFAST_URL,\n    mode: MODE\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "id": "b12a1b2c-d4e5-f6a7-b8c9-d0e1f2c12003",
+      "name": "Code — Prepare Payload"
+    },
+    {
+      "parameters": {
+        "action": "hash",
+        "type": "MD5",
+        "value": "={{ $json['stringToHash'] }}",
+        "dataPropertyName": "signature",
+        "encoding": "hex"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        680,
+        0
+      ],
+      "id": "b12a1b2c-d4e5-f6a7-b8c9-d0e1f2c12004",
+      "name": "Crypto — Sign MD5"
+    },
+    {
+      "parameters": {
+        "jsCode": "// B12 — Build the auto-submitting HTML form using payload + signature\n\nconst input = $input.item.json;\nconst data = input['data'];\nconst signature = input['signature'];\nconst paymentId = input['paymentId'];\nconst tierName = input['tierName'];\nconst payfastUrl = input['payfastUrl'];\n\n// Append the signature to the form fields\ndata.signature = signature;\n\nfunction esc(s) {\n  return String(s)\n    .replace(/&/g, '&amp;')\n    .replace(/\"/g, '&quot;')\n    .replace(/</g, '&lt;')\n    .replace(/>/g, '&gt;');\n}\n\nconst inputs = Object.keys(data)\n  .map(k => '  <input type=\"hidden\" name=\"' + k + '\" value=\"' + esc(data[k]) + '\">')\n  .join('\\n');\n\nconst html = '<!DOCTYPE html>\\n'\n  + '<html lang=\"en\"><head><meta charset=\"UTF-8\">'\n  + '<title>Redirecting to PayFast...</title>'\n  + '<style>'\n  + 'body{font-family:-apple-system,Arial,sans-serif;background:#08080c;color:#f5f5fa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;}'\n  + '.card{text-align:center;padding:40px;max-width:480px;}'\n  + '.spinner{display:inline-block;width:36px;height:36px;border:3px solid rgba(99,102,241,0.2);border-top-color:#818cf8;border-radius:50%;animation:spin 800ms linear infinite;margin-bottom:24px;}'\n  + '@keyframes spin{to{transform:rotate(360deg);}}'\n  + '.label{font-family:monospace;font-size:11px;letter-spacing:0.18em;color:#818cf8;text-transform:uppercase;margin-bottom:10px;font-weight:600;}'\n  + '.text{font-size:20px;font-weight:600;margin-bottom:8px;letter-spacing:-0.01em;}'\n  + '.sub{font-size:13.5px;color:#a8a8c2;line-height:1.55;margin-bottom:24px;}'\n  + '.ref{font-family:monospace;font-size:11px;color:#6b6b85;letter-spacing:0.06em;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);}'\n  + '</style></head><body>'\n  + '<div class=\"card\"><div class=\"spinner\"></div>'\n  + '<div class=\"label\">// NSM &middot; ' + tierName.toUpperCase() + '</div>'\n  + '<div class=\"text\">Securing your checkout...</div>'\n  + '<div class=\"sub\">Redirecting you to PayFast to complete payment.</div>'\n  + '<div class=\"ref\">REF &middot; ' + paymentId + '</div></div>'\n  + '<form id=\"pf\" action=\"' + payfastUrl + '\" method=\"POST\">\\n' + inputs + '\\n</form>'\n  + '<script>setTimeout(function(){document.getElementById(\"pf\").submit();}, 700);</script>'\n  + '</body></html>';\n\nreturn [{ json: { html: html, paymentId: paymentId, tier: tierName } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        920,
+        0
+      ],
+      "id": "b12a1b2c-d4e5-f6a7-b8c9-d0e1f2c12005",
+      "name": "Code — Build HTML"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json['html'] }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1160,
+        0
+      ],
+      "id": "b12a1b2c-d4e5-f6a7-b8c9-d0e1f2c12006",
+      "name": "Respond — Auto-Submit HTML"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook — Subscribe": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Tier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Tier": {
+      "main": [
+        [
+          {
+            "node": "Code — Prepare Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Prepare Payload": {
+      "main": [
+        [
+          {
+            "node": "Crypto — Sign MD5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto — Sign MD5": {
+      "main": [
+        [
+          {
+            "node": "Code — Build HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Build HTML": {
+      "main": [
+        [
+          {
+            "node": "Respond — Auto-Submit HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b12-payfast-subscribe-v1-005",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B12PayFastSubscribeV1004",
+  "tags": []
+}

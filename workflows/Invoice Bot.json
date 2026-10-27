@@ -1,0 +1,438 @@
+{
+  "name": "Invoice Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "invoice",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "14dcd6c8-6d90-4694-8430-4467ac60b6dd",
+      "name": "Webhook",
+      "webhookId": "2fbdeca2-d355-47a3-8b6e-7f1ac6864f7e"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4b10e367-d215-46bc-b6c5-76b9784c6afe",
+              "name": "clientName",
+              "value": "={{ $json['body']['clientName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "4db47b9c-cfaa-4325-9dd6-f3bc1efc8b4a",
+              "name": "businessName",
+              "value": "={{ $json['body']['businessName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "265ab44b-89e6-4fbb-b1d0-beb9d6a41ace",
+              "name": "email",
+              "value": "={{ $json['body']['email'] }}",
+              "type": "string"
+            },
+            {
+              "id": "e7125618-ef3f-4b79-8d8b-f59f1d0b9910",
+              "name": "phone",
+              "value": "={{ $json['body']['phone'] }}",
+              "type": "string"
+            },
+            {
+              "id": "5383adc6-fced-4ac4-aec2-a6e684c15b1f",
+              "name": "plan",
+              "value": "={{ $json['body']['plan'] }}",
+              "type": "string"
+            },
+            {
+              "id": "0e6a7459-3035-486b-a686-43b321c6cf2f",
+              "name": "botsSelected",
+              "value": "={{ $json['body']['botsSelected'] }}",
+              "type": "string"
+            },
+            {
+              "id": "2b44c995-2f1b-4da4-aba5-e47809cf3562",
+              "name": "setupFee",
+              "value": "={{ $json['body']['setupFee'] }}",
+              "type": "string"
+            },
+            {
+              "id": "86850202-5ef2-4742-bfb9-5b822765d7fe",
+              "name": "monthlyFee",
+              "value": "={{ $json['body']['monthlyFee'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "25ff7e85-1ef5-47e6-99be-4a2921aeba6d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Edit Fields').item.json;\n\n// Invoice number — timestamp based\nconst now = new Date();\nconst pad = n => String(n).padStart(2, '0');\nconst invoiceNumber = 'JN-' + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + '-' + Math.floor(Math.random() * 900 + 100);\n\n// Dates\nconst issueDate = now.toLocaleDateString('en-ZA', { day: '2-digit', month: 'long', year: 'numeric' });\nconst dueDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)\n  .toLocaleDateString('en-ZA', { day: '2-digit', month: 'long', year: 'numeric' });\n\n// Amounts\nconst setupFee   = parseFloat(d['setupFee'])   || 0;\nconst monthlyFee = parseFloat(d['monthlyFee']) || 0;\nconst totalDue   = setupFee + monthlyFee;\n\nconst formatRand = n => 'R' + n.toLocaleString('en-ZA', { minimumFractionDigits: 2 });\n\n// Bot list for itemisation\nconst bots = (d['botsSelected'] || '').split(',').map(b => b.trim()).filter(Boolean);\nconst botRows = bots.map(bot =>\n  '<tr><td style=\"padding:10px 0;border-bottom:1px solid #1a1a2e;color:#a0a0c0;font-size:14px;\">' + bot + ' — AI Automation Bot</td><td style=\"padding:10px 0;border-bottom:1px solid #1a1a2e;text-align:right;color:#ffffff;font-size:14px;\">Included</td></tr>'\n).join('');\n\n// Full HTML invoice\nconst invoiceHTML = `\n<!DOCTYPE html>\n<html>\n<head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"></head>\n<body style=\"margin:0;padding:0;background:#f4f6fa;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;\">\n<div style=\"max-width:600px;margin:40px auto;background:#020208;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);\">\n\n  <!-- HEADER -->\n  <div style=\"padding:36px 40px;background:linear-gradient(135deg,#8b5cf6,#3b82f6,#22d3ee);position:relative;\">\n    <div style=\"font-size:24px;font-weight:800;color:#fff;letter-spacing:1px;\">NSM</div>\n    <div style=\"font-size:11px;color:rgba(255,255,255,0.7);letter-spacing:3px;text-transform:uppercase;margin-top:4px;\">AI Automation Platform</div>\n    <div style=\"position:absolute;top:36px;right:40px;text-align:right;\">\n      <div style=\"font-size:11px;color:rgba(255,255,255,0.7);letter-spacing:2px;text-transform:uppercase;\">Invoice</div>\n      <div style=\"font-size:20px;font-weight:800;color:#fff;margin-top:4px;\">${invoiceNumber}</div>\n    </div>\n  </div>\n\n  <!-- BODY -->\n  <div style=\"padding:40px;\">\n\n    <!-- BILL TO / FROM -->\n    <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:36px;\">\n      <div>\n        <div style=\"font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8b5cf6;margin-bottom:10px;\">Bill To</div>\n        <div style=\"font-size:16px;font-weight:700;color:#ffffff;\">${d['clientName']}</div>\n        <div style=\"font-size:14px;color:#a0a0c0;margin-top:4px;\">${d['businessName']}</div>\n        <div style=\"font-size:14px;color:#a0a0c0;margin-top:2px;\">${d['email']}</div>\n        <div style=\"font-size:14px;color:#a0a0c0;margin-top:2px;\">${d['phone'] || ''}</div>\n      </div>\n      <div>\n        <div style=\"font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8b5cf6;margin-bottom:10px;\">From</div>\n        <div style=\"font-size:16px;font-weight:700;color:#ffffff;\">Seth — NSM</div>\n        <div style=\"font-size:14px;color:#a0a0c0;margin-top:4px;\">ndumisoseth12@gmail.com</div>\n        <div style=\"font-size:14px;color:#a0a0c0;margin-top:2px;\">+27 67 099 4163</div>\n        <div style=\"font-size:14px;color:#a0a0c0;margin-top:2px;\">South Africa</div>\n      </div>\n    </div>\n\n    <!-- DATES -->\n    <div style=\"display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:36px;\">\n      <div style=\"background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;\">\n        <div style=\"font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#a0a0c0;margin-bottom:6px;\">Issue Date</div>\n        <div style=\"font-size:13px;font-weight:600;color:#ffffff;\">${issueDate}</div>\n      </div>\n      <div style=\"background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;\">\n        <div style=\"font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#a0a0c0;margin-bottom:6px;\">Due Date</div>\n        <div style=\"font-size:13px;font-weight:600;color:#f59e0b;\">${dueDate}</div>\n      </div>\n      <div style=\"background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;\">\n        <div style=\"font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#a0a0c0;margin-bottom:6px;\">Status</div>\n        <div style=\"font-size:13px;font-weight:700;color:#f59e0b;\">Payment Due</div>\n      </div>\n    </div>\n\n    <!-- LINE ITEMS -->\n    <table style=\"width:100%;border-collapse:collapse;margin-bottom:28px;\">\n      <thead>\n        <tr>\n          <th style=\"text-align:left;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8b5cf6;padding-bottom:12px;border-bottom:1px solid rgba(139,92,246,0.3);\">Description</th>\n          <th style=\"text-align:right;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8b5cf6;padding-bottom:12px;border-bottom:1px solid rgba(139,92,246,0.3);\">Amount</th>\n        </tr>\n      </thead>\n      <tbody>\n        <tr>\n          <td style=\"padding:14px 0;border-bottom:1px solid #1a1a2e;color:#ffffff;font-size:15px;font-weight:600;\">${d['plan']}</td>\n          <td style=\"padding:14px 0;border-bottom:1px solid #1a1a2e;text-align:right;color:#ffffff;font-size:15px;font-weight:600;\"></td>\n        </tr>\n        <tr>\n          <td style=\"padding:10px 0;border-bottom:1px solid #1a1a2e;color:#a0a0c0;font-size:14px;\">Once-off Setup Fee</td>\n          <td style=\"padding:10px 0;border-bottom:1px solid #1a1a2e;text-align:right;color:#ffffff;font-size:14px;\">${formatRand(setupFee)}</td>\n        </tr>\n        <tr>\n          <td style=\"padding:10px 0;border-bottom:1px solid #1a1a2e;color:#a0a0c0;font-size:14px;\">Monthly Retainer (Month 1)</td>\n          <td style=\"padding:10px 0;border-bottom:1px solid #1a1a2e;text-align:right;color:#ffffff;font-size:14px;\">${formatRand(monthlyFee)}</td>\n        </tr>\n        ${botRows}\n      </tbody>\n    </table>\n\n    <!-- TOTAL -->\n    <div style=\"background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(34,211,238,0.08));border:1px solid rgba(139,92,246,0.3);border-radius:14px;padding:24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;\">\n      <div style=\"font-size:14px;font-weight:600;color:#a0a0c0;letter-spacing:1px;text-transform:uppercase;\">Total Due</div>\n      <div style=\"font-size:32px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;\">${formatRand(totalDue)}</div>\n    </div>\n\n    <!-- BANKING DETAILS -->\n    <div style=\"background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:24px;margin-bottom:32px;\">\n      <div style=\"font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#10b981;margin-bottom:16px;\">Banking Details — EFT Payment</div>\n      <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:12px;\">\n        <div>\n          <div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;\">Bank</div>\n          <div style=\"font-size:14px;font-weight:600;color:#ffffff;\">Capitec</div>\n        </div>\n        <div>\n          <div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;\">Account Name</div>\n          <div style=\"font-size:14px;font-weight:600;color:#ffffff;\">NS Mokone</div>\n        </div>\n        <div>\n          <div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;\">Account Number</div>\n          <div style=\"font-size:14px;font-weight:600;color:#ffffff;\">1760852196</div>\n        </div>\n        <div>\n          <div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;\">Branch Code</div>\n          <div style=\"font-size:14px;font-weight:600;color:#ffffff;\">470010</div>\n        </div>\n        <div>\n          <div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;\">Reference</div>\n          <div style=\"font-size:14px;font-weight:600;color:#f59e0b;\">${invoiceNumber}</div>\n        </div>\n      </div>\n    </div>\n\n    <!-- FOOTER NOTE -->\n    <div style=\"text-align:center;font-size:12px;color:#a0a0c0;line-height:1.6;\">\n      Payment is due within 7 days of this invoice.<br>\n      Questions? Reply to this email or WhatsApp +27 67 099 4163<br><br>\n      <span style=\"color:#8b5cf6;font-weight:600;\">Thank you for choosing NSM.</span>\n    </div>\n\n  </div>\n</div>\n</body>\n</html>\n`;\n\nreturn [{\n  json: {\n    invoiceNumber,\n    issueDate,\n    dueDate,\n    setupFee: formatRand(setupFee),\n    monthlyFee: formatRand(monthlyFee),\n    totalDue: formatRand(totalDue),\n    totalDueRaw: totalDue,\n    invoiceHTML,\n    clientName:    d['clientName'],\n    businessName:  d['businessName'],\n    email:         d['email'],\n    phone:         d['phone'],\n    plan:          d['plan'],\n    botsSelected:  d['botsSelected']\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "f318c5e4-4e8e-46e0-a947-291a3dbf01f4",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "Response Code: 200\nBody: { \"status\": \"success\" }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1552,
+        0
+      ],
+      "id": "b4d632af-fac3-4a54-95c0-2d04d4469fdd",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json['email'] }}",
+        "subject": "=Invoice {{ $('Code in JavaScript').item.json['invoiceNumber'] }} — NSM",
+        "message": "={{ $('Code in JavaScript').item.json['invoiceHTML'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "84523086-a127-4332-8d1e-96a44a49d5cc",
+      "name": "Gmail — Invoice to Client",
+      "webhookId": "a8248d7e-41d7-457b-81e9-a6a328787ae1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=💰 Invoice Sent — {{ $('Code in JavaScript').item.json['invoiceNumber'] }} — {{ $('Code in JavaScript').item.json['businessName'] }}",
+        "message": "=Invoice {{ $('Code in JavaScript').item.json['invoiceNumber'] }} sent to  {{ $('Code in JavaScript').item.json['clientName'] }}  ({{ $('Code in JavaScript').item.json['businessName'] }}).  Total Due: {{ $('Code in JavaScript').item.json['totalDue'] }} Due Date:  {{ $('Code in JavaScript').item.json['dueDate'] }} Plan:      {{ $('Code in JavaScript').item.json['plan'] }} Bots:      {{ $('Code in JavaScript').item.json['botsSelected'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        864,
+        0
+      ],
+      "id": "5aaf01f2-042f-4192-93a8-85b631aac859",
+      "name": "Gmail — Invoice Copy to Seth",
+      "webhookId": "a8248d7e-41d7-457b-81e9-a6a328787ae1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": " Google Sheets — Invoice Tracker",
+        "text": "=💰 INVOICE SENT  📄 {{ $('Code in JavaScript').item.json['invoiceNumber'] }} 👤 {{ $('Code in JavaScript').item.json['clientName'] }} 🏢 {{ $('Code in JavaScript').item.json['businessName'] }} 💵 {{ $('Code in JavaScript').item.json['totalDue'] }} 📅 Due: {{ $('Code in JavaScript').item.json['dueDate'] }} 📦 {{ $('Code in JavaScript').item.json['plan'] }}  Invoice emailed to client. Logged in tracker.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1328,
+        0
+      ],
+      "id": "22134d5b-b721-45e1-95c7-c620f88bf786",
+      "name": "Telegram — Invoice Alert",
+      "webhookId": "be57ba46-a91e-43c9-9d5a-5922f6d9723c",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1tMv2vpASS6sv_pPpupHjAdf8ugLbnbJl7_kqzRc16VM/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tMv2vpASS6sv_pPpupHjAdf8ugLbnbJl7_kqzRc16VM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Invoice Number": "={{ $('Code in JavaScript').item.json['invoiceNumber'] }}",
+            "        Date": "={{ $('Code in JavaScript').item.json['issueDate'] }}",
+            "    Due Date ": "={{ $('Code in JavaScript').item.json['dueDate'] }}",
+            "  Client Name": "={{ $('Code in JavaScript').item.json['clientName'] }}",
+            "   Business Name": "={{ $('Code in JavaScript').item.json['businessName'] }}",
+            "       Email": "={{ $('Code in JavaScript').item.json['email'] }}",
+            "        Plan": "={{ $('Code in JavaScript').item.json['plan'] }}",
+            "        Bots": "={{ $('Code in JavaScript').item.json['botsSelected'] }}",
+            "   Setup Fee": "={{ $('Code in JavaScript').item.json['setupFee'] }}",
+            "   Monthly Fee ": "={{ $('Code in JavaScript').item.json['monthlyFee'] }}",
+            "    Total Due": "={{ $('Code in JavaScript').item.json['totalDue'] }}",
+            "      Status": "=Pending"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Invoice Number",
+              "displayName": "Invoice Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "        Date",
+              "displayName": "        Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "    Due Date ",
+              "displayName": "    Due Date ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "  Client Name",
+              "displayName": "  Client Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "   Business Name",
+              "displayName": "   Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "       Email",
+              "displayName": "       Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "        Plan",
+              "displayName": "        Plan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "        Bots",
+              "displayName": "        Bots",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "   Setup Fee",
+              "displayName": "   Setup Fee",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "   Monthly Fee ",
+              "displayName": "   Monthly Fee ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "    Total Due",
+              "displayName": "    Total Due",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "      Status",
+              "displayName": "      Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1104,
+        0
+      ],
+      "id": "2f42b5c4-7fb9-414d-a128-592c72f3132e",
+      "name": " Google Sheets — Invoice Tracker",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Invoice to Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Invoice to Client": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Invoice Copy to Seth",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Invoice Copy to Seth": {
+      "main": [
+        [
+          {
+            "node": " Google Sheets — Invoice Tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Invoice Alert": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Google Sheets — Invoice Tracker": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Invoice Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "ad4e0029-33ae-455c-afdf-7fa309f5a967",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "kPSfiBj8AmEoGCPl",
+  "tags": []
+}

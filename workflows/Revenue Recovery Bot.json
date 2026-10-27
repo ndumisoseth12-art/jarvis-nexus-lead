@@ -1,0 +1,706 @@
+{
+  "name": "Revenue Recovery Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "revenue-recovery",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -736,
+        -32
+      ],
+      "id": "851150c7-b542-4715-a4a7-0d7d9c61a296",
+      "name": "Webhook",
+      "webhookId": "74f80ceb-40f5-48c4-b711-4837c67fbd60"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a44c8243-41b1-4c25-a950-2bebc27f3a8b",
+              "name": "clientName",
+              "value": "={{ $json['body']['clientName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "d5fae908-5e5f-49ea-b04d-087e86bdbdba",
+              "name": "clientBusiness",
+              "value": "={{ $json['body']['clientBusiness'] }}",
+              "type": "string"
+            },
+            {
+              "id": "3c487f51-e38c-4a8d-95e8-2dffcfb7b9b3",
+              "name": "debtorName",
+              "value": "={{ $json['body']['debtorName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "e8ed9f14-f352-432c-8fce-bdad30183e4e",
+              "name": "debtorEmail",
+              "value": "={{ $json['body']['debtorEmail'] }}",
+              "type": "string"
+            },
+            {
+              "id": "492021c3-7417-4d2d-aae5-b96e760df455",
+              "name": "invoiceNumber",
+              "value": "={{ $json['body']['invoiceNumber'] }}",
+              "type": "string"
+            },
+            {
+              "id": "4e28e284-57ce-4b1c-8b72-383eb6e54f07",
+              "name": "invoiceAmount",
+              "value": "={{ $json['body']['invoiceAmount'] }}",
+              "type": "string"
+            },
+            {
+              "id": "1fc30d7d-c544-46b0-a618-aebde8e759bc",
+              "name": "invoiceDate",
+              "value": "={{ $json['body']['invoiceDate'] }}",
+              "type": "string"
+            },
+            {
+              "id": "979dc141-77e7-4bde-8ea3-53db507494e0",
+              "name": "dueDate",
+              "value": "={{ $json['body']['dueDate'] }}",
+              "type": "string"
+            },
+            {
+              "id": "93a3f18a-9197-4052-8fba-209cd77dd556",
+              "name": "serviceDesc",
+              "value": "={{ $json['body']['serviceDesc'] }}",
+              "type": "string"
+            },
+            {
+              "id": "db60055b-0b35-4441-80a0-4373ed4cdc46",
+              "name": "dateAdded",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -592,
+        -32
+      ],
+      "id": "3d2035c3-9b27-48d6-927f-99e6708fb50a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Edit Fields').item.json;\n\nconst now = new Date();\nconst dueDate = new Date(d['dueDate']);\nconst daysOverdue = Math.max(0, Math.floor((now - dueDate) / 86400000));\n\nconst invoiceAmount = parseFloat(d['invoiceAmount']) || 0;\nconst formatRand = n => 'R' + n.toLocaleString('en-ZA', { minimumFractionDigits: 2 });\n\nlet stage = 'Stage 1';\nlet urgency = 'Gentle';\nif (daysOverdue >= 21) { stage = 'Stage 3'; urgency = 'Final'; }\nelse if (daysOverdue >= 14) { stage = 'Stage 2'; urgency = 'Firm'; }\n\nreturn [{\n  json: {\n    ...d,\n    daysOverdue,\n    stage,\n    urgency,\n    invoiceAmountFormatted: formatRand(invoiceAmount),\n    invoiceAmount\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -432,
+        -32
+      ],
+      "id": "8968740e-0156-4be7-9dfb-c841c30fca4d",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a professional South African business assistant. Write a warm, polite payment reminder email. Rules: 1. Address debtor by first name. 2. Reference the invoice number and amount. 3. Assume it may be an oversight — never accusatory. 4. Keep under 80 words. 5. Include a clear call to action. 6. Sign off from the business owner by name. 7. Plain text only — no formatting.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Debtor: {{ $('Code in JavaScript').item.json['debtorName'] }}\\nBusiness: {{ $('Code in JavaScript').item.json['clientBusiness'] }}\\nInvoice: {{ $('Code in JavaScript').item.json['invoiceNumber'] }}\\nAmount: {{ $('Code in JavaScript').item.json['invoiceAmountFormatted'] }}\\nDue Date: {{ $('Code in JavaScript').item.json['dueDate'] }}\\nDays Overdue: {{ $('Code in JavaScript').item.json['daysOverdue'] }}\\nService: {{ $('Code in JavaScript').item.json['serviceDesc'] }}\\nOwner Name: {{ $('Code in JavaScript').item.json['clientName'] }}\"\n    }\n  ],\n  \"temperature\": 0.4,\n  \"max_tokens\": 200\n}\nNode 5 — Gmail (Stage 1 — Gentle)\nName:    Gmail — Stage 1 Gentle\nTo:      {{ $('Code in JavaScript').item.json['debtorEmail'] }}\nSubject: Invoice {{ $('Code in JavaScript').item.json['invoiceNumber'] }} — Friendly Reminder\nType:    HTML\n\nBody:\n<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n\n<div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">\n  {{ $('Code in JavaScript').item.json['clientBusiness'] }}\n</div>\n\n<div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;\">\n  {{ $json['choices'][0]['message']['content'] }}\n</div>\n\n<div style=\"background:#f8f9ff;border:1px solid #e8e8ff;border-radius:12px;padding:24px;margin-bottom:28px;\">\n  <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8b5cf6;margin-bottom:14px;\">Invoice Summary</div>\n  <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">\n    <span style=\"font-size:13px;color:#666;\">Invoice Number</span>\n    <span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code in JavaScript').item.json['invoiceNumber'] }}</span>\n  </div>\n  <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">\n    <span style=\"font-size:13px;color:#666;\">Service</span>\n    <span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code in JavaScript').item.json['serviceDesc'] }}</span>\n  </div>\n  <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">\n    <span style=\"font-size:13px;color:#666;\">Due Date</span>\n    <span style=\"font-size:13px;font-weight:600;color:#f59e0b;\">{{ $('Code in JavaScript').item.json['dueDate'] }}</span>\n  </div>\n  <div style=\"height:1px;background:#e8e8ff;margin:12px 0;\"></div>\n  <div style=\"display:flex;justify-content:space-between;\">\n    <span style=\"font-size:15px;font-weight:700;color:#020208;\">Amount Due</span>\n    <span style=\"font-size:20px;font-weight:800;color:#8b5cf6;\">{{ $('Code in JavaScript').item.json['invoiceAmountFormatted'] }}</span>\n  </div>\n</div>\n\n<div style=\"text-align:center;margin-bottom:28px;\">\n  <div style=\"font-size:13px;color:#666;\">To settle this invoice please use the following banking details:</div>\n  <div style=\"background:#020208;border-radius:10px;padding:16px;margin-top:12px;text-align:left;\">\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">BANK</div>\n    <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">Capitec</div>\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">ACCOUNT NAME</div>\n    <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">NS Mokone</div>\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">ACCOUNT NUMBER</div>\n    <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">1760852196</div>\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">BRANCH CODE</div>\n    <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">470010</div>\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">REFERENCE</div>\n    <div style=\"font-size:13px;color:#f59e0b;font-weight:700;\">{{ $('Code in JavaScript').item.json['invoiceNumber'] }}</div>\n  </div>\n</div>\n\n<div style=\"font-size:12px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;line-height:1.6;\">\n  Questions? Reply to this email directly.<br>\n  <span style=\"color:#8b5cf6;font-weight:600;\">{{ $('Code in JavaScript').item.json['clientBusiness'] }}</span>\n</div>\n\n</div>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -256,
+        -32
+      ],
+      "id": "7bb0875f-2073-43e0-9ee1-842812b2d7ac",
+      "name": "(Groq — Stage 1 Email)"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json['debtorEmail'] }}",
+        "subject": "=Invoice {{ $('Code in JavaScript').item.json['invoiceNumber'] }} — Friendly Reminder",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">   {{ $('Code in JavaScript').item.json['clientBusiness'] }} </div>  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;\">   {{ $json['choices'][0]['message']['content'] }} </div>  <div style=\"background:#f8f9ff;border:1px solid #e8e8ff;border-radius:12px;padding:24px;margin-bottom:28px;\">   <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8b5cf6;margin-bottom:14px;\">Invoice Summary</div>   <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">     <span style=\"font-size:13px;color:#666;\">Invoice Number</span>     <span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code in JavaScript').item.json['invoiceNumber'] }}</span>   </div>   <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">     <span style=\"font-size:13px;color:#666;\">Service</span>     <span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code in JavaScript').item.json['serviceDesc'] }}</span>   </div>   <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">     <span style=\"font-size:13px;color:#666;\">Due Date</span>     <span style=\"font-size:13px;font-weight:600;color:#f59e0b;\">{{ $('Code in JavaScript').item.json['dueDate'] }}</span>   </div>   <div style=\"height:1px;background:#e8e8ff;margin:12px 0;\"></div>   <div style=\"display:flex;justify-content:space-between;\">     <span style=\"font-size:15px;font-weight:700;color:#020208;\">Amount Due</span>     <span style=\"font-size:20px;font-weight:800;color:#8b5cf6;\">{{ $('Code in JavaScript').item.json['invoiceAmountFormatted'] }}</span>   </div> </div>  <div style=\"text-align:center;margin-bottom:28px;\">   <div style=\"font-size:13px;color:#666;\">To settle this invoice please use the following banking details:</div>   <div style=\"background:#020208;border-radius:10px;padding:16px;margin-top:12px;text-align:left;\">     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">BANK</div>     <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">Capitec</div>     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">ACCOUNT NAME</div>     <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">NS Mokone</div>     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">ACCOUNT NUMBER</div>     <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">1760852196</div>     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">BRANCH CODE</div>     <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">470010</div>     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">REFERENCE</div>     <div style=\"font-size:13px;color:#f59e0b;font-weight:700;\">{{ $('Code in JavaScript').item.json['invoiceNumber'] }}</div>   </div> </div>  <div style=\"font-size:12px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;line-height:1.6;\">   Questions? Reply to this email directly.<br>   <span style=\"color:#8b5cf6;font-weight:600;\">{{ $('Code in JavaScript').item.json['clientBusiness'] }}</span> </div>  </div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -64,
+        -32
+      ],
+      "id": "02e7abc5-9804-429f-bf1f-420d846b8723",
+      "name": "Gmail — Stage 1 Gentle",
+      "webhookId": "24a4fb20-5fac-4b17-b69c-c7127aa4d53f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "days"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        -32
+      ],
+      "id": "0d3e393f-1a9a-4158-b5a4-123af8f3f61f",
+      "name": " Wait — 3 Days",
+      "webhookId": "c94577c5-dd81-4fdb-9363-5b46bcee9ea7"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Write a firm but professional second payment reminder. \nThe debtor has not responded to the first reminder sent 3 days ago. \nMaintain professionalism but be clear payment is now overdue. \nMention this is the second notice. Under 80 words. Plain text only.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Debtor: {{ $('Code in JavaScript').item.json['debtorName'] }}\\nBusiness: {{ $('Code in JavaScript').item.json['clientBusiness'] }}\\nInvoice: {{ $('Code in JavaScript').item.json['invoiceNumber'] }}\\nAmount: {{ $('Code in JavaScript').item.json['invoiceAmountFormatted'] }}\\nDue Date: {{ $('Code in JavaScript').item.json['dueDate'] }}\\nDays Overdue: {{ $('Code in JavaScript').item.json['daysOverdue'] }}\\nService: {{ $('Code in JavaScript').item.json['serviceDesc'] }}\\nOwner Name: {{ $('Code in JavaScript').item.json['clientName'] }}\"\n    }\n  ],\n  \"temperature\": 0.4,\n  \"max_tokens\": 200\n}\nNode 5 — Gmail (Stage 1 — Gentle)\nName:    Gmail — Stage 1 Gentle\nTo:      {{ $('Code in JavaScript').item.json['debtorEmail'] }}\nSubject: Invoice {{ $('Code in JavaScript').item.json['invoiceNumber'] }} — Friendly Reminder\nType:    HTML\n\nBody:\n<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n\n<div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">\n  {{ $('Code in JavaScript').item.json['clientBusiness'] }}\n</div>\n\n<div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;\">\n  {{ $json['choices'][0]['message']['content'] }}\n</div>\n\n<div style=\"background:#f8f9ff;border:1px solid #e8e8ff;border-radius:12px;padding:24px;margin-bottom:28px;\">\n  <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8b5cf6;margin-bottom:14px;\">Invoice Summary</div>\n  <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">\n    <span style=\"font-size:13px;color:#666;\">Invoice Number</span>\n    <span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code in JavaScript').item.json['invoiceNumber'] }}</span>\n  </div>\n  <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">\n    <span style=\"font-size:13px;color:#666;\">Service</span>\n    <span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code in JavaScript').item.json['serviceDesc'] }}</span>\n  </div>\n  <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">\n    <span style=\"font-size:13px;color:#666;\">Due Date</span>\n    <span style=\"font-size:13px;font-weight:600;color:#f59e0b;\">{{ $('Code in JavaScript').item.json['dueDate'] }}</span>\n  </div>\n  <div style=\"height:1px;background:#e8e8ff;margin:12px 0;\"></div>\n  <div style=\"display:flex;justify-content:space-between;\">\n    <span style=\"font-size:15px;font-weight:700;color:#020208;\">Amount Due</span>\n    <span style=\"font-size:20px;font-weight:800;color:#8b5cf6;\">{{ $('Code in JavaScript').item.json['invoiceAmountFormatted'] }}</span>\n  </div>\n</div>\n\n<div style=\"text-align:center;margin-bottom:28px;\">\n  <div style=\"font-size:13px;color:#666;\">To settle this invoice please use the following banking details:</div>\n  <div style=\"background:#020208;border-radius:10px;padding:16px;margin-top:12px;text-align:left;\">\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">BANK</div>\n    <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">Capitec</div>\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">ACCOUNT NAME</div>\n    <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">NS Mokone</div>\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">ACCOUNT NUMBER</div>\n    <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">1760852196</div>\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">BRANCH CODE</div>\n    <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">470010</div>\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">REFERENCE</div>\n    <div style=\"font-size:13px;color:#f59e0b;font-weight:700;\">{{ $('Code in JavaScript').item.json['invoiceNumber'] }}</div>\n  </div>\n</div>\n\n<div style=\"font-size:12px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;line-height:1.6;\">\n  Questions? Reply to this email directly.<br>\n  <span style=\"color:#8b5cf6;font-weight:600;\">{{ $('Code in JavaScript').item.json['clientBusiness'] }}</span>\n</div>\n\n</div>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        272,
+        -32
+      ],
+      "id": "5091977a-dd69-4182-9ce9-79960043406c",
+      "name": " (Groq — Stage 2 Email)"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json['debtorEmail'] }}",
+        "subject": "=Second Notice — Invoice {{ $('Code in JavaScript').item.json['invoiceNumber'] }} Overdue",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">   {{ $('Code in JavaScript').item.json['clientBusiness'] }} </div>  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;\">   {{ $json['choices'][0]['message']['content'] }} </div>  <div style=\"background:#f8f9ff;border:1px solid #e8e8ff;border-radius:12px;padding:24px;margin-bottom:28px;\">   <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8b5cf6;margin-bottom:14px;\">Invoice Summary</div>   <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">     <span style=\"font-size:13px;color:#666;\">Invoice Number</span>     <span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code in JavaScript').item.json['invoiceNumber'] }}</span>   </div>   <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">     <span style=\"font-size:13px;color:#666;\">Service</span>     <span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code in JavaScript').item.json['serviceDesc'] }}</span>   </div>   <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">     <span style=\"font-size:13px;color:#666;\">Due Date</span>     <span style=\"font-size:13px;font-weight:600;color:#f59e0b;\">{{ $('Code in JavaScript').item.json['dueDate'] }}</span>   </div>   <div style=\"height:1px;background:#e8e8ff;margin:12px 0;\"></div>   <div style=\"display:flex;justify-content:space-between;\">     <span style=\"font-size:15px;font-weight:700;color:#020208;\">Amount Due</span>     <span style=\"font-size:20px;font-weight:800;color:#8b5cf6;\">{{ $('Code in JavaScript').item.json['invoiceAmountFormatted'] }}</span>   </div> </div>  <div style=\"text-align:center;margin-bottom:28px;\">   <div style=\"font-size:13px;color:#666;\">To settle this invoice please use the following banking details:</div>   <div style=\"background:#020208;border-radius:10px;padding:16px;margin-top:12px;text-align:left;\">     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">BANK</div>     <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">Capitec</div>     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">ACCOUNT NAME</div>     <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">NS Mokone</div>     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">ACCOUNT NUMBER</div>     <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">1760852196</div>     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">BRANCH CODE</div>     <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">470010</div>     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">REFERENCE</div>     <div style=\"font-size:13px;color:#f59e0b;font-weight:700;\">{{ $('Code in JavaScript').item.json['invoiceNumber'] }}</div>   </div> </div>  <div style=\"font-size:12px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;line-height:1.6;\">   Questions? Reply to this email directly.<br>   <span style=\"color:#8b5cf6;font-weight:600;\">{{ $('Code in JavaScript').item.json['clientBusiness'] }}</span> </div>  </div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        -32
+      ],
+      "id": "b2f8dc59-973e-4402-940b-fa57eee979e0",
+      "name": "Gmail — Stage 2 Firm",
+      "webhookId": "65a326bc-0c73-44e7-970d-63e657177753",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 4,
+        "unit": "days"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        608,
+        -32
+      ],
+      "id": "c84b90ec-6328-4c39-80a7-e8fa361873ee",
+      "name": "Wait",
+      "webhookId": "db73fb7f-6b7e-4ba0-877e-8516be377d05"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Write a final payment notice. This is the third and final \nautomated notice. Payment is now seriously overdue. \nTone is firm and professional — not aggressive. \nClearly state this is the final notice before the matter \nis escalated. Under 80 words. Plain text only.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Debtor: {{ $('Code in JavaScript').item.json['debtorName'] }}\\nBusiness: {{ $('Code in JavaScript').item.json['clientBusiness'] }}\\nInvoice: {{ $('Code in JavaScript').item.json['invoiceNumber'] }}\\nAmount: {{ $('Code in JavaScript').item.json['invoiceAmountFormatted'] }}\\nDue Date: {{ $('Code in JavaScript').item.json['dueDate'] }}\\nDays Overdue: {{ $('Code in JavaScript').item.json['daysOverdue'] }}\\nService: {{ $('Code in JavaScript').item.json['serviceDesc'] }}\\nOwner Name: {{ $('Code in JavaScript').item.json['clientName'] }}\"\n    }\n  ],\n  \"temperature\": 0.4,\n  \"max_tokens\": 200\n}\nNode 5 — Gmail (Stage 1 — Gentle)\nName:    Gmail — Stage 1 Gentle\nTo:      {{ $('Code in JavaScript').item.json['debtorEmail'] }}\nSubject: Invoice {{ $('Code in JavaScript').item.json['invoiceNumber'] }} — Friendly Reminder\nType:    HTML\n\nBody:\n<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n\n<div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">\n  {{ $('Code in JavaScript').item.json['clientBusiness'] }}\n</div>\n\n<div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;\">\n  {{ $json['choices'][0]['message']['content'] }}\n</div>\n\n<div style=\"background:#f8f9ff;border:1px solid #e8e8ff;border-radius:12px;padding:24px;margin-bottom:28px;\">\n  <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8b5cf6;margin-bottom:14px;\">Invoice Summary</div>\n  <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">\n    <span style=\"font-size:13px;color:#666;\">Invoice Number</span>\n    <span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code in JavaScript').item.json['invoiceNumber'] }}</span>\n  </div>\n  <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">\n    <span style=\"font-size:13px;color:#666;\">Service</span>\n    <span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code in JavaScript').item.json['serviceDesc'] }}</span>\n  </div>\n  <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">\n    <span style=\"font-size:13px;color:#666;\">Due Date</span>\n    <span style=\"font-size:13px;font-weight:600;color:#f59e0b;\">{{ $('Code in JavaScript').item.json['dueDate'] }}</span>\n  </div>\n  <div style=\"height:1px;background:#e8e8ff;margin:12px 0;\"></div>\n  <div style=\"display:flex;justify-content:space-between;\">\n    <span style=\"font-size:15px;font-weight:700;color:#020208;\">Amount Due</span>\n    <span style=\"font-size:20px;font-weight:800;color:#8b5cf6;\">{{ $('Code in JavaScript').item.json['invoiceAmountFormatted'] }}</span>\n  </div>\n</div>\n\n<div style=\"text-align:center;margin-bottom:28px;\">\n  <div style=\"font-size:13px;color:#666;\">To settle this invoice please use the following banking details:</div>\n  <div style=\"background:#020208;border-radius:10px;padding:16px;margin-top:12px;text-align:left;\">\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">BANK</div>\n    <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">Capitec</div>\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">ACCOUNT NAME</div>\n    <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">NS Mokone</div>\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">ACCOUNT NUMBER</div>\n    <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">1760852196</div>\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">BRANCH CODE</div>\n    <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">470010</div>\n    <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">REFERENCE</div>\n    <div style=\"font-size:13px;color:#f59e0b;font-weight:700;\">{{ $('Code in JavaScript').item.json['invoiceNumber'] }}</div>\n  </div>\n</div>\n\n<div style=\"font-size:12px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;line-height:1.6;\">\n  Questions? Reply to this email directly.<br>\n  <span style=\"color:#8b5cf6;font-weight:600;\">{{ $('Code in JavaScript').item.json['clientBusiness'] }}</span>\n</div>\n\n</div>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -736,
+        160
+      ],
+      "id": "e5f1c55b-088e-4f41-9fde-ba8ac43ad475",
+      "name": "(Groq — Stage 3 Email)"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json['debtorEmail'] }}",
+        "subject": "=FINAL NOTICE — Invoice {{ $('Code in JavaScript').item.json['invoiceNumber'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">   {{ $('Code in JavaScript').item.json['clientBusiness'] }} </div>  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;\">   {{ $json['choices'][0]['message']['content'] }} </div>  <div style=\"background:#f8f9ff;border:1px solid #e8e8ff;border-radius:12px;padding:24px;margin-bottom:28px;\">   <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8b5cf6;margin-bottom:14px;\">Invoice Summary</div>   <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">     <span style=\"font-size:13px;color:#666;\">Invoice Number</span>     <span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code in JavaScript').item.json['invoiceNumber'] }}</span>   </div>   <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">     <span style=\"font-size:13px;color:#666;\">Service</span>     <span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code in JavaScript').item.json['serviceDesc'] }}</span>   </div>   <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\">     <span style=\"font-size:13px;color:#666;\">Due Date</span>     <span style=\"font-size:13px;font-weight:600;color:#f59e0b;\">{{ $('Code in JavaScript').item.json['dueDate'] }}</span>   </div>   <div style=\"height:1px;background:#e8e8ff;margin:12px 0;\"></div>   <div style=\"display:flex;justify-content:space-between;\">     <span style=\"font-size:15px;font-weight:700;color:#020208;\">Amount Due</span>     <span style=\"font-size:20px;font-weight:800;color:#8b5cf6;\">{{ $('Code in JavaScript').item.json['invoiceAmountFormatted'] }}</span>   </div> </div>  <div style=\"text-align:center;margin-bottom:28px;\">   <div style=\"font-size:13px;color:#666;\">To settle this invoice please use the following banking details:</div>   <div style=\"background:#020208;border-radius:10px;padding:16px;margin-top:12px;text-align:left;\">     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">BANK</div>     <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">Capitec</div>     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">ACCOUNT NAME</div>     <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">NS Mokone</div>     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">ACCOUNT NUMBER</div>     <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">1760852196</div>     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">BRANCH CODE</div>     <div style=\"font-size:13px;color:#fff;font-weight:600;margin-bottom:10px;\">470010</div>     <div style=\"font-size:11px;color:#a0a0c0;margin-bottom:4px;\">REFERENCE</div>     <div style=\"font-size:13px;color:#f59e0b;font-weight:700;\">{{ $('Code in JavaScript').item.json['invoiceNumber'] }}</div>   </div> </div>  <div style=\"font-size:12px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;line-height:1.6;\">   Questions? Reply to this email directly.<br>   <span style=\"color:#8b5cf6;font-weight:600;\">{{ $('Code in JavaScript').item.json['clientBusiness'] }}</span> </div>  </div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -528,
+        160
+      ],
+      "id": "53bea7cb-9674-4f9d-b62a-b5fbe82716ce",
+      "name": "Gmail — Stage 3 Final Notice",
+      "webhookId": "18ba3b0b-e755-4026-8da0-885283c2b09f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date Added": "={{ $('Code in JavaScript').item.json['dateAdded'] }}",
+            "Client Name ": "={{ $('Code in JavaScript').item.json['clientName'] }}",
+            "Client Business": "={{ $('Code in JavaScript').item.json['clientBusiness'] }}",
+            "Debtor Name": "={{ $('Code in JavaScript').item.json['debtorName'] }}",
+            "Debtor Email": "={{ $('Code in JavaScript').item.json['debtorEmail'] }}",
+            "Invoice Number": "={{ $('Code in JavaScript').item.json['invoiceNumber'] }}",
+            "Invoice Amount ": "={{ $('Code in JavaScript').item.json['invoiceAmount'] }}",
+            "Invoice Date ": "={{ $('Code in JavaScript').item.json['invoiceDate'] }}",
+            "Due Date ": "={{ $('Code in JavaScript').item.json['dueDate'] }}",
+            "Days Overdue ": "={{ $('Code in JavaScript').item.json['daysOverdue'] }}",
+            "Stage ": "Stage 1",
+            "Attempts": "1",
+            "Last Contact ": "={{ new Date().toISOString() }}",
+            "Status ": "Active",
+            "Amount Recovered": "0"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date Added",
+              "displayName": "Date Added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Client Name ",
+              "displayName": "Client Name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Client Business",
+              "displayName": "Client Business",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Debtor Name",
+              "displayName": "Debtor Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Debtor Email",
+              "displayName": "Debtor Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invoice Number",
+              "displayName": "Invoice Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invoice Amount ",
+              "displayName": "Invoice Amount ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invoice Date ",
+              "displayName": "Invoice Date ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Due Date ",
+              "displayName": "Due Date ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Days Overdue ",
+              "displayName": "Days Overdue ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stage ",
+              "displayName": "Stage ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Attempts",
+              "displayName": "Attempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Contact ",
+              "displayName": "Last Contact ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status ",
+              "displayName": "Status ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount Recovered",
+              "displayName": "Amount Recovered",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recovery Date",
+              "displayName": "Recovery Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -320,
+        160
+      ],
+      "id": "180d9a39-ba1f-4486-9b74-65676c45c92a",
+      "name": "Google Sheets — Revenue Recovery Tracker",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": " 6243464274",
+        "text": "=💰 RECOVERY SEQUENCE STARTED  👤 Debtor: {{ $('Code in JavaScript').item.json['debtorName'] }} 🏢 Client: {{ $('Code in JavaScript').item.json['clientBusiness'] }} 📄 Invoice: {{ $('Code in JavaScript').item.json['invoiceNumber'] }} 💵 Amount: {{ $('Code in JavaScript').item.json['invoiceAmountFormatted'] }} 📅 Days Overdue: {{ $('Code in JavaScript').item.json['daysOverdue'] }} 📧 Stage 1 email sent.  3-stage recovery sequence active. Next email in 3 days.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -112,
+        160
+      ],
+      "id": "e96503d2-3a15-445a-8bf6-4094ed272922",
+      "name": "Telegram — Recovery Started",
+      "webhookId": "ac5b5866-1698-4850-b735-3fde83ae527d",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🚨 MANUAL INTERVENTION NEEDED  👤 {{ $('Code in JavaScript').item.json['debtorName'] }} 💵 {{ $('Code in JavaScript').item.json['invoiceAmountFormatted'] }} 📄 {{ $('Code in JavaScript').item.json['invoiceNumber'] }}  All 3 automated recovery emails sent. No payment received. Manual escalation required — consider legal notice.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        96,
+        160
+      ],
+      "id": "d38ba9bb-99e0-437e-a05a-2035c3b6e339",
+      "name": "Telegram — Manual Intervention Needed",
+      "webhookId": "6d000455-4b02-4417-bc53-f6bceb603035",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"status\": \"success\", \"message\": \"Recovery sequence started\" }",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        304,
+        160
+      ],
+      "id": "6aacc7e7-0e32-418f-8cf4-90a219d48a62",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "(Groq — Stage 1 Email)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(Groq — Stage 1 Email)": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Stage 1 Gentle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Stage 1 Gentle": {
+      "main": [
+        [
+          {
+            "node": " Wait — 3 Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Wait — 3 Days": {
+      "main": [
+        [
+          {
+            "node": " (Groq — Stage 2 Email)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " (Groq — Stage 2 Email)": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Stage 2 Firm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Stage 2 Firm": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "(Groq — Stage 3 Email)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(Groq — Stage 3 Email)": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Stage 3 Final Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Stage 3 Final Notice": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets — Revenue Recovery Tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets — Revenue Recovery Tracker": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Recovery Started",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Recovery Started": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Manual Intervention Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Manual Intervention Needed": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "5d5785a5-3a59-4ed5-8085-d066e4576edd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "wI32D9heHU5BK00C",
+  "tags": []
+}

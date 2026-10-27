@@ -1,0 +1,1103 @@
+{
+  "name": "B8 Owner Brief",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -200,
+        0
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80001",
+      "name": "Schedule — Daily 7am"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "owner-brief-trigger",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -200,
+        200
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80002",
+      "name": "Webhook — Manual Brief",
+      "webhookId": "b8-owner-brief-trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-s-1",
+              "name": "briefId",
+              "value": "=BRIEF-{{ $now.toFormat('yyyyMMdd-HHmmss') }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-2",
+              "name": "briefDate",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-3",
+              "name": "briefDateOnly",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-4",
+              "name": "yesterdayDateOnly",
+              "value": "={{ $now.setZone('Africa/Johannesburg').minus({days:1}).toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-5",
+              "name": "briefDateHuman",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('cccc, d LLLL yyyy') }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-6",
+              "name": "ownerEmail",
+              "value": "={{ $json['body']?.['ownerEmail'] ?? 'ndumisoseth12@gmail.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-7",
+              "name": "triggerType",
+              "value": "={{ $json['body'] !== undefined ? 'manual' : 'scheduled' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-8",
+              "name": "weekStartIso",
+              "value": "={{ $now.setZone('Africa/Johannesburg').minus({days:7}).toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        50,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80003",
+      "name": "Edit Fields — Setup"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        280,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80004",
+      "name": "Sheets — Read Reputation",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { _step: 'reputation-read' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        510,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80005",
+      "name": "Code — Collapse 1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        740,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80006",
+      "name": "Sheets — Read No-Show",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { _step: 'noshow-read' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        970,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80007",
+      "name": "Code — Collapse 2"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1NssT8zHU_ttlYklBQoaqyGmNu_y9stD9MgtBcCMmNX0/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NssT8zHU_ttlYklBQoaqyGmNu_y9stD9MgtBcCMmNX0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1200,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80008",
+      "name": "Sheets — Read Referral",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { _step: 'referral-read' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1430,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80021",
+      "name": "Code — Collapse 3"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1660,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80022",
+      "name": "Sheets — Read Recovery",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { _step: 'recovery-read' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1890,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80023",
+      "name": "Code — Collapse 4"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Reactivation Log",
+          "mode": "list",
+          "cachedResultName": "Reactivation Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit#gid=1671001884"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2120,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80024",
+      "name": "Sheets — Read Reactivation Log",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { _step: 'reactivation-read' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2350,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80025",
+      "name": "Code — Collapse 5"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2580,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80026",
+      "name": "Sheets — Read Lifetime",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { _step: 'lifetime-read' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2810,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80027",
+      "name": "Code — Collapse 6"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1uzMTxVilA8LXhd_TnT_IY52j_PA4XaiEqfZkzuRssXM/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uzMTxVilA8LXhd_TnT_IY52j_PA4XaiEqfZkzuRssXM/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3040,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80028",
+      "name": "Sheets — Read Reviews EComm",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { _step: 'reviews-ecomm-read' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3270,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80029",
+      "name": "Code — Collapse 7"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1Jan4h5MtffGQ6al3tgCxBPURWiFGXo-WG_lKqTc5D0Y/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Jan4h5MtffGQ6al3tgCxBPURWiFGXo-WG_lKqTc5D0Y/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3500,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80030",
+      "name": "Sheets — Read Reviews Airbnb",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { _step: 'reviews-airbnb-read' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3730,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80031",
+      "name": "Code — Collapse 8"
+    },
+    {
+      "parameters": {
+        "jsCode": "// B8 Owner Brief v3-006 — Aggregate stats from 8 sheets (incl. revenue, header-whitespace safe)\nconst setup = $('Edit Fields — Setup').item.json;\nconst today = setup['briefDateOnly'];\nconst yesterday = setup['yesterdayDateOnly'];\nconst weekStart = setup['weekStartIso'];\n\nconst dInRange = (val, start, end) => {\n  if (!val) return false;\n  const s = String(val).slice(0, 10);\n  return s >= start && s <= end;\n};\nconst dStartsWith = (val, prefix) => String(val || '').startsWith(prefix);\nconst toNum = (v) => { const n = parseFloat(String(v || '0').replace(/[^0-9.-]/g, '')); return isNaN(n) ? 0 : n; };\nconst fmtR = (n) => 'R' + Math.round(n).toLocaleString('en-ZA');\nconst trimKeys = (r) => { const out = {}; for (const [k, v] of Object.entries(r || {})) out[k.trim()] = v; return out; };\n\nlet reputation = [], noShow = [], referral = [], recovery = [], reactivation = [], lifetime = [], reviewsEcomm = [], reviewsAirbnb = [];\ntry { reputation = $('Sheets — Read Reputation').all().map(i => trimKeys(i.json)); } catch(e) {}\ntry { noShow = $('Sheets — Read No-Show').all().map(i => trimKeys(i.json)); } catch(e) {}\ntry { referral = $('Sheets — Read Referral').all().map(i => trimKeys(i.json)); } catch(e) {}\ntry { recovery = $('Sheets — Read Recovery').all().map(i => trimKeys(i.json)); } catch(e) {}\ntry { reactivation = $('Sheets — Read Reactivation Log').all().map(i => trimKeys(i.json)); } catch(e) {}\ntry { lifetime = $('Sheets — Read Lifetime').all().map(i => trimKeys(i.json)); } catch(e) {}\ntry { reviewsEcomm = $('Sheets — Read Reviews EComm').all().map(i => trimKeys(i.json)); } catch(e) {}\ntry { reviewsAirbnb = $('Sheets — Read Reviews Airbnb').all().map(i => trimKeys(i.json)); } catch(e) {}\n\n// Reputation stats (B6) — unchanged\nconst repToday = reputation.filter(r => dStartsWith(r['Triggered At'], today));\nconst repUnhappy = reputation.filter(r => { const rating = parseInt(r['Rating']); return rating > 0 && rating < 4; });\nconst repPendingFollowup = repUnhappy.filter(r => r['Status'] !== 'Resolved' && r['Owner Alerted'] === 'Yes');\nconst repPublicReviews = reputation.filter(r => r['Public Review Sent'] === 'Yes');\n\n// No-Show stats (B3) — unchanged\nconst nsToday = noShow.filter(n => dStartsWith(n['Created At'], today));\nconst nsNoShowsAll = noShow.filter(n => n['No-Show'] === 'Yes');\nconst nsRescued = noShow.filter(n => n['Rescue Sent'] === 'Yes');\nconst nsNeedsCall = nsNoShowsAll.filter(n => (!n['Rebooked'] || n['Rebooked'] === 'No'));\n\n// Referral stats (B7) — unchanged\nconst refConverted = referral.filter(r => r['Status'] === 'Converted' || r['Converted At']);\nconst refPending = referral.filter(r => r['Status'] === 'Asked' && !r['Converted At']);\nconst refRecentConverts = refConverted.filter(r => dStartsWith(r['Converted At'], today) || dStartsWith(r['Converted At'], yesterday));\n\n// Recovery stats (B4) — NEW\nconst recPaidYesterday = recovery.filter(r => r['Status'] === 'Paid' && dStartsWith(r['Date Paid'], yesterday));\nconst recPaidWeek = recovery.filter(r => r['Status'] === 'Paid' && dInRange(r['Date Paid'], weekStart, today));\nconst recOpen = recovery.filter(r => r['Status'] === 'Active' || r['Status'] === 'In Progress');\nconst recOpenStage3 = recOpen.filter(r => String(r['Stage'] || '').includes('3'));\nconst revenueRecoveredYesterday = recPaidYesterday.reduce((s, r) => s + toNum(r['Amount Recovered']), 0);\nconst revenueRecoveredWeek = recPaidWeek.reduce((s, r) => s + toNum(r['Amount Recovered']), 0);\nconst invoicesOpenSum = recOpen.reduce((s, r) => s + toNum(r['Invoice Amount']), 0);\n\n// Reactivation stats (B5) — NEW\nconst reactSentYesterday = reactivation.filter(r => dStartsWith(r['Sent At'], yesterday));\nconst reactSentWeek = reactivation.filter(r => dInRange(r['Sent At'], weekStart, today));\nconst reactRecovered = reactivation.filter(r => r['Recovered'] === 'Yes');\nconst reactRecoveredYesterday = reactRecovered.filter(r => dStartsWith(r['Sent At'], yesterday));\n\n// Lifetime stats (B10) — NEW\nconst lifetimeUpdatedYesterday = lifetime.filter(l => dStartsWith(l['Last Updated'], yesterday));\nconst totalCustomers = lifetime.length;\nconst totalLifetimeSpend = lifetime.reduce((s, l) => s + toNum(l['Total Spend']), 0);\nconst avgOrderAcrossCustomers = lifetime.length > 0 ? lifetime.reduce((s, l) => s + toNum(l['Average Order Value']), 0) / lifetime.length : 0;\nconst tierUpgradesYesterday = lifetimeUpdatedYesterday.filter(l => l['Previous Tier'] && l['Tier'] && l['Tier'] !== l['Previous Tier']);\nconst purchaseRevenueYesterday = Math.round(lifetimeUpdatedYesterday.length * avgOrderAcrossCustomers);\n\n// Review stats (B11) — NEW · merge E-Comm + Airbnb (different column names)\nconst reviewsNormalised = [\n  ...reviewsEcomm.map(r => ({ ts: r['Timestamp'], rating: parseInt(r['Star Rating']) || 0, source: 'ecomm' })),\n  ...reviewsAirbnb.map(r => ({ ts: r['Timestamp'], rating: parseInt(r['Rating']) || 0, source: 'airbnb' }))\n];\nconst reviewsYesterday = reviewsNormalised.filter(r => dStartsWith(r.ts, yesterday));\nconst reviewsWeek = reviewsNormalised.filter(r => dInRange(r.ts, weekStart, today));\nconst reviewsRated = reviewsYesterday.filter(r => r.rating > 0);\nconst avgRatingYesterday = reviewsRated.length > 0 ? (reviewsRated.reduce((s, r) => s + r.rating, 0) / reviewsRated.length).toFixed(1) : '—';\nconst negativeFlaggedYesterday = reviewsRated.filter(r => r.rating <= 3);\n\n// Combined revenue (the headline number)\nconst totalRevenueYesterday = revenueRecoveredYesterday + purchaseRevenueYesterday;\nconst eventsYesterday = recPaidYesterday.length + reviewsYesterday.length + reactRecoveredYesterday.length + lifetimeUpdatedYesterday.length;\n\n// Action items (top 3 each, most urgent)\nconst unhappyToCall = repPendingFollowup.slice(0, 3).map(r => ({\n  name: r['Customer Name'] || 'Unknown',\n  email: r['Customer Email'] || '',\n  rating: r['Rating'] || '?',\n  product: r['Product Service'] || ''\n}));\nconst noShowsToFollow = nsNeedsCall.slice(0, 3).map(n => ({\n  name: n['Customer Name'] || 'Unknown',\n  email: n['Customer Email'] || '',\n  service: n['Service'] || '',\n  apt: n['Appointment Time'] || ''\n}));\nconst conversionsToThank = refRecentConverts.slice(0, 3).map(r => ({\n  advocate: r['Advocate Name'] || 'Unknown',\n  friend: r['Friend Name'] || '',\n  reward: r['Advocate Reward'] || ''\n}));\nconst stage3Invoices = recOpenStage3.slice(0, 3).map(r => ({\n  debtor: r['Debtor Name'] || 'Unknown',\n  amount: toNum(r['Invoice Amount']),\n  days: r['Days Overdue'] || '?',\n  invoice: r['Invoice Number'] || ''\n}));\n\nconst totalActions = unhappyToCall.length + noShowsToFollow.length + conversionsToThank.length + stage3Invoices.length;\n\nreturn [{\n  json: {\n    ...setup,\n    stats: {\n      // Reputation\n      repTodaysChecks: repToday.length,\n      repTotalChecks: reputation.length,\n      repUnhappyCount: repUnhappy.length,\n      repPendingFollowup: repPendingFollowup.length,\n      repPublicReviews: repPublicReviews.length,\n      // No-Show\n      nsTodaysBookings: nsToday.length,\n      nsTotalBookings: noShow.length,\n      nsNoShowsCount: nsNoShowsAll.length,\n      nsRescuedCount: nsRescued.length,\n      nsNeedsCall: nsNeedsCall.length,\n      // Referral\n      refTotal: referral.length,\n      refConverted: refConverted.length,\n      refPending: refPending.length,\n      refRecentConverts: refRecentConverts.length,\n      // Recovery (NEW)\n      revenueRecoveredYesterday: Math.round(revenueRecoveredYesterday),\n      revenueRecoveredYesterdayFmt: fmtR(revenueRecoveredYesterday),\n      revenueRecoveredWeek: Math.round(revenueRecoveredWeek),\n      revenueRecoveredWeekFmt: fmtR(revenueRecoveredWeek),\n      invoicesPaidYesterday: recPaidYesterday.length,\n      invoicesPaidWeek: recPaidWeek.length,\n      invoicesOpenCount: recOpen.length,\n      invoicesOpenSumFmt: fmtR(invoicesOpenSum),\n      invoicesStage3: recOpenStage3.length,\n      // Reactivation (NEW)\n      reactivationsSentYesterday: reactSentYesterday.length,\n      reactivationsSentWeek: reactSentWeek.length,\n      reactivationsRecoveredYesterday: reactRecoveredYesterday.length,\n      reactivationsRecoveredTotal: reactRecovered.length,\n      // Lifetime (NEW)\n      purchasesLoggedYesterday: lifetimeUpdatedYesterday.length,\n      purchaseRevenueYesterdayFmt: fmtR(purchaseRevenueYesterday),\n      totalCustomers,\n      totalLifetimeSpendFmt: fmtR(totalLifetimeSpend),\n      tierUpgradesYesterday: tierUpgradesYesterday.length,\n      // Reviews (NEW)\n      reviewsRepliedYesterday: reviewsYesterday.length,\n      reviewsRepliedWeek: reviewsWeek.length,\n      avgRatingYesterday,\n      negativeReviewsYesterday: negativeFlaggedYesterday.length,\n      // Combined headline\n      totalRevenueYesterday: Math.round(totalRevenueYesterday),\n      totalRevenueYesterdayFmt: fmtR(totalRevenueYesterday),\n      eventsYesterday,\n      // Meta\n      totalActions\n    },\n    actions: {\n      unhappyToCall,\n      noShowsToFollow,\n      conversionsToThank,\n      stage3Invoices\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3960,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80009",
+      "name": "Code — Aggregate Stats"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You write a one-sentence daily focus for a small South African business owner reading their Owner Brief at 7am. Given yesterday's revenue + today's pending actions, identify the SINGLE most important thing to do today.\\n\\nRules:\\n1. Tone: warm, direct, practical. SA English. No corporate language.\\n2. No filler — no 'I noticed' / 'it looks like'. Just the focus.\\n3. PRIORITY ORDER for what to surface:\\n   a) Unhappy customers waiting for follow-up — they're a phone call away from a 1-star public review.\\n   b) Stage 3 (final notice) invoices — these need an owner phone call before going legal.\\n   c) No-shows needing a call.\\n   d) If none urgent: celebrate concretely with a Rand amount or a specific number (e.g. 'You recovered R3,250 yesterday — keep momentum on the open R12,400 in Stage 1-2').\\n4. Insight should reference a specific number or trend the owner might miss (e.g. 'Reviews replied 8 yesterday, all 4★+ — review request volume is paying off').\\n5. Headlines should feel earned, not corporate. Examples: 'Quiet morning, three calls to make', 'Strong recovery week so far', 'Two reviews need your tone-check'.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"headline\\\": \\\"short subject under 8 words\\\", \\\"todaysFocus\\\": \\\"the priority sentence under 30 words\\\", \\\"insight\\\": \\\"one practical observation under 25 words referencing a specific number\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Date: {{ $('Code — Aggregate Stats').item.json['briefDateHuman'] }}\\n\\nREVENUE YESTERDAY:\\n- Invoices recovered: {{ $('Code — Aggregate Stats').item.json['stats']['revenueRecoveredYesterdayFmt'] }} across {{ $('Code — Aggregate Stats').item.json['stats']['invoicesPaidYesterday'] }} payments\\n- Reviews replied: {{ $('Code — Aggregate Stats').item.json['stats']['reviewsRepliedYesterday'] }} (avg {{ $('Code — Aggregate Stats').item.json['stats']['avgRatingYesterday'] }}★)\\n- Reactivations sent: {{ $('Code — Aggregate Stats').item.json['stats']['reactivationsSentYesterday'] }} ({{ $('Code — Aggregate Stats').item.json['stats']['reactivationsRecoveredYesterday'] }} converted)\\n- New purchases logged: {{ $('Code — Aggregate Stats').item.json['stats']['purchasesLoggedYesterday'] }}\\n- Tier upgrades: {{ $('Code — Aggregate Stats').item.json['stats']['tierUpgradesYesterday'] }}\\n\\nACTION ITEMS TODAY:\\n- Unhappy customers awaiting follow-up: {{ $('Code — Aggregate Stats').item.json['stats']['repPendingFollowup'] }}\\n- Stage 3 (final notice) invoices: {{ $('Code — Aggregate Stats').item.json['stats']['invoicesStage3'] }}\\n- No-shows needing a phone call: {{ $('Code — Aggregate Stats').item.json['stats']['nsNeedsCall'] }}\\n- Open invoices outstanding: {{ $('Code — Aggregate Stats').item.json['stats']['invoicesOpenCount'] }} ({{ $('Code — Aggregate Stats').item.json['stats']['invoicesOpenSumFmt'] }})\\n- Pending referral asks: {{ $('Code — Aggregate Stats').item.json['stats']['refPending'] }}\\n- Negative reviews flagged yesterday: {{ $('Code — Aggregate Stats').item.json['stats']['negativeReviewsYesterday'] }}\\n\\nWEEK CONTEXT:\\n- Recovered this week: {{ $('Code — Aggregate Stats').item.json['stats']['revenueRecoveredWeekFmt'] }}\\n- Reviews replied this week: {{ $('Code — Aggregate Stats').item.json['stats']['reviewsRepliedWeek'] }}\\n- Total active customers: {{ $('Code — Aggregate Stats').item.json['stats']['totalCustomers'] }}\"\n    }\n  ],\n  \"temperature\": 0.5,\n  \"max_tokens\": 300\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4190,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80010",
+      "name": "Groq — Brief Writer",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef1-1",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4420,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80011",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptVersion = 'b8-brief-v1';\n// B8 Owner Brief v3-002 — Parse AI insight\nconst rawText = $input.item.json['rawAIText'] || '';\nconst d = $('Code — Aggregate Stats').item.json;\n\nconst cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\nlet parsed;\ntry { parsed = JSON.parse(cleaned); }\ncatch (e) {\n  const m = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) { parsed = null; } }\n}\nif (!parsed || !parsed['todaysFocus']) {\n  let fallbackFocus;\n  if (d.stats.repPendingFollowup > 0) {\n    fallbackFocus = 'Call the ' + d.stats.repPendingFollowup + ' unhappy customer(s) waiting for follow-up before they post publicly.';\n  } else if (d.stats.invoicesStage3 > 0) {\n    fallbackFocus = 'Phone ' + d.stats.invoicesStage3 + ' Stage 3 invoice debtor(s) today — bot has done all it can.';\n  } else if (d.stats.nsNeedsCall > 0) {\n    fallbackFocus = 'Follow up with ' + d.stats.nsNeedsCall + ' no-show(s) by phone today — best chance to rebook.';\n  } else if (d.stats.revenueRecoveredYesterday > 0) {\n    fallbackFocus = 'You recovered ' + d.stats.revenueRecoveredYesterdayFmt + ' yesterday — keep momentum on the open ' + d.stats.invoicesOpenSumFmt + '.';\n  } else {\n    fallbackFocus = 'Quiet morning — review the activity below and pick one customer to send a personal note to.';\n  }\n  parsed = {\n    headline: 'Daily Owner Brief',\n    todaysFocus: fallbackFocus,\n    insight: 'Brief generated from ' + d.stats.repTotalChecks + ' rep checks, ' + d.stats.nsTotalBookings + ' bookings, ' + d.stats.totalCustomers + ' customers.'\n  };\n}\nconst parseSuccess = !!parsed['todaysFocus'] && parsed['headline'] !== 'Daily Owner Brief';\nreturn { ...d, promptVersion, headline: parsed['headline'], todaysFocus: parsed['todaysFocus'], insight: parsed['insight'], parseSuccess };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4650,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80012",
+      "name": "Code — Parse Brief"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-parse",
+              "leftValue": "={{ $('Code — Parse Brief').item.json['parseSuccess'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4880,
+        100
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80013",
+      "name": "IF — Parse OK"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Parse Brief').item.json['ownerEmail'] }}",
+        "subject": "=🌅 Owner Brief · {{ $('Code — Parse Brief').item.json['briefDateHuman'] }} — {{ $('Code — Parse Brief').item.json['stats']['totalRevenueYesterdayFmt'] }} recovered",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:640px;margin:40px auto;background:#0e0e15;color:#f5f5fa;border-radius:20px;padding:0;overflow:hidden;border:1px solid rgba(255,255,255,0.08);\">\n  <div style=\"padding:32px 36px 8px;\">\n    <div style=\"font-family:'JetBrains Mono',monospace;font-size:11px;color:#818cf8;letter-spacing:0.18em;text-transform:uppercase;font-weight:600;margin-bottom:14px;\">// NSM · OWNER BRIEF</div>\n    <div style=\"font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:38px;color:#f5f5fa;line-height:1.05;margin-bottom:6px;letter-spacing:-0.02em;\">{{ $('Code — Parse Brief').item.json['headline'] }}</div>\n    <div style=\"font-family:'JetBrains Mono',monospace;font-size:12px;color:#6b6b85;letter-spacing:0.06em;margin-bottom:24px;\">{{ $('Code — Parse Brief').item.json['briefDateHuman'] }} · {{ $('Code — Parse Brief').item.json['briefId'] }}</div>\n  </div>\n\n  <div style=\"margin:0 36px 22px;padding:26px 28px;background:linear-gradient(135deg,rgba(16,185,129,0.18),rgba(99,102,241,0.10));border:1px solid rgba(16,185,129,0.30);border-radius:14px;text-align:center;\">\n    <div style=\"font-family:'JetBrains Mono',monospace;font-size:10px;color:#10b981;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:8px;font-weight:700;\">Recovered yesterday</div>\n    <div style=\"font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:54px;color:#f5f5fa;line-height:1;letter-spacing:-0.02em;\">{{ $('Code — Parse Brief').item.json['stats']['totalRevenueYesterdayFmt'] }}</div>\n    <div style=\"font-size:13px;color:#a8a8c2;margin-top:8px;\">across <strong style=\"color:#f5f5fa;\">{{ $('Code — Parse Brief').item.json['stats']['eventsYesterday'] }}</strong> events · {{ $('Code — Parse Brief').item.json['stats']['revenueRecoveredWeekFmt'] }} this week</div>\n  </div>\n\n  <div style=\"margin:0 36px 24px;padding:22px 24px;background:linear-gradient(135deg,rgba(129,140,248,0.12),rgba(99,102,241,0.06));border:1px solid rgba(99,102,241,0.25);border-radius:14px;\">\n    <div style=\"font-family:'JetBrains Mono',monospace;font-size:10px;color:#818cf8;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:10px;font-weight:700;\">Today's focus</div>\n    <div style=\"font-size:16px;color:#f5f5fa;line-height:1.5;font-weight:500;\">{{ $('Code — Parse Brief').item.json['todaysFocus'] }}</div>\n    <div style=\"font-size:13px;color:#a8a8c2;line-height:1.55;margin-top:14px;font-style:italic;\">{{ $('Code — Parse Brief').item.json['insight'] }}</div>\n  </div>\n\n  <div style=\"padding:0 36px 24px;\">\n    <div style=\"font-family:'JetBrains Mono',monospace;font-size:10px;color:#6b6b85;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:14px;\">// MONEY YESTERDAY</div>\n    <table style=\"width:100%;border-collapse:collapse;\">\n      <tr>\n        <td style=\"padding:14px 16px;background:#14141d;border:1px solid rgba(255,255,255,0.04);border-radius:10px;width:33%;vertical-align:top;\">\n          <div style=\"font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6b6b85;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;\">Invoices paid</div>\n          <div style=\"font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:28px;color:#10b981;line-height:1;\">{{ $('Code — Parse Brief').item.json['stats']['revenueRecoveredYesterdayFmt'] }}</div>\n          <div style=\"font-size:11px;color:#a8a8c2;margin-top:4px;\">{{ $('Code — Parse Brief').item.json['stats']['invoicesPaidYesterday'] }} payment(s)</div>\n        </td>\n        <td style=\"width:8px;\"></td>\n        <td style=\"padding:14px 16px;background:#14141d;border:1px solid rgba(255,255,255,0.04);border-radius:10px;width:33%;vertical-align:top;\">\n          <div style=\"font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6b6b85;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;\">Reviews replied</div>\n          <div style=\"font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:28px;color:#facc15;line-height:1;\">{{ $('Code — Parse Brief').item.json['stats']['reviewsRepliedYesterday'] }}</div>\n          <div style=\"font-size:11px;color:#a8a8c2;margin-top:4px;\">avg {{ $('Code — Parse Brief').item.json['stats']['avgRatingYesterday'] }}★</div>\n        </td>\n        <td style=\"width:8px;\"></td>\n        <td style=\"padding:14px 16px;background:#14141d;border:1px solid rgba(255,255,255,0.04);border-radius:10px;width:33%;vertical-align:top;\">\n          <div style=\"font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6b6b85;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;\">Reactivations</div>\n          <div style=\"font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:28px;color:#818cf8;line-height:1;\">{{ $('Code — Parse Brief').item.json['stats']['reactivationsSentYesterday'] }}</div>\n          <div style=\"font-size:11px;color:#a8a8c2;margin-top:4px;\">{{ $('Code — Parse Brief').item.json['stats']['reactivationsRecoveredYesterday'] }} converted</div>\n        </td>\n      </tr>\n    </table>\n  </div>\n\n  <div style=\"padding:0 36px 24px;\">\n    <div style=\"font-family:'JetBrains Mono',monospace;font-size:10px;color:#6b6b85;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:14px;\">// SNAPSHOT · NEEDS YOU TODAY</div>\n    <table style=\"width:100%;border-collapse:collapse;\">\n      <tr>\n        <td style=\"padding:14px 16px;background:#14141d;border:1px solid rgba(255,255,255,0.04);border-radius:10px;width:33%;vertical-align:top;\">\n          <div style=\"font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6b6b85;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;\">Unhappy</div>\n          <div style=\"font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:32px;color:#f43f5e;line-height:1;\">{{ $('Code — Parse Brief').item.json['stats']['repPendingFollowup'] }}</div>\n          <div style=\"font-size:11px;color:#a8a8c2;margin-top:4px;\">pending follow-up</div>\n        </td>\n        <td style=\"width:8px;\"></td>\n        <td style=\"padding:14px 16px;background:#14141d;border:1px solid rgba(255,255,255,0.04);border-radius:10px;width:33%;vertical-align:top;\">\n          <div style=\"font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6b6b85;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;\">Stage 3</div>\n          <div style=\"font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:32px;color:#f59e0b;line-height:1;\">{{ $('Code — Parse Brief').item.json['stats']['invoicesStage3'] }}</div>\n          <div style=\"font-size:11px;color:#a8a8c2;margin-top:4px;\">final-notice invoices</div>\n        </td>\n        <td style=\"width:8px;\"></td>\n        <td style=\"padding:14px 16px;background:#14141d;border:1px solid rgba(255,255,255,0.04);border-radius:10px;width:33%;vertical-align:top;\">\n          <div style=\"font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#6b6b85;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;\">No-Show</div>\n          <div style=\"font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:32px;color:#f59e0b;line-height:1;\">{{ $('Code — Parse Brief').item.json['stats']['nsNeedsCall'] }}</div>\n          <div style=\"font-size:11px;color:#a8a8c2;margin-top:4px;\">need a call</div>\n        </td>\n      </tr>\n    </table>\n  </div>\n\n  <div style=\"padding:0 36px 28px;\">\n    <div style=\"font-family:'JetBrains Mono',monospace;font-size:10px;color:#f43f5e;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:14px;font-weight:700;\">// ACT TODAY · PHONE CALLS</div>\n    {{ ($('Code — Parse Brief').item.json['actions']['unhappyToCall'] || []).length === 0 ? '<div style=\"font-size:13px;color:#6b6b85;padding:14px 16px;background:#14141d;border-radius:10px;\">No unhappy customers waiting — good morning.</div>' : ($('Code — Parse Brief').item.json['actions']['unhappyToCall'] || []).map(c => `<div style=\"padding:14px 16px;background:#14141d;border:1px solid rgba(244,63,94,0.18);border-radius:10px;margin-bottom:8px;\"><div style=\"font-size:14px;color:#f5f5fa;font-weight:600;margin-bottom:4px;\">${c.name} <span style=\"color:#f43f5e;font-family:JetBrains Mono,monospace;font-size:11px;font-weight:700;letter-spacing:0.08em;margin-left:6px;\">${c.rating}/5</span></div><div style=\"font-family:JetBrains Mono,monospace;font-size:11px;color:#a8a8c2;letter-spacing:0.04em;\">${c.email} · ${c.product}</div></div>`).join('') }}\n  </div>\n\n  <div style=\"padding:0 36px 28px;\">\n    <div style=\"font-family:'JetBrains Mono',monospace;font-size:10px;color:#f59e0b;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:14px;font-weight:700;\">// STAGE 3 INVOICES · YOUR CALL</div>\n    {{ ($('Code — Parse Brief').item.json['actions']['stage3Invoices'] || []).length === 0 ? '<div style=\"font-size:13px;color:#6b6b85;padding:14px 16px;background:#14141d;border-radius:10px;\">No final-notice invoices outstanding.</div>' : ($('Code — Parse Brief').item.json['actions']['stage3Invoices'] || []).map(c => `<div style=\"padding:14px 16px;background:#14141d;border:1px solid rgba(245,158,11,0.18);border-radius:10px;margin-bottom:8px;\"><div style=\"font-size:14px;color:#f5f5fa;font-weight:600;margin-bottom:4px;\">${c.debtor} <span style=\"color:#f59e0b;font-family:JetBrains Mono,monospace;font-size:11px;font-weight:700;letter-spacing:0.08em;margin-left:6px;\">R${Math.round(c.amount).toLocaleString('en-ZA')}</span></div><div style=\"font-family:JetBrains Mono,monospace;font-size:11px;color:#a8a8c2;letter-spacing:0.04em;\">Invoice ${c.invoice} · ${c.days} days overdue</div></div>`).join('') }}\n  </div>\n\n  <div style=\"padding:0 36px 28px;\">\n    <div style=\"font-family:'JetBrains Mono',monospace;font-size:10px;color:#f59e0b;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:14px;font-weight:700;\">// FOLLOW UP · NO-SHOWS</div>\n    {{ ($('Code — Parse Brief').item.json['actions']['noShowsToFollow'] || []).length === 0 ? '<div style=\"font-size:13px;color:#6b6b85;padding:14px 16px;background:#14141d;border-radius:10px;\">No outstanding no-shows.</div>' : ($('Code — Parse Brief').item.json['actions']['noShowsToFollow'] || []).map(c => `<div style=\"padding:14px 16px;background:#14141d;border:1px solid rgba(245,158,11,0.18);border-radius:10px;margin-bottom:8px;\"><div style=\"font-size:14px;color:#f5f5fa;font-weight:600;margin-bottom:4px;\">${c.name}</div><div style=\"font-family:JetBrains Mono,monospace;font-size:11px;color:#a8a8c2;letter-spacing:0.04em;\">${c.email} · ${c.service}</div></div>`).join('') }}\n  </div>\n\n  <div style=\"padding:0 36px 36px;\">\n    <div style=\"font-family:'JetBrains Mono',monospace;font-size:10px;color:#10b981;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:14px;font-weight:700;\">// THANK · RECENT CONVERSIONS</div>\n    {{ ($('Code — Parse Brief').item.json['actions']['conversionsToThank'] || []).length === 0 ? '<div style=\"font-size:13px;color:#6b6b85;padding:14px 16px;background:#14141d;border-radius:10px;\">No new referral conversions.</div>' : ($('Code — Parse Brief').item.json['actions']['conversionsToThank'] || []).map(c => `<div style=\"padding:14px 16px;background:#14141d;border:1px solid rgba(16,185,129,0.18);border-radius:10px;margin-bottom:8px;\"><div style=\"font-size:14px;color:#f5f5fa;font-weight:600;margin-bottom:4px;\">${c.advocate} → ${c.friend}</div><div style=\"font-family:JetBrains Mono,monospace;font-size:11px;color:#a8a8c2;letter-spacing:0.04em;\">Reward: ${c.reward}</div></div>`).join('') }}\n  </div>\n\n  <div style=\"padding:18px 36px;background:#08080c;border-top:1px solid rgba(255,255,255,0.04);text-align:center;\">\n    <div style=\"font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6b6b85;letter-spacing:0.06em;\">NSM · {{ $('Code — Parse Brief').item.json['triggerType'] === 'manual' ? 'MANUAL TRIGGER' : 'DAILY 7AM SAST' }} · BUILT IN JOBURG</div>\n  </div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        5110,
+        0
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80014",
+      "name": "Gmail — Owner Brief",
+      "webhookId": "gmail-b8-brief",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🌅 OWNER BRIEF · {{ $('Code — Parse Brief').item.json['briefDateHuman'] }}\n\n💰 *{{ $('Code — Parse Brief').item.json['stats']['totalRevenueYesterdayFmt'] }}* recovered yesterday\n\n📌 *{{ $('Code — Parse Brief').item.json['headline'] }}*\n\n{{ $('Code — Parse Brief').item.json['todaysFocus'] }}\n\n📊 YESTERDAY\n• Invoices paid: {{ $('Code — Parse Brief').item.json['stats']['revenueRecoveredYesterdayFmt'] }} ({{ $('Code — Parse Brief').item.json['stats']['invoicesPaidYesterday'] }} payment(s))\n• Reviews replied: {{ $('Code — Parse Brief').item.json['stats']['reviewsRepliedYesterday'] }} (avg {{ $('Code — Parse Brief').item.json['stats']['avgRatingYesterday'] }}★)\n• Reactivations sent: {{ $('Code — Parse Brief').item.json['stats']['reactivationsSentYesterday'] }} ({{ $('Code — Parse Brief').item.json['stats']['reactivationsRecoveredYesterday'] }} converted)\n• Purchases logged: {{ $('Code — Parse Brief').item.json['stats']['purchasesLoggedYesterday'] }}\n\n⚠️ NEEDS YOU\n• Unhappy pending: {{ $('Code — Parse Brief').item.json['stats']['repPendingFollowup'] }}\n• Stage 3 invoices: {{ $('Code — Parse Brief').item.json['stats']['invoicesStage3'] }}\n• No-shows to call: {{ $('Code — Parse Brief').item.json['stats']['nsNeedsCall'] }}\n• Open invoices: {{ $('Code — Parse Brief').item.json['stats']['invoicesOpenCount'] }} ({{ $('Code — Parse Brief').item.json['stats']['invoicesOpenSumFmt'] }})\n\n📈 WEEK · {{ $('Code — Parse Brief').item.json['stats']['revenueRecoveredWeekFmt'] }} recovered · {{ $('Code — Parse Brief').item.json['stats']['reviewsRepliedWeek'] }} reviews replied\n\n💡 {{ $('Code — Parse Brief').item.json['insight'] }}\n\n📧 Full brief in your inbox.\\n\\n_Prompt: {{ $('Code — Parse Brief').item.json['promptVersion'] }}_",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5340,
+        0
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80015",
+      "name": "Telegram — Owner Brief",
+      "webhookId": "tg-b8-brief",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-manual-1",
+              "leftValue": "={{ $('Code — Parse Brief').item.json['triggerType'] }}",
+              "rightValue": "manual",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5570,
+        0
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80016",
+      "name": "IF — Was Manual"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"success\",\n  \"briefId\": \"{{ $('Code — Parse Brief').item.json['briefId'] }}\",\n  \"headline\": \"{{ $('Code — Parse Brief').item.json['headline'] }}\",\n  \"revenueYesterday\": \"{{ $('Code — Parse Brief').item.json['stats']['totalRevenueYesterdayFmt'] }}\",\n  \"message\": \"Owner brief sent\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        5800,
+        -80
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80017",
+      "name": "Respond — Brief Sent"
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ B8 Owner Brief — AI parse failed but stats are still available.\n\nBrief ID: {{ $('Code — Aggregate Stats').item.json['briefId'] }}\nDate: {{ $('Code — Aggregate Stats').item.json['briefDateHuman'] }}\n\nFallback brief was used. Check inbox for full details.\n\n💰 {{ $('Code — Aggregate Stats').item.json['stats']['totalRevenueYesterdayFmt'] }} recovered yesterday · {{ $('Code — Aggregate Stats').item.json['stats']['repPendingFollowup'] }} unhappy · {{ $('Code — Aggregate Stats').item.json['stats']['invoicesStage3'] }} stage 3 · {{ $('Code — Aggregate Stats').item.json['stats']['nsNeedsCall'] }} no-shows\\n\\n_Prompt: {{ $('Code — Parse Brief').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5110,
+        220
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80018",
+      "name": "Telegram — Parse Fail Alert",
+      "webhookId": "tg-b8-fail",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-manual-2",
+              "leftValue": "={{ $('Code — Aggregate Stats').item.json['triggerType'] }}",
+              "rightValue": "manual",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5340,
+        220
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80019",
+      "name": "IF — Was Manual (Fail)"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"degraded\",\n  \"briefId\": \"{{ $('Code — Aggregate Stats').item.json['briefId'] }}\",\n  \"message\": \"Brief sent with fallback content (AI parse failed)\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        5570,
+        220
+      ],
+      "id": "b8a1b2c3-d4e5-f6a7-b8c9-d0e1f2b80020",
+      "name": "Respond — Degraded"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule — Daily 7am": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook — Manual Brief": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Setup": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read Reputation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read Reputation": {
+      "main": [
+        [
+          {
+            "node": "Code — Collapse 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Collapse 1": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read No-Show",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read No-Show": {
+      "main": [
+        [
+          {
+            "node": "Code — Collapse 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Collapse 2": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read Referral",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read Referral": {
+      "main": [
+        [
+          {
+            "node": "Code — Collapse 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Collapse 3": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read Recovery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read Recovery": {
+      "main": [
+        [
+          {
+            "node": "Code — Collapse 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Collapse 4": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read Reactivation Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read Reactivation Log": {
+      "main": [
+        [
+          {
+            "node": "Code — Collapse 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Collapse 5": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read Lifetime",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read Lifetime": {
+      "main": [
+        [
+          {
+            "node": "Code — Collapse 6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Collapse 6": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read Reviews EComm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read Reviews EComm": {
+      "main": [
+        [
+          {
+            "node": "Code — Collapse 7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Collapse 7": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read Reviews Airbnb",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read Reviews Airbnb": {
+      "main": [
+        [
+          {
+            "node": "Code — Collapse 8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Collapse 8": {
+      "main": [
+        [
+          {
+            "node": "Code — Aggregate Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Aggregate Stats": {
+      "main": [
+        [
+          {
+            "node": "Groq — Brief Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Brief Writer": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse Brief": {
+      "main": [
+        [
+          {
+            "node": "IF — Parse OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Parse OK": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Owner Brief",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Parse Fail Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Owner Brief": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Owner Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Owner Brief": {
+      "main": [
+        [
+          {
+            "node": "IF — Was Manual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Was Manual": {
+      "main": [
+        [
+          {
+            "node": "Respond — Brief Sent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Telegram — Parse Fail Alert": {
+      "main": [
+        [
+          {
+            "node": "IF — Was Manual (Fail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Was Manual (Fail)": {
+      "main": [
+        [
+          {
+            "node": "Respond — Degraded",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b8-owner-brief-v3-008",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B8OwnerBriefV3001",
+  "tags": []
+}

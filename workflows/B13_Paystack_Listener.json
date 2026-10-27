@@ -1,0 +1,1063 @@
+{
+  "name": "B13 Paystack Listener",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "paystack-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8b693600-d63a-4fac-adc9-4669f889d6b8",
+      "name": "Webhook — Paystack Event",
+      "webhookId": "b13-paystack-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// B13 — Verify Paystack HMAC-SHA512 signature + extract fields\nconst crypto = require('crypto');\n\nconst body = $input.item.json['body'] || {};\nconst headers = $input.item.json['headers'] || {};\nconst recvSignature = headers['x-paystack-signature'] || headers['X-Paystack-Signature'] || '';\nconst secretKey = $env['PAYSTACK_SECRET_KEY'] || '';\n\nconst bodyString = JSON.stringify(body);\nconst expected = secretKey\n  ? crypto.createHmac('sha512', secretKey).update(bodyString).digest('hex')\n  : '';\nconst signatureValid = !!secretKey && !!recvSignature && expected === recvSignature;\n\nconst data = body['data'] || {};\nconst customer = data['customer'] || {};\nconst metadata = data['metadata'] || {};\n\n// --- Customer fields (smart fallback) ---\nconst _first = (customer['first_name'] || '').trim();\nconst _last = (customer['last_name'] || '').trim();\nconst fullName = (_first + ' ' + _last).trim();\nconst customerEmail = customer['email'] || '';\n\n// firstName: real first name OR empty (NOT email — used in templates with conditional fallback)\nconst firstName = _first || '';\n\n// customerName: real full name OR 'New Customer' (email shows separately on its own line — don't double up)\nconst customerName = fullName || 'New Customer';\n\n// --- Tier (capitalised, with sensible default) ---\nconst tierKey = (metadata['tier'] || '').toLowerCase();\nconst tierName = metadata['tierName'] || (tierKey ? (tierKey.charAt(0).toUpperCase() + tierKey.slice(1)) : 'Plan');\nconst itemName = 'NSM · ' + tierName + ' Plan';\n\n// --- Paid_at: ISO → SAST ---\nconst paidAtRaw = data['paid_at'] || '';\nlet paidAtSAST = '';\nif (paidAtRaw) {\n  try {\n    paidAtSAST = $now.constructor.fromISO(paidAtRaw).setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss');\n  } catch (e) { paidAtSAST = paidAtRaw; }\n}\n\n// --- Renewal vs initial ---\n// charge.success with metadata.tier present → initial\n// charge.success without metadata (or invoice.payment_succeeded) → renewal\nconst event = body['event'] || '';\nconst isRenewal = event === 'invoice.payment_succeeded' || (event === 'charge.success' && !metadata['tier']);\n\nreturn {\n  signatureValid,\n  event,\n  reference: data['reference'] || '',\n  customerEmail,\n  customerName,\n  firstName,\n  hasFirstName: !!firstName,\n  amount: (data['amount'] || 0) / 100,\n  tier: tierKey,\n  tierName,\n  tierLabel: tierName.toUpperCase(),\n  itemName,\n  paystackId: data['id'] || '',\n  status: data['status'] || '',\n  channel: data['channel'] || '',\n  paidAt: paidAtSAST,\n  isRenewal,\n  billingType: isRenewal ? 'renewal' : 'initial',\n  loggedAt: $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss')\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "5539147b-c176-4bcf-8b4a-257cc4d80626",
+      "name": "Code — Verify Signature"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-sig",
+              "leftValue": "={{ $json['signatureValid'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        440,
+        0
+      ],
+      "id": "741dae21-ab85-44e7-999c-322d5a7e7dfc",
+      "name": "IF — Signature Valid"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "sw-cs",
+                    "leftValue": "={{ $json['event'] }}",
+                    "rightValue": "charge.success",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "charge_success"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "sw-fp",
+                    "leftValue": "={{ $json['event'] }}",
+                    "rightValue": "invoice.payment_failed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "payment_failed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "sw-sd",
+                    "leftValue": "={{ $json['event'] }}",
+                    "rightValue": "subscription.disable",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "subscription_disable"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "405f4e26-d979-44b3-baff-1bdc5ab7b567",
+      "name": "Switch — Event Type"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/14pPPoaU49nZd5z-IFJiQ2Pd2yHlo_E_oO0aVwG-aPb4/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14pPPoaU49nZd5z-IFJiQ2Pd2yHlo_E_oO0aVwG-aPb4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $('Code — Verify Signature').item.json['loggedAt'] }}",
+            "Payment ID": "={{ $('Code — Verify Signature').item.json['reference'] }}",
+            "PF Payment ID": "={{ $('Code — Verify Signature').item.json['paystackId'] }}",
+            "Customer Name": "={{ $('Code — Verify Signature').item.json['customerName'] }}",
+            "Customer Email": "={{ $('Code — Verify Signature').item.json['customerEmail'] }}",
+            "Tier": "={{ $('Code — Verify Signature').item.json['tierName'] || $('Code — Verify Signature').item.json['tier'] }}",
+            "Amount": "={{ $('Code — Verify Signature').item.json['amount'] }}",
+            "Item Name": "={{ 'NSM · ' + ($('Code — Verify Signature').item.json['tierName'] || 'Plan') }}",
+            "Status": "={{ $('Code — Verify Signature').item.json['status'] }}",
+            "Billing Type": "={{ $('Code — Verify Signature').item.json['billingType'] }}",
+            "Token": "={{ $('Code — Verify Signature').item.json['paystackId'] }}",
+            "Billing Date": "={{ $('Code — Verify Signature').item.json['paidAt'] }}",
+            "Signature Valid": "=true"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Payment ID",
+              "displayName": "Payment ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PF Payment ID",
+              "displayName": "PF Payment ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tier",
+              "displayName": "Tier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Item Name",
+              "displayName": "Item Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Billing Type",
+              "displayName": "Billing Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Token",
+              "displayName": "Token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Billing Date",
+              "displayName": "Billing Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Signature Valid",
+              "displayName": "Signature Valid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        880,
+        -200
+      ],
+      "id": "00d2d8cc-195c-4536-a08b-1107b275fd89",
+      "name": "Sheets — Log Charge Success",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/14pPPoaU49nZd5z-IFJiQ2Pd2yHlo_E_oO0aVwG-aPb4/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14pPPoaU49nZd5z-IFJiQ2Pd2yHlo_E_oO0aVwG-aPb4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $('Code — Verify Signature').item.json['loggedAt'] }}",
+            "Payment ID": "={{ $('Code — Verify Signature').item.json['reference'] }}",
+            "PF Payment ID": "={{ $('Code — Verify Signature').item.json['paystackId'] }}",
+            "Customer Name": "={{ $('Code — Verify Signature').item.json['customerName'] }}",
+            "Customer Email": "={{ $('Code — Verify Signature').item.json['customerEmail'] }}",
+            "Tier": "={{ $('Code — Verify Signature').item.json['tierName'] || $('Code — Verify Signature').item.json['tier'] }}",
+            "Amount": "={{ $('Code — Verify Signature').item.json['amount'] }}",
+            "Item Name": "={{ 'NSM · ' + ($('Code — Verify Signature').item.json['tierName'] || 'Plan') }}",
+            "Status": "={{ $('Code — Verify Signature').item.json['status'] }}",
+            "Billing Type": "={{ $('Code — Verify Signature').item.json['billingType'] }}",
+            "Token": "={{ $('Code — Verify Signature').item.json['paystackId'] }}",
+            "Billing Date": "={{ $('Code — Verify Signature').item.json['paidAt'] }}",
+            "Signature Valid": "=true"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Payment ID",
+              "displayName": "Payment ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PF Payment ID",
+              "displayName": "PF Payment ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tier",
+              "displayName": "Tier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Item Name",
+              "displayName": "Item Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Billing Type",
+              "displayName": "Billing Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Token",
+              "displayName": "Token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Billing Date",
+              "displayName": "Billing Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Signature Valid",
+              "displayName": "Signature Valid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        880,
+        0
+      ],
+      "id": "76830093-c0b0-463b-a014-392d7a5d978d",
+      "name": "Sheets — Log Payment Failed",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/14pPPoaU49nZd5z-IFJiQ2Pd2yHlo_E_oO0aVwG-aPb4/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14pPPoaU49nZd5z-IFJiQ2Pd2yHlo_E_oO0aVwG-aPb4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $('Code — Verify Signature').item.json['loggedAt'] }}",
+            "Payment ID": "={{ $('Code — Verify Signature').item.json['reference'] }}",
+            "PF Payment ID": "={{ $('Code — Verify Signature').item.json['paystackId'] }}",
+            "Customer Name": "={{ $('Code — Verify Signature').item.json['customerName'] }}",
+            "Customer Email": "={{ $('Code — Verify Signature').item.json['customerEmail'] }}",
+            "Tier": "={{ $('Code — Verify Signature').item.json['tierName'] || $('Code — Verify Signature').item.json['tier'] }}",
+            "Amount": "={{ $('Code — Verify Signature').item.json['amount'] }}",
+            "Item Name": "={{ 'NSM · ' + ($('Code — Verify Signature').item.json['tierName'] || 'Plan') }}",
+            "Status": "={{ $('Code — Verify Signature').item.json['status'] }}",
+            "Billing Type": "={{ $('Code — Verify Signature').item.json['billingType'] }}",
+            "Token": "={{ $('Code — Verify Signature').item.json['paystackId'] }}",
+            "Billing Date": "={{ $('Code — Verify Signature').item.json['paidAt'] }}",
+            "Signature Valid": "=true"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Payment ID",
+              "displayName": "Payment ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PF Payment ID",
+              "displayName": "PF Payment ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tier",
+              "displayName": "Tier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Item Name",
+              "displayName": "Item Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Billing Type",
+              "displayName": "Billing Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Token",
+              "displayName": "Token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Billing Date",
+              "displayName": "Billing Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Signature Valid",
+              "displayName": "Signature Valid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        880,
+        200
+      ],
+      "id": "59293d7a-8319-40ef-9e20-4e6e8e7b2a1b",
+      "name": "Sheets — Log Subscription Disable",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "={{ $('Code — Verify Signature').item.json['isRenewal'] ? '🔁 SUBSCRIPTION RENEWAL' : '💰 NEW CUSTOMER' }} · {{ $('Code — Verify Signature').item.json['tierLabel'] }} TIER\n\n{{ $('Code — Verify Signature').item.json['customerName'] }}\n📧 {{ $('Code — Verify Signature').item.json['customerEmail'] }}\n\n💵 {{ $('Code — Verify Signature').item.json['isRenewal'] ? 'Renewed' : 'Paid' }}: R{{ $('Code — Verify Signature').item.json['amount'] }}\n🏷 Plan: {{ $('Code — Verify Signature').item.json['itemName'] }}\n🆔 Ref: {{ $('Code — Verify Signature').item.json['reference'] }}\n🔑 Paystack ID: {{ $('Code — Verify Signature').item.json['paystackId'] }}\n📅 Paid at: {{ $('Code — Verify Signature').item.json['paidAt'] }}\n\n{{ $('Code — Verify Signature').item.json['isRenewal'] ? '✅ Monthly recurring billing succeeded — no action needed.' : '✅ Subscription active. Welcome email sent. Now do the onboarding call within 24h.' }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1100,
+        -200
+      ],
+      "id": "f65bb340-1004-405e-b9e5-ab5a92e6edb7",
+      "name": "Telegram — Payment Success",
+      "webhookId": "tg-b13-success",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🚨 *Paystack PAYMENT FAILED*\n\nCustomer: {{ $('Code — Verify Signature').item.json['customerName'] }} ({{ $('Code — Verify Signature').item.json['customerEmail'] }})\nTier: {{ $('Code — Verify Signature').item.json['tierName'] || $('Code — Verify Signature').item.json['tier'] }}\nAmount: R{{ $('Code — Verify Signature').item.json['amount'] }}\nRef: `{{ $('Code — Verify Signature').item.json['reference'] }}`\n\nPaystack will retry — but you may want to reach out.",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1100,
+        0
+      ],
+      "id": "b0991e74-b149-4e03-b02c-a75f34ae61d5",
+      "name": "Telegram — Payment Failed",
+      "webhookId": "tg-b13-fail",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ *Paystack SUBSCRIPTION CANCELLED*\n\nCustomer: {{ $('Code — Verify Signature').item.json['customerName'] }} ({{ $('Code — Verify Signature').item.json['customerEmail'] }})\nTier: {{ $('Code — Verify Signature').item.json['tierName'] || $('Code — Verify Signature').item.json['tier'] }}\nRef: `{{ $('Code — Verify Signature').item.json['reference'] }}`",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1100,
+        200
+      ],
+      "id": "cbe15c44-62d4-470a-bb4f-d45bdf53352d",
+      "name": "Telegram — Subscription Cancelled",
+      "webhookId": "tg-b13-cancel",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Verify Signature').item.json['customerEmail'] }}",
+        "subject": "=Welcome to NSM{{ $('Code — Verify Signature').item.json['hasFirstName'] ? ', ' + $('Code — Verify Signature').item.json['firstName'] : '' }} 🎉",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"margin-bottom:14px;\"><span style=\"font-family:'Helvetica Neue',Arial,sans-serif;font-weight:800;font-size:26px;color:#08080c;letter-spacing:0.01em;\">NSM</span><span style=\"font-family:'Helvetica Neue',Arial,sans-serif;font-weight:800;font-size:26px;color:#4f46e5;\">.</span><div style=\"height:3px;width:52px;background:linear-gradient(90deg,#818cf8,#6366f1,#4f46e5);border-radius:2px;margin-top:5px;\"></div></div><div style=\"font-size:10px;font-family:'JetBrains Mono',monospace;color:#6366f1;letter-spacing:0.2em;text-transform:uppercase;font-weight:700;margin-bottom:18px;\">Neural Systems Management</div>\n  <div style=\"font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:36px;color:#020208;line-height:1.05;margin-bottom:20px;letter-spacing:-0.02em;\">Welcome aboard{{ $('Code — Verify Signature').item.json['hasFirstName'] ? ', ' + $('Code — Verify Signature').item.json['firstName'] : '' }}.</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.7;margin-bottom:18px;\">Thank you for choosing the <strong>{{ $('Code — Verify Signature').item.json['tierName'] }} plan</strong> — your subscription is active and your bots will be configured for your business this week.</div>\n  <div style=\"background:linear-gradient(135deg,rgba(129,140,248,0.10),rgba(99,102,241,0.04));border:1px solid #c7d2fe;border-radius:10px;padding:20px;margin:24px 0;\">\n    <div style=\"font-family:'JetBrains Mono',monospace;font-size:10px;color:#6366f1;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:10px;font-weight:700;\">What happens next</div>\n    <ol style=\"margin:0;padding-left:18px;color:#333;font-size:14px;line-height:1.8;\">\n      <li>Within 24 hours, Seth will reach out to schedule a 30-min onboarding call.</li>\n      <li>On the call, we'll configure your bots to your brand voice and your business workflow.</li>\n      <li>Within 7 days, your bots are live and your first automation runs.</li>\n    </ol>\n  </div>\n  <div style=\"text-align:center;margin:28px 0 20px;\">\n    <a href=\"https://cal.com/seth-mokone-limbt0/30min\" style=\"display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#818cf8,#6366f1);color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;\">Book your onboarding call →</a>\n  </div>\n  <div style=\"font-size:13px;color:#666;line-height:1.7;margin-top:24px;border-top:1px solid #f0f0f0;padding-top:20px;\">\n    Any questions in the meantime, just reply to this email and Seth will respond directly.\n  </div>\n  <div style=\"margin-top:28px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#9ca3af;letter-spacing:0.18em;\">\n    NSM · NEURAL SYSTEMS MANAGEMENT &middot; BUILT IN JOBURG<br>\n    REF · {{ $('Code — Verify Signature').item.json['reference'] }}\n  </div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        -200
+      ],
+      "id": "2717ff48-11e7-4140-bf27-fa45e0b11f96",
+      "name": "Gmail — Welcome",
+      "webhookId": "gmail-b13-welcome",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"ok\": true }",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1540,
+        0
+      ],
+      "id": "ed7bf008-06e3-4f4c-b81f-65e0f835e929",
+      "name": "Respond — 200 OK"
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🚨 *Paystack INVALID SIGNATURE*\n\nA webhook hit /paystack-webhook with an invalid HMAC signature. Either someone is probing the endpoint, or PAYSTACK_SECRET_KEY is misconfigured on Railway.\n\nTime: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        200
+      ],
+      "id": "03dd7663-83d4-4425-a622-dd5ab647584d",
+      "name": "Telegram — Invalid Signature",
+      "webhookId": "tg-b13-invalid",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"ok\": false, \"error\": \"invalid signature\" }",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        400
+      ],
+      "id": "45cc3bfe-1ae9-4785-8e0e-7f1d88ef0479",
+      "name": "Respond — 401 Invalid"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-initial",
+              "leftValue": "={{ $('Code — Verify Signature').item.json['isRenewal'] }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1210,
+        -200
+      ],
+      "id": "3c8543ab-6210-44b6-825e-2ca334933bd8",
+      "name": "IF — Is Initial"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook — Paystack Event": {
+      "main": [
+        [
+          {
+            "node": "Code — Verify Signature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Verify Signature": {
+      "main": [
+        [
+          {
+            "node": "IF — Signature Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Signature Valid": {
+      "main": [
+        [
+          {
+            "node": "Switch — Event Type",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Invalid Signature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Invalid Signature": {
+      "main": [
+        [
+          {
+            "node": "Respond — 401 Invalid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch — Event Type": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Charge Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sheets — Log Payment Failed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sheets — Log Subscription Disable",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond — 200 OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Log Charge Success": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Payment Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Payment Success": {
+      "main": [
+        [
+          {
+            "node": "IF — Is Initial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Welcome": {
+      "main": [
+        [
+          {
+            "node": "Respond — 200 OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Log Payment Failed": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Payment Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Payment Failed": {
+      "main": [
+        [
+          {
+            "node": "Respond — 200 OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Log Subscription Disable": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Subscription Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Subscription Cancelled": {
+      "main": [
+        [
+          {
+            "node": "Respond — 200 OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Is Initial": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Welcome",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond — 200 OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b13-paystack-listener-v1-007",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B13PaystackListenerV1001",
+  "tags": []
+}

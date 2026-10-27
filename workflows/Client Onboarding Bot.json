@@ -1,0 +1,539 @@
+{
+  "name": "Client Onboarding Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "client-onboarding",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "9b1318ec-8f14-4580-921b-dde11c8634c9",
+      "name": "Webhook",
+      "webhookId": "e1dac4c2-912e-46f9-9505-30e3d0ddafae"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "48a2f32f-6b3f-4d36-9689-14a13beb1f7c",
+              "name": "clientName",
+              "value": "={{ $json['body']['clientName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "22b42905-f54a-4258-a945-f567fe2b4076",
+              "name": "businessName",
+              "value": "={{ $json['body']['businessName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "fb81586b-7d2b-457e-9211-30066af332c4",
+              "name": "email",
+              "value": "={{ $json['body']['email'] }}",
+              "type": "string"
+            },
+            {
+              "id": "5c8939b0-1635-4a80-a830-11cf9a02ffb8",
+              "name": "phone",
+              "value": "={{ $json['body']['phone'] }}",
+              "type": "string"
+            },
+            {
+              "id": "81e587c3-5565-4896-8444-c27f4f2a4791",
+              "name": "plan",
+              "value": "={{ $json['body']['plan'] }}",
+              "type": "string"
+            },
+            {
+              "id": "8c994509-fd13-453d-b775-88bb8be9254a",
+              "name": "botsSelected",
+              "value": "={{ $json['body']['botsSelected'] }}",
+              "type": "string"
+            },
+            {
+              "id": "d3b2bcc0-a79a-44e0-9786-30abde71aa3d",
+              "name": "timestamp",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        176,
+        0
+      ],
+      "id": "9a4e6279-b410-4c21-9da4-e19506309500",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "amount": 0
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        352,
+        0
+      ],
+      "id": "a0bc8dc0-fb1f-486d-a5a3-091a100079bf",
+      "name": "Wait",
+      "webhookId": "3d83b7fa-8c12-465a-95d5-3033dcb4ba0d"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "Response Code:  200\nResponse Body:  { \"status\": \"success\", \"message\": \"Client onboarded successfully\" }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2016,
+        0
+      ],
+      "id": "2d6a7049-d9ee-41f1-8975-601ab8e04e6f",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json['email'] }}",
+        "subject": "Your NSM Agreement — Action Required",
+        "message": "=Hi {{ $('Edit Fields').item.json['clientName'] }},  Your service agreement is ready to review and sign.  Plan:  {{ $('Edit Fields').item.json['plan'] }} Bots:  {{ $('Edit Fields').item.json['botsSelected'] }}  What's included: — AI bot setup within 48 hours of signed agreement — Monthly performance reports — Ongoing support via email and WhatsApp — 30-day 100% response rate guarantee  To confirm your onboarding, simply reply to this email  with \"Confirmed\" and I'll get everything set up immediately.  Seth NSM +27 67 099 4163",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "bd34b606-6fd4-48b2-8a52-9dce883eede9",
+      "name": " Gmail — Contract",
+      "webhookId": "649d9373-2dae-4840-b7ad-a71fabf90e6a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json['email'] }}",
+        "subject": "=Welcome to NSM, {{ $('Edit Fields').item.json['clientName'] }}",
+        "message": "=Hi {{ $('Edit Fields').item.json['clientName'] }},  Welcome to NSM — I'm genuinely excited to have  {{ $('Edit Fields').item.json['businessName'] }} on board.  Here is exactly what happens next:  1. You'll receive your contract in a separate email shortly. 2. Book your setup call using the link below — it takes     30 minutes and we'll have your first bot live same day. 3. Your portal access is already active at     jarvis-nexus-lead-jkon.vercel.app  Your plan: {{ $('Edit Fields').item.json['plan'] }} Your bots: {{ $('Edit Fields').item.json['botsSelected'] }}  If you have any questions before the call, reply to this  email or WhatsApp me directly: +27 67 099 4163  Talk soon, Seth NSM",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        0
+      ],
+      "id": "6afd219b-cd95-4f6d-9602-59e1ddc12d23",
+      "name": "Gmail — Welcome",
+      "webhookId": "649d9373-2dae-4840-b7ad-a71fabf90e6a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json['email'] }}",
+        "subject": "Book Your NSM Setup Call",
+        "message": "=Hi {{ $('Edit Fields').item.json['clientName'] }},  One last step — book your 30-minute setup call so we can  get your bots live as fast as possible.  On the call we will: — Configure your bot tone and brand voice — Connect your Google account — Run a live test using your real data — Answer any questions  Book your slot here: https://cal.com/seth-mokone-limbt0/30min   This call usually takes 30 minutes and your first bot  will be live within 24 hours after.  See you soon, Seth NSM",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "86196051-1ed7-4883-b63c-718e73388b96",
+      "name": "Gmail — Setup Call",
+      "webhookId": "649d9373-2dae-4840-b7ad-a71fabf90e6a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/17DtDK8UBno1Yes7Y5h025eYkUo1Kpb8uJdc6BtdvOL4/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17DtDK8UBno1Yes7Y5h025eYkUo1Kpb8uJdc6BtdvOL4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "    Timestamp": "={{ $('Edit Fields').item.json['timestamp'] }}",
+            "   Client Name": "={{ $('Edit Fields').item.json['clientName'] }}",
+            "   Business Name": "={{ $('Edit Fields').item.json['businessName'] }}",
+            "       Email": "={{ $('Edit Fields').item.json['email'] }}",
+            "       Phone": "={{ $('Edit Fields').item.json['phone'] }}",
+            "        Plan": "={{ $('Edit Fields').item.json['plan'] }}",
+            "  Bots Selected": "={{ $('Edit Fields').item.json['botsSelected'] }}",
+            "Status": "Active",
+            "Onboarding Date": "={{ $('Edit Fields').item.json['timestamp'] }}",
+            "Setup Call Booked": "Pending"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "    Timestamp",
+              "displayName": "    Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "   Client Name",
+              "displayName": "   Client Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "   Business Name",
+              "displayName": "   Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "       Email",
+              "displayName": "       Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "       Phone",
+              "displayName": "       Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "        Plan",
+              "displayName": "        Plan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "  Bots Selected",
+              "displayName": "  Bots Selected",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Onboarding Date",
+              "displayName": "Onboarding Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Setup Call Booked",
+              "displayName": "Setup Call Booked",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1008,
+        0
+      ],
+      "id": "ce129119-d9fe-4833-8c1a-9880e4510b89",
+      "name": "Google Sheets — Client CRM",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🎉 NEW CLIENT ONBOARDED  👤 {{ $('Edit Fields').item.json['clientName'] }} 🏢 {{ $('Edit Fields').item.json['businessName'] }} 📧 {{ $('Edit Fields').item.json['email'] }} 📱 {{ $('Edit Fields').item.json['phone'] }} 📦 {{ $('Edit Fields').item.json['plan'] }} 🤖 {{ $('Edit Fields').item.json['botsSelected'] }}  3 emails sent. Client logged in CRM. Setup call pending booking.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1408,
+        0
+      ],
+      "id": "0fdbf42c-1832-4403-9522-5cca85268c4e",
+      "name": "Telegram — New Client Alert",
+      "webhookId": "e5238199-c07d-43f1-b5b3-47db2730913b",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n-production-71d9.up.railway.app/webhook/invoice",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"clientName\":   \"{{ $('Edit Fields').item.json['clientName'] }}\",\n  \"businessName\": \"{{ $('Edit Fields').item.json['businessName'] }}\",\n  \"email\":        \"{{ $('Edit Fields').item.json['email'] }}\",\n  \"phone\":        \"{{ $('Edit Fields').item.json['phone'] }}\",\n  \"plan\":         \"{{ $('Edit Fields').item.json['plan'] }}\",\n  \"botsSelected\": \"{{ $('Edit Fields').item.json['botsSelected'] }}\",\n  \"setupFee\":     \"{{ $('Edit Fields').item.json['setupFee'] }}\",\n  \"monthlyFee\":   \"{{ $('Edit Fields').item.json['monthlyFee'] }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1216,
+        0
+      ],
+      "id": "b1c8125e-f121-485c-abbc-0374ef2e7478",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n-production-71d9.up.railway.app/webhook/review-request",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"clientName\":     \"{{ $('Edit Fields').item.json['clientName'] }}\",\n  \"businessName\":   \"{{ $('Edit Fields').item.json['businessName'] }}\",\n  \"customerName\":   \"{{ $('Edit Fields').item.json['clientName'] }}\",\n  \"customerEmail\":  \"{{ $('Edit Fields').item.json['email'] }}\",\n  \"platform\":       \"Google\",\n  \"googleLink\": \"GOOGLE_REVIEW_LINK_TO_BE_ADDED\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1824,
+        0
+      ],
+      "id": "3606158b-0176-488d-96ae-78f72d0323e4",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "amount": 7,
+        "unit": "days"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1616,
+        0
+      ],
+      "id": "0c9d76dd-fa6f-4a52-9c56-320d3b92fd36",
+      "name": "Wait1",
+      "webhookId": "d7bd580f-b97f-4553-865a-26640abfc455"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Welcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Gmail — Contract": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Setup Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Welcome": {
+      "main": [
+        [
+          {
+            "node": " Gmail — Contract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Setup Call": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets — Client CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets — Client CRM": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — New Client Alert": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Telegram — New Client Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "9644cad2-b8ce-4340-a588-868ed97ef0af",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "YHniCLHWrdapu8lN",
+  "tags": []
+}

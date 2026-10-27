@@ -1,0 +1,1459 @@
+{
+  "name": "B6 Reputation Shield",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "reputation-trigger",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        208
+      ],
+      "id": "dae719ff-ed77-4c65-975a-b73a0a40ba35",
+      "name": "Webhook — Reputation Trigger",
+      "webhookId": "b6-reputation-trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-t-1",
+              "name": "checkId",
+              "value": "=REP-{{ $now.toFormat('yyyyMMdd-HHmmss') }}-{{ Math.floor(Math.random() * 1000) }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-t-2",
+              "name": "customerName",
+              "value": "={{ $json['body']['customerName'] ?? 'Customer' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-t-3",
+              "name": "customerEmail",
+              "value": "={{ $json['body']['customerEmail'] ?? 'unknown@email.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-t-4",
+              "name": "firstName",
+              "value": "={{ ($json['body']['customerName'] ?? 'there').split(' ')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-t-5",
+              "name": "businessName",
+              "value": "={{ $json['body']['businessName'] ?? 'Your Business' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-t-6",
+              "name": "ownerEmail",
+              "value": "={{ $json['body']['ownerEmail'] ?? 'ndumisoseth12@gmail.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-t-7",
+              "name": "productService",
+              "value": "={{ $json['body']['productService'] ?? 'your recent purchase' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-t-8",
+              "name": "publicReviewLink",
+              "value": "={{ $json['body']['publicReviewLink'] ?? 'https://g.page/r/your-google-review-link' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-t-9",
+              "name": "waitDays",
+              "value": "={{ $json['body']['waitDays'] ?? 3 }}",
+              "type": "number"
+            },
+            {
+              "id": "ef-t-10",
+              "name": "triggeredAt",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        208
+      ],
+      "id": "71913a09-57f7-450b-bc2b-134792059e8d",
+      "name": "Edit Fields — Setup"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Check ID": "={{ $('Edit Fields — Setup').item.json['checkId'] }}",
+            "Triggered At": "={{ $('Edit Fields — Setup').item.json['triggeredAt'] }}",
+            "Customer Name": "={{ $('Edit Fields — Setup').item.json['customerName'] }}",
+            "Customer Email": "={{ $('Edit Fields — Setup').item.json['customerEmail'] }}",
+            "Business Name": "={{ $('Edit Fields — Setup').item.json['businessName'] }}",
+            "Product Service": "={{ $('Edit Fields — Setup').item.json['productService'] }}",
+            "Status": "Pending Send",
+            "Rating": "",
+            "Sentiment": "",
+            "Feedback Text": "",
+            "Public Review Sent": "No",
+            "Owner Alerted": "No",
+            "Owner Email": "={{ $('Edit Fields — Setup').item.json['ownerEmail'] }}",
+            "Public Review Sent At": "",
+            "Referral Triggered": "",
+            "Referral Triggered At": ""
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Check ID",
+              "displayName": "Check ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Triggered At",
+              "displayName": "Triggered At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business Name",
+              "displayName": "Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product Service",
+              "displayName": "Product Service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rating",
+              "displayName": "Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Feedback Text",
+              "displayName": "Feedback Text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Public Review Sent",
+              "displayName": "Public Review Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Owner Alerted",
+              "displayName": "Owner Alerted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Owner Email",
+              "displayName": "Owner Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Public Review Sent At",
+              "displayName": "Public Review Sent At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Referral Triggered",
+              "displayName": "Referral Triggered",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Referral Triggered At",
+              "displayName": "Referral Triggered At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        400,
+        208
+      ],
+      "id": "cb8f29c1-46d4-41ca-b0a3-3e1f8bfdd221",
+      "name": "Sheets — Log Pending Check",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": "={{ $('Edit Fields — Setup').item.json['waitDays'] }}",
+        "unit": "days"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        608,
+        208
+      ],
+      "id": "20b179a7-b656-4e08-bc03-09048f3c8057",
+      "name": "Wait — Settle Window",
+      "webhookId": "wait-b6-window"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields — Setup').item.json['customerEmail'] }}",
+        "subject": "=How was your experience with {{ $('Edit Fields — Setup').item.json['businessName'] }}?",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">{{ $('Edit Fields — Setup').item.json['businessName'] }}</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;\">Hi {{ $('Edit Fields — Setup').item.json['firstName'] }},<br><br>Thank you for choosing us for {{ $('Edit Fields — Setup').item.json['productService'] }}. We would love to know how it went — your honest feedback helps us improve.<br><br><strong>How would you rate your experience?</strong></div>\n  <div style=\"display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap;\">\n    <a href=\"https://n8n-production-71d9.up.railway.app/webhook/reputation-feedback?check={{ $('Edit Fields — Setup').item.json['checkId'] }}&rating=5\" style=\"flex:1;min-width:80px;padding:14px 8px;background:#10b981;color:#fff;text-decoration:none;border-radius:8px;text-align:center;font-weight:700;font-size:14px;\">⭐⭐⭐⭐⭐<br><span style=\"font-size:11px;font-weight:500;opacity:0.9;\">Loved it</span></a>\n    <a href=\"https://n8n-production-71d9.up.railway.app/webhook/reputation-feedback?check={{ $('Edit Fields — Setup').item.json['checkId'] }}&rating=4\" style=\"flex:1;min-width:80px;padding:14px 8px;background:#34d399;color:#fff;text-decoration:none;border-radius:8px;text-align:center;font-weight:700;font-size:14px;\">⭐⭐⭐⭐<br><span style=\"font-size:11px;font-weight:500;opacity:0.9;\">Happy</span></a>\n    <a href=\"https://n8n-production-71d9.up.railway.app/webhook/reputation-feedback?check={{ $('Edit Fields — Setup').item.json['checkId'] }}&rating=3\" style=\"flex:1;min-width:80px;padding:14px 8px;background:#fbbf24;color:#fff;text-decoration:none;border-radius:8px;text-align:center;font-weight:700;font-size:14px;\">⭐⭐⭐<br><span style=\"font-size:11px;font-weight:500;opacity:0.9;\">Okay</span></a>\n    <a href=\"https://n8n-production-71d9.up.railway.app/webhook/reputation-feedback?check={{ $('Edit Fields — Setup').item.json['checkId'] }}&rating=2\" style=\"flex:1;min-width:80px;padding:14px 8px;background:#fb7185;color:#fff;text-decoration:none;border-radius:8px;text-align:center;font-weight:700;font-size:14px;\">⭐⭐<br><span style=\"font-size:11px;font-weight:500;opacity:0.9;\">Disappointed</span></a>\n    <a href=\"https://n8n-production-71d9.up.railway.app/webhook/reputation-feedback?check={{ $('Edit Fields — Setup').item.json['checkId'] }}&rating=1\" style=\"flex:1;min-width:80px;padding:14px 8px;background:#f43f5e;color:#fff;text-decoration:none;border-radius:8px;text-align:center;font-weight:700;font-size:14px;\">⭐<br><span style=\"font-size:11px;font-weight:500;opacity:0.9;\">Bad</span></a>\n  </div>\n  <div style=\"font-size:13px;color:#666;line-height:1.6;text-align:center;\">One click — that's it. Your feedback goes straight to the owner.</div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;margin-top:20px;\">Sent on behalf of {{ $('Edit Fields — Setup').item.json['businessName'] }} · Powered by NSM</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        320
+      ],
+      "id": "98252e47-f0c4-497e-93a5-9e405a336a97",
+      "name": "Gmail — Ask Rating",
+      "webhookId": "gmail-b6-ask",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Check ID": "={{ $('Edit Fields — Setup').item.json['checkId'] }}",
+            "Status": "Asked"
+          },
+          "matchingColumns": [
+            "Check ID"
+          ],
+          "schema": [
+            {
+              "id": "Check ID",
+              "displayName": "Check ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        320
+      ],
+      "id": "9192fc40-18ac-429d-9c4e-2597f8d8e031",
+      "name": "Sheets — Mark Asked",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"checkId\": \"={{ $('Edit Fields — Setup').item.json['checkId'] }}\",\n  \"message\": \"Reputation check scheduled\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1408,
+        208
+      ],
+      "id": "c57b1fc9-e034-4eda-9bff-8d72d7f0c7f5",
+      "name": "Respond — Check Scheduled"
+    },
+    {
+      "parameters": {
+        "path": "reputation-feedback",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        656
+      ],
+      "id": "e36abc6f-62f6-4949-b107-9d5b3cf37d97",
+      "name": "Webhook — Feedback Click",
+      "webhookId": "b6-feedback-click"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-fb-1",
+              "name": "checkId",
+              "value": "={{ $json['query']['check'] ?? '' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-fb-2",
+              "name": "rating",
+              "value": "={{ parseInt($json['query']['rating']) || 0 }}",
+              "type": "number"
+            },
+            {
+              "id": "ef-fb-3",
+              "name": "respondedAt",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        656
+      ],
+      "id": "e7b7102c-3c4e-4e2c-893e-6a0a6f1fc74b",
+      "name": "Edit Fields — Feedback Parse"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Check ID",
+              "lookupValue": "={{ $('Edit Fields — Feedback Parse').item.json['checkId'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        480,
+        656
+      ],
+      "id": "beac8102-cfc9-4773-9260-7d42641ee765",
+      "name": "Sheets — Lookup Check",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// B6 — Determine sentiment + branch\nconst lookup = $input.item.json;\nconst fb = $('Edit Fields — Feedback Parse').item.json;\nconst rating = fb['rating'];\n\nlet sentiment = 'Neutral';\nlet branch = 'unhappy';\nif (rating >= 4) { sentiment = 'Positive'; branch = 'happy'; }\nelse if (rating === 3) { sentiment = 'Mixed'; branch = 'unhappy'; }\nelse if (rating > 0) { sentiment = 'Negative'; branch = 'unhappy'; }\n\nconst stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);\n\nreturn {\n  ...lookup,\n  rating,\n  sentiment,\n  branch,\n  stars,\n  respondedAt: fb['respondedAt'],\n  isHappy: branch === 'happy',\n  firstName: (lookup['Customer Name'] || 'there').split(' ')[0]\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        656
+      ],
+      "id": "3e6940b9-6bc0-4e8f-84cd-5495c54bef8b",
+      "name": "Code — Route by Sentiment"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Check ID": "={{ $json['Check ID'] }}",
+            "Status": "Responded",
+            "Rating": "={{ $json['rating'] }}",
+            "Sentiment": "={{ $json['sentiment'] }}"
+          },
+          "matchingColumns": [
+            "Check ID"
+          ],
+          "schema": [
+            {
+              "id": "Check ID",
+              "displayName": "Check ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rating",
+              "displayName": "Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        912,
+        656
+      ],
+      "id": "7fdfa764-335a-40dc-9a92-7d1dfbe656fd",
+      "name": "Sheets — Update Rating",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "sw-happy",
+                    "leftValue": "={{ $json['branch'] }}",
+                    "rightValue": "happy",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Happy"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "sw-unhappy",
+                    "leftValue": "={{ $json['branch'] }}",
+                    "rightValue": "unhappy",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Unhappy"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1136,
+        656
+      ],
+      "id": "6026e0bc-f3df-4c86-a8d6-17432e24ac8c",
+      "name": "Switch — Happy or Unhappy"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['Customer Email'] }}",
+        "subject": "=Thanks for the kind words — would you share publicly?",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">{{ $json['Business Name'] }}</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:24px;\">Hi {{ $json['firstName'] }},<br><br>Thank you for the {{ $json['stars'] }} rating — it means the world to a small business like ours.<br><br>Would you be willing to share your experience publicly? It takes 30 seconds and helps other customers find us.</div>\n  <div style=\"text-align:center;margin-bottom:28px;\">\n    <a href=\"{{ $('Sheets — Lookup Check').item.json['Public Review Link'] || 'https://g.page/r/your-google-review-link' }}\" style=\"display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#818cf8,#6366f1);color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;\">Leave a Google review →</a>\n  </div>\n  <div style=\"font-size:13px;color:#666;line-height:1.6;text-align:center;\">If you'd rather not, no pressure at all — your private rating is already noted with thanks.</div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;margin-top:20px;\">Sent on behalf of {{ $json['Business Name'] }} · Powered by NSM</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1360,
+        496
+      ],
+      "id": "cf82a9d1-e184-4bab-a9a5-477e50f84649",
+      "name": "Gmail — Ask for Public Review",
+      "webhookId": "gmail-b6-public",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['Customer Email'] }}",
+        "subject": "=We hear you, {{ $json['firstName'] }} — let us make this right",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">{{ $json['Business Name'] }}</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:24px;\">Hi {{ $json['firstName'] }},<br><br>I'm sorry your experience wasn't what we hoped. Your rating of {{ $json['stars'] }} tells me we've let you down — and I want to make it right personally.<br><br>Could you reply to this email and tell me what went wrong? I read every reply myself and I'll get back to you within 24 hours.<br><br>Thank you for giving us the chance to fix this before walking away.</div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;\">Sent on behalf of {{ $json['Business Name'] }} · Powered by NSM</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1360,
+        816
+      ],
+      "id": "c9f4c572-3b3b-4cd8-91f0-d129c5663123",
+      "name": "Gmail — Service Recovery",
+      "webhookId": "gmail-b6-recover",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🛡 REPUTATION SHIELD ACTIVATED\n\n🚨 Unhappy customer caught BEFORE they posted publicly.\n\n👤 {{ $json['Customer Name'] }}\n📧 {{ $json['Customer Email'] }}\n🏢 {{ $json['Business Name'] }}\nRating: {{ $json['stars'] }} ({{ $json['rating'] }}/5)\nSentiment: {{ $json['sentiment'] }}\n\nProduct/Service: {{ $json['Product Service'] }}\n\n💡 Service-recovery email already sent. They'll likely reply in 24h. ACT FAST — phone call beats email here.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1584,
+        816
+      ],
+      "id": "1980cfb8-eb36-40c4-a7ea-04a2690adea3",
+      "name": "Telegram — Owner Alert (Unhappy)",
+      "webhookId": "tg-b6-unhappy",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Check ID": "={{ $('Code — Route by Sentiment').item.json['Check ID'] }}",
+            "Owner Alerted": "Yes"
+          },
+          "matchingColumns": [
+            "Check ID"
+          ],
+          "schema": [
+            {
+              "id": "Check ID",
+              "displayName": "Check ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Owner Alerted",
+              "displayName": "Owner Alerted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1792,
+        816
+      ],
+      "id": "650fdd7b-1bc6-4b57-97f8-f945b63ffb5f",
+      "name": "Sheets — Mark Alerted",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Check ID": "={{ $('Code — Route by Sentiment').item.json['Check ID'] }}",
+            "Public Review Sent": "Yes",
+            "Public Review Sent At": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "Referral Triggered": "No"
+          },
+          "matchingColumns": [
+            "Check ID"
+          ],
+          "schema": [
+            {
+              "id": "Check ID",
+              "displayName": "Check ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Public Review Sent",
+              "displayName": "Public Review Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Public Review Sent At",
+              "displayName": "Public Review Sent At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Referral Triggered",
+              "displayName": "Referral Triggered",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1584,
+        496
+      ],
+      "id": "b598717e-855d-445a-8c17-f95fcbb9ae80",
+      "name": "Sheets — Mark Public Sent",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>Thank you</title><style>body{font-family:-apple-system,sans-serif;background:#08080c;color:#f5f5fa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;}.card{max-width:480px;background:#14141d;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:48px 32px;text-align:center;}.icon{font-size:48px;margin-bottom:16px;}h1{font-family:'Instrument Serif',serif;font-style:italic;font-size:32px;margin:0 0 16px 0;}p{color:#a8a8c2;line-height:1.6;font-size:15px;margin:0 0 12px 0;}</style></head><body><div class=\"card\"><div class=\"icon\">✓</div><h1>Thank you for your feedback.</h1><p>Your rating has been recorded. The owner will be in touch personally.</p></div></body></html>",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2016,
+        656
+      ],
+      "id": "6b3b07e3-f89e-46c1-8ec0-77f163266e64",
+      "name": "Respond — Thank You Page"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        32,
+        1100
+      ],
+      "id": "b6a1b2c3-d4e5-f6a7-b8c9-d0e1f2b60026",
+      "name": "Schedule — Daily Referral Scanner"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "rsc-1",
+              "name": "scanId",
+              "value": "=REFSCAN-{{ $now.toFormat('yyyyMMdd-HHmmss') }}",
+              "type": "string"
+            },
+            {
+              "id": "rsc-2",
+              "name": "nowIso",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            },
+            {
+              "id": "rsc-3",
+              "name": "todayDate",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        1100
+      ],
+      "id": "b6a1b2c3-d4e5-f6a7-b8c9-d0e1f2b60027",
+      "name": "Edit Fields — Referral Scanner Setup"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        480,
+        1100
+      ],
+      "id": "b6a1b2c3-d4e5-f6a7-b8c9-d0e1f2b60028",
+      "name": "Sheets — Read All Reputation",
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// B6 v3-003 — Find happy customers due for a referral ask (header-whitespace safe)\nconst trimKeys = (r) => { const out = {}; for (const [k, v] of Object.entries(r || {})) out[k.trim()] = v; return out; };\nconst rows = $input.all().map(i => trimKeys(i.json));\nconst setup = $('Edit Fields — Referral Scanner Setup').item.json;\nconst now = new Date(setup['nowIso']);\n\nconst candidates = [];\nfor (const r of rows) {\n  if (!r['Check ID']) continue;\n  const rating = parseInt(r['Rating'] || '0');\n  if (rating < 4) continue;\n  if (r['Public Review Sent'] !== 'Yes') continue;\n  if (r['Referral Triggered'] === 'Yes') continue;\n  const sentAtStr = r['Public Review Sent At'] || r['Triggered At'];\n  if (!sentAtStr) continue;\n  const sentAt = new Date(sentAtStr);\n  if (isNaN(sentAt.getTime())) continue;\n  const hoursSinceSent = (now - sentAt) / (1000 * 60 * 60);\n  // Fire 24h+ after the Google review request, skip if >14 days stale\n  if (hoursSinceSent < 24) continue;\n  if (hoursSinceSent > 14 * 24) continue;\n  if (!r['Customer Email']) continue;\n  if (!r['Customer Name']) continue;\n  candidates.push({\n    checkId: r['Check ID'],\n    customerName: r['Customer Name'],\n    customerEmail: r['Customer Email'],\n    businessName: r['Business Name'] || 'Your Business',\n    ownerEmail: r['Owner Email'] || 'ndumisoseth12@gmail.com',\n    productService: r['Product Service'] || '',\n    rating,\n    sentAt: sentAtStr,\n    hoursSinceSent: Math.round(hoursSinceSent),\n    scanId: setup['scanId'],\n    nowIso: setup['nowIso']\n  });\n}\nreturn candidates.map(c => ({ json: c }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        1100
+      ],
+      "id": "b6a1b2c3-d4e5-f6a7-b8c9-d0e1f2b60029",
+      "name": "Code — Filter Referral Candidates"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n-production-71d9.up.railway.app/webhook/referral-ask",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"customerName\": \"{{ $json['customerName'] }}\",\n  \"customerEmail\": \"{{ $json['customerEmail'] }}\",\n  \"businessName\": \"{{ $json['businessName'] }}\",\n  \"ownerEmail\": \"{{ $json['ownerEmail'] }}\",\n  \"lastProduct\": \"{{ $json['productService'] }}\",\n  \"tier\": \"Silver\",\n  \"advocateReward\": \"R150 store credit\",\n  \"friendOffer\": \"15% off their first order\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        928,
+        1100
+      ],
+      "id": "b6a1b2c3-d4e5-f6a7-b8c9-d0e1f2b60030",
+      "name": "HTTP — Post to B7 Referral Ask",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-b7-ok",
+              "leftValue": "={{ $json['statusCode'] }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1152,
+        1100
+      ],
+      "id": "b6a1b2c3-d4e5-f6a7-b8c9-d0e1f2b60031",
+      "name": "IF — B7 Success"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Check ID": "={{ $('Code — Filter Referral Candidates').item.json['checkId'] }}",
+            "Referral Triggered": "Yes",
+            "Referral Triggered At": "={{ $('Code — Filter Referral Candidates').item.json['nowIso'] }}"
+          },
+          "matchingColumns": [
+            "Check ID"
+          ],
+          "schema": [
+            {
+              "id": "Check ID",
+              "displayName": "Check ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Referral Triggered",
+              "displayName": "Referral Triggered",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Referral Triggered At",
+              "displayName": "Referral Triggered At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1376,
+        1020
+      ],
+      "id": "b6a1b2c3-d4e5-f6a7-b8c9-d0e1f2b60032",
+      "name": "Sheets — Mark Referral Triggered",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ B6 → B7 referral trigger failed\n\nCheck ID: {{ $('Code — Filter Referral Candidates').item.json['checkId'] }}\nCustomer: {{ $('Code — Filter Referral Candidates').item.json['customerName'] }} ({{ $('Code — Filter Referral Candidates').item.json['customerEmail'] }})\nBusiness: {{ $('Code — Filter Referral Candidates').item.json['businessName'] }}\nB7 status: {{ $json['statusCode'] || 'no response' }}\n\nRow not marked as triggered — tomorrow's scan will retry.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1376,
+        1180
+      ],
+      "id": "b6a1b2c3-d4e5-f6a7-b8c9-d0e1f2b60033",
+      "name": "Telegram — Referral Fail Alert",
+      "webhookId": "tg-b6-referral-fail",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook — Reputation Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Setup": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Pending Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Log Pending Check": {
+      "main": [
+        [
+          {
+            "node": "Wait — Settle Window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait — Settle Window": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Ask Rating",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Ask Rating": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Mark Asked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Mark Asked": {
+      "main": [
+        [
+          {
+            "node": "Respond — Check Scheduled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook — Feedback Click": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Feedback Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Feedback Parse": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Lookup Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Lookup Check": {
+      "main": [
+        [
+          {
+            "node": "Code — Route by Sentiment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Route by Sentiment": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Update Rating",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Update Rating": {
+      "main": [
+        [
+          {
+            "node": "Switch — Happy or Unhappy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch — Happy or Unhappy": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Ask for Public Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail — Service Recovery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Ask for Public Review": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Mark Public Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Mark Public Sent": {
+      "main": [
+        [
+          {
+            "node": "Respond — Thank You Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Service Recovery": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Owner Alert (Unhappy)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Owner Alert (Unhappy)": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Mark Alerted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Mark Alerted": {
+      "main": [
+        [
+          {
+            "node": "Respond — Thank You Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule — Daily Referral Scanner": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Referral Scanner Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Referral Scanner Setup": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read All Reputation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read All Reputation": {
+      "main": [
+        [
+          {
+            "node": "Code — Filter Referral Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Filter Referral Candidates": {
+      "main": [
+        [
+          {
+            "node": "HTTP — Post to B7 Referral Ask",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP — Post to B7 Referral Ask": {
+      "main": [
+        [
+          {
+            "node": "IF — B7 Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — B7 Success": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Mark Referral Triggered",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Referral Fail Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b6-reputation-shield-v3-006",
+  "meta": {
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B6ReputationShieldV3001",
+  "tags": []
+}

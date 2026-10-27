@@ -1,0 +1,1217 @@
+{
+  "name": "Lead Qualifier Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-qualifier",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        0
+      ],
+      "id": "c53be975-a6e5-4832-995c-60aa08f5cfb8",
+      "name": "Webhook",
+      "webhookId": "dced8a72-7599-4536-ad4a-485538f9daae",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert sales qualification specialist. Your job is to analyze lead information and score them based on their likelihood to become a paying client. Analyze the budget, revenue, challenge and situation provided. Respond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"score\\\": \\\"Hot\\\", \\\"confidence\\\": \\\"High\\\", \\\"reason\\\": \\\"one sentence explanation\\\", \\\"recommended_action\\\": \\\"Call within 2 hours\\\", \\\"budget_assessment\\\": \\\"Can afford\\\", \\\"urgency\\\": \\\"High\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Lead Name: {{ $('Edit Fields').item.json['fullName'] }}\\nBusiness: {{ $('Edit Fields').item.json['businessName'] }}\\nMonthly Revenue: {{ $('Edit Fields').item.json['revenue'] }}\\nBiggest Challenge: {{ $('Edit Fields').item.json['challenge'] }}\\nBudget: {{ $('Edit Fields').item.json['budget'] }}\\nSituation: {{ $('Edit Fields').item.json['situation'] }}\"\n    }\n  ],\n  \"temperature\": 0.1,\n  \"max_tokens\": 512\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        800,
+        0
+      ],
+      "id": "0ccf39a7-1bb7-4f2f-b51b-95dda37d1c56",
+      "name": "HTTP Request",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Read directly from webhook body — handles both HTML portal and Tally\nconst body = $('Webhook').item.json['body'];\n\n// Helper function\nfunction getValue(value) {\n  if (Array.isArray(value)) return value.join(', ');\n  return value || 'Not provided';\n}\n\n// Try HTML portal flat structure first then Tally nested structure\nconst fullName = getValue(body['fullName'] || body?.['data']?.['fields']?.find(f => f['label'] === 'Full Name')?.['value']);\nconst businessName = getValue(body['businessName'] || body?.['data']?.['fields']?.find(f => f['label'] === 'Business Name')?.['value']);\nconst email = getValue(body['email'] || body?.['data']?.['fields']?.find(f => f['label'] === 'Email Address')?.['value']);\nconst phone = getValue(body['phone'] || body?.['data']?.['fields']?.find(f => f['label'] === 'Phone Number')?.['value']);\nconst revenue = getValue(body['revenue'] || body?.['data']?.['fields']?.find(f => f['label'] === 'What is your monthly revenue?')?.['value']);\nconst challenge = getValue(body['challenge'] || body?.['data']?.['fields']?.find(f => f['label'] === 'What is your biggest challenge?')?.['value']);\nconst budget = getValue(body['budget'] || body?.['data']?.['fields']?.find(f => f['label'] === 'What is your budget for this solution?')?.['value']);\nconst situation = getValue(body['situation'] || body?.['data']?.['fields']?.find(f => f['label'] === 'Tell us more about your situation')?.['value']);\n\n// Get AI response from Edit Fields1\nconst rawText = $input.item.json['rawAIText'];\n\nconst cleanedText = rawText\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleanedText);\n} catch(e) {\n  parsed = {\n    score: \"Warm\",\n    confidence: \"Low\",\n    reason: \"Could not parse AI response\",\n    recommended_action: \"Follow up within 24 hours\",\n    budget_assessment: \"Unknown\",\n    urgency: \"Medium\"\n  };\n}\n\nconst score = parsed['score'] || 'Warm';\n\nlet scoreEmoji;\nlet borderColor;\nlet emailPrefix;\nlet followUpTime;\n\nif (score === 'Hot') {\n  scoreEmoji = '🔥';\n  borderColor = '#e74c3c';\n  emailPrefix = '🔥 HOT LEAD';\n  followUpTime = 'Call within 2 hours';\n} else if (score === 'Warm') {\n  scoreEmoji = '🌤️';\n  borderColor = '#f39c12';\n  emailPrefix = '🌤️ WARM LEAD';\n  followUpTime = 'Follow up within 24 hours';\n} else {\n  scoreEmoji = '❄️';\n  borderColor = '#3498db';\n  emailPrefix = '❄️ COLD LEAD';\n  followUpTime = 'Add to newsletter list';\n}\n\nreturn {\n  fullName: fullName,\n  businessName: businessName,\n  email: email,\n  phone: phone,\n  revenue: revenue,\n  challenge: challenge,\n  budget: budget,\n  situation: situation,\n  score: score,\n  scoreEmoji: scoreEmoji,\n  borderColor: borderColor,\n  emailPrefix: emailPrefix,\n  followUpTime: followUpTime,\n  confidence: parsed['confidence'] || 'Medium',\n  reason: parsed['reason'] || 'No reason provided',\n  recommendedAction: parsed['recommended_action'] || 'Follow up',\n  budgetAssessment: parsed['budget_assessment'] || 'Unknown',\n  urgency: parsed['urgency'] || 'Medium',\n  submittedAt: new Date().toLocaleString('en-ZA', { timeZone: 'Africa/Johannesburg' })\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        0
+      ],
+      "id": "9e591907-c043-4438-95f6-c3450741e186",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0ce4fa8c-155a-4f62-b244-91cb4a23969d",
+              "leftValue": "={{ $json['score'] }}",
+              "rightValue": "=Hot",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1264,
+        0
+      ],
+      "id": "54a010b0-6d4d-42b1-ac94-60b583478532",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json['email'] }}",
+        "subject": "=Got your enquiry — let's get you results",
+        "message": "=<div style=\"font-family: 'Figtree', Arial, sans-serif; max-width: 580px; margin: 0 auto; background: #09080c; color: #e8eaf0; border-radius: 16px; overflow: hidden;\">\n\n  <div style=\"background: #c8ff00; padding: 28px 40px;\">\n    <div style=\"font-family: Arial, sans-serif; font-size: 22px; font-weight: 900; letter-spacing: 4px; color: #09080c;\">NSM</div>\n    <div style=\"font-size: 11px; letter-spacing: 2px; color: #09080c; opacity: 0.6; margin-top: 4px;\">AI AUTOMATION PLATFORM</div>\n  </div>\n\n  <div style=\"padding: 40px;\">\n\n    <p style=\"font-size: 16px; color: #e8eaf0; margin-bottom: 20px;\">\n      Hey {{ $('Code in JavaScript').item.json['fullName'] }},\n    </p>\n\n    <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 20px;\">\n      Thanks for reaching out — I got your enquiry.\n    </p>\n\n    <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 20px;\">\n      I'll keep this short: most SA businesses lose leads because they reply too slowly. What we built at NSM fixes that from day one.\n    </p>\n\n    <div style=\"background: #141420; border-left: 3px solid #c8ff00; border-radius: 8px; padding: 20px 24px; margin-bottom: 24px;\">\n      <p style=\"font-size: 15px; color: #e8eaf0; margin: 0; line-height: 1.7;\">\n        Before your demo, think about this one thing:<br><br>\n        <strong style=\"color: #c8ff00;\">How many customers did you lose this month because no one replied in time?</strong>\n      </p>\n    </div>\n\n    <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 28px;\">\n      On the call I'll show you exactly how we can automate your replies, protect your reviews, and help you win back hours every week.\n    </p>\n\n    <div style=\"text-align: center; margin-bottom: 32px;\">\n      <a href=\"https://calendly.com/ndumisoseth12/30min\" style=\"display: inline-block; background: #c8ff00; color: #09080c; font-weight: 700; font-size: 13px; letter-spacing: 2px; padding: 16px 36px; border-radius: 10px; text-decoration: none;\">\n        BOOK YOUR DEMO SLOT →\n      </a>\n    </div>\n\n    <p style=\"font-size: 14px; color: #8a8aaa; line-height: 1.6; margin-bottom: 8px;\">\n      It's quick. It's simple. And it can change your business fast.\n    </p>\n\n    <p style=\"font-size: 14px; color: #8a8aaa; margin-top: 24px;\">\n      Chat soon,<br>\n      <strong style=\"color: #e8eaf0;\">Seth</strong><br>\n      <span style=\"font-size: 12px; color: #5a5a7a;\">NSM</span>\n    </p>\n\n  </div>\n\n  <div style=\"padding: 16px 40px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center;\">\n    <p style=\"font-size: 10px; color: #3a3a5a; letter-spacing: 1px; margin: 0;\">\n      NSM // AI AUTOMATION // SOUTH AFRICA\n    </p>\n  </div>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1456,
+        -96
+      ],
+      "id": "cbfecd47-ed68-4a97-a0bf-cb6c8da84584",
+      "name": "Send a message",
+      "webhookId": "2f6b449c-3293-4a4b-af24-c7e6b644ed21",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1sQwMo9My0j1FKOM7G0E_2FAWtxYOMNrrc2k-W6DU2M8/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sQwMo9My0j1FKOM7G0E_2FAWtxYOMNrrc2k-W6DU2M8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $('Code in JavaScript').item.json['submittedAt'] }}",
+            "Full Name": "={{ $('Code in JavaScript').item.json['fullName'] }}",
+            "Business": "={{ $('Code in JavaScript').item.json['businessName'] }}",
+            "Email": "={{ $('Code in JavaScript').item.json['email'] }}",
+            "Phone": "={{ $('Code in JavaScript').item.json['phone'] }}",
+            "Revenue": "={{ $('Code in JavaScript').item.json['revenue'] }}",
+            "Budget": "={{ $('Code in JavaScript').item.json['budget'] }}",
+            "Score": "={{ $('Code in JavaScript').item.json['score'] }}",
+            "Reason": "={{ $('Code in JavaScript').item.json['reason'] }}",
+            "Follow Up": "={{ $('Code in JavaScript').item.json['followUpTime'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business",
+              "displayName": "Business",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Revenue",
+              "displayName": "Revenue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Budget",
+              "displayName": "Budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reason",
+              "displayName": "Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Follow Up",
+              "displayName": "Follow Up",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3344,
+        -96
+      ],
+      "id": "a468b562-a8a0-46d4-89cd-c041d7ed5263",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1sQwMo9My0j1FKOM7G0E_2FAWtxYOMNrrc2k-W6DU2M8/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sQwMo9My0j1FKOM7G0E_2FAWtxYOMNrrc2k-W6DU2M8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $('Code in JavaScript').item.json['submittedAt'] }}",
+            "Full Name": "={{ $('Code in JavaScript').item.json['fullName'] }}",
+            "Business": "={{ $('Code in JavaScript').item.json['businessName'] }}",
+            "Email": "={{ $('Code in JavaScript').item.json['email'] }}",
+            "Phone": "={{ $('Code in JavaScript').item.json['phone'] }}",
+            "Revenue": "={{ $('Code in JavaScript').item.json['revenue'] }}",
+            "Budget": "={{ $('Code in JavaScript').item.json['budget'] }}",
+            "Score": "={{ $('Code in JavaScript').item.json['score'] }}",
+            "Reason": "={{ $('Code in JavaScript').item.json['reason'] }}",
+            "Follow Up": "={{ $('Code in JavaScript').item.json['followUpTime'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business",
+              "displayName": "Business",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Revenue",
+              "displayName": "Revenue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Budget",
+              "displayName": "Budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reason",
+              "displayName": "Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Follow Up",
+              "displayName": "Follow Up",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1792,
+        144
+      ],
+      "id": "3fb4345f-8c09-48cf-98cb-674afc9c21a1",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Lead sequence complete\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3648,
+        -96
+      ],
+      "id": "ab9432c1-fc37-431a-8f04-efc149317ae1",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Lead sequence complete\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2112,
+        144
+      ],
+      "id": "177770f3-89eb-4443-abd0-e6e54b01fc96",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=Lead Details\n\nName: {{ $node['Code in JavaScript'].json['fullName'] }}\nBusiness: {{ $node['Code in JavaScript'].json['businessName'] }}\nEmail: {{ $node['Code in JavaScript'].json['email'] }}\nPhone: {{ $node['Code in JavaScript'].json['phone'] }}\nRevenue: {{ $node['Code in JavaScript'].json['revenue'] }}\nBudget: {{ $node['Code in JavaScript'].json['budget'] }}\nChallenge: {{ $node['Code in JavaScript'].json['challenge'] }}\nSituation: {{ $node['Code in JavaScript'].json['situation'] }}\nTime: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3488,
+        -96
+      ],
+      "id": "4aea1b16-fc6f-47e6-bc0c-ab4545f02afd",
+      "name": "Send a text message",
+      "webhookId": "c6b621a3-0624-4f6e-a282-4fa52ac78fc1",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=Lead Details\n\nName: {{ $node['Code in JavaScript'].json['fullName'] }}\nBusiness: {{ $node['Code in JavaScript'].json['businessName'] }}\nEmail: {{ $node['Code in JavaScript'].json['email'] }}\nPhone: {{ $node['Code in JavaScript'].json['phone'] }}\nRevenue: {{ $node['Code in JavaScript'].json['revenue'] }}\nBudget: {{ $node['Code in JavaScript'].json['budget'] }}\nChallenge: {{ $node['Code in JavaScript'].json['challenge'] }}\nSituation: {{ $node['Code in JavaScript'].json['situation'] }}\nTime: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1952,
+        144
+      ],
+      "id": "e5b3ac2a-02d6-4ff6-8836-8005f0587b91",
+      "name": "Send a text message1",
+      "webhookId": "c6b621a3-0624-4f6e-a282-4fa52ac78fc1",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1ca9a5bb-a662-4790-bf5f-27cfad6081f7",
+              "name": "fullName",
+              "value": "={{ $json['body']['fullName'] ?? 'Unknown' }}",
+              "type": "string"
+            },
+            {
+              "id": "36441f9a-fef4-474a-ad6d-29c2ce874068",
+              "name": "businessName",
+              "value": "={{ $json['body']['businessName'] ?? 'Unknown' }}",
+              "type": "string"
+            },
+            {
+              "id": "41c409e5-0d23-4839-8a99-8b97ccbff112",
+              "name": "email",
+              "value": "={{ $json['body']['email'] ?? 'unknown@email.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "49796855-b539-4d0a-be7b-bee16e3227e0",
+              "name": "phone",
+              "value": "={{ $json['body']['phone'] ?? 'Not provided' }}",
+              "type": "string"
+            },
+            {
+              "id": "c011b83c-0221-454e-87da-88d040f5efa1",
+              "name": "revenue",
+              "value": "={{ $json['body']['revenue'] ?? 'Not provided' }}",
+              "type": "string"
+            },
+            {
+              "id": "d9f15be9-d293-42a7-a811-c6f4aed55fe7",
+              "name": "challenge",
+              "value": "={{ $json['body']['challenge'] ?? 'Not provided' }}",
+              "type": "string"
+            },
+            {
+              "id": "1356774d-ddb3-469c-92e1-434d61a15199",
+              "name": "budget",
+              "value": "={{ $json['body']['budget'] ?? 'Not provided' }}",
+              "type": "string"
+            },
+            {
+              "id": "1918563c-1050-42eb-a9da-7136b4f916e6",
+              "name": "situation",
+              "value": "={{ $json['body']['situation'] ?? 'Not provided' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        0
+      ],
+      "id": "bd45b691-ecdd-4ab3-98c8-7df3ffca40df",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "77c7e35e-eb50-4821-b28f-866ac63f1a46",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        944,
+        0
+      ],
+      "id": "3db61e7c-d050-48c6-a889-e3baa5712b13",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=New Lead: {{ $('Code in JavaScript').item.json['emailPrefix'] }} — {{ $('Code in JavaScript').item.json['fullName'] }} from {{ $('Code in JavaScript').item.json['businessName'] }}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; padding: 20px; background: #f4f4f4;\">\n  <div style=\"background: {{ $('Code in JavaScript').item.json['borderColor'] }}; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;\">\n    <h1 style=\"color: white; margin: 0; font-size: 28px;\">\n      {{ $('Code in JavaScript').item.json['scoreEmoji'] }} {{ $('Code in JavaScript').item.json['emailPrefix'] }}\n    </h1>\n    <p style=\"color: white; margin: 8px 0 0 0; font-size: 16px;\">\n      {{ $('Code in JavaScript').item.json['followUpTime'] }}\n    </p>\n  </div>\n  <div style=\"background: white; padding: 25px; border-radius: 0 0 8px 8px;\">\n    <div style=\"border-left: 4px solid {{ $('Code in JavaScript').item.json['borderColor'] }}; padding: 15px; background: #f9f9f9; border-radius: 4px; margin-bottom: 20px;\">\n      <h3 style=\"margin: 0 0 12px 0;\">👤 Lead Details</h3>\n      <p><strong>Name:</strong> {{ $('Code in JavaScript').item.json['fullName'] }}</p>\n      <p><strong>Business:</strong> {{ $('Code in JavaScript').item.json['businessName'] }}</p>\n      <p><strong>Email:</strong> {{ $('Code in JavaScript').item.json['email'] }}</p>\n      <p><strong>Phone:</strong> {{ $('Code in JavaScript').item.json['phone'] }}</p>\n      <p><strong>Monthly Revenue:</strong> {{ $('Code in JavaScript').item.json['revenue'] }}</p>\n      <p><strong>Budget:</strong> {{ $('Code in JavaScript').item.json['budget'] }}</p>\n      <p><strong>Challenge:</strong> {{ $('Code in JavaScript').item.json['challenge'] }}</p>\n      <p><strong>Situation:</strong> {{ $('Code in JavaScript').item.json['situation'] }}</p>\n    </div>\n    <div style=\"border-left: 4px solid #2ecc71; padding: 15px; background: #eafaf1; border-radius: 4px; margin-bottom: 20px;\">\n      <h3 style=\"margin: 0 0 12px 0;\">🤖 AI Analysis</h3>\n      <p><strong>Lead Score:</strong> {{ $('Code in JavaScript').item.json['scoreEmoji'] }} {{ $('Code in JavaScript').item.json['score'] }}</p>\n      <p><strong>Confidence:</strong> {{ $('Code in JavaScript').item.json['confidence'] }}</p>\n      <p><strong>Reason:</strong> {{ $('Code in JavaScript').item.json['reason'] }}</p>\n      <p><strong>Budget Assessment:</strong> {{ $('Code in JavaScript').item.json['budgetAssessment'] }}</p>\n      <p><strong>Urgency:</strong> {{ $('Code in JavaScript').item.json['urgency'] }}</p>\n      <p><strong>Recommended Action:</strong> <strong>{{ $('Code in JavaScript').item.json['recommendedAction'] }}</strong></p>\n    </div>\n    <div style=\"text-align: center; padding-top: 15px; border-top: 1px solid #eee;\">\n      <p style=\"color: #aaa; font-size: 11px;\">Powered by Your AI Lead Qualifier</p>\n    </div>\n  </div>\n</div>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1488,
+        144
+      ],
+      "id": "ef3c2358-9bd9-4181-8d95-c5833b60c5e3",
+      "name": "Send a message1",
+      "webhookId": "2f6b449c-3293-4a4b-af24-c7e6b644ed21",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json['email'] }}",
+        "subject": "Quick follow-up — wanted to check in",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; background: #09080c; color: #e8eaf0; border-radius: 16px; overflow: hidden;\">\n\n  <div style=\"background: #c8ff00; padding: 28px 40px;\">\n    <div style=\"font-size: 22px; font-weight: 900; letter-spacing: 4px; color: #09080c;\">NSM</div>\n  </div>\n\n  <div style=\"padding: 40px;\">\n\n    <p style=\"font-size: 16px; color: #e8eaf0; margin-bottom: 20px;\">Hey,</p>\n\n    <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 20px;\">\n      Just bumping this up in your inbox.\n    </p>\n\n    <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 20px;\">\n      Most people enquire because they know they're losing leads or reviews… but then they get busy and forget to take the next step.\n    </p>\n\n    <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 8px;\">\n      Totally normal.\n    </p>\n\n    <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 28px;\">\n      If you're still looking to fix slow replies, missed leads or unanswered reviews — here's the link again to book your quick demo:\n    </p>\n\n    <div style=\"text-align: center; margin-bottom: 28px;\">\n      <a href=\"https://calendly.com/ndumisoseth12/30min\" style=\"display: inline-block; background: #c8ff00; color: #09080c; font-weight: 700; font-size: 13px; letter-spacing: 2px; padding: 16px 36px; border-radius: 10px; text-decoration: none;\">\n        BOOK YOUR DEMO →\n      </a>\n    </div>\n\n    <p style=\"font-size: 14px; color: #8a8aaa; line-height: 1.6;\">\n      If not, just reply <strong style=\"color: #e8eaf0;\">\"not now\"</strong> and I'll close it on my side.\n    </p>\n\n    <p style=\"font-size: 14px; color: #8a8aaa; margin-top: 24px;\">\n      Seth<br>\n      <span style=\"font-size: 12px; color: #5a5a7a;\">NSM</span>\n    </p>\n\n  </div>\n\n  <div style=\"padding: 16px 40px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center;\">\n    <p style=\"font-size: 10px; color: #3a3a5a; letter-spacing: 1px; margin: 0;\">NSM // AI AUTOMATION // SOUTH AFRICA</p>\n  </div>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1840,
+        -96
+      ],
+      "id": "5f3762b5-0003-4d50-87ad-1d4e69a1972e",
+      "name": "Send a message2",
+      "webhookId": "d96c7eec-5395-48e5-b1f7-a0befe949ab3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🔥 HOT LEAD ALERT!  Name: {{ $('Code in JavaScript').item.json['fullName'] }} Business: {{ $('Code in JavaScript').item.json['businessName'] }} Email: {{ $('Code in JavaScript').item.json['email'] }} Phone: {{ $('Code in JavaScript').item.json['phone'] }} Budget: {{ $('Code in JavaScript').item.json['budget'] }} Challenge: {{ $('Code in JavaScript').item.json['challenge'] }}  AI Reason: {{ $('Code in JavaScript').item.json['reason'] }}  📅 Book demo: https://calendly.com/ndumisoseth12/30min  ⚡ Call within 2 hours!",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2016,
+        -96
+      ],
+      "id": "68fa8bfb-61d7-4566-8f9a-b6e965066b39",
+      "name": "Send a text message2",
+      "webhookId": "e9f14364-539f-4b37-9cbc-4d93618d2053",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "days"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2192,
+        -96
+      ],
+      "id": "5f7be1f4-e7e1-403c-acb8-555dee5ca057",
+      "name": "Wait",
+      "webhookId": "109f9102-95a2-4f12-9459-8e5c2285ff10"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json['email'] }}",
+        "subject": "Before I archive this on my side…",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; background: #09080c; color: #e8eaf0; border-radius: 16px; overflow: hidden;\">\n\n  <div style=\"background: #c8ff00; padding: 28px 40px;\">\n    <div style=\"font-size: 22px; font-weight: 900; letter-spacing: 4px; color: #09080c;\">NSM</div>\n  </div>\n\n  <div style=\"padding: 40px;\">\n\n    <p style=\"font-size: 16px; color: #e8eaf0; margin-bottom: 20px;\">Hey,</p>\n\n    <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 20px;\">\n      This will be my last email unless you need help.\n    </p>\n\n    <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 20px;\">\n      I only follow up twice because most business owners already know if they want to improve their response times or not.\n    </p>\n\n    <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 28px;\">\n      If you still want the demo — here's the link:\n    </p>\n\n    <div style=\"text-align: center; margin-bottom: 28px;\">\n      <a href=\"https://calendly.com/ndumisoseth12/30min\" style=\"display: inline-block; background: #c8ff00; color: #09080c; font-weight: 700; font-size: 13px; letter-spacing: 2px; padding: 16px 36px; border-radius: 10px; text-decoration: none;\">\n        BOOK DEMO →\n      </a>\n    </div>\n\n    <p style=\"font-size: 14px; color: #8a8aaa; line-height: 1.6;\">\n      If now isn't the right time, no stress — you're welcome to reach out anytime.\n    </p>\n\n    <p style=\"font-size: 14px; color: #8a8aaa; margin-top: 24px;\">\n      All the best,<br>\n      <strong style=\"color: #e8eaf0;\">Seth</strong><br>\n      <span style=\"font-size: 12px; color: #5a5a7a;\">NSM</span>\n    </p>\n\n  </div>\n\n  <div style=\"padding: 16px 40px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center;\">\n    <p style=\"font-size: 10px; color: #3a3a5a; letter-spacing: 1px; margin: 0;\">NSM // AI AUTOMATION // SOUTH AFRICA</p>\n  </div>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2352,
+        -96
+      ],
+      "id": "2ba37cfb-1944-43f4-8148-ba5925301063",
+      "name": "Send a message3",
+      "webhookId": "3545d243-3eba-4d68-b031-89574685fa7b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "days"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2528,
+        -96
+      ],
+      "id": "f92a4c83-784f-471b-be0c-60be76510527",
+      "name": "Wait1",
+      "webhookId": "435d9f46-6ee9-4e31-9021-52a8b62c2b9a"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json['email'] }}",
+        "subject": "A quick way to save 5–10 hours a week",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; background: #09080c; color: #e8eaf0; border-radius: 16px; overflow: hidden;\">\n\n  <div style=\"background: #c8ff00; padding: 28px 40px;\">\n    <div style=\"font-size: 22px; font-weight: 900; letter-spacing: 4px; color: #09080c;\">NSM</div>\n  </div>\n\n  <div style=\"padding: 40px;\">\n\n    <p style=\"font-size: 16px; color: #e8eaf0; margin-bottom: 20px;\">\n      Hey {{ $('Code in JavaScript').item.json['fullName'] }},\n    </p>\n\n    <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 20px;\">\n      Thanks again for reaching out earlier.\n    </p>\n\n    <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 24px;\">\n      Most SA businesses don't need \"AI\".<br>\n      They just need faster replies, better reviews, and fewer admin headaches.\n    </p>\n\n    <div style=\"background: #141420; border-radius: 12px; padding: 24px; margin-bottom: 24px;\">\n      <p style=\"font-family: Arial, sans-serif; font-size: 10px; letter-spacing: 2px; color: #c8ff00; margin-bottom: 14px;\">HERE'S WHAT NSM ACTUALLY DOES</p>\n      <p style=\"font-size: 14px; color: #8a8aaa; margin: 8px 0; line-height: 1.6;\">✅ Replies to leads instantly</p>\n      <p style=\"font-size: 14px; color: #8a8aaa; margin: 8px 0; line-height: 1.6;\">✅ Handles Google reviews (good and bad)</p>\n      <p style=\"font-size: 14px; color: #8a8aaa; margin: 8px 0; line-height: 1.6;\">✅ Sorts customer queries automatically</p>\n      <p style=\"font-size: 14px; color: #8a8aaa; margin: 8px 0; line-height: 1.6;\">✅ Helps Airbnb hosts respond faster</p>\n    </div>\n\n    <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 28px;\">\n      And the big part — it saves <strong style=\"color: #e8eaf0;\">5–10 hours a week</strong> of manual work.\n    </p>\n\n    <div style=\"text-align: center; margin-bottom: 28px;\">\n      <a href=\"https://calendly.com/ndumisoseth12/30min\" style=\"display: inline-block; background: #c8ff00; color: #09080c; font-weight: 700; font-size: 13px; letter-spacing: 2px; padding: 16px 36px; border-radius: 10px; text-decoration: none;\">\n        BOOK A QUICK WALKTHROUGH →\n      </a>\n    </div>\n\n    <p style=\"font-size: 14px; color: #8a8aaa; margin-top: 24px;\">\n      Hope this helps,<br>\n      <strong style=\"color: #e8eaf0;\">Seth</strong><br>\n      <span style=\"font-size: 12px; color: #5a5a7a;\">NSM</span>\n    </p>\n\n  </div>\n\n  <div style=\"padding: 16px 40px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center;\">\n    <p style=\"font-size: 10px; color: #3a3a5a; letter-spacing: 1px; margin: 0;\">NSM // AI AUTOMATION // SOUTH AFRICA</p>\n  </div>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2688,
+        -96
+      ],
+      "id": "97940d15-f289-4f8b-96fd-90a650ef76e8",
+      "name": "Send a message4",
+      "webhookId": "06ecd765-1032-49c1-80cf-04087554d436",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "days"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2864,
+        -96
+      ],
+      "id": "61128d0f-a26a-43a4-af51-6203b1149ac3",
+      "name": "Wait2",
+      "webhookId": "00984fd8-802f-4620-adb9-d124ee0d9e29"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1sQwMo9My0j1FKOM7G0E_2FAWtxYOMNrrc2k-W6DU2M8/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sQwMo9My0j1FKOM7G0E_2FAWtxYOMNrrc2k-W6DU2M8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Code in JavaScript').item.json['email'] }}",
+            "Follow Up": "❌ No Response — Moved to Cold"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business",
+              "displayName": "Business",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Revenue",
+              "displayName": "Revenue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Budget",
+              "displayName": "Budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reason",
+              "displayName": "Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Follow Up",
+              "displayName": "Follow Up",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3024,
+        -96
+      ],
+      "id": "19be6d64-2d34-4e56-911c-ecb815a9d646",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=❄️ Lead moved to COLD  Name: {{ $('Code in JavaScript').item.json['fullName'] }} Business: {{ $('Code in JavaScript').item.json['businessName'] }} Email: {{ $('Code in JavaScript').item.json['email'] }}  No response after 3 follow ups. Added to cold list automatically.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3184,
+        -96
+      ],
+      "id": "b65c6d2b-bbbf-4c5d-a69a-196908bc14ef",
+      "name": "Send a text message3",
+      "webhookId": "f2d9c101-d7fd-4cad-bc64-6c5a0b2a0288",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json['email'] }}",
+        "subject": "Thanks for your enquiry — NSM",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; background: #09080c; color: #e8eaf0; border-radius: 16px; overflow: hidden;\">   <div style=\"background: #ff9500; padding: 28px 40px;\">     <div style=\"font-size: 24px; letter-spacing: 4px; color: #09080c; font-weight: 900;\">NSM</div>   </div>   <div style=\"padding: 40px;\">     <h2 style=\"font-size: 20px; font-weight: 600; margin-bottom: 16px;\">Hi {{ $('Code in JavaScript').item.json['fullName'] }},</h2>     <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 24px;\">       Thanks for reaching out to NSM. We have received your enquiry about <strong style=\"color:#e8eaf0;\">{{ $('Code in JavaScript').item.json['businessName'] }}</strong> and will be in touch shortly.     </p>     <p style=\"font-size: 15px; color: #8a8aaa; line-height: 1.7; margin-bottom: 28px;\">       In the meantime feel free to book a free 15 minute demo to see exactly how our AI automation tools work.     </p>     <div style=\"text-align: center; margin-bottom: 28px;\">       <a href=\"https://calendly.com/ndumisoseth12/30min\" style=\"display: inline-block; background: #ff9500; color: #09080c; font-weight: 700; font-size: 13px; letter-spacing: 2px; padding: 15px 32px; border-radius: 10px; text-decoration: none;\">BOOK FREE DEMO →</a>     </div>     <p style=\"font-size: 13px; color: #5a5a7a;\">— NSM Team</p>   </div>   <div style=\"padding: 20px 40px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center;\">     <p style=\"font-size: 11px; color: #3a3a5a; letter-spacing: 1px;\">NSM // AI AUTOMATION // SOUTH AFRICA</p>   </div> </div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1648,
+        144
+      ],
+      "id": "e6c10aa2-9430-4057-b1ea-42624fc77a46",
+      "name": "Send a message5",
+      "webhookId": "1b317ec8-9a4b-4f1b-9492-a69b2297b7c1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n-production-71d9.up.railway.app/webhook/proposal",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"leadName\":        \"{{ $('Edit Fields').item.json['fullName'] }}\",\n  \"businessName\":    \"{{ $('Edit Fields').item.json['businessName'] }}\",\n  \"email\":           \"{{ $('Edit Fields').item.json['email'] }}\",\n  \"phone\":           \"{{ $('Edit Fields').item.json['phone'] }}\",\n  \"challenge\":       \"{{ $('Edit Fields').item.json['challenge'] }}\",\n  \"recommendedBot\":  \"Review Responder\",\n  \"recommendedPlan\": \"The Operator\",\n  \"setupFee\":        \"4500\",\n  \"monthlyFee\":      \"3000\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1664,
+        -96
+      ],
+      "id": "d2a604a3-2562-4f09-a27e-08c0aaa84d18",
+      "name": "HTTP Request1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Send a message5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message2": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message3": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Send a message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message4": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message3": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message5": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "timezone": "Africa/Johannesburg",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "5febab48-9c99-4b12-886f-6479557c8453",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "UoSbaxUdIIWBc3P1",
+  "tags": []
+}

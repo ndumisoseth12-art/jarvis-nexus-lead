@@ -1,0 +1,1420 @@
+{
+  "name": "B11 Review Pro",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "review-responder",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1536,
+        64
+      ],
+      "id": "c0ee23cc-ca1a-47d9-80cb-b8312baad81a",
+      "name": "Webhook — E-Commerce Review",
+      "webhookId": "b11-ecom-review"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-ec-1",
+              "name": "channel",
+              "value": "ecommerce",
+              "type": "string"
+            },
+            {
+              "id": "ef-ec-2",
+              "name": "businessName",
+              "value": "={{ $json['body']['businessName'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Business Name?')?.['value'] ?? 'Unknown Business' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-ec-3",
+              "name": "reviewerName",
+              "value": "={{ $json['body']['reviewerName'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Reviewer Name')?.['value'] ?? 'Anonymous' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-ec-4",
+              "name": "starRating",
+              "value": "={{ $json['body']['starRating'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Star Rating (1-5)')?.['value'] ?? 5 }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-ec-5",
+              "name": "reviewText",
+              "value": "={{ $json['body']['reviewText'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Past Review Here')?.['value'] ?? 'No review text' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-ec-6",
+              "name": "ownerEmail",
+              "value": "={{ $json['body']['ownerEmail'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Your Email Address')?.['value'] ?? 'ndumisoseth12@gmail.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-ec-7",
+              "name": "context",
+              "value": "ecommerce",
+              "type": "string"
+            },
+            {
+              "id": "ef-ec-8",
+              "name": "tone",
+              "value": "={{ $json['body']['tone'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Brand Tone')?.['value'] ?? '' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-ec-9",
+              "name": "source",
+              "value": "={{ $json['body']['source'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Review Source')?.['value'] ?? 'unknown' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1328,
+        64
+      ],
+      "id": "b20a7107-428e-4754-b9a5-36de3dc4f1ef",
+      "name": "Edit Fields — E-Commerce"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "airbnb-review-responder",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1536,
+        464
+      ],
+      "id": "93fdab5c-e367-4a5d-89ff-3cfc9814e72f",
+      "name": "Webhook — Airbnb Review",
+      "webhookId": "b11-airbnb-review"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-ai-1",
+              "name": "channel",
+              "value": "airbnb",
+              "type": "string"
+            },
+            {
+              "id": "ef-ai-2",
+              "name": "propertyName",
+              "value": "={{ $json['body']['propertyName'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Property Name')?.['value'] ?? 'Unknown Property' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-ai-3",
+              "name": "guestName",
+              "value": "={{ $json['body']['guestName'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Guest Name')?.['value'] ?? 'Anonymous' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-ai-4",
+              "name": "starRating",
+              "value": "={{ $json['body']['starRating'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Star Rating (1-5)')?.['value'] ?? 5 }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-ai-5",
+              "name": "reviewCategory",
+              "value": "={{ $json['body']['reviewCategory'] ?? 'General' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-ai-6",
+              "name": "reviewText",
+              "value": "={{ $json['body']['reviewText'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Guest Review')?.['value'] ?? 'No review text' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-ai-7",
+              "name": "ownerEmail",
+              "value": "={{ $json['body']['ownerEmail'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Your Email Address')?.['value'] ?? 'ndumisoseth12@gmail.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-ai-8",
+              "name": "context",
+              "value": "airbnb",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1328,
+        464
+      ],
+      "id": "dad7672d-c8c1-4385-850f-f592f282d57d",
+      "name": "Edit Fields — Airbnb"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert review-response writer for South African businesses. Read the customer review and craft a professional, on-brand reply.\\n\\n1. TONE OVERRIDE: If a 'Requested Tone' is provided in the user message and is not 'auto' or empty, use it instead of the rating-based default. Map: warm = friendly, casual, human; professional = calm, polished, neutral; quirky = playful, light, personable; apologetic = sincere, takes ownership.\\n\\n2. TONE (used when Requested Tone is 'auto' or empty): Match the rating. 5 stars = warm gratitude. 4 stars = thankful with light acknowledgement. 3 stars = balanced and curious. 2 stars = apologetic and solution-focused. 1 star = sincerely apologetic, take it offline.\\n\\n3. PRIORITY: 1-2 stars = High (owner must follow up directly). 3 stars = Medium. 4-5 stars = Low.\\n\\n4. RESPONSE RULES: Address by first name. Acknowledge the specific point they raised. Never generic. Sign with the business name. Under 80 words. Plain text. South African English. If a 'Source' is provided (e.g. google, hello-peter, facebook, airbnb), tailor the response to read naturally on that platform.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"response\\\": \\\"...\\\", \\\"tone\\\": \\\"Warm\\\", \\\"priority\\\": \\\"Low\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Channel: {{ $json['channel'] }}\\nBusiness/Property: {{ $json['businessName'] ?? $json['propertyName'] }}\\nReviewer: {{ $json['reviewerName'] ?? $json['guestName'] }}\\nStar Rating: {{ $json['starRating'] }}\\nSource: {{ $json['source'] || 'unknown' }}\\nRequested Tone: {{ $json['tone'] || 'auto' }}\\nReview: {{ $json['reviewText'] }}\"\n    }\n  ],\n  \"temperature\": 0.5,\n  \"max_tokens\": 400\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1104,
+        272
+      ],
+      "id": "0f5c2791-3207-4ce7-8661-82451507a4e5",
+      "name": "Groq — Response Writer",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef1-1",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -880,
+        272
+      ],
+      "id": "9597946c-372a-45f8-bd61-81838b4e5d3f",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptVersion = 'b11-response-v1';\n// B11 Review Pro — Parser\nconst rawText = $input.item.json['rawAIText'] || '';\n\n// Edit Fields1 (Set v3.4, options:{}) drops upstream fields — re-fetch from whichever Edit Fields node fired\nfunction getUpstream(name) {\n  try { return $(name).item.json; } catch (e) { return null; }\n}\nconst ec = getUpstream('Edit Fields — E-Commerce');\nconst ai = getUpstream('Edit Fields — Airbnb');\nconst src = ec || ai || {};\n\nconst cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\nlet parsed;\ntry { parsed = JSON.parse(cleaned); }\ncatch (e) {\n  const m = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) { parsed = null; } }\n}\n\nconst rating = parseInt(src['starRating']) || 5;\nlet defaultPriority = 'Low';\nif (rating <= 2) defaultPriority = 'High';\nelse if (rating === 3) defaultPriority = 'Medium';\n\nif (!parsed || !parsed['response']) {\n  parsed = {\n    response: 'Thank you for your feedback. We appreciate you taking the time to share your experience and will be in touch.',\n    tone: 'Fallback',\n    priority: defaultPriority\n  };\n}\nconst parseSuccess = parsed['tone'] !== 'Fallback';\n\nconst priority = parsed['priority'] || defaultPriority;\nconst priorityColor = priority === 'High' ? '#f43f5e' : (priority === 'Medium' ? '#f59e0b' : '#10b981');\nconst priorityEmoji = priority === 'High' ? '🚨' : (priority === 'Medium' ? '⚠️' : '✅');\n\nconst stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);\n\nreturn {\n  channel: src['channel'] || 'unknown',\n  businessName: src['businessName'] || src['propertyName'] || 'Unknown',\n  propertyName: src['propertyName'] || '',\n  reviewerName: src['reviewerName'] || '',\n  guestName: src['guestName'] || '',\n  reviewText: src['reviewText'] || '',\n  ownerEmail: src['ownerEmail'] || 'ndumisoseth12@gmail.com',\n  starRating: src['starRating'] || rating,\n  source: src['source'] || 'unknown',\n  requestedTone: src['tone'] || '',\n  context: src['context'] || '',\n  promptVersion,\n  aiResponse: parsed['response'],\n  tone: parsed['tone'] || 'Warm',\n  priority,\n  priorityColor,\n  priorityEmoji,\n  stars,\n  rating,\n  parseSuccess,\n  loggedAt: $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss'),\n  loggedAtSAST: $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss')\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -656,
+        272
+      ],
+      "id": "69b8ba31-467b-4601-ace7-b5473dcbbfa6",
+      "name": "Code — Parse Response"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-parse-001",
+              "leftValue": "={{ $json['parseSuccess'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -448,
+        272
+      ],
+      "id": "f9320991-215a-41c6-99e7-fa82b3da2543",
+      "name": "If — Parse OK"
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ B11 PARSE FALLBACK\n\nChannel: {{ $('Code — Parse Response').item.json['channel'] }}\nReviewer: {{ $('Code — Parse Response').item.json['reviewerName'] ?? $('Code — Parse Response').item.json['guestName'] }}\nRating: {{ $('Code — Parse Response').item.json['starRating'] }}\n\nFallback used. Time: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}\\n\\n_Prompt: {{ $('Code — Parse Response').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -224,
+        464
+      ],
+      "id": "b7ed2e26-a0a8-4a21-ad1f-4fe3a77a2b40",
+      "name": "Telegram — Parse Fallback",
+      "webhookId": "tg-b11-fallback",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "sw-ec",
+                    "leftValue": "={{ $json['channel'] }}",
+                    "rightValue": "ecommerce",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "E-Commerce"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "sw-ai",
+                    "leftValue": "={{ $json['channel'] }}",
+                    "rightValue": "airbnb",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Airbnb"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -224,
+        160
+      ],
+      "id": "f65810c3-5c28-40b0-ba18-577693ce659a",
+      "name": "Switch — Channel"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1uzMTxVilA8LXhd_TnT_IY52j_PA4XaiEqfZkzuRssXM/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uzMTxVilA8LXhd_TnT_IY52j_PA4XaiEqfZkzuRssXM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $('Code — Parse Response').item.json['loggedAt'] }}",
+            "Business Name": "={{ $('Code — Parse Response').item.json['businessName'] }}",
+            "Reviewer Name": "={{ $('Code — Parse Response').item.json['reviewerName'] }}",
+            "Star Rating": "={{ $('Code — Parse Response').item.json['starRating'] }}",
+            "Review Text": "={{ $('Code — Parse Response').item.json['reviewText'] }}",
+            "AI Response": "={{ $('Code — Parse Response').item.json['aiResponse'] }}",
+            "Tone": "={{ $('Code — Parse Response').item.json['tone'] }}",
+            "Priority": "={{ $('Code — Parse Response').item.json['priority'] }}",
+            "Prompt Version": "={{ $('Code — Parse Response').item.json['promptVersion'] }}",
+            "Parse Success": "={{ $('Code — Parse Response').item.json['parseSuccess'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business Name",
+              "displayName": "Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reviewer Name",
+              "displayName": "Reviewer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Star Rating",
+              "displayName": "Star Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Review Text",
+              "displayName": "Review Text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Response",
+              "displayName": "AI Response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tone",
+              "displayName": "Tone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prompt Version",
+              "displayName": "Prompt Version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Parse Success",
+              "displayName": "Parse Success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a4cb3cf7-a943-4d79-af1a-d7297d3e5aa4",
+      "name": "Sheets — Log E-Commerce",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1Jan4h5MtffGQ6al3tgCxBPURWiFGXo-WG_lKqTc5D0Y/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Jan4h5MtffGQ6al3tgCxBPURWiFGXo-WG_lKqTc5D0Y/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $('Code — Parse Response').item.json['loggedAt'] }}",
+            "Property": "={{ $('Code — Parse Response').item.json['propertyName'] }}",
+            "Guest": "={{ $('Code — Parse Response').item.json['guestName'] }}",
+            "Rating": "={{ $('Code — Parse Response').item.json['starRating'] }}",
+            "Category": "={{ $('Code — Parse Response').item.json['reviewCategory'] }}",
+            "Review": "={{ $('Code — Parse Response').item.json['reviewText'] }}",
+            "AI Response": "={{ $('Code — Parse Response').item.json['aiResponse'] }}",
+            "Tone": "={{ $('Code — Parse Response').item.json['tone'] }}",
+            "Priority": "={{ $('Code — Parse Response').item.json['priority'] }}",
+            "Prompt Version": "={{ $('Code — Parse Response').item.json['promptVersion'] }}",
+            "Parse Success": "={{ $('Code — Parse Response').item.json['parseSuccess'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Property",
+              "displayName": "Property",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Guest",
+              "displayName": "Guest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rating",
+              "displayName": "Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Review",
+              "displayName": "Review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Response",
+              "displayName": "AI Response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tone",
+              "displayName": "Tone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prompt Version",
+              "displayName": "Prompt Version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Parse Success",
+              "displayName": "Parse Success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        0,
+        304
+      ],
+      "id": "d5b85bbd-a0d8-48b3-968d-f07d61c9f494",
+      "name": "Sheets — Log Airbnb",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Parse Response').item.json['ownerEmail'] }}",
+        "subject": "={{ $('Code — Parse Response').item.json['priorityEmoji'] }} {{ $('Code — Parse Response').item.json['rating'] }}★ Review — {{ $('Code — Parse Response').item.json['businessName'] ?? $('Code — Parse Response').item.json['propertyName'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:620px;margin:0 auto;padding:20px;background:#f4f4f4;\">\n  <div style=\"background:{{ $('Code — Parse Response').item.json['priorityColor'] }};padding:20px;border-radius:8px 8px 0 0;text-align:center;\">\n    <h1 style=\"color:white;margin:0;font-size:22px;\">{{ $('Code — Parse Response').item.json['priorityEmoji'] }} New {{ $('Code — Parse Response').item.json['rating'] }}-Star Review</h1>\n    <p style=\"color:white;margin:8px 0 0 0;font-size:13px;letter-spacing:1px;\">{{ $('Code — Parse Response').item.json['stars'] }} · {{ $('Code — Parse Response').item.json['priority'] }} priority · {{ $('Code — Parse Response').item.json['channel'] === 'airbnb' ? 'Airbnb' : 'E-Commerce' }}</p>\n  </div>\n  <div style=\"background:white;padding:25px;border-radius:0 0 8px 8px;\">\n    <div style=\"border-left:4px solid {{ $('Code — Parse Response').item.json['priorityColor'] }};padding:15px;background:#f9f9f9;border-radius:4px;margin-bottom:20px;\">\n      <h3 style=\"margin:0 0 12px 0;\">👤 Reviewer</h3>\n      <p style=\"margin:4px 0;\"><strong>Name:</strong> {{ $('Code — Parse Response').item.json['reviewerName'] ?? $('Code — Parse Response').item.json['guestName'] }}</p>\n      <p style=\"margin:4px 0;\"><strong>Business:</strong> {{ $('Code — Parse Response').item.json['businessName'] ?? $('Code — Parse Response').item.json['propertyName'] }}</p>\n      <p style=\"margin:4px 0;\"><strong>Rating:</strong> {{ $('Code — Parse Response').item.json['stars'] }}</p>\n    </div>\n    <div style=\"background:#fafafa;padding:15px;border-radius:4px;margin-bottom:20px;\">\n      <h3 style=\"margin:0 0 12px 0;\">💬 Their review</h3>\n      <p style=\"margin:0;color:#333;font-style:italic;line-height:1.6;\">\"{{ $('Code — Parse Response').item.json['reviewText'] }}\"</p>\n    </div>\n    <div style=\"background:#fff7ed;border:1px solid #fed7aa;padding:18px;border-radius:6px;\">\n      <h3 style=\"margin:0 0 10px 0;color:#92400e;\">✍️ AI-drafted reply ({{ $('Code — Parse Response').item.json['tone'] }} tone)</h3>\n      <p style=\"margin:0;color:#333;line-height:1.7;white-space:pre-wrap;\">{{ $('Code — Parse Response').item.json['aiResponse'] }}</p>\n    </div>\n  </div>\n  <p style=\"text-align:center;color:#999;font-size:11px;letter-spacing:1px;margin-top:14px;\">NSM · B11 REVIEW PRO</p>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        160
+      ],
+      "id": "f53f5f69-cb53-44dd-97d4-43edb7eae537",
+      "name": "Gmail — Owner Brief",
+      "webhookId": "gmail-b11-owner",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "={{ $('Code — Parse Response').item.json['priorityEmoji'] }} REVIEW PRO — {{ $('Code — Parse Response').item.json['rating'] }}★\n\n📍 {{ $('Code — Parse Response').item.json['channel'] === 'airbnb' ? 'Airbnb' : 'E-Commerce' }}\n👤 {{ $('Code — Parse Response').item.json['reviewerName'] ?? $('Code — Parse Response').item.json['guestName'] }}\n🏢 {{ $('Code — Parse Response').item.json['businessName'] ?? $('Code — Parse Response').item.json['propertyName'] }}\n{{ $('Code — Parse Response').item.json['stars'] }}\n\n💬 \"{{ $('Code — Parse Response').item.json['reviewText'] }}\"\n\n🎯 Priority: {{ $('Code — Parse Response').item.json['priority'] }}\n💡 Reply drafted ({{ $('Code — Parse Response').item.json['tone'] }} tone) — check email.\\n\\n_Prompt: {{ $('Code — Parse Response').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        160
+      ],
+      "id": "596e707f-c4b6-45af-8e37-0b7403f388db",
+      "name": "Telegram — Owner Alert",
+      "webhookId": "tg-b11-resp",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"channel\": \"={{ $('Code — Parse Response').item.json['channel'] }}\",\n  \"priority\": \"={{ $('Code — Parse Response').item.json['priority'] }}\",\n  \"message\": \"Review processed and reply drafted\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        160
+      ],
+      "id": "c4cc5d40-1b23-4063-89d3-299700c6427f",
+      "name": "Respond — Drafted"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "review-request",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1536,
+        832
+      ],
+      "id": "44beff9e-59be-4484-956c-84d387319dbb",
+      "name": "Webhook — Review Request",
+      "webhookId": "b11-review-request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-rq-1",
+              "name": "clientName",
+              "value": "={{ $json['body']['clientName'] ?? 'Unknown' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-rq-2",
+              "name": "businessName",
+              "value": "={{ $json['body']['businessName'] ?? 'Your Business' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-rq-3",
+              "name": "customerName",
+              "value": "={{ $json['body']['customerName'] ?? 'Customer' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-rq-4",
+              "name": "customerEmail",
+              "value": "={{ $json['body']['customerEmail'] ?? 'unknown@email.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-rq-5",
+              "name": "platform",
+              "value": "={{ $json['body']['platform'] ?? 'Google' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-rq-6",
+              "name": "googleLink",
+              "value": "={{ $json['body']['googleLink'] ?? '#' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-rq-7",
+              "name": "dateSent",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-rq-8",
+              "name": "firstName",
+              "value": "={{ ($json['body']['customerName'] ?? 'there').split(' ')[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1328,
+        752
+      ],
+      "id": "2776e94d-2057-4827-bacc-49d1acf088b2",
+      "name": "Edit Fields — Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You write warm, personal review-request emails for South African businesses. The customer just had a positive experience and you want to ask for a public review. Rules:\\n\\n1. Address by FIRST NAME ONLY.\\n2. Reference the business by name.\\n3. Tone: warm, grateful, genuine — never desperate or transactional.\\n4. Make the ask once, clearly. Don't beg.\\n5. Mention the platform naturally.\\n6. Sign with the client's name (the business owner).\\n7. Under 90 words. Plain text. South African English.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"subject\\\": \\\"short subject under 10 words\\\", \\\"body\\\": \\\"the email body\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Customer First Name: {{ $('Edit Fields — Request').item.json['firstName'] }}\\nBusiness Name: {{ $('Edit Fields — Request').item.json['businessName'] }}\\nClient Name (signs the email): {{ $('Edit Fields — Request').item.json['clientName'] }}\\nPlatform: {{ $('Edit Fields — Request').item.json['platform'] }}\"\n    }\n  ],\n  \"temperature\": 0.5,\n  \"max_tokens\": 350\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1120,
+        848
+      ],
+      "id": "f48fbddb-4934-432f-94a8-bdd7e3e1d3d2",
+      "name": "Groq — Request Writer",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef1-rq-1",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -896,
+        944
+      ],
+      "id": "97921c02-2893-4ffb-a6b0-9eee994391b8",
+      "name": "Edit Fields1 — Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptVersion = 'b11-request-v1';\n// B11 Review Request — Parser\nconst rawText = $input.item.json['rawAIText'] || '';\nconst d = $('Edit Fields — Request').item.json;\nconst cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\nlet parsed;\ntry { parsed = JSON.parse(cleaned); }\ncatch (e) {\n  const m = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) { parsed = null; } }\n}\nconst aiSucceeded = !!(parsed && parsed['body'] && parsed['subject']);\nif (!aiSucceeded) {\n  parsed = {\n    subject: 'Quick favour from ' + d['businessName'],\n    body: 'Hi ' + d['firstName'] + ', thank you for choosing ' + d['businessName'] + '. If you have a moment, we would really appreciate a quick review on ' + d['platform'] + '. It helps us a lot. Thanks again, ' + d['clientName']\n  };\n}\nreturn { ...d, promptVersion, subject: parsed['subject'], body: parsed['body'], parseSuccess: aiSucceeded };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -688,
+        848
+      ],
+      "id": "b4abfebe-abc0-4ced-9720-50bf8f0e6488",
+      "name": "Code — Parse Request"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Parse Request').item.json['customerEmail'] }}",
+        "subject": "={{ $('Code — Parse Request').item.json['subject'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">{{ $('Code — Parse Request').item.json['businessName'] }}</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;white-space:pre-wrap;\">{{ $('Code — Parse Request').item.json['body'] }}</div>\n  <div style=\"text-align:center;margin-bottom:28px;\">\n    <a href=\"{{ $('Code — Parse Request').item.json['googleLink'] }}\" style=\"display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#818cf8,#6366f1);color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;\">Leave a {{ $('Code — Parse Request').item.json['platform'] }} review →</a>\n  </div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;\">Sent on behalf of {{ $('Code — Parse Request').item.json['businessName'] }} · Powered by NSM</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -464,
+        944
+      ],
+      "id": "4c1d417c-b45c-4005-b446-4789de0c59dd",
+      "name": "Gmail — Review Request",
+      "webhookId": "gmail-b11-req",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1sHKbBLGNdJ2X4Iy4jcii1VyMNVCVfgkIpx2KVuBIDsM/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sHKbBLGNdJ2X4Iy4jcii1VyMNVCVfgkIpx2KVuBIDsM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date Sent": "={{ $('Code — Parse Request').item.json['dateSent'] }}",
+            "Client Name": "={{ $('Code — Parse Request').item.json['clientName'] }}",
+            "Business Name": "={{ $('Code — Parse Request').item.json['businessName'] }}",
+            "Customer Name": "={{ $('Code — Parse Request').item.json['customerName'] }}",
+            "Customer Email": "={{ $('Code — Parse Request').item.json['customerEmail'] }}",
+            "Platform": "={{ $('Code — Parse Request').item.json['platform'] }}",
+            "Status": "Sent",
+            "Follow Up Sent": "No",
+            "Prompt Version": "={{ $('Code — Parse Request').item.json['promptVersion'] }}",
+            "Parse Success": "={{ $('Code — Parse Request').item.json['parseSuccess'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date Sent",
+              "displayName": "Date Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Client Name",
+              "displayName": "Client Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business Name",
+              "displayName": "Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Platform",
+              "displayName": "Platform",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Follow Up Sent",
+              "displayName": "Follow Up Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prompt Version",
+              "displayName": "Prompt Version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Parse Success",
+              "displayName": "Parse Success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -240,
+        800
+      ],
+      "id": "356e8224-223b-43ca-b225-059d53c7374f",
+      "name": "Sheets — Log Request",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=📤 REVIEW REQUEST SENT\n\n👤 To: {{ $('Code — Parse Request').item.json['customerName'] }}\n📧 {{ $('Code — Parse Request').item.json['customerEmail'] }}\n🏢 From: {{ $('Code — Parse Request').item.json['businessName'] }}\n🔗 Platform: {{ $('Code — Parse Request').item.json['platform'] }}\n\nLogged in tracker. Time: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}\\n\\n_Prompt: {{ $('Code — Parse Request').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -48,
+        944
+      ],
+      "id": "ee8bd06f-57ac-4c01-992b-0050af457edf",
+      "name": "Telegram — Request Sent",
+      "webhookId": "tg-b11-req",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Review request sent and logged\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        224,
+        944
+      ],
+      "id": "09d2da96-1781-4217-bbfe-c12a30f44ed3",
+      "name": "Respond — Request Sent"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-req-parse-001",
+              "leftValue": "={{ $json['parseSuccess'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -560,
+        944
+      ],
+      "id": "cfb5e5f2-fd36-4758-92c7-a6ba0195f6ff",
+      "name": "IF — Request Parse OK"
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ B11 REQUEST PARSE FALLBACK\n\nBusiness: {{ $('Edit Fields — Request').item.json['businessName'] }}\nCustomer: {{ $('Edit Fields — Request').item.json['customerName'] }}\nPlatform: {{ $('Edit Fields — Request').item.json['platform'] }}\n\nFallback used — no email sent. Time: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}\\n\\n_Prompt: {{ $('Code — Parse Request').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -464,
+        1136
+      ],
+      "id": "2c067b36-b9fc-4e31-b987-dbbe870b2909",
+      "name": "Telegram — Request Parse Fallback",
+      "webhookId": "tg-b11-req-fallback",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook — E-Commerce Review": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — E-Commerce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — E-Commerce": {
+      "main": [
+        [
+          {
+            "node": "Groq — Response Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook — Airbnb Review": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Airbnb",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Airbnb": {
+      "main": [
+        [
+          {
+            "node": "Groq — Response Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Response Writer": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse Response": {
+      "main": [
+        [
+          {
+            "node": "If — Parse OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — Parse OK": {
+      "main": [
+        [
+          {
+            "node": "Switch — Channel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Parse Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch — Channel": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log E-Commerce",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sheets — Log Airbnb",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Log E-Commerce": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Owner Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Log Airbnb": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Owner Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Owner Brief": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Owner Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Owner Alert": {
+      "main": [
+        [
+          {
+            "node": "Respond — Drafted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook — Review Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Request": {
+      "main": [
+        [
+          {
+            "node": "Groq — Request Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Request Writer": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1 — Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1 — Request": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse Request": {
+      "main": [
+        [
+          {
+            "node": "IF — Request Parse OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Review Request": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Log Request": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Request Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Request Sent": {
+      "main": [
+        [
+          {
+            "node": "Respond — Request Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Request Parse OK": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Review Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Request Parse Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Request Parse Fallback": {
+      "main": [
+        [
+          {
+            "node": "Respond — Request Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b11-review-pro-v3-008",
+  "meta": {
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B11ReviewProV3001",
+  "tags": []
+}

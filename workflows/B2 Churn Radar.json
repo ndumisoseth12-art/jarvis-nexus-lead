@@ -1,0 +1,1519 @@
+{
+  "name": "B2 Churn Radar",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "churn-add-customer",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "843306eb-39e6-439d-acce-234846bd45f7",
+      "name": "Webhook — Add Customer",
+      "webhookId": "churn-add-customer-001",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-add-1",
+              "name": "customerName",
+              "value": "={{ $json['body']['customerName'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Customer Name')?.['value'] ?? 'Unknown' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-2",
+              "name": "customerEmail",
+              "value": "={{ $json['body']['customerEmail'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Customer Email')?.['value'] ?? 'unknown@email.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-3",
+              "name": "businessName",
+              "value": "={{ $json['body']['businessName'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Business Name')?.['value'] ?? 'Unknown' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-4",
+              "name": "ownerEmail",
+              "value": "={{ $json['body']['ownerEmail'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Owner Email')?.['value'] ?? 'ndumisoseth12@gmail.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-5",
+              "name": "lastPurchaseDate",
+              "value": "={{ $json['body']['lastPurchaseDate'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Last Purchase Date')?.['value'] ?? $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss').split('T')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-6",
+              "name": "purchaseFrequency",
+              "value": "={{ $json['body']['purchaseFrequency'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Purchase Frequency Days')?.['value'] ?? 30 }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-7",
+              "name": "averageSpend",
+              "value": "={{ $json['body']['averageSpend'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Average Spend')?.['value'] ?? 0 }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-8",
+              "name": "totalPurchases",
+              "value": "={{ $json['body']['totalPurchases'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Total Purchases')?.['value'] ?? 1 }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-9",
+              "name": "dateAdded",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "258f287b-45f8-4843-80a5-ed0cb3b23c21",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/19AqZ4gFygsqIu-fxz7fQ11xCp1Rfj-bvZOty4Hij_xI/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19AqZ4gFygsqIu-fxz7fQ11xCp1Rfj-bvZOty4Hij_xI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date Added": "={{ $('Edit Fields').item.json['dateAdded'] }}",
+            "Customer Name": "={{ $('Edit Fields').item.json['customerName'] }}",
+            "Customer Email": "={{ $('Edit Fields').item.json['customerEmail'] }}",
+            "Business Name": "={{ $('Edit Fields').item.json['businessName'] }}",
+            "Owner Email": "={{ $('Edit Fields').item.json['ownerEmail'] }}",
+            "Last Purchase Date": "={{ $('Edit Fields').item.json['lastPurchaseDate'] }}",
+            "Purchase Frequency Days": "={{ $('Edit Fields').item.json['purchaseFrequency'] }}",
+            "Average Spend": "={{ $('Edit Fields').item.json['averageSpend'] }}",
+            "Total Purchases": "={{ $('Edit Fields').item.json['totalPurchases'] }}",
+            "Days Since Last Purchase": "0",
+            "Churn Ratio": "0",
+            "Risk Level": "Low",
+            "Sequence Stage": "None",
+            "Emails Sent": "0",
+            "Status": "Active"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date Added",
+              "displayName": "Date Added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business Name",
+              "displayName": "Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Owner Email",
+              "displayName": "Owner Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Purchase Date",
+              "displayName": "Last Purchase Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Purchase Frequency Days",
+              "displayName": "Purchase Frequency Days",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Average Spend",
+              "displayName": "Average Spend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Purchases",
+              "displayName": "Total Purchases",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Days Since Last Purchase",
+              "displayName": "Days Since Last Purchase",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Churn Ratio",
+              "displayName": "Churn Ratio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Risk Level",
+              "displayName": "Risk Level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sequence Stage",
+              "displayName": "Sequence Stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Emails Sent",
+              "displayName": "Emails Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Contacted",
+              "displayName": "Last Contacted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        0
+      ],
+      "id": "19215c3a-7e11-4ae5-b0e0-403743b9efda",
+      "name": "Google Sheets — Add Customer",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=✅ NEW CUSTOMER ADDED TO CHURN RADAR\n\n👤 {{ $('Edit Fields').item.json['customerName'] }}\n🏢 {{ $('Edit Fields').item.json['businessName'] }}\n📧 {{ $('Edit Fields').item.json['customerEmail'] }}\n📅 Last Purchase: {{ $('Edit Fields').item.json['lastPurchaseDate'] }}\n🔄 Buys every: {{ $('Edit Fields').item.json['purchaseFrequency'] }} days\n💵 Avg Spend: R{{ $('Edit Fields').item.json['averageSpend'] }}\n🛒 Total Purchases: {{ $('Edit Fields').item.json['totalPurchases'] }}\n\nDaily scan will monitor for churn signals.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "b5f39c7b-5977-42fb-97e0-ff1b5fbb4125",
+      "name": "Telegram — Customer Added",
+      "webhookId": "tg-churn-add-001",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Customer added to Churn Radar\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        0
+      ],
+      "id": "81bfb968-5861-4bd3-98b9-d23f1005188b",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        400
+      ],
+      "id": "06c313b5-4949-4dde-8b41-ebfb049684ff",
+      "name": "Schedule — Daily Scan 8am"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/19AqZ4gFygsqIu-fxz7fQ11xCp1Rfj-bvZOty4Hij_xI/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19AqZ4gFygsqIu-fxz7fQ11xCp1Rfj-bvZOty4Hij_xI/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "Active"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        400
+      ],
+      "id": "e96298ce-acd6-4052-8127-fb573b827859",
+      "name": "Google Sheets — Read Customers",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// B2 Churn Radar — Risk Scoring Engine\n// Inputs: rows from Google Sheets (active customers only)\n// Outputs: one item per customer that needs action this run\n\nconst rows = $input.all();\nconst now = new Date();\nconst results = [];\n\nfor (const row of rows) {\n  const d = row.json;\n\n  // Skip rows missing critical fields\n  if (!d['Customer Email'] || !d['Last Purchase Date']) continue;\n\n  const lastPurchase = new Date(d['Last Purchase Date']);\n  if (isNaN(lastPurchase.getTime())) continue;\n\n  const daysSince = Math.floor((now - lastPurchase) / 86400000);\n  const freqDays = parseInt(d['Purchase Frequency Days']) || 30;\n  const churnRatio = daysSince / freqDays;\n  const totalPurchases = parseInt(d['Total Purchases']) || 1;\n  const avgSpend = parseFloat(d['Average Spend']) || 0;\n\n  // Loyalty multiplier — repeat customers get earlier intervention\n  const loyaltyWeight = totalPurchases >= 10 ? 1.2 : totalPurchases >= 5 ? 1.1 : 1.0;\n  const adjustedRatio = churnRatio * loyaltyWeight;\n\n  let riskLevel = 'Low';\n  if (adjustedRatio >= 2.0) riskLevel = 'Critical';\n  else if (adjustedRatio >= 1.5) riskLevel = 'High';\n  else if (adjustedRatio >= 1.2) riskLevel = 'Medium';\n\n  // Auto-recovery detection — if customer purchased recently, mark recovered\n  if (daysSince < freqDays * 0.5 && (d['Sequence Stage'] || 'None') !== 'None') {\n    results.push({\n      action: 'recovered',\n      customerName: d['Customer Name'],\n      customerEmail: d['Customer Email'],\n      businessName: d['Business Name'],\n      ownerEmail: d['Owner Email'],\n      daysSince,\n      churnRatio: churnRatio.toFixed(2),\n      riskLevel: 'Low',\n      newStatus: 'Recovered',\n      avgSpendFormatted: 'R' + avgSpend.toLocaleString('en-ZA', { minimumFractionDigits: 2 })\n    });\n    continue;\n  }\n\n  // Only act on Medium+ risk\n  if (riskLevel === 'Low') continue;\n\n  // Cadence check — don't email same customer twice in 3 days\n  const lastContactedRaw = d['Last Contacted'] || '';\n  const lastContacted = lastContactedRaw ? new Date(lastContactedRaw) : null;\n  const daysSinceContact = lastContacted && !isNaN(lastContacted.getTime())\n    ? Math.floor((now - lastContacted) / 86400000)\n    : 999;\n\n  // Determine sequence stage progression\n  const currentStage = d['Sequence Stage'] || 'None';\n  let nextStage = currentStage;\n  let shouldEmail = false;\n\n  if (currentStage === 'None') {\n    nextStage = 'Stage 1 — Soft Check-In';\n    shouldEmail = true;\n  } else if (currentStage === 'Stage 1 — Soft Check-In' && daysSinceContact >= 3) {\n    nextStage = 'Stage 2 — Value Reminder';\n    shouldEmail = true;\n  } else if (currentStage === 'Stage 2 — Value Reminder' && daysSinceContact >= 4) {\n    nextStage = 'Stage 3 — Final Offer';\n    shouldEmail = true;\n  } else if (currentStage === 'Stage 3 — Final Offer' && daysSinceContact >= 14 && riskLevel === 'Critical') {\n    // Mark as Lost after 14 more days post-Stage 3 with no recovery\n    results.push({\n      action: 'lost',\n      customerName: d['Customer Name'],\n      customerEmail: d['Customer Email'],\n      businessName: d['Business Name'],\n      ownerEmail: d['Owner Email'],\n      daysSince,\n      churnRatio: churnRatio.toFixed(2),\n      riskLevel,\n      newStatus: 'Lost',\n      avgSpendFormatted: 'R' + avgSpend.toLocaleString('en-ZA', { minimumFractionDigits: 2 })\n    });\n    continue;\n  }\n\n  if (!shouldEmail) continue;\n\n  results.push({\n    action: 'engage',\n    customerName: d['Customer Name'],\n    customerEmail: d['Customer Email'],\n    businessName: d['Business Name'],\n    ownerEmail: d['Owner Email'],\n    lastPurchaseDate: d['Last Purchase Date'],\n    purchaseFrequency: freqDays,\n    averageSpend: avgSpend,\n    totalPurchases,\n    daysSince,\n    churnRatio: churnRatio.toFixed(2),\n    riskLevel,\n    currentStage,\n    nextStage,\n    emailsSent: parseInt(d['Emails Sent']) || 0,\n    avgSpendFormatted: 'R' + avgSpend.toLocaleString('en-ZA', { minimumFractionDigits: 2 }),\n    runAt: $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss')\n  });\n}\n\n// If nothing to do, emit a single sentinel item\nif (!results.length) {\n  return [{ json: { hasAtRisk: false, action: 'none', count: 0, message: 'No churn action needed today.' } }];\n}\n\nreturn results.map(r => ({ json: { hasAtRisk: true, count: results.length, ...r } }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        400
+      ],
+      "id": "30a75e86-eda6-4ba6-b147-e63952a14ff3",
+      "name": "Code — Risk Scorer"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-engage-001",
+              "leftValue": "={{ $('Code — Risk Scorer').item.json['action'] }}",
+              "rightValue": "engage",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        400
+      ],
+      "id": "3216c016-4b27-4b3d-92e5-04bdaa0e9cac",
+      "name": "If — Action is Engage"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a warm, conversational South African business owner writing a personal re-engagement message to a returning customer. CRITICAL RULES:\\n\\n1. Address the customer by FIRST NAME ONLY (extract from full name).\\n2. Mention the business name naturally — never as a sign-off or header.\\n3. NEVER mention 'we noticed you haven't bought' or 'it has been X days' — that feels stalker-ish.\\n4. Make it feel like a genuine human check-in. Tone: warm, low-pressure, like a friend reaching out.\\n5. Vary the opening based on stage: Stage 1 = casual check-in. Stage 2 = brief value reminder. Stage 3 = soft final offer with light urgency.\\n6. Include ONE soft call to action (book again, drop by, message back).\\n7. STRICT WORD LIMIT: under 65 words.\\n8. South African English. Conversational. No corporate language. No 'Dear valued customer'.\\n9. Sign off with the business name as a personal signature.\\n\\n10. TIER-AWARE TONE: The user message includes Customer Tier and Lifetime Value as internal context. VIP (R50k+) or Gold (R20k+) = warmer, more personal, acknowledge the relationship (without ever stating the LTV in the email). Silver = friendly check-in. Bronze/Unknown = simple, brief, no relationship-history assumptions. NEVER mention the tier name or LTV in the email body.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"subject\\\": \\\"short personal subject line under 8 words\\\", \\\"body\\\": \\\"the message body here\\\", \\\"tone_used\\\": \\\"Warm\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Customer Name: {{ $json['customerName'] }}\\nBusiness Name: {{ $json['businessName'] }}\\nSequence Stage: {{ $json['nextStage'] }}\\nRisk Level: {{ $json['riskLevel'] }}\\nAverage Spend: {{ $json['avgSpendFormatted'] }}\\nTotal Past Purchases: {{ $json['totalPurchases'] }}\\nCustomer Tier: {{ $('Code — Enrich With Tier').item.json['tier'] }}\\nLifetime Value: {{ $('Code — Enrich With Tier').item.json['lifetimeValueFormatted'] }}\"\n    }\n  ],\n  \"temperature\": 0.6,\n  \"max_tokens\": 400\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        880,
+        304
+      ],
+      "id": "a254232a-b366-4951-82ed-f898a6fe358d",
+      "name": "HTTP Request — Groq Engagement",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef1-engage-1",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef1-engage-2",
+              "name": "customerName",
+              "value": "={{ $('Code — Risk Scorer').item.json['customerName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef1-engage-3",
+              "name": "customerEmail",
+              "value": "={{ $('Code — Risk Scorer').item.json['customerEmail'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef1-engage-4",
+              "name": "businessName",
+              "value": "={{ $('Code — Risk Scorer').item.json['businessName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef1-engage-5",
+              "name": "ownerEmail",
+              "value": "={{ $('Code — Risk Scorer').item.json['ownerEmail'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef1-engage-6",
+              "name": "riskLevel",
+              "value": "={{ $('Code — Risk Scorer').item.json['riskLevel'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef1-engage-7",
+              "name": "daysSince",
+              "value": "={{ $('Code — Risk Scorer').item.json['daysSince'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef1-engage-8",
+              "name": "nextStage",
+              "value": "={{ $('Code — Risk Scorer').item.json['nextStage'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef1-engage-9",
+              "name": "emailsSent",
+              "value": "={{ $('Code — Risk Scorer').item.json['emailsSent'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef1-engage-10",
+              "name": "avgSpendFormatted",
+              "value": "={{ $('Code — Risk Scorer').item.json['avgSpendFormatted'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1104,
+        304
+      ],
+      "id": "797fd483-d90a-45a8-9096-876968b84d3f",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptVersion = 'b2-engage-v1';\n// B2 Churn Radar — AI Response Parser\n// Pulls JSON out of the AI text, falls back safely on failure\n\nconst rawText = $input.item.json['rawAIText'] || '';\n\nconst cleanedText = rawText\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleanedText);\n} catch (e) {\n  // Try to extract first JSON object if model wrapped it\n  const match = cleanedText.match(/\\{[\\s\\S]*\\}/);\n  if (match) {\n    try { parsed = JSON.parse(match[0]); }\n    catch (e2) {\n      parsed = {\n        subject: 'Checking in from ' + ($input.item.json['businessName'] || 'us'),\n        body: 'Hi there, just dropping by to say hello and to thank you for your support. If there is anything we can do for you, just hit reply. — ' + ($input.item.json['businessName'] || ''),\n        tone_used: 'Fallback'\n      };\n    }\n  } else {\n    parsed = {\n      subject: 'Checking in from ' + ($input.item.json['businessName'] || 'us'),\n      body: 'Hi there, just dropping by to say hello and to thank you for your support. If there is anything we can do for you, just hit reply. — ' + ($input.item.json['businessName'] || ''),\n      tone_used: 'Fallback'\n    };\n  }\n}\n\nconst d = $input.item.json;\n\n// Extract first name\nconst fullName = d['customerName'] || 'there';\nconst firstName = fullName.split(' ')[0] || 'there';\n\n// Risk styling\nlet borderColor = '#22d3ee';\nlet riskEmoji = '🔵';\nif (d['riskLevel'] === 'Critical') { borderColor = '#f43f5e'; riskEmoji = '🔴'; }\nelse if (d['riskLevel'] === 'High') { borderColor = '#f97316'; riskEmoji = '🟠'; }\nelse if (d['riskLevel'] === 'Medium') { borderColor = '#f59e0b'; riskEmoji = '🟡'; }\n\nreturn { promptVersion,\n  subject: parsed['subject'] || ('Hey ' + firstName + ' — checking in from ' + d['businessName']),\n  body: parsed['body'] || 'Hi there, just dropping by. — ' + d['businessName'],\n  toneUsed: parsed['tone_used'] || 'Warm',\n  parseSuccess: parsed['tone_used'] !== 'Fallback',\n  customerName: d['customerName'],\n  customerEmail: d['customerEmail'],\n  firstName,\n  businessName: d['businessName'],\n  ownerEmail: d['ownerEmail'],\n  riskLevel: d['riskLevel'],\n  daysSince: d['daysSince'],\n  nextStage: d['nextStage'],\n  emailsSent: parseInt(d['emailsSent']) || 0,\n  avgSpendFormatted: d['avgSpendFormatted'],\n  borderColor,\n  riskEmoji,\n  runAt: $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss')\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        304
+      ],
+      "id": "dca4e5a6-3597-48bb-8d47-7fda9783c0d4",
+      "name": "Code — Parse AI Response"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-parse-ok-001",
+              "leftValue": "={{ $('Code — Parse AI Response').item.json['parseSuccess'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1552,
+        304
+      ],
+      "id": "2f684be0-e664-46b3-9cc8-1c92bc091908",
+      "name": "If — AI Parse Success"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Parse AI Response').item.json['customerEmail'] }}",
+        "subject": "={{ $('Code — Parse AI Response').item.json['subject'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:560px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">{{ $('Code — Parse AI Response').item.json['businessName'] }}</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;white-space:pre-wrap;\">{{ $('Code — Parse AI Response').item.json['body'] }}</div>\n  <div style=\"font-size:11px;color:#aaa;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;line-height:1.6;\">\n    Powered by NSM — sent on behalf of {{ $('Code — Parse AI Response').item.json['businessName'] }}.<br>\n    If you would prefer not to receive these messages, simply reply STOP.\n  </div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        208
+      ],
+      "id": "eb64b1c4-9a9e-49e8-8c02-c051014f3ce4",
+      "name": "Gmail — Re-engagement Email",
+      "webhookId": "gmail-engage-001",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/19AqZ4gFygsqIu-fxz7fQ11xCp1Rfj-bvZOty4Hij_xI/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19AqZ4gFygsqIu-fxz7fQ11xCp1Rfj-bvZOty4Hij_xI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer Email": "={{ $('Code — Parse AI Response').item.json['customerEmail'] }}",
+            "Days Since Last Purchase": "={{ $('Code — Parse AI Response').item.json['daysSince'] }}",
+            "Risk Level": "={{ $('Code — Parse AI Response').item.json['riskLevel'] }}",
+            "Sequence Stage": "={{ $('Code — Parse AI Response').item.json['nextStage'] }}",
+            "Emails Sent": "={{ $('Code — Parse AI Response').item.json['emailsSent'] + 1 }}",
+            "Last Contacted": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "row_number": 0,
+            "Prompt Version": "={{ $('Code — Parse AI Response').item.json['promptVersion'] }}",
+            "Parse Success": "={{ $('Code — Parse AI Response').item.json['parseSuccess'] }}"
+          },
+          "matchingColumns": [
+            "Customer Email"
+          ],
+          "schema": [
+            {
+              "id": "Date Added",
+              "displayName": "Date Added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business Name",
+              "displayName": "Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Owner Email",
+              "displayName": "Owner Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Last Purchase Date",
+              "displayName": "Last Purchase Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Purchase Frequency Days",
+              "displayName": "Purchase Frequency Days",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Average Spend",
+              "displayName": "Average Spend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Total Purchases",
+              "displayName": "Total Purchases",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Days Since Last Purchase",
+              "displayName": "Days Since Last Purchase",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Churn Ratio",
+              "displayName": "Churn Ratio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Risk Level",
+              "displayName": "Risk Level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sequence Stage",
+              "displayName": "Sequence Stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Emails Sent",
+              "displayName": "Emails Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Contacted",
+              "displayName": "Last Contacted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Prompt Version",
+              "displayName": "Prompt Version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Parse Success",
+              "displayName": "Parse Success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1984,
+        208
+      ],
+      "id": "63a26fa9-812a-4b47-a2f2-0a6fd7b3f044",
+      "name": "Google Sheets — Update Engaged",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ AI PARSE FALLBACK — REVIEW NEEDED\n\nCustomer: {{ $('Code — Parse AI Response').item.json['customerName'] }}\nBusiness: {{ $('Code — Parse AI Response').item.json['businessName'] }}\nRisk: {{ $('Code — Parse AI Response').item.json['riskLevel'] }}\nStage: {{ $('Code — Parse AI Response').item.json['nextStage'] }}\n\nFallback email used. Check Groq output. Time: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}\\n\\n_Prompt: {{ $('Code — Parse AI Response').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        400
+      ],
+      "id": "471cfdfb-382d-4c95-8661-528f2aba7a55",
+      "name": "Telegram — Parse Fallback Alert",
+      "webhookId": "tg-parse-fallback-001",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -16,
+        720
+      ],
+      "id": "3a9e8b9a-0c07-410c-80f3-b5624c7a6ea9",
+      "name": "Schedule — Monday 8am Weekly"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/19AqZ4gFygsqIu-fxz7fQ11xCp1Rfj-bvZOty4Hij_xI/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19AqZ4gFygsqIu-fxz7fQ11xCp1Rfj-bvZOty4Hij_xI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        192,
+        720
+      ],
+      "id": "7640d568-5c22-42a1-be41-d12ed19aa830",
+      "name": "Google Sheets — Read Full Database",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// B2 Churn Radar — Weekly Aggregator\n\nconst rows = $input.all();\nconst total = rows.length;\n\nconst byRisk = (level) => rows.filter(r => (r.json['Risk Level'] || '').trim() === level).length;\nconst byStatus = (status) => rows.filter(r => (r.json['Status'] || '').trim() === status).length;\n\nconst critical = byRisk('Critical');\nconst high = byRisk('High');\nconst medium = byRisk('Medium');\nconst low = byRisk('Low');\nconst active = byStatus('Active');\nconst recovered = byStatus('Recovered');\nconst lost = byStatus('Lost');\n\nconst emailsSentTotal = rows.reduce((acc, r) => acc + (parseInt(r.json['Emails Sent']) || 0), 0);\n\nconst atRiskRevenue = rows\n  .filter(r => ['Critical', 'High'].includes((r.json['Risk Level'] || '').trim()))\n  .reduce((acc, r) => acc + (parseFloat(r.json['Average Spend']) || 0), 0);\n\nconst recoveredRevenue = rows\n  .filter(r => (r.json['Status'] || '').trim() === 'Recovered')\n  .reduce((acc, r) => acc + (parseFloat(r.json['Average Spend']) || 0), 0);\n\nconst formatRand = n => 'R' + n.toLocaleString('en-ZA', { minimumFractionDigits: 2 });\n\nconst summary = [\n  'Total customers monitored: ' + total,\n  'Active: ' + active,\n  'Critical risk: ' + critical,\n  'High risk: ' + high,\n  'Medium risk: ' + medium,\n  'Low risk: ' + low,\n  'Recovered: ' + recovered + ' (worth ' + formatRand(recoveredRevenue) + ')',\n  'Lost: ' + lost,\n  'Re-engagement emails sent total: ' + emailsSentTotal,\n  'Revenue at risk: ' + formatRand(atRiskRevenue)\n].join('. ');\n\nreturn [{\n  json: {\n    total, active,\n    critical, high, medium, low,\n    recovered, lost,\n    emailsSentTotal,\n    atRiskRevenue: formatRand(atRiskRevenue),\n    recoveredRevenue: formatRand(recoveredRevenue),\n    summary,\n    reportDate: new Date().toLocaleDateString('en-ZA', { timeZone: 'Africa/Johannesburg' })\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        720
+      ],
+      "id": "7300cfd4-2014-4ceb-a642-47c7e24f0914",
+      "name": "Code — Weekly Aggregator"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a senior business analyst writing the weekly churn intelligence brief for a South African business owner. Write in plain English, warm and direct. Lead with the single most important number. Call out wins and risks in clear language. End with ONE specific action the owner should take this week. Hard limit 130 words. No bullet points. No headers. Use Rand currency format. Plain text only.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json['summary'] }}\"\n    }\n  ],\n  \"temperature\": 0.4,\n  \"max_tokens\": 350\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        624,
+        720
+      ],
+      "id": "144abb44-7404-477f-b10c-d5720f8d5341",
+      "name": "HTTP Request — Groq Weekly",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-weekly-1",
+              "name": "aiNarrative",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-2",
+              "name": "total",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['total'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-3",
+              "name": "critical",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['critical'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-4",
+              "name": "high",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['high'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-5",
+              "name": "medium",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['medium'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-6",
+              "name": "recovered",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['recovered'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-7",
+              "name": "lost",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['lost'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-8",
+              "name": "atRiskRevenue",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['atRiskRevenue'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-9",
+              "name": "recoveredRevenue",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['recoveredRevenue'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-10",
+              "name": "emailsSentTotal",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['emailsSentTotal'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-11",
+              "name": "reportDate",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['reportDate'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        720
+      ],
+      "id": "d7543131-7221-4118-97a7-6ae0cec6d202",
+      "name": "Edit Fields — Weekly"
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=📊 Churn Radar — Weekly Brief — {{ $('Edit Fields — Weekly').item.json['reportDate'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:600px;margin:40px auto;background:#020208;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);\">\n  <div style=\"padding:32px 40px;background:linear-gradient(135deg,#8b5cf6,#3b82f6,#22d3ee);\">\n    <div style=\"font-size:11px;color:rgba(255,255,255,0.85);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;\">NSM — Churn Radar</div>\n    <div style=\"font-size:24px;font-weight:800;color:#fff;\">Weekly Intelligence Brief</div>\n    <div style=\"font-size:14px;color:rgba(255,255,255,0.85);margin-top:6px;\">{{ $('Edit Fields — Weekly').item.json['reportDate'] }}</div>\n  </div>\n  <div style=\"padding:36px 40px;\">\n    <div style=\"display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;\">\n      <div style=\"background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.2);border-radius:12px;padding:16px;text-align:center;\">\n        <div style=\"font-size:10px;color:#f43f5e;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Critical</div>\n        <div style=\"font-size:32px;font-weight:800;color:#f43f5e;\">{{ $('Edit Fields — Weekly').item.json['critical'] }}</div>\n      </div>\n      <div style=\"background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2);border-radius:12px;padding:16px;text-align:center;\">\n        <div style=\"font-size:10px;color:#f97316;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">High Risk</div>\n        <div style=\"font-size:32px;font-weight:800;color:#f97316;\">{{ $('Edit Fields — Weekly').item.json['high'] }}</div>\n      </div>\n      <div style=\"background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:16px;text-align:center;\">\n        <div style=\"font-size:10px;color:#10b981;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Recovered</div>\n        <div style=\"font-size:32px;font-weight:800;color:#10b981;\">{{ $('Edit Fields — Weekly').item.json['recovered'] }}</div>\n      </div>\n    </div>\n    <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;\">\n      <div style=\"background:rgba(255,255,255,0.04);border-radius:12px;padding:18px;\">\n        <div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Revenue at Risk</div>\n        <div style=\"font-size:22px;font-weight:800;background:linear-gradient(135deg,#f43f5e,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;\">{{ $('Edit Fields — Weekly').item.json['atRiskRevenue'] }}</div>\n      </div>\n      <div style=\"background:rgba(255,255,255,0.04);border-radius:12px;padding:18px;\">\n        <div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Revenue Recovered</div>\n        <div style=\"font-size:22px;font-weight:800;background:linear-gradient(135deg,#10b981,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;\">{{ $('Edit Fields — Weekly').item.json['recoveredRevenue'] }}</div>\n      </div>\n    </div>\n    <div style=\"background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:22px;\">\n      <div style=\"font-size:10px;color:#8b5cf6;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;\">AI Weekly Analysis</div>\n      <div style=\"font-size:14px;color:#e8e8ff;line-height:1.75;white-space:pre-wrap;\">{{ $('Edit Fields — Weekly').item.json['aiNarrative'] }}</div>\n    </div>\n    <div style=\"font-size:10px;color:#5a5a7a;letter-spacing:2px;text-align:center;margin-top:24px;text-transform:uppercase;\">NSM // Churn Radar // South Africa</div>\n  </div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        720
+      ],
+      "id": "4c6c81d3-0919-40b6-8863-8c29721a18a0",
+      "name": "Gmail — Weekly Churn Brief",
+      "webhookId": "gmail-weekly-001",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=📊 WEEKLY CHURN BRIEF — {{ $('Edit Fields — Weekly').item.json['reportDate'] }}\n\n👥 Total Monitored: {{ $('Edit Fields — Weekly').item.json['total'] }}\n🚨 Critical: {{ $('Edit Fields — Weekly').item.json['critical'] }}\n⚠️ High Risk: {{ $('Edit Fields — Weekly').item.json['high'] }}\n🟡 Medium: {{ $('Edit Fields — Weekly').item.json['medium'] }}\n✅ Recovered: {{ $('Edit Fields — Weekly').item.json['recovered'] }}\n❌ Lost: {{ $('Edit Fields — Weekly').item.json['lost'] }}\n💵 Revenue at Risk: {{ $('Edit Fields — Weekly').item.json['atRiskRevenue'] }}\n💚 Revenue Recovered: {{ $('Edit Fields — Weekly').item.json['recoveredRevenue'] }}\n📧 Total emails sent: {{ $('Edit Fields — Weekly').item.json['emailsSentTotal'] }}\n\nFull brief in your inbox.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1264,
+        720
+      ],
+      "id": "74aaa8d4-9857-4563-8f28-36b4db90868c",
+      "name": "Telegram — Weekly Brief",
+      "webhookId": "tg-weekly-001",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "lookup",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Customer Email",
+              "lookupValue": "={{ $('Code — Risk Scorer').item.json['customerEmail'] ?? '' }}"
+            }
+          ]
+        },
+        "combineFilters": "AND",
+        "options": {}
+      },
+      "id": "65066937-7106-4c8d-a113-96a9d50fe807",
+      "name": "Sheets — B10 Tier Lookup",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        872,
+        620
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code — Enrich With Tier (B10 lookup → tier-aware payload)\n// Defensive: handles unfound customer (Bronze/Unknown defaults)\nfunction trimKeys(o){ const r={}; for(const k in o){ r[k.trim()]=o[k]; } return r; }\n\nconst upstream = $('Code — Risk Scorer').item.json;\nconst raw = $input.all().map(i => trimKeys(i.json || {}));\nconst found = raw.find(r => r['Customer Name']) || {};\n\nlet tier = 'Unknown';\nlet lifetimeValue = 0;\nlet totalPurchases = 0;\nlet trajectory = 'unknown';\nlet lastProduct = '';\n\nif (found['Customer Name']) {\n  tier = found['Tier'] || 'Bronze';\n  lifetimeValue = parseFloat(found['Lifetime Value'] || found['Total Spend'] || 0);\n  totalPurchases = parseInt(found['Total Purchases'] || 0);\n  trajectory = found['Trajectory'] || 'stable';\n  lastProduct = found['Last Product'] || '';\n}\n\nconst isVIP = tier === 'VIP';\nconst isHighValue = tier === 'VIP' || tier === 'Gold';\nconst knownCustomer = tier !== 'Unknown';\n\nconst formatRand = n => 'R' + (parseFloat(n) || 0).toLocaleString('en-ZA');\n\nreturn [{\n  json: {\n    ...upstream,\n    tier,\n    isVIP,\n    isHighValue,\n    knownCustomer,\n    lifetimeValue,\n    lifetimeValueFormatted: formatRand(lifetimeValue),\n    totalPurchases,\n    trajectory,\n    lastProduct\n  }\n}];"
+      },
+      "id": "4d6caf69-fad8-4ee2-8cd9-f4028634401c",
+      "name": "Code — Enrich With Tier",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cond-vip-0b6315d5",
+              "leftValue": "={{ $('Code — Enrich With Tier').item.json['isVIP'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2ecedfd3-d0ee-4d07-af73-15b2a8e5d18e",
+      "name": "If — VIP B2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2184,
+        408
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🟡 *VIP RE-ENGAGEMENT — HEADS UP*\n\nThis is a *{{ $('Code — Enrich With Tier').item.json['tier'] }}* customer (LTV {{ $('Code — Enrich With Tier').item.json['lifetimeValueFormatted'] }}, {{ $('Code — Enrich With Tier').item.json['totalPurchases'] }} prior purchases).\n\nCustomer: *{{ $('Code — Risk Scorer').item.json['customerName'] }}*\nRisk: {{ $('Code — Risk Scorer').item.json['riskLevel'] }}\nDays silent: {{ $('Code — Risk Scorer').item.json['daysSilent'] }}\n\nThe auto re-engagement email has gone out. *Consider a personal follow-up* — high-LTV accounts deserve more than an AI nudge.",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "9f751f61-eeef-4403-a333-1bc917428afa",
+      "name": "Telegram — VIP B2 Owner Call",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2384,
+        408
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook — Add Customer": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets — Add Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets — Add Customer": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Customer Added",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Customer Added": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule — Daily Scan 8am": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets — Read Customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets — Read Customers": {
+      "main": [
+        [
+          {
+            "node": "Code — Risk Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Risk Scorer": {
+      "main": [
+        [
+          {
+            "node": "If — Action is Engage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — Action is Engage": {
+      "main": [
+        [
+          {
+            "node": "Sheets — B10 Tier Lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request — Groq Engagement": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse AI Response": {
+      "main": [
+        [
+          {
+            "node": "If — AI Parse Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — AI Parse Success": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Re-engagement Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Parse Fallback Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Re-engagement Email": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets — Update Engaged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule — Monday 8am Weekly": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets — Read Full Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets — Read Full Database": {
+      "main": [
+        [
+          {
+            "node": "Code — Weekly Aggregator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Weekly Aggregator": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request — Groq Weekly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request — Groq Weekly": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Weekly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Weekly": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Weekly Churn Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Weekly Churn Brief": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Weekly Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — B10 Tier Lookup": {
+      "main": [
+        [
+          {
+            "node": "Code — Enrich With Tier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Enrich With Tier": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request — Groq Engagement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets — Update Engaged": {
+      "main": [
+        [
+          {
+            "node": "If — VIP B2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — VIP B2": {
+      "main": [
+        [
+          {
+            "node": "Telegram — VIP B2 Owner Call",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b2-churn-radar-v3-008",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B2ChurnRadarV3001",
+  "tags": []
+}

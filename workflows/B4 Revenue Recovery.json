@@ -1,0 +1,2857 @@
+{
+  "name": "B4 Revenue Recovery",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "revenue-recovery",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2208,
+        352
+      ],
+      "id": "85da7bc8-9df3-4765-833b-618552824ad2",
+      "name": "Webhook — Add Debtor",
+      "webhookId": "rev-recovery-add-001"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-add-1",
+              "name": "clientName",
+              "value": "={{ $json['body']['clientName'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Your Name')?.['value'] ?? 'Unknown' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-2",
+              "name": "clientBusiness",
+              "value": "={{ $json['body']['clientBusiness'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Business Name')?.['value'] ?? 'Unknown' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-3",
+              "name": "ownerEmail",
+              "value": "={{ $json['body']['ownerEmail'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Owner Email')?.['value'] ?? 'ndumisoseth12@gmail.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-4",
+              "name": "debtorName",
+              "value": "={{ $json['body']['debtorName'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Debtor Name')?.['value'] ?? 'Unknown' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-5",
+              "name": "debtorEmail",
+              "value": "={{ $json['body']['debtorEmail'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Debtor Email')?.['value'] ?? 'unknown@email.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-6",
+              "name": "invoiceNumber",
+              "value": "={{ $json['body']['invoiceNumber'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Invoice Number')?.['value'] ?? 'INV-UNKNOWN' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-7",
+              "name": "invoiceAmount",
+              "value": "={{ $json['body']['invoiceAmount'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Invoice Amount')?.['value'] ?? 0 }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-8",
+              "name": "invoiceDate",
+              "value": "={{ $json['body']['invoiceDate'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Invoice Date')?.['value'] ?? $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss').split('T')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-9",
+              "name": "dueDate",
+              "value": "={{ $json['body']['dueDate'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Due Date')?.['value'] ?? $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss').split('T')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-10",
+              "name": "serviceDesc",
+              "value": "={{ $json['body']['serviceDesc'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Service Description')?.['value'] ?? 'Services rendered' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-11",
+              "name": "paymentMethods",
+              "value": "={{ $json['body']['paymentMethods'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Payment Methods')?.['value'] ?? 'EFT or PayFast' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-add-12",
+              "name": "dateAdded",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1984,
+        352
+      ],
+      "id": "5ced04f6-b4a7-4bd7-9841-9f59d4edaf60",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "// B4 Revenue Recovery — Stage Detection & Setup\nconst d = $input.item.json;\n\nconst now = new Date();\nconst dueDate = new Date(d['dueDate']);\nconst daysOverdue = isNaN(dueDate.getTime()) ? 0 : Math.max(0, Math.floor((now - dueDate) / 86400000));\n\nconst invoiceAmount = parseFloat(d['invoiceAmount']) || 0;\nconst formatRand = n => 'R' + n.toLocaleString('en-ZA', { minimumFractionDigits: 2 });\n\n// Determine entry stage based on overdue days\n// 0–13 days  → Stage 1 (Gentle)\n// 14–20 days → Stage 2 (Firm)\n// 21+ days   → Stage 3 (Final)\nlet entryStage = 1;\nif (daysOverdue >= 21) entryStage = 3;\nelse if (daysOverdue >= 14) entryStage = 2;\n\nconst firstName = (d['debtorName'] || 'there').split(' ')[0];\nconst ownerFirstName = (d['clientName'] || 'the team').split(' ')[0];\n\nreturn [{\n  json: {\n    ...d,\n    daysOverdue,\n    entryStage,\n    invoiceAmount,\n    invoiceAmountFormatted: formatRand(invoiceAmount),\n    firstName,\n    ownerFirstName,\n    runAt: $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss')\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1760,
+        352
+      ],
+      "id": "e4065311-5110-4edf-9451-79a781898272",
+      "name": "Code — Stage Detect"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date Added": "={{ $('Code — Stage Detect').item.json['dateAdded'] }}",
+            "Client Name": "={{ $('Code — Stage Detect').item.json['clientName'] }}",
+            "Client Business": "={{ $('Code — Stage Detect').item.json['clientBusiness'] }}",
+            "Owner Email": "={{ $('Code — Stage Detect').item.json['ownerEmail'] }}",
+            "Debtor Name": "={{ $('Code — Stage Detect').item.json['debtorName'] }}",
+            "Debtor Email": "={{ $('Code — Stage Detect').item.json['debtorEmail'] }}",
+            "Invoice Number": "={{ $('Code — Stage Detect').item.json['invoiceNumber'] }}",
+            "Invoice Amount": "={{ $('Code — Stage Detect').item.json['invoiceAmount'] }}",
+            "Invoice Date": "={{ $('Code — Stage Detect').item.json['invoiceDate'] }}",
+            "Due Date": "={{ $('Code — Stage Detect').item.json['dueDate'] }}",
+            "Service Desc": "={{ $('Code — Stage Detect').item.json['serviceDesc'] }}",
+            "Payment Methods": "={{ $('Code — Stage Detect').item.json['paymentMethods'] }}",
+            "Days Overdue": "={{ $('Code — Stage Detect').item.json['daysOverdue'] }}",
+            "Stage": "={{ 'Stage ' + $('Code — Stage Detect').item.json['entryStage'] }}",
+            "Attempts": "0",
+            "Last Contact": "",
+            "Status": "Active",
+            "Amount Recovered": "0",
+            "Date Paid": "",
+            "Notes": ""
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date Added",
+              "displayName": "Date Added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Client Name",
+              "displayName": "Client Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Client Business",
+              "displayName": "Client Business",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Owner Email",
+              "displayName": "Owner Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Debtor Name",
+              "displayName": "Debtor Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Debtor Email",
+              "displayName": "Debtor Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invoice Number",
+              "displayName": "Invoice Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invoice Amount",
+              "displayName": "Invoice Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invoice Date",
+              "displayName": "Invoice Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Due Date",
+              "displayName": "Due Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Service Desc",
+              "displayName": "Service Desc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Payment Methods",
+              "displayName": "Payment Methods",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Days Overdue",
+              "displayName": "Days Overdue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stage",
+              "displayName": "Stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Attempts",
+              "displayName": "Attempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Contact",
+              "displayName": "Last Contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount Recovered",
+              "displayName": "Amount Recovered",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Paid",
+              "displayName": "Date Paid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1536,
+        352
+      ],
+      "id": "0b092cea-3a78-4739-b37e-8975a16d5912",
+      "name": "Google Sheets — Append Debtor",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Recovery sequence started\",\n  \"entryStage\": \"={{ $('Code — Stage Detect').item.json['entryStage'] }}\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1328,
+        352
+      ],
+      "id": "ab20a87e-76fb-4702-8755-b6efb38c78ba",
+      "name": "Respond — Add Debtor"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "sw-stage1",
+                    "leftValue": "={{ $('Code — Stage Detect').item.json['entryStage'] }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Stage 1"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "sw-stage2",
+                    "leftValue": "={{ $('Code — Stage Detect').item.json['entryStage'] }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Stage 2"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "sw-stage3",
+                    "leftValue": "={{ $('Code — Stage Detect').item.json['entryStage'] }}",
+                    "rightValue": 3,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Stage 3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1104,
+        352
+      ],
+      "id": "cc4bc226-854c-4243-a36c-ae8679400bd2",
+      "name": "Switch — Entry Stage"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a warm, professional South African business owner writing the FIRST gentle payment reminder to a client. CRITICAL RULES:\\n\\n1. Address the debtor by FIRST NAME ONLY.\\n2. Reference the invoice number and amount specifically.\\n3. Assume payment is an oversight — never accusatory, never threatening.\\n4. Mention payment options naturally (the methods will be provided in the user message).\\n5. Include ONE clear call to action (a request to pay or to reply).\\n6. Sign off with the owner's first name.\\n7. South African English. Conversational, warm, professional.\\n8. Plain text only. No markdown. No bullet points.\\n9. STRICT WORD LIMIT: under 90 words.\\n\\nTONE BY CUSTOMER TIER (provided in the user message as Tier + Lifetime Value):\\n- VIP (R50k+ LTV) or Gold (R20k+ LTV): notably softer. Acknowledge the relationship implicitly. Phrases like \\\"I am sure this has just slipped through\\\" feel appropriate. Never make a high-LTV customer feel like a debtor.\\n- Silver (R8k+ LTV): standard warm-professional. The customer is valued but the relationship is less deep.\\n- Bronze or Unknown: standard professional tone as below. No special acknowledgment.\\n\\nNEVER mention the tier name or LTV in the email itself. The tier is internal context that should only shape your tone, never appear in the text.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"subject\\\": \\\"short subject line under 10 words\\\", \\\"body\\\": \\\"the message body here\\\", \\\"tone_used\\\": \\\"Gentle\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Debtor First Name: {{ $('Code — Stage Detect').item.json['firstName'] }}\\nDebtor Full Name: {{ $('Code — Stage Detect').item.json['debtorName'] }}\\nClient Business: {{ $('Code — Stage Detect').item.json['clientBusiness'] }}\\nOwner First Name: {{ $('Code — Stage Detect').item.json['ownerFirstName'] }}\\nInvoice: {{ $('Code — Stage Detect').item.json['invoiceNumber'] }}\\nAmount: {{ $('Code — Stage Detect').item.json['invoiceAmountFormatted'] }}\\nDue Date: {{ $('Code — Stage Detect').item.json['dueDate'] }}\\nDays Overdue: {{ $('Code — Stage Detect').item.json['daysOverdue'] }}\\nService: {{ $('Code — Stage Detect').item.json['serviceDesc'] }}\\nAccepted Payment Methods: {{ $('Code — Stage Detect').item.json['paymentMethods'] }}\\nCustomer Tier: {{ $('Code — Enrich With Tier').item.json['tier'] }}\\nLifetime Value: {{ $('Code — Enrich With Tier').item.json['lifetimeValueFormatted'] }}\\nTotal Past Purchases: {{ $('Code — Enrich With Tier').item.json['totalPurchases'] }}\"\n    }\n  ],\n  \"temperature\": 0.5,\n  \"max_tokens\": 400\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -880,
+        112
+      ],
+      "id": "89e58408-4580-46e1-b7d7-8f27855b5370",
+      "name": "Groq — Stage 1 Gentle",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef1-s1-1",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef1-s1-2",
+              "name": "stage",
+              "value": "1",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -656,
+        112
+      ],
+      "id": "872b6238-231f-4aad-9bf8-b6e0e6f6adf9",
+      "name": "Edit Fields1 — S1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptVersion = 'b4-s1-v1';\n// B4 — Stage 1 AI Parse\nconst rawText = $input.item.json['rawAIText'] || '';\nconst d = $('Code — Stage Detect').item.json;\n\nconst cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n\nlet parsed;\ntry { parsed = JSON.parse(cleaned); }\ncatch (e) {\n  const m = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) { parsed = null; } }\n}\n\nif (!parsed || !parsed['body']) {\n  parsed = {\n    subject: 'Friendly reminder — Invoice ' + d['invoiceNumber'],\n    body: 'Hi ' + d['firstName'] + ', this is just a friendly reminder that invoice ' + d['invoiceNumber'] + ' for ' + d['invoiceAmountFormatted'] + ' is now overdue. If it has been paid, please ignore this message. Otherwise, payment by ' + d['paymentMethods'] + ' would be appreciated. Many thanks, ' + d['ownerFirstName'],\n    tone_used: 'Fallback'\n  };\n}\n\nreturn {\n  ...d, promptVersion,\n  stage: 1,\n  stageLabel: 'Stage 1 — Gentle',\n  subject: parsed['subject'],\n  body: parsed['body'],\n  toneUsed: parsed['tone_used'] || 'Gentle',\n  parseSuccess: parsed['tone_used'] !== 'Fallback'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        112
+      ],
+      "id": "a038ce53-f5e9-43d8-a8dd-b5a65ca73947",
+      "name": "Code — Parse S1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-parse-s1-001",
+              "leftValue": "={{ $json['parseSuccess'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -224,
+        112
+      ],
+      "id": "56dc51b9-2371-4905-bbf5-f80b4d184af0",
+      "name": "If — Parse S1 OK"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Parse S1').item.json['debtorEmail'] }}",
+        "subject": "={{ $('Code — Parse S1').item.json['subject'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">{{ $('Code — Parse S1').item.json['clientBusiness'] }}</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;white-space:pre-wrap;\">{{ $('Code — Parse S1').item.json['body'] }}</div>\n  <div style=\"background:#f8f9ff;border:1px solid #e8e8ff;border-radius:12px;padding:24px;margin-bottom:28px;\">\n    <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6366f1;margin-bottom:14px;\">Invoice Summary</div>\n    <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\"><span style=\"font-size:13px;color:#666;\">Invoice</span><span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code — Parse S1').item.json['invoiceNumber'] }}</span></div>\n    <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\"><span style=\"font-size:13px;color:#666;\">Amount Due</span><span style=\"font-size:14px;font-weight:700;color:#020208;\">{{ $('Code — Parse S1').item.json['invoiceAmountFormatted'] }}</span></div>\n    <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\"><span style=\"font-size:13px;color:#666;\">Due Date</span><span style=\"font-size:13px;font-weight:600;color:#f59e0b;\">{{ $('Code — Parse S1').item.json['dueDate'] }}</span></div>\n    <div style=\"display:flex;justify-content:space-between;\"><span style=\"font-size:13px;color:#666;\">Pay by</span><span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code — Parse S1').item.json['paymentMethods'] }}</span></div>\n  </div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;\">Sent on behalf of {{ $('Code — Parse S1').item.json['clientBusiness'] }} · Powered by NSM</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4fd436ad-5d17-4705-a6d4-0c57a6c8a34f",
+      "name": "Gmail — Stage 1 Gentle",
+      "webhookId": "gmail-s1-001",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ AI PARSE FALLBACK — STAGE 1\n\nDebtor: {{ $('Code — Parse S1').item.json['debtorName'] }}\nInvoice: {{ $('Code — Parse S1').item.json['invoiceNumber'] }}\nAmount: {{ $('Code — Parse S1').item.json['invoiceAmountFormatted'] }}\n\nFallback email used. Time: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}\\n\\n_Prompt: {{ $('Code — Parse S1').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        208
+      ],
+      "id": "822b78ab-a39a-48f7-964c-00b447dc27d0",
+      "name": "Telegram — Fallback S1",
+      "webhookId": "tg-fb-s1",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Invoice Number": "={{ $('Code — Parse S1').item.json['invoiceNumber'] }}",
+            "Stage": "Stage 1",
+            "Attempts": "1",
+            "Last Contact": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "Prompt Version": "={{ $('Code — Parse S1').item.json['promptVersion'] }}",
+            "Parse Success": "={{ $('Code — Parse S1').item.json['parseSuccess'] }}"
+          },
+          "matchingColumns": [
+            "Invoice Number"
+          ],
+          "schema": [
+            {
+              "id": "Invoice Number",
+              "displayName": "Invoice Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stage",
+              "displayName": "Stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Attempts",
+              "displayName": "Attempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Contact",
+              "displayName": "Last Contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prompt Version",
+              "displayName": "Prompt Version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Parse Success",
+              "displayName": "Parse Success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "id": "f0c5ba46-afb1-48fa-9751-4205bf3ce50a",
+      "name": "Sheets — Update S1",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=💌 STAGE 1 SENT — Gentle reminder\n\n👤 {{ $('Code — Parse S1').item.json['debtorName'] }}\n🏢 {{ $('Code — Parse S1').item.json['clientBusiness'] }}\n📄 {{ $('Code — Parse S1').item.json['invoiceNumber'] }}\n💵 {{ $('Code — Parse S1').item.json['invoiceAmountFormatted'] }}\n📅 Days overdue: {{ $('Code — Parse S1').item.json['daysOverdue'] }}\n\nNext email (Stage 2 — Firm) in 3 days if no payment.\\n\\n_Prompt: {{ $('Code — Parse S1').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "df711f17-40fa-4d1d-ace2-6edd631f8940",
+      "name": "Telegram — S1 Alert",
+      "webhookId": "tg-s1-alert",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "days"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "3ca161b5-59e4-4939-92d0-ebacb68eacfa",
+      "name": "Wait — 3 Days After S1",
+      "webhookId": "wait-3d-s1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Invoice Number",
+              "lookupValue": "={{ $('Code — Parse S1').item.json['invoiceNumber'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        880,
+        0
+      ],
+      "id": "6a2c62ba-e403-4115-bc22-56f21df4d08e",
+      "name": "Sheets — Status Check (S1→S2)",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-active-s1s2-001",
+              "leftValue": "={{ $json['Status'] }}",
+              "rightValue": "Active",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1104,
+        0
+      ],
+      "id": "a79b95f2-0bbf-497f-a2fe-8da2dfd85810",
+      "name": "If — Still Active (S2 gate)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a professional South African business owner writing the SECOND payment reminder to a client. The first reminder went unanswered 3+ days ago. CRITICAL RULES:\\n\\n1. Address the debtor by FIRST NAME ONLY.\\n2. Reference this is the SECOND notice.\\n3. Tone: firm but not rude. Professional. The relationship still matters.\\n4. State the invoice number, amount, and how overdue it is.\\n5. Repeat payment methods naturally.\\n6. Make ONE direct call to action — pay or contact.\\n7. Sign off with the owner's first name.\\n8. South African English. No threats. No legal language yet.\\n9. STRICT WORD LIMIT: under 100 words.\\n10. Plain text only.\\n\\nTONE BY CUSTOMER TIER (provided in the user message as Tier + Lifetime Value):\\n- VIP (R50k+ LTV) or Gold (R20k+ LTV): notably softer. Acknowledge the relationship implicitly. Phrases like \\\"I am sure this has just slipped through\\\" feel appropriate. Never make a high-LTV customer feel like a debtor.\\n- Silver (R8k+ LTV): standard warm-professional. The customer is valued but the relationship is less deep.\\n- Bronze or Unknown: standard professional tone as below. No special acknowledgment.\\n\\nNEVER mention the tier name or LTV in the email itself. The tier is internal context that should only shape your tone, never appear in the text.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"subject\\\": \\\"short subject line under 10 words\\\", \\\"body\\\": \\\"the message body here\\\", \\\"tone_used\\\": \\\"Firm\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Debtor First Name: {{ $('Code — Stage Detect').item.json['firstName'] }}\\nDebtor Full Name: {{ $('Code — Stage Detect').item.json['debtorName'] }}\\nClient Business: {{ $('Code — Stage Detect').item.json['clientBusiness'] }}\\nOwner First Name: {{ $('Code — Stage Detect').item.json['ownerFirstName'] }}\\nInvoice: {{ $('Code — Stage Detect').item.json['invoiceNumber'] }}\\nAmount: {{ $('Code — Stage Detect').item.json['invoiceAmountFormatted'] }}\\nDue Date: {{ $('Code — Stage Detect').item.json['dueDate'] }}\\nDays Overdue: {{ $('Code — Stage Detect').item.json['daysOverdue'] }}\\nService: {{ $('Code — Stage Detect').item.json['serviceDesc'] }}\\nAccepted Payment Methods: {{ $('Code — Stage Detect').item.json['paymentMethods'] }}\\nCustomer Tier: {{ $('Code — Enrich With Tier').item.json['tier'] }}\\nLifetime Value: {{ $('Code — Enrich With Tier').item.json['lifetimeValueFormatted'] }}\\nTotal Past Purchases: {{ $('Code — Enrich With Tier').item.json['totalPurchases'] }}\"\n    }\n  ],\n  \"temperature\": 0.5,\n  \"max_tokens\": 400\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -880,
+        544
+      ],
+      "id": "8fbb65b4-a741-4079-97c5-9dddba481b2b",
+      "name": "Groq — Stage 2 Firm",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef1-s2-1",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef1-s2-2",
+              "name": "stage",
+              "value": "2",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -656,
+        544
+      ],
+      "id": "3799f323-1fff-48f6-9c99-0fc6a6986427",
+      "name": "Edit Fields1 — S2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptVersion = 'b4-s2-v1';\n// B4 — Stage 2 AI Parse\nconst rawText = $input.item.json['rawAIText'] || '';\nconst d = $('Code — Stage Detect').item.json;\n\nconst cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n\nlet parsed;\ntry { parsed = JSON.parse(cleaned); }\ncatch (e) {\n  const m = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) { parsed = null; } }\n}\n\nif (!parsed || !parsed['body']) {\n  parsed = {\n    subject: 'Second notice — Invoice ' + d['invoiceNumber'] + ' overdue',\n    body: 'Hi ' + d['firstName'] + ', this is a second reminder that invoice ' + d['invoiceNumber'] + ' for ' + d['invoiceAmountFormatted'] + ' is now overdue. We have not received payment or a response to our earlier message. Please settle the invoice by ' + d['paymentMethods'] + ', or reply to this email so we can find a way forward. Regards, ' + d['ownerFirstName'],\n    tone_used: 'Fallback'\n  };\n}\n\nreturn {\n  ...d, promptVersion,\n  stage: 2,\n  stageLabel: 'Stage 2 — Firm',\n  subject: parsed['subject'],\n  body: parsed['body'],\n  toneUsed: parsed['tone_used'] || 'Firm',\n  parseSuccess: parsed['tone_used'] !== 'Fallback'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        544
+      ],
+      "id": "c9f5e26d-20f3-43d2-90d3-f3b4620c35fc",
+      "name": "Code — Parse S2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-parse-s2-001",
+              "leftValue": "={{ $json['parseSuccess'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -224,
+        544
+      ],
+      "id": "106d179a-305f-4fe7-95e1-959b69f50c76",
+      "name": "If — Parse S2 OK"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Parse S2').item.json['debtorEmail'] }}",
+        "subject": "={{ $('Code — Parse S2').item.json['subject'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">{{ $('Code — Parse S2').item.json['clientBusiness'] }}</div>\n  <div style=\"display:inline-block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:#fff7ed;color:#f59e0b;padding:6px 12px;border-radius:6px;margin-bottom:20px;\">SECOND NOTICE</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;white-space:pre-wrap;\">{{ $('Code — Parse S2').item.json['body'] }}</div>\n  <div style=\"background:#f8f9ff;border:1px solid #e8e8ff;border-radius:12px;padding:24px;margin-bottom:28px;\">\n    <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f59e0b;margin-bottom:14px;\">Invoice Now Overdue</div>\n    <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\"><span style=\"font-size:13px;color:#666;\">Invoice</span><span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code — Parse S2').item.json['invoiceNumber'] }}</span></div>\n    <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\"><span style=\"font-size:13px;color:#666;\">Amount Due</span><span style=\"font-size:14px;font-weight:700;color:#020208;\">{{ $('Code — Parse S2').item.json['invoiceAmountFormatted'] }}</span></div>\n    <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\"><span style=\"font-size:13px;color:#666;\">Days Overdue</span><span style=\"font-size:13px;font-weight:700;color:#f43f5e;\">{{ $('Code — Parse S2').item.json['daysOverdue'] }}</span></div>\n    <div style=\"display:flex;justify-content:space-between;\"><span style=\"font-size:13px;color:#666;\">Pay by</span><span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code — Parse S2').item.json['paymentMethods'] }}</span></div>\n  </div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;\">Sent on behalf of {{ $('Code — Parse S2').item.json['clientBusiness'] }} · Powered by NSM</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        448
+      ],
+      "id": "cb5a8cc6-7404-4283-ac1d-16a36ada9987",
+      "name": "Gmail — Stage 2 Firm",
+      "webhookId": "gmail-s2-001",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ AI PARSE FALLBACK — STAGE 2\n\nDebtor: {{ $('Code — Parse S2').item.json['debtorName'] }}\nInvoice: {{ $('Code — Parse S2').item.json['invoiceNumber'] }}\nAmount: {{ $('Code — Parse S2').item.json['invoiceAmountFormatted'] }}\n\nFallback email used. Time: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}\\n\\n_Prompt: {{ $('Code — Parse S2').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        640
+      ],
+      "id": "c5d6e727-882e-47a9-8c1e-6b35651b54e5",
+      "name": "Telegram — Fallback S2",
+      "webhookId": "tg-fb-s2",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Invoice Number": "={{ $('Code — Parse S2').item.json['invoiceNumber'] }}",
+            "Stage": "Stage 2",
+            "Attempts": "2",
+            "Last Contact": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "Prompt Version": "={{ $('Code — Parse S2').item.json['promptVersion'] }}",
+            "Parse Success": "={{ $('Code — Parse S2').item.json['parseSuccess'] }}"
+          },
+          "matchingColumns": [
+            "Invoice Number"
+          ],
+          "schema": [
+            {
+              "id": "Invoice Number",
+              "displayName": "Invoice Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stage",
+              "displayName": "Stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Attempts",
+              "displayName": "Attempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Contact",
+              "displayName": "Last Contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prompt Version",
+              "displayName": "Prompt Version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Parse Success",
+              "displayName": "Parse Success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        448
+      ],
+      "id": "7403fa5c-0415-4a75-a289-93420a586003",
+      "name": "Sheets — Update S2",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=📨 STAGE 2 SENT — Firm reminder\n\n👤 {{ $('Code — Parse S2').item.json['debtorName'] }}\n🏢 {{ $('Code — Parse S2').item.json['clientBusiness'] }}\n📄 {{ $('Code — Parse S2').item.json['invoiceNumber'] }}\n💵 {{ $('Code — Parse S2').item.json['invoiceAmountFormatted'] }}\n📅 Days overdue: {{ $('Code — Parse S2').item.json['daysOverdue'] }}\n\nNext email (Stage 3 — Final) in 4 days if no payment.\\n\\n_Prompt: {{ $('Code — Parse S2').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        448
+      ],
+      "id": "098be114-c812-45a4-a863-d230ffeabb0d",
+      "name": "Telegram — S2 Alert",
+      "webhookId": "tg-s2-alert",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 4,
+        "unit": "days"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        448
+      ],
+      "id": "be7823ba-983a-4970-8b80-7cca9ffd71a3",
+      "name": "Wait — 4 Days After S2",
+      "webhookId": "wait-4d-s2"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Invoice Number",
+              "lookupValue": "={{ $('Code — Parse S2').item.json['invoiceNumber'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        880,
+        448
+      ],
+      "id": "fe247bc9-bb1b-4566-9372-5ace310cccb8",
+      "name": "Sheets — Status Check (S2→S3)",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-active-s2s3-001",
+              "leftValue": "={{ $json['Status'] }}",
+              "rightValue": "Active",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1104,
+        448
+      ],
+      "id": "345627e3-d8b2-4ae3-9e2c-d16a22b2de11",
+      "name": "If — Still Active (S3 gate)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a professional South African business owner writing the THIRD and FINAL automated payment reminder. Two prior reminders went unanswered. CRITICAL RULES:\\n\\n1. Address the debtor by FIRST NAME ONLY.\\n2. State clearly this is the FINAL automated notice.\\n3. Tone: firm and professional. Direct. NOT aggressive. NOT threatening. NOT legal language yet — that step is the owner's call.\\n4. State invoice, amount, days overdue.\\n5. State that the next step will be manual follow-up by the owner.\\n6. Provide ONE last clear opportunity to pay or contact.\\n7. Sign off with the owner's first name.\\n8. South African English.\\n9. STRICT WORD LIMIT: under 110 words.\\n10. Plain text only.\\n\\nTONE BY CUSTOMER TIER (provided in the user message as Tier + Lifetime Value):\\n- VIP (R50k+ LTV) or Gold (R20k+ LTV): notably softer. Acknowledge the relationship implicitly. Phrases like \\\"I am sure this has just slipped through\\\" feel appropriate. Never make a high-LTV customer feel like a debtor.\\n- Silver (R8k+ LTV): standard warm-professional. The customer is valued but the relationship is less deep.\\n- Bronze or Unknown: standard professional tone as below. No special acknowledgment.\\n\\nNEVER mention the tier name or LTV in the email itself. The tier is internal context that should only shape your tone, never appear in the text.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"subject\\\": \\\"short subject line under 12 words\\\", \\\"body\\\": \\\"the message body here\\\", \\\"tone_used\\\": \\\"Final\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Debtor First Name: {{ $('Code — Stage Detect').item.json['firstName'] }}\\nDebtor Full Name: {{ $('Code — Stage Detect').item.json['debtorName'] }}\\nClient Business: {{ $('Code — Stage Detect').item.json['clientBusiness'] }}\\nOwner First Name: {{ $('Code — Stage Detect').item.json['ownerFirstName'] }}\\nInvoice: {{ $('Code — Stage Detect').item.json['invoiceNumber'] }}\\nAmount: {{ $('Code — Stage Detect').item.json['invoiceAmountFormatted'] }}\\nDue Date: {{ $('Code — Stage Detect').item.json['dueDate'] }}\\nDays Overdue: {{ $('Code — Stage Detect').item.json['daysOverdue'] }}\\nService: {{ $('Code — Stage Detect').item.json['serviceDesc'] }}\\nAccepted Payment Methods: {{ $('Code — Stage Detect').item.json['paymentMethods'] }}\\nCustomer Tier: {{ $('Code — Enrich With Tier').item.json['tier'] }}\\nLifetime Value: {{ $('Code — Enrich With Tier').item.json['lifetimeValueFormatted'] }}\\nTotal Past Purchases: {{ $('Code — Enrich With Tier').item.json['totalPurchases'] }}\"\n    }\n  ],\n  \"temperature\": 0.4,\n  \"max_tokens\": 400\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -880,
+        992
+      ],
+      "id": "dbd388d2-5ce4-4bb0-b9e9-bd82986b4495",
+      "name": "Groq — Stage 3 Final",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef1-s3-1",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef1-s3-2",
+              "name": "stage",
+              "value": "3",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -656,
+        992
+      ],
+      "id": "896a0e5e-e92c-4b65-8cb6-8e3283f2efd5",
+      "name": "Edit Fields1 — S3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptVersion = 'b4-s3-v1';\n// B4 — Stage 3 AI Parse\nconst rawText = $input.item.json['rawAIText'] || '';\nconst d = $('Code — Stage Detect').item.json;\n\nconst cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n\nlet parsed;\ntry { parsed = JSON.parse(cleaned); }\ncatch (e) {\n  const m = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) { parsed = null; } }\n}\n\nif (!parsed || !parsed['body']) {\n  parsed = {\n    subject: 'FINAL NOTICE — Invoice ' + d['invoiceNumber'],\n    body: 'Hi ' + d['firstName'] + ', this is the final automated reminder for invoice ' + d['invoiceNumber'] + ' (' + d['invoiceAmountFormatted'] + '), now ' + d['daysOverdue'] + ' days overdue. After today this matter will be handled directly by ' + d['ownerFirstName'] + '. Please settle by ' + d['paymentMethods'] + ' or reply within 7 days to avoid manual follow-up. Regards, ' + d['ownerFirstName'],\n    tone_used: 'Fallback'\n  };\n}\n\nreturn {\n  ...d, promptVersion,\n  stage: 3,\n  stageLabel: 'Stage 3 — Final',\n  subject: parsed['subject'],\n  body: parsed['body'],\n  toneUsed: parsed['tone_used'] || 'Final',\n  parseSuccess: parsed['tone_used'] !== 'Fallback'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        992
+      ],
+      "id": "e3e20e38-07e4-43e7-9a0e-eaaf939cc2a4",
+      "name": "Code — Parse S3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-parse-s3-001",
+              "leftValue": "={{ $json['parseSuccess'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -224,
+        992
+      ],
+      "id": "dffce30b-dcb5-4876-a0e5-14b49cc48790",
+      "name": "If — Parse S3 OK"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Parse S3').item.json['debtorEmail'] }}",
+        "subject": "={{ $('Code — Parse S3').item.json['subject'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">{{ $('Code — Parse S3').item.json['clientBusiness'] }}</div>\n  <div style=\"display:inline-block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:#fef2f2;color:#f43f5e;padding:6px 12px;border-radius:6px;margin-bottom:20px;\">FINAL NOTICE</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;white-space:pre-wrap;\">{{ $('Code — Parse S3').item.json['body'] }}</div>\n  <div style=\"background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:24px;margin-bottom:28px;\">\n    <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f43f5e;margin-bottom:14px;\">Final Automated Notice</div>\n    <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\"><span style=\"font-size:13px;color:#666;\">Invoice</span><span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code — Parse S3').item.json['invoiceNumber'] }}</span></div>\n    <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\"><span style=\"font-size:13px;color:#666;\">Amount Due</span><span style=\"font-size:14px;font-weight:700;color:#020208;\">{{ $('Code — Parse S3').item.json['invoiceAmountFormatted'] }}</span></div>\n    <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\"><span style=\"font-size:13px;color:#666;\">Days Overdue</span><span style=\"font-size:13px;font-weight:700;color:#f43f5e;\">{{ $('Code — Parse S3').item.json['daysOverdue'] }}</span></div>\n    <div style=\"display:flex;justify-content:space-between;\"><span style=\"font-size:13px;color:#666;\">Pay by</span><span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code — Parse S3').item.json['paymentMethods'] }}</span></div>\n  </div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;\">Sent on behalf of {{ $('Code — Parse S3').item.json['clientBusiness'] }} · Powered by NSM</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        880
+      ],
+      "id": "0e3acf0b-5aca-47a4-b988-040a657c4479",
+      "name": "Gmail — Stage 3 Final",
+      "webhookId": "gmail-s3-001",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ AI PARSE FALLBACK — STAGE 3\n\nDebtor: {{ $('Code — Parse S3').item.json['debtorName'] }}\nInvoice: {{ $('Code — Parse S3').item.json['invoiceNumber'] }}\nAmount: {{ $('Code — Parse S3').item.json['invoiceAmountFormatted'] }}\n\nFallback email used. Time: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}\\n\\n_Prompt: {{ $('Code — Parse S3').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        1088
+      ],
+      "id": "92b02775-5050-4d73-b6fd-ce429532d070",
+      "name": "Telegram — Fallback S3",
+      "webhookId": "tg-fb-s3",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Invoice Number": "={{ $('Code — Parse S3').item.json['invoiceNumber'] }}",
+            "Stage": "Stage 3",
+            "Attempts": "3",
+            "Last Contact": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "Prompt Version": "={{ $('Code — Parse S3').item.json['promptVersion'] }}",
+            "Parse Success": "={{ $('Code — Parse S3').item.json['parseSuccess'] }}"
+          },
+          "matchingColumns": [
+            "Invoice Number"
+          ],
+          "schema": [
+            {
+              "id": "Invoice Number",
+              "displayName": "Invoice Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stage",
+              "displayName": "Stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Attempts",
+              "displayName": "Attempts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Contact",
+              "displayName": "Last Contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prompt Version",
+              "displayName": "Prompt Version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Parse Success",
+              "displayName": "Parse Success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        880
+      ],
+      "id": "dad299a5-572d-469f-b1e0-09893f80bb80",
+      "name": "Sheets — Update S3",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=📛 STAGE 3 SENT — Final notice\n\n👤 {{ $('Code — Parse S3').item.json['debtorName'] }}\n🏢 {{ $('Code — Parse S3').item.json['clientBusiness'] }}\n📄 {{ $('Code — Parse S3').item.json['invoiceNumber'] }}\n💵 {{ $('Code — Parse S3').item.json['invoiceAmountFormatted'] }}\n📅 Days overdue: {{ $('Code — Parse S3').item.json['daysOverdue'] }}\n\nWaiting 7 days. If still no payment, manual intervention alert will fire.\\n\\n_Prompt: {{ $('Code — Parse S3').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        880
+      ],
+      "id": "71b91cce-d483-4d03-94cd-e2ddb7b439c1",
+      "name": "Telegram — S3 Alert",
+      "webhookId": "tg-s3-alert",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 7,
+        "unit": "days"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        880
+      ],
+      "id": "7a964998-a4b7-4de1-a6d0-6cac0ecb065d",
+      "name": "Wait — 7 Days After S3",
+      "webhookId": "wait-7d-s3"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Invoice Number",
+              "lookupValue": "={{ $('Code — Parse S3').item.json['invoiceNumber'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        880,
+        880
+      ],
+      "id": "de6eae32-9d40-448b-a1d8-816ee01104b0",
+      "name": "Sheets — Final Status Check",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-final-active-001",
+              "leftValue": "={{ $json['Status'] }}",
+              "rightValue": "Active",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1104,
+        880
+      ],
+      "id": "eb264b77-8fef-4d95-8c0c-5b0c316c5050",
+      "name": "If — Still Unpaid (Manual Gate)"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Invoice Number": "={{ $json['Invoice Number'] }}",
+            "Status": "Manual Required",
+            "Notes": "Sequence completed without payment. Manual intervention required."
+          },
+          "matchingColumns": [
+            "Invoice Number"
+          ],
+          "schema": [
+            {
+              "id": "Invoice Number",
+              "displayName": "Invoice Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1328,
+        784
+      ],
+      "id": "986f882f-c8e6-469b-989d-d38214e2cdf2",
+      "name": "Sheets — Mark Manual Required",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🚨 MANUAL INTERVENTION REQUIRED\n\nAll 3 automated stages exhausted. Debtor has not paid.\n\n👤 {{ $json['Debtor Name'] }}\n📧 {{ $json['Debtor Email'] }}\n🏢 {{ $json['Client Business'] }}\n📄 {{ $json['Invoice Number'] }}\n💵 R{{ $json['Invoice Amount'] }}\n📅 Originally due: {{ $json['Due Date'] }}\n\nNext step: phone call, legal letter, or write-off. Owner's call.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        784
+      ],
+      "id": "6db53b75-1dd1-4404-82b6-596d05b03efc",
+      "name": "Telegram — Manual Intervention",
+      "webhookId": "tg-manual",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "recovery-mark-paid",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2208,
+        1216
+      ],
+      "id": "3d47adfe-e041-4307-82ff-92cedd5865ec",
+      "name": "Webhook — Mark as Paid",
+      "webhookId": "rev-recovery-paid-001"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-paid-1",
+              "name": "invoiceNumber",
+              "value": "={{ $json['body']['invoiceNumber'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Invoice Number')?.['value'] ?? 'INV-UNKNOWN' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-paid-2",
+              "name": "amountRecovered",
+              "value": "={{ $json['body']['amountRecovered'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Amount Recovered')?.['value'] ?? 0 }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-paid-3",
+              "name": "amountFormatted",
+              "value": "=R{{ Number($json['body']['amountRecovered'] ?? 0).toLocaleString('en-ZA', { minimumFractionDigits: 2 }) }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-paid-4",
+              "name": "datePaid",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2016,
+        1216
+      ],
+      "id": "052356c6-4766-4913-985f-0deafeeea94e",
+      "name": "Edit Fields — Paid"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Invoice Number": "={{ $('Edit Fields — Paid').item.json['invoiceNumber'] }}",
+            "Status": "Paid",
+            "Amount Recovered": "={{ $('Edit Fields — Paid').item.json['amountRecovered'] }}",
+            "Date Paid": "={{ $('Edit Fields — Paid').item.json['datePaid'] }}"
+          },
+          "matchingColumns": [
+            "Invoice Number"
+          ],
+          "schema": [
+            {
+              "id": "Invoice Number",
+              "displayName": "Invoice Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount Recovered",
+              "displayName": "Amount Recovered",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Paid",
+              "displayName": "Date Paid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1824,
+        1216
+      ],
+      "id": "dffbdadd-07bf-4d6b-b75b-bc35b2b39019",
+      "name": "Sheets — Mark Paid",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🎉 PAYMENT RECOVERED!\n\n📄 Invoice: {{ $('Edit Fields — Paid').item.json['invoiceNumber'] }}\n💚 Amount: {{ $('Edit Fields — Paid').item.json['amountFormatted'] }}\n📅 Paid: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}\n\nRecovery sequence stopped. Money in the bank.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1584,
+        1216
+      ],
+      "id": "3a8b2c34-7d0e-4273-8563-807ace6f4e77",
+      "name": "Telegram — Payment Celebrated",
+      "webhookId": "tg-paid",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Invoice marked as paid. Recovery sequence stopped.\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1376,
+        1216
+      ],
+      "id": "2b6ef466-0252-42f5-aafb-ddd122298a6b",
+      "name": "Respond — Paid"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -2192,
+        1584
+      ],
+      "id": "6a805651-9ed8-4805-9b1b-ac9f2f29e6e0",
+      "name": "Schedule — Mon 8am Weekly"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2000,
+        1584
+      ],
+      "id": "2686b4be-2ba1-4d67-908c-e9861821fdf5",
+      "name": "Sheets — Read All Invoices",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// B4 Revenue Recovery — Weekly Aggregator\nconst rows = $input.all();\n\nconst formatRand = n => 'R' + n.toLocaleString('en-ZA', { minimumFractionDigits: 2 });\n\nconst total = rows.length;\nconst byStatus = (s) => rows.filter(r => (r.json['Status'] || '').trim() === s).length;\n\nconst active = byStatus('Active');\nconst paid = byStatus('Paid');\nconst manual = byStatus('Manual Required');\n\nconst recovered = rows\n  .filter(r => (r.json['Status'] || '').trim() === 'Paid')\n  .reduce((acc, r) => acc + (parseFloat(r.json['Amount Recovered']) || 0), 0);\n\nconst outstanding = rows\n  .filter(r => ['Active', 'Manual Required'].includes((r.json['Status'] || '').trim()))\n  .reduce((acc, r) => acc + (parseFloat(r.json['Invoice Amount']) || 0), 0);\n\nconst stage1Count = rows.filter(r => (r.json['Stage'] || '').trim() === 'Stage 1').length;\nconst stage2Count = rows.filter(r => (r.json['Stage'] || '').trim() === 'Stage 2').length;\nconst stage3Count = rows.filter(r => (r.json['Stage'] || '').trim() === 'Stage 3').length;\n\nconst summary = [\n  'Total invoices tracked: ' + total,\n  'Active: ' + active,\n  'Paid this week: ' + paid + ' (' + formatRand(recovered) + ' recovered)',\n  'Awaiting manual: ' + manual,\n  'Stage 1 in progress: ' + stage1Count,\n  'Stage 2 in progress: ' + stage2Count,\n  'Stage 3 in progress: ' + stage3Count,\n  'Total still outstanding: ' + formatRand(outstanding)\n].join('. ');\n\nreturn [{\n  json: {\n    total, active, paid, manual,\n    stage1Count, stage2Count, stage3Count,\n    recoveredFormatted: formatRand(recovered),\n    outstandingFormatted: formatRand(outstanding),\n    summary,\n    reportDate: new Date().toLocaleDateString('en-ZA', { timeZone: 'Africa/Johannesburg' })\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1824,
+        1584
+      ],
+      "id": "407ae68e-c687-47f8-bfb3-afb2a14bf6d5",
+      "name": "Code — Weekly Aggregator"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a senior business analyst writing a weekly recovery brief for a South African business owner. Write warmly and directly. Lead with what was recovered. Call out anything stuck at manual. End with ONE specific action this week. Hard limit 130 words. No bullets. No headers. Plain text. Use Rand.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json['summary'] }}\"\n    }\n  ],\n  \"temperature\": 0.4,\n  \"max_tokens\": 350\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1632,
+        1584
+      ],
+      "id": "49c54dd8-228b-4302-99a4-15016500c885",
+      "name": "Groq — Weekly Narrative",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-weekly-1",
+              "name": "aiNarrative",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-2",
+              "name": "total",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['total'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-3",
+              "name": "active",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['active'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-4",
+              "name": "paid",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['paid'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-5",
+              "name": "manual",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['manual'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-6",
+              "name": "recoveredFormatted",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['recoveredFormatted'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-7",
+              "name": "outstandingFormatted",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['outstandingFormatted'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-weekly-8",
+              "name": "reportDate",
+              "value": "={{ $('Code — Weekly Aggregator').item.json['reportDate'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1440,
+        1584
+      ],
+      "id": "ebd9cbab-9fec-4cc3-a3c1-da2868f2e693",
+      "name": "Edit Fields — Weekly"
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=💰 Recovery Brief — {{ $('Edit Fields — Weekly').item.json['reportDate'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:600px;margin:40px auto;background:#08080c;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);\">\n  <div style=\"padding:32px 40px;background:linear-gradient(135deg,#6366f1,#22d3ee);\">\n    <div style=\"font-size:11px;color:rgba(255,255,255,0.85);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;\">NSM — Revenue Recovery</div>\n    <div style=\"font-size:24px;font-weight:800;color:#fff;\">Weekly Recovery Brief</div>\n    <div style=\"font-size:14px;color:rgba(255,255,255,0.85);margin-top:6px;\">{{ $('Edit Fields — Weekly').item.json['reportDate'] }}</div>\n  </div>\n  <div style=\"padding:36px 40px;\">\n    <div style=\"display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;\">\n      <div style=\"background:rgba(16,185,129,0.10);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:16px;text-align:center;\">\n        <div style=\"font-size:10px;color:#10b981;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Paid</div>\n        <div style=\"font-size:32px;font-weight:800;color:#10b981;\">{{ $('Edit Fields — Weekly').item.json['paid'] }}</div>\n      </div>\n      <div style=\"background:rgba(99,102,241,0.10);border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:16px;text-align:center;\">\n        <div style=\"font-size:10px;color:#818cf8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Active</div>\n        <div style=\"font-size:32px;font-weight:800;color:#818cf8;\">{{ $('Edit Fields — Weekly').item.json['active'] }}</div>\n      </div>\n      <div style=\"background:rgba(244,63,94,0.10);border:1px solid rgba(244,63,94,0.2);border-radius:12px;padding:16px;text-align:center;\">\n        <div style=\"font-size:10px;color:#f43f5e;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Manual</div>\n        <div style=\"font-size:32px;font-weight:800;color:#f43f5e;\">{{ $('Edit Fields — Weekly').item.json['manual'] }}</div>\n      </div>\n    </div>\n    <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;\">\n      <div style=\"background:rgba(255,255,255,0.04);border-radius:12px;padding:18px;\">\n        <div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Recovered</div>\n        <div style=\"font-size:22px;font-weight:800;color:#10b981;\">{{ $('Edit Fields — Weekly').item.json['recoveredFormatted'] }}</div>\n      </div>\n      <div style=\"background:rgba(255,255,255,0.04);border-radius:12px;padding:18px;\">\n        <div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Still Outstanding</div>\n        <div style=\"font-size:22px;font-weight:800;color:#f59e0b;\">{{ $('Edit Fields — Weekly').item.json['outstandingFormatted'] }}</div>\n      </div>\n    </div>\n    <div style=\"background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:22px;\">\n      <div style=\"font-size:10px;color:#818cf8;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;\">AI Weekly Analysis</div>\n      <div style=\"font-size:14px;color:#e8e8ff;line-height:1.75;white-space:pre-wrap;\">{{ $('Edit Fields — Weekly').item.json['aiNarrative'] }}</div>\n    </div>\n    <div style=\"font-size:10px;color:#5a5a7a;letter-spacing:2px;text-align:center;margin-top:24px;text-transform:uppercase;\">NSM // Revenue Recovery // South Africa</div>\n  </div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1216,
+        1584
+      ],
+      "id": "535b0e33-c243-450b-b372-5c3d0ddcc87f",
+      "name": "Gmail — Weekly Brief",
+      "webhookId": "gmail-weekly",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=💰 RECOVERY WEEKLY BRIEF — {{ $('Edit Fields — Weekly').item.json['reportDate'] }}\n\n📊 Total tracked: {{ $('Edit Fields — Weekly').item.json['total'] }}\n💚 Paid: {{ $('Edit Fields — Weekly').item.json['paid'] }}\n🔵 Active: {{ $('Edit Fields — Weekly').item.json['active'] }}\n🚨 Manual required: {{ $('Edit Fields — Weekly').item.json['manual'] }}\n\n💵 Recovered: {{ $('Edit Fields — Weekly').item.json['recoveredFormatted'] }}\n💸 Outstanding: {{ $('Edit Fields — Weekly').item.json['outstandingFormatted'] }}\n\nFull brief in your inbox.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -976,
+        1584
+      ],
+      "id": "48888c48-edd6-40d5-90fd-b1bb00fdc778",
+      "name": "Telegram — Weekly Brief",
+      "webhookId": "tg-weekly-recovery",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "lookup",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Customer Email",
+              "lookupValue": "={{ $('Code — Stage Detect').item.json['debtorEmail'] ?? $('Code — Stage Detect').item.json['customerEmail'] ?? '' }}"
+            }
+          ]
+        },
+        "combineFilters": "AND",
+        "options": {}
+      },
+      "id": "2f91dced-1d1c-4811-a7c6-70c5aee74e8f",
+      "name": "Sheets — B10 Tier Lookup",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1128,
+        572
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code — Enrich With Tier (B10 lookup → tier-aware payload)\n// Defensive: handles unfound customer (Bronze/Unknown defaults)\nfunction trimKeys(o){ const r={}; for(const k in o){ r[k.trim()]=o[k]; } return r; }\n\nconst upstream = $('Code — Stage Detect').item.json;\nconst raw = $input.all().map(i => trimKeys(i.json || {}));\nconst found = raw.find(r => r['Customer Name']) || {};\n\nlet tier = 'Unknown';\nlet lifetimeValue = 0;\nlet totalPurchases = 0;\nlet trajectory = 'unknown';\nlet lastProduct = '';\n\nif (found['Customer Name']) {\n  tier = found['Tier'] || 'Bronze';\n  lifetimeValue = parseFloat(found['Lifetime Value'] || found['Total Spend'] || 0);\n  totalPurchases = parseInt(found['Total Purchases'] || 0);\n  trajectory = found['Trajectory'] || 'stable';\n  lastProduct = found['Last Product'] || '';\n}\n\nconst isVIP = tier === 'VIP';\nconst isHighValue = tier === 'VIP' || tier === 'Gold';\nconst knownCustomer = tier !== 'Unknown';\n\nconst formatRand = n => 'R' + (parseFloat(n) || 0).toLocaleString('en-ZA');\n\nreturn [{\n  json: {\n    ...upstream,\n    tier,\n    isVIP,\n    isHighValue,\n    knownCustomer,\n    lifetimeValue,\n    lifetimeValueFormatted: formatRand(lifetimeValue),\n    totalPurchases,\n    trajectory,\n    lastProduct\n  }\n}];"
+      },
+      "id": "6684295f-1171-471c-91cb-ec0b8625f407",
+      "name": "Code — Enrich With Tier",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -928,
+        572
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cond-vip-4dbdb105",
+              "leftValue": "={{ $('Code — Enrich With Tier').item.json['isVIP'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ea51ccbe-0b8d-49e0-9708-c4e04a1b114e",
+      "name": "If — VIP at S2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        648,
+        648
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🟡 *VIP CHASE — STAGE 2*\n\nThis is a *{{ $('Code — Enrich With Tier').item.json['tier'] }}* customer (LTV {{ $('Code — Enrich With Tier').item.json['lifetimeValueFormatted'] }}, {{ $('Code — Enrich With Tier').item.json['totalPurchases'] }} prior purchases).\n\nDebtor: *{{ $('Code — Stage Detect').item.json['debtorName'] }}*\nInvoice: {{ $('Code — Stage Detect').item.json['invoiceNumber'] }} · {{ $('Code — Stage Detect').item.json['invoiceAmountFormatted'] }}\nDays overdue: {{ $('Code — Stage Detect').item.json['daysOverdue'] }}\n\nThe Stage 2 chase email has been sent. *Consider calling them personally* — high-LTV accounts shouldn't reach Stage 3 automation.",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "e539d8f1-c6a3-46f0-8465-98929fd525f2",
+      "name": "Telegram — VIP S2 Owner Call",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        848,
+        648
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cond-vip-f03ecedc",
+              "leftValue": "={{ $('Code — Enrich With Tier').item.json['isVIP'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ed21f63e-be2b-44a2-8035-36a4fe34c23d",
+      "name": "If — VIP at S3",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        648,
+        1080
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🔴 *VIP CHASE — STAGE 3 FINAL*\n\n*{{ $('Code — Enrich With Tier').item.json['tier'] }}* customer · LTV {{ $('Code — Enrich With Tier').item.json['lifetimeValueFormatted'] }} · {{ $('Code — Enrich With Tier').item.json['totalPurchases'] }} prior purchases.\n\nDebtor: *{{ $('Code — Stage Detect').item.json['debtorName'] }}*\nInvoice: {{ $('Code — Stage Detect').item.json['invoiceNumber'] }} · {{ $('Code — Stage Detect').item.json['invoiceAmountFormatted'] }}\nDays overdue: {{ $('Code — Stage Detect').item.json['daysOverdue'] }}\n\nFinal automated notice sent. *Make the personal call today.* This account is too valuable to lose to a debt-collector handoff.",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "c7451f69-c492-42c5-b7db-9fa9cfb998c9",
+      "name": "Telegram — VIP S3 Owner Call",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        848,
+        1080
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook — Add Debtor": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code — Stage Detect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Stage Detect": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets — Append Debtor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets — Append Debtor": {
+      "main": [
+        [
+          {
+            "node": "Respond — Add Debtor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond — Add Debtor": {
+      "main": [
+        [
+          {
+            "node": "Sheets — B10 Tier Lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch — Entry Stage": {
+      "main": [
+        [
+          {
+            "node": "Groq — Stage 1 Gentle",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Groq — Stage 2 Firm",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Groq — Stage 3 Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Stage 1 Gentle": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1 — S1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1 — S1": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse S1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse S1": {
+      "main": [
+        [
+          {
+            "node": "If — Parse S1 OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — Parse S1 OK": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Stage 1 Gentle",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Fallback S1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Stage 1 Gentle": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Update S1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Update S1": {
+      "main": [
+        [
+          {
+            "node": "Telegram — S1 Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — S1 Alert": {
+      "main": [
+        [
+          {
+            "node": "Wait — 3 Days After S1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait — 3 Days After S1": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Status Check (S1→S2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Status Check (S1→S2)": {
+      "main": [
+        [
+          {
+            "node": "If — Still Active (S2 gate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — Still Active (S2 gate)": {
+      "main": [
+        [
+          {
+            "node": "Groq — Stage 2 Firm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Stage 2 Firm": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1 — S2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1 — S2": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse S2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse S2": {
+      "main": [
+        [
+          {
+            "node": "If — Parse S2 OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — Parse S2 OK": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Stage 2 Firm",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Fallback S2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Stage 2 Firm": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Update S2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Update S2": {
+      "main": [
+        [
+          {
+            "node": "Telegram — S2 Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — S2 Alert": {
+      "main": [
+        [
+          {
+            "node": "Wait — 4 Days After S2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If — VIP at S2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait — 4 Days After S2": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Status Check (S2→S3)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Status Check (S2→S3)": {
+      "main": [
+        [
+          {
+            "node": "If — Still Active (S3 gate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — Still Active (S3 gate)": {
+      "main": [
+        [
+          {
+            "node": "Groq — Stage 3 Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Stage 3 Final": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1 — S3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1 — S3": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse S3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse S3": {
+      "main": [
+        [
+          {
+            "node": "If — Parse S3 OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — Parse S3 OK": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Stage 3 Final",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Fallback S3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Stage 3 Final": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Update S3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Update S3": {
+      "main": [
+        [
+          {
+            "node": "Telegram — S3 Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — S3 Alert": {
+      "main": [
+        [
+          {
+            "node": "Wait — 7 Days After S3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If — VIP at S3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait — 7 Days After S3": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Final Status Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Final Status Check": {
+      "main": [
+        [
+          {
+            "node": "If — Still Unpaid (Manual Gate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — Still Unpaid (Manual Gate)": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Mark Manual Required",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Mark Manual Required": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Manual Intervention",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook — Mark as Paid": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Paid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Paid": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Mark Paid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Mark Paid": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Payment Celebrated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Payment Celebrated": {
+      "main": [
+        [
+          {
+            "node": "Respond — Paid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule — Mon 8am Weekly": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read All Invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read All Invoices": {
+      "main": [
+        [
+          {
+            "node": "Code — Weekly Aggregator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Weekly Aggregator": {
+      "main": [
+        [
+          {
+            "node": "Groq — Weekly Narrative",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Weekly Narrative": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Weekly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Weekly": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Weekly Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Weekly Brief": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Weekly Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — B10 Tier Lookup": {
+      "main": [
+        [
+          {
+            "node": "Code — Enrich With Tier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Enrich With Tier": {
+      "main": [
+        [
+          {
+            "node": "Switch — Entry Stage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — VIP at S2": {
+      "main": [
+        [
+          {
+            "node": "Telegram — VIP S2 Owner Call",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "If — VIP at S3": {
+      "main": [
+        [
+          {
+            "node": "Telegram — VIP S3 Owner Call",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b4-revenue-recovery-v3-007",
+  "meta": {
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B4RevenueRecoveryV3001",
+  "tags": []
+}

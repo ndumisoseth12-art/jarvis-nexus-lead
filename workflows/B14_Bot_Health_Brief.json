@@ -1,0 +1,974 @@
+{
+  "name": "B14 Bot Health Brief",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "70c8b5ea-0f05-45dd-869c-f9a1d6bbce07",
+      "name": "Schedule — Mon 6am Weekly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-now",
+              "name": "runAtIso",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-today",
+              "name": "todayDate",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-ws",
+              "name": "weekStartIso",
+              "value": "={{ $now.setZone('Africa/Johannesburg').minus({ days: 7 }).toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-lws",
+              "name": "lastWeekStartIso",
+              "value": "={{ $now.setZone('Africa/Johannesburg').minus({ days: 14 }).toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-pretty",
+              "name": "weekLabel",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('d LLL yyyy') }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-owner",
+              "name": "ownerEmail",
+              "value": "ndumisoseth12@gmail.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "22f0af57-10d9-4eca-ae3d-6bf38ffe792e",
+      "name": "Edit Fields — Setup",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -960,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/19AqZ4gFygsqIu-fxz7fQ11xCp1Rfj-bvZOty4Hij_xI/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19AqZ4gFygsqIu-fxz7fQ11xCp1Rfj-bvZOty4Hij_xI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "00dc1659-8426-485d-b265-b775665c94b2",
+      "name": "Sheets — Read B2 Customers",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -720,
+        -1100
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "1989ff1d-e60a-42ff-904f-06106621f1d9",
+      "name": "Sheets — Read B3 Bookings",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -720,
+        -900
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "61289b54-bc9d-4a52-992b-67692687cd9a",
+      "name": "Sheets — Read B4 Invoices",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -720,
+        -700
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit?gid=1#gid=1",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=1",
+          "mode": "list",
+          "cachedResultName": "Reactivation Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit#gid=1"
+        },
+        "options": {}
+      },
+      "id": "30b4f0a9-bc0d-4847-9b09-b09aadf6d2a0",
+      "name": "Sheets — Read B5 Reactivation Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -720,
+        -500
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wHg5BxQJHYJQGbJdS6mE9M7v5qblLbvKU6ToK348izQ/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "2bf344b7-abd3-4a55-8573-d792b27b1d23",
+      "name": "Sheets — Read B6 Reputation",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -720,
+        -300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1NssT8zHU_ttlYklBQoaqyGmNu_y9stD9MgtBcCMmNX0/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NssT8zHU_ttlYklBQoaqyGmNu_y9stD9MgtBcCMmNX0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "fb614936-f3d6-4cfa-bcbb-e9027e32b46c",
+      "name": "Sheets — Read B7 Referrals",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -720,
+        -100
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "5c791934-1034-4646-a237-a2ad22262ab5",
+      "name": "Sheets — Read B9 Tickets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -720,
+        100
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "6f073e46-4cb7-48e4-8a73-bae9309092de",
+      "name": "Sheets — Read B10 Customers",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -720,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1uzMTxVilA8LXhd_TnT_IY52j_PA4XaiEqfZkzuRssXM/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uzMTxVilA8LXhd_TnT_IY52j_PA4XaiEqfZkzuRssXM/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "fbe714be-67d2-45ef-a9f6-fc4a18cbb925",
+      "name": "Sheets — Read B11 E-Comm",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -720,
+        500
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1Jan4h5MtffGQ6al3tgCxBPURWiFGXo-WG_lKqTc5D0Y/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Jan4h5MtffGQ6al3tgCxBPURWiFGXo-WG_lKqTc5D0Y/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "b4f4f190-2637-4d75-b140-ab55f61cde2a",
+      "name": "Sheets — Read B11 Airbnb",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -720,
+        700
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1sHKbBLGNdJ2X4Iy4jcii1VyMNVCVfgkIpx2KVuBIDsM/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sHKbBLGNdJ2X4Iy4jcii1VyMNVCVfgkIpx2KVuBIDsM/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "1b889f34-502b-48ad-8b14-e0ed664d96b1",
+      "name": "Sheets — Read B11 Requests",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -720,
+        900
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// B14 Bot Health Brief — Aggregate weekly ops stats across the 11-bot suite\nconst setup = $('Edit Fields — Setup').item.json;\nconst today = setup['todayDate'];\nconst weekStart = setup['weekStartIso'];\nconst lastWeekStart = setup['lastWeekStartIso'];\n\nconst trimKeys = (r) => { const o = {}; for (const [k, v] of Object.entries(r || {})) o[k.trim()] = v; return o; };\nconst inRange = (d, start, end) => { if (!d) return false; const s = String(d).slice(0, 10); return s >= start && s <= end; };\nconst safeRead = (name) => { try { return $(name).all().map(i => trimKeys(i.json)); } catch (e) { return []; } };\n\nconst customers = safeRead('Sheets — Read B2 Customers');\nconst bookings  = safeRead('Sheets — Read B3 Bookings');\nconst invoices  = safeRead('Sheets — Read B4 Invoices');\nconst reacts    = safeRead('Sheets — Read B5 Reactivation Log');\nconst reps      = safeRead('Sheets — Read B6 Reputation');\nconst referrals = safeRead('Sheets — Read B7 Referrals');\nconst tickets   = safeRead('Sheets — Read B9 Tickets');\nconst lifetime  = safeRead('Sheets — Read B10 Customers');\nconst ecomm     = safeRead('Sheets — Read B11 E-Comm');\nconst airbnb    = safeRead('Sheets — Read B11 Airbnb');\nconst requests  = safeRead('Sheets — Read B11 Requests');\n\n// Per-bot health: best-effort timestamp lookup (try a list of plausible column names per bot)\nfunction botHealth(rows, tsCols, label) {\n  // Drop empty-row placeholders (alwaysOutputData emits {} for empty sheets)\n  const real = rows.filter(r => Object.values(r || {}).some(v => v !== '' && v != null));\n  if (real.length === 0) {\n    return { label, rowCount: 0, rowsThisWeek: 0, rowsLastWeek: 0, lastRowAt: null, daysSinceLastFire: null, isSilent: true };\n  }\n  const tsOf = (r) => {\n    for (const c of tsCols) { if (r[c]) return String(r[c]).slice(0, 10); }\n    return null;\n  };\n  const dated = real.map(tsOf).filter(Boolean).sort();\n  const lastRowAt = dated.length ? dated[dated.length - 1] : null;\n  const rowsThisWeek = real.filter(r => inRange(tsOf(r), weekStart, today)).length;\n  const rowsLastWeek = real.filter(r => inRange(tsOf(r), lastWeekStart, weekStart)).length;\n  const daysSinceLastFire = lastRowAt ? Math.floor((new Date(today) - new Date(lastRowAt)) / 86400000) : null;\n  return {\n    label,\n    rowCount: real.length,\n    rowsThisWeek,\n    rowsLastWeek,\n    weekTrend: rowsLastWeek > 0 ? Math.round(((rowsThisWeek - rowsLastWeek) / rowsLastWeek) * 100) : (rowsThisWeek > 0 ? 100 : 0),\n    lastRowAt,\n    daysSinceLastFire,\n    isSilent: daysSinceLastFire === null || daysSinceLastFire > 14\n  };\n}\n\nconst health = {\n  B2:  botHealth(customers, ['Added At', 'Created At', 'Last Engaged At', 'Last Updated', 'Timestamp'], 'B2 Churn Radar'),\n  B3:  botHealth(bookings,  ['Created At', 'Appointment Time', 'Booking Date', 'Last Touch At'],         'B3 No-Show Rescue'),\n  B4:  botHealth(invoices,  ['Date Added', 'Created At', 'Date Paid', 'Due Date'],                       'B4 Revenue Recovery'),\n  B5:  botHealth(reacts,    ['Sent At', 'Timestamp', 'Created At'],                                       'B5 Reactivation'),\n  B6:  botHealth(reps,      ['Triggered At', 'Created At', 'Public Review Sent At'],                      'B6 Reputation Shield'),\n  B7:  botHealth(referrals, ['Asked At', 'Converted At', 'Created At', 'Timestamp'],                      'B7 Referral Engine'),\n  B9:  botHealth(tickets,   ['Submitted At', 'Resolved At', 'Created At'],                                'B9 Smart Support Triage'),\n  B10: botHealth(lifetime,  ['Last Updated', 'Last Purchase Date', 'First Purchase Date'],                'B10 Lifetime & Next Action'),\n  B11_EComm:   botHealth(ecomm,    ['Timestamp', 'Logged At', 'Created At'],                              'B11 Review Pro — E-Comm'),\n  B11_Airbnb:  botHealth(airbnb,   ['Timestamp', 'Logged At', 'Created At'],                              'B11 Review Pro — Airbnb'),\n  B11_Request: botHealth(requests, ['Timestamp', 'Sent At', 'Created At'],                                'B11 Review Request')\n};\n\n// Roll-up totals\nconst allBots = Object.values(health);\nconst totalEventsWeek = allBots.reduce((s, b) => s + (b.rowsThisWeek || 0), 0);\nconst totalEventsLastWeek = allBots.reduce((s, b) => s + (b.rowsLastWeek || 0), 0);\nconst weekTrendOverall = totalEventsLastWeek > 0\n  ? Math.round(((totalEventsWeek - totalEventsLastWeek) / totalEventsLastWeek) * 100)\n  : (totalEventsWeek > 0 ? 100 : 0);\nconst silentBots = allBots.filter(b => b.isSilent && b.rowCount > 0).map(b => b.label);\nconst neverFired = allBots.filter(b => b.rowCount === 0).map(b => b.label);\n\n// Pending operator actions (re-uses B8's surfacing logic — these are the cross-bot todo items)\nconst stage3 = invoices.filter(r => String(r['Stage'] || '').includes('3') && (r['Status'] === 'Active' || r['Status'] === 'In Progress' || r['Status'] === 'Manual Required'));\nconst unhappyPending = reps.filter(r => {\n  const rating = parseInt(r['Rating']);\n  return rating > 0 && rating < 4 && r['Status'] !== 'Resolved' && r['Owner Alerted'] === 'Yes';\n});\nconst noShowsNeedCall = bookings.filter(n => n['No-Show'] === 'Yes' && (!n['Rebooked'] || n['Rebooked'] === 'No'));\nconst ticketsPending = tickets.filter(t => t['Status'] === 'Open' || t['Status'] === 'In Progress' || (t['Escalate'] === 'Yes' && t['Status'] !== 'Resolved'));\n\nconst pending = {\n  stage3Count: stage3.length,\n  stage3Sum: stage3.reduce((s, r) => s + (parseFloat(String(r['Invoice Amount'] || '0').replace(/[^0-9.-]/g, '')) || 0), 0),\n  unhappyPendingCount: unhappyPending.length,\n  noShowsNeedCallCount: noShowsNeedCall.length,\n  openTicketsCount: ticketsPending.length\n};\nconst totalPendingActions = pending.stage3Count + pending.unhappyPendingCount + pending.noShowsNeedCallCount + pending.openTicketsCount;\n\n// v2: per-promptVersion observability — count uses + parse-success rate by version.\n// Reads 'Prompt Version' and 'Parse Success' columns now written by every post-parse Sheets-Log/Update.\nconst pvAgg = {}; // version -> { uses, successes, sourceBots: Set }\nconst tally = (rows, botLabel) => {\n  for (const r of rows) {\n    const v = r['Prompt Version'];\n    if (!v) continue;\n    if (!pvAgg[v]) pvAgg[v] = { uses: 0, successes: 0, sourceBots: new Set() };\n    pvAgg[v].uses += 1;\n    const ps = r['Parse Success'];\n    if (ps === true || ps === 'TRUE' || ps === 'true' || ps === 'True') pvAgg[v].successes += 1;\n    pvAgg[v].sourceBots.add(botLabel);\n  }\n};\ntally(customers, 'B2'); tally(bookings, 'B3'); tally(invoices, 'B4'); tally(reacts, 'B5');\ntally(reps, 'B6'); tally(referrals, 'B7'); tally(tickets, 'B9'); tally(lifetime, 'B10');\ntally(ecomm, 'B11-EComm'); tally(airbnb, 'B11-Airbnb'); tally(requests, 'B11-Req');\n\nconst promptVersionStats = Object.entries(pvAgg).map(([version, a]) => ({\n  version,\n  uses: a.uses,\n  successes: a.successes,\n  fallbacks: a.uses - a.successes,\n  successRate: a.uses > 0 ? Math.round((a.successes / a.uses) * 100) : null,\n  sourceBots: [...a.sourceBots].sort()\n})).sort((x, y) => y.uses - x.uses);\n\nconst promptVersions = promptVersionStats.map(p => p.version);\nconst meaningfulSample = promptVersionStats.filter(p => p.uses >= 3);\nconst worstSuccessRate = meaningfulSample.length > 0\n  ? Math.min(...meaningfulSample.map(p => p.successRate))\n  : null;\nconst flaggedPrompts = meaningfulSample.filter(p => p.successRate < 90);\n\nreturn [{\n  json: {\n    ...setup,\n    health,\n    totals: {\n      totalEventsWeek,\n      totalEventsLastWeek,\n      weekTrendOverall,\n      silentBots,\n      neverFired,\n      silentCount: silentBots.length + neverFired.length,\n      activeBotCount: allBots.length - silentBots.length - neverFired.length\n    },\n    pending,\n    totalPendingActions,\n    promptVersions,\n    promptVersionCount: promptVersions.length,\n    promptVersionStats,\n    worstSuccessRate,\n    flaggedPrompts,\n    flaggedPromptCount: flaggedPrompts.length\n  }\n}];"
+      },
+      "id": "36838f88-c82f-4a99-af6c-fed892df2a06",
+      "name": "Code — Aggregate Health Stats",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You are the AI assistant writing a WEEKLY OPS BRIEF for the operator of a bot-suite (NSM). The audience is the operator/founder — NOT a customer. The brief should be honest, short, and direct. CRITICAL RULES:\\n\\n1. Lead with the single most important signal from the week (events trending up/down, a silent bot, a backlog).\\n2. Surface anomalies — any bot that has not fired in 14+ days, OR any prompt-version with parse-success below 90%, is worth a callout.\\n3. Give one paragraph of executive summary (under 60 words).\\n4. Then list up to 3 concrete action items (under 12 words each).\\n5. Tone: peer-to-peer ops review. No marketing fluff. No exclamation marks. No emojis in the body (subject can use one if warranted).\\n6. Never mention the names of customers or end-clients in the brief — this is an aggregate ops view.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"subject\\\": \\\"short ops-style subject line under 12 words\\\", \\\"headline\\\": \\\"6-10 word one-line summary of the week\\\", \\\"summary\\\": \\\"the executive summary paragraph\\\", \\\"actions\\\": [\\\"action item 1\\\", \\\"action item 2\\\", \\\"action item 3\\\"]}\" },\n    { \"role\": \"user\",   \"content\": \"Week of: {{ $json[\\\"weekLabel\\\"] }}\\nWindow: {{ $json[\\\"weekStartIso\\\"] }} to {{ $json[\\\"todayDate\\\"] }}\\nTotal events this week: {{ $json[\\\"totals\\\"][\\\"totalEventsWeek\\\"] }}\\nTotal events last week: {{ $json[\\\"totals\\\"][\\\"totalEventsLastWeek\\\"] }}\\nWeek-over-week change: {{ $json[\\\"totals\\\"][\\\"weekTrendOverall\\\"] }}%\\nActive bots: {{ $json[\\\"totals\\\"][\\\"activeBotCount\\\"] }} of 11\\nSilent bots (>14 days no fire, but has historical rows): {{ $json[\\\"totals\\\"][\\\"silentBots\\\"].join(\\\", \\\") || \\\"none\\\" }}\\nNever fired (no rows yet — likely pre-revenue): {{ $json[\\\"totals\\\"][\\\"neverFired\\\"].join(\\\", \\\") || \\\"none\\\" }}\\nPending operator actions: {{ $json[\\\"totalPendingActions\\\"] }} total\\n  - Stage 3 invoices awaiting manual: {{ $json[\\\"pending\\\"][\\\"stage3Count\\\"] }}\\n  - Unhappy customers awaiting follow-up: {{ $json[\\\"pending\\\"][\\\"unhappyPendingCount\\\"] }}\\n  - No-shows needing call: {{ $json[\\\"pending\\\"][\\\"noShowsNeedCallCount\\\"] }}\\n  - Open support tickets: {{ $json[\\\"pending\\\"][\\\"openTicketsCount\\\"] }}\\nPrompt versions live: {{ $json[\\\"promptVersionCount\\\"] }}\\nPrompt versions with parse-success below 90% (3+ samples): {{ $json[\\\"flaggedPromptCount\\\"] }}\\nWorst parse-success rate across prompts: {{ $json[\\\"worstSuccessRate\\\"] ?? \\\"insufficient data\\\" }}%\" }\n  ],\n  \"temperature\": 0.4,\n  \"max_tokens\": 500\n}",
+        "options": {}
+      },
+      "id": "31e8c303-91ad-459c-8282-2a5495e4a3fb",
+      "name": "Groq — Health Brief Narrative",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -240,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      },
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-ai-1",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e283c975-9744-47ef-bc4e-70a511ea64e9",
+      "name": "Edit Fields — AI",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptVersion = 'b14-health-v2';\nconst rawText = $input.item.json['rawAIText'] || '';\nconst d = $('Code — Aggregate Health Stats').item.json;\n\nconst cleaned = rawText.replace(/\\`\\`\\`json/g, '').replace(/\\`\\`\\`/g, '').trim();\nlet parsed;\ntry { parsed = JSON.parse(cleaned); }\ncatch (e) {\n  const m = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) { parsed = null; } }\n}\n\nif (!parsed || !parsed['summary']) {\n  const trendArrow = d.totals.weekTrendOverall > 0 ? 'up' : (d.totals.weekTrendOverall < 0 ? 'down' : 'flat');\n  parsed = {\n    subject: 'Bot Health Brief · Week of ' + d.weekLabel,\n    headline: 'Weekly ops summary — ' + d.totals.totalEventsWeek + ' events this week',\n    summary: 'The suite processed ' + d.totals.totalEventsWeek + ' events this week (trend ' + trendArrow + ' vs last week). ' +\n             d.totals.activeBotCount + ' of 11 bots active. ' + d.totalPendingActions + ' items pending operator attention.',\n    actions: [\n      d.pending.stage3Count > 0 ? ('Action ' + d.pending.stage3Count + ' stage-3 invoices') : 'No stage-3 invoices outstanding',\n      d.pending.unhappyPendingCount > 0 ? ('Follow up with ' + d.pending.unhappyPendingCount + ' unhappy customer(s)') : 'No unhappy customers pending',\n      d.totals.silentBots.length > 0 ? ('Investigate silent bot(s): ' + d.totals.silentBots.join(', ')) : 'All bots fired in last 14 days'\n    ]\n  };\n}\n\nconst parseSuccess = !!parsed['summary'] && Array.isArray(parsed['actions']);\n\nreturn {\n  ...d, promptVersion,\n  subject:  parsed['subject']  || ('Bot Health Brief · Week of ' + d.weekLabel),\n  headline: parsed['headline'] || 'Weekly ops summary',\n  summary:  parsed['summary'],\n  actions:  parsed['actions'] || [],\n  parseSuccess\n};"
+      },
+      "id": "db2e6813-d031-40b8-8353-a24efa88f612",
+      "name": "Code — Parse Brief",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cond-ok-75250b94",
+              "leftValue": "={{ $('Code — Parse Brief').item.json['parseSuccess'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1f625a66-7916-427a-90b1-5498adddcb46",
+      "name": "IF — Parse OK",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// B14 — render the brief as Operator-themed HTML email + a Markdown Telegram twin\nconst d = $('Code — Parse Brief').item.json;\nconst fmtR = (n) => 'R' + Math.round(n).toLocaleString('en-ZA');\nconst trendBadge = (n) => {\n  if (n > 0) return '↑ ' + n + '%';\n  if (n < 0) return '↓ ' + Math.abs(n) + '%';\n  return '→ flat';\n};\n\n// Per-bot mini-cards (HTML)\nconst botCardHtml = (b) => {\n  const trend = b.rowsLastWeek > 0 ? trendBadge(b.weekTrend) : (b.rowsThisWeek > 0 ? 'new' : '—');\n  const silentTag = b.isSilent && b.rowCount > 0 ? ' <span style=\"color:#f59e0b\">SILENT</span>' : '';\n  const newTag = b.rowCount === 0 ? ' <span style=\"color:#6b6b85\">no data yet</span>' : '';\n  const lastFireText = b.lastRowAt ? (b.lastRowAt + ' (' + (b.daysSinceLastFire === 0 ? 'today' : b.daysSinceLastFire + 'd ago') + ')') : '—';\n  return '<tr style=\"border-bottom:1px solid #25253a\">' +\n    '<td style=\"padding:10px 6px;color:#f5f5fa;font-weight:600\">' + b.label + silentTag + newTag + '</td>' +\n    '<td style=\"padding:10px 6px;color:#a8a8c2;text-align:right\">' + b.rowsThisWeek + '</td>' +\n    '<td style=\"padding:10px 6px;color:#a8a8c2;text-align:right\">' + trend + '</td>' +\n    '<td style=\"padding:10px 6px;color:#6b6b85;text-align:right;font-family:JetBrains Mono,monospace;font-size:12px\">' + lastFireText + '</td>' +\n  '</tr>';\n};\n\nconst botRows = Object.values(d.health).map(botCardHtml).join('');\n\nconst actionsHtml = d.actions.map((a, i) =>\n  '<li style=\"margin:8px 0;color:#f5f5fa\">' + (i + 1) + '. ' + a + '</li>'\n).join('');\n\nconst trendArrow = d.totals.weekTrendOverall > 0 ? '↑' : (d.totals.weekTrendOverall < 0 ? '↓' : '→');\nconst trendColor = d.totals.weekTrendOverall > 0 ? '#10b981' : (d.totals.weekTrendOverall < 0 ? '#f43f5e' : '#a8a8c2');\n\nconst html =\n'<html><body style=\"margin:0;padding:0;background:#08080c;font-family:-apple-system,Inter,Helvetica,Arial,sans-serif;color:#f5f5fa\">' +\n'<div style=\"max-width:640px;margin:0 auto;padding:32px 24px\">' +\n  '<div style=\"font-family:JetBrains Mono,monospace;font-size:11px;color:#6366f1;letter-spacing:2px;text-transform:uppercase\">// Bot Health Brief · Week of ' + d.weekLabel + '</div>' +\n  '<h1 style=\"font-family:Instrument Serif,Georgia,serif;font-style:italic;font-weight:400;font-size:32px;color:#f5f5fa;margin:8px 0 24px;line-height:1.2\">' + d.headline + '</h1>' +\n  '<div style=\"background:#0e0e15;border:1px solid rgba(99,102,241,0.25);border-radius:20px;padding:24px;margin-bottom:24px\">' +\n    '<div style=\"font-family:JetBrains Mono,monospace;font-size:10px;color:#6b6b85;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px\">Headline number</div>' +\n    '<div style=\"font-family:Instrument Serif,Georgia,serif;font-size:54px;color:#f5f5fa;font-weight:400\">' + d.totals.totalEventsWeek + ' <span style=\"font-size:22px;color:' + trendColor + '\">' + trendArrow + ' ' + Math.abs(d.totals.weekTrendOverall) + '%</span></div>' +\n    '<div style=\"color:#a8a8c2;font-size:14px;margin-top:6px\">events across the suite this week · vs ' + d.totals.totalEventsLastWeek + ' last week</div>' +\n  '</div>' +\n  '<div style=\"background:#0e0e15;border:1px solid #25253a;border-radius:20px;padding:20px;margin-bottom:24px\">' +\n    '<div style=\"font-family:JetBrains Mono,monospace;font-size:10px;color:#818cf8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px\">Executive summary</div>' +\n    '<p style=\"color:#f5f5fa;font-size:15px;line-height:1.6;margin:0\">' + d.summary + '</p>' +\n  '</div>' +\n  (d.actions.length > 0 ? (\n    '<div style=\"background:#0e0e15;border:1px solid rgba(99,102,241,0.25);border-radius:20px;padding:20px;margin-bottom:24px\">' +\n      '<div style=\"font-family:JetBrains Mono,monospace;font-size:10px;color:#818cf8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px\">Action items · your call</div>' +\n      '<ol style=\"margin:0;padding-left:0;list-style:none\">' + actionsHtml + '</ol>' +\n    '</div>'\n  ) : '') +\n  '<div style=\"background:#0e0e15;border:1px solid #25253a;border-radius:20px;padding:20px;margin-bottom:24px\">' +\n    '<div style=\"font-family:JetBrains Mono,monospace;font-size:10px;color:#818cf8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px\">Per-bot health</div>' +\n    '<table style=\"width:100%;border-collapse:collapse;font-size:13px\">' +\n      '<thead><tr style=\"border-bottom:1px solid rgba(99,102,241,0.25)\">' +\n        '<th style=\"text-align:left;padding:6px;color:#6b6b85;font-weight:500;font-family:JetBrains Mono,monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px\">Bot</th>' +\n        '<th style=\"text-align:right;padding:6px;color:#6b6b85;font-weight:500;font-family:JetBrains Mono,monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px\">Wk</th>' +\n        '<th style=\"text-align:right;padding:6px;color:#6b6b85;font-weight:500;font-family:JetBrains Mono,monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px\">Trend</th>' +\n        '<th style=\"text-align:right;padding:6px;color:#6b6b85;font-weight:500;font-family:JetBrains Mono,monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px\">Last fired</th>' +\n      '</tr></thead><tbody>' + botRows + '</tbody></table>' +\n  '</div>' +\n  '<div style=\"background:#0e0e15;border:1px solid #25253a;border-radius:20px;padding:20px;margin-bottom:24px\">' +\n    '<div style=\"font-family:JetBrains Mono,monospace;font-size:10px;color:#818cf8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px\">Operator queue</div>' +\n    '<div style=\"color:#a8a8c2;font-size:14px;line-height:1.8\">' +\n      'Stage 3 invoices awaiting manual: <strong style=\"color:#f5f5fa\">' + d.pending.stage3Count + '</strong>' + (d.pending.stage3Sum > 0 ? (' (' + fmtR(d.pending.stage3Sum) + ' at stake)') : '') + '<br>' +\n      'Unhappy customers awaiting follow-up: <strong style=\"color:#f5f5fa\">' + d.pending.unhappyPendingCount + '</strong><br>' +\n      'No-shows needing personal call: <strong style=\"color:#f5f5fa\">' + d.pending.noShowsNeedCallCount + '</strong><br>' +\n      'Open support tickets: <strong style=\"color:#f5f5fa\">' + d.pending.openTicketsCount + '</strong>' +\n    '</div>' +\n  '</div>' +\n  (d.promptVersionStats.length > 0 ? (\n    '<div style=\"background:#0e0e15;border:1px solid #25253a;border-radius:20px;padding:20px;margin-bottom:24px\">' +\n      '<div style=\"font-family:JetBrains Mono,monospace;font-size:10px;color:#818cf8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px\">Prompt-version observability</div>' +\n      '<table style=\"width:100%;border-collapse:collapse;font-size:12px;font-family:JetBrains Mono,monospace\">' +\n        '<thead><tr style=\"border-bottom:1px solid rgba(99,102,241,0.25)\">' +\n          '<th style=\"text-align:left;padding:6px;color:#6b6b85;font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:1px\">Version</th>' +\n          '<th style=\"text-align:right;padding:6px;color:#6b6b85;font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:1px\">Uses</th>' +\n          '<th style=\"text-align:right;padding:6px;color:#6b6b85;font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:1px\">Parse OK</th>' +\n          '<th style=\"text-align:right;padding:6px;color:#6b6b85;font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:1px\">Rate</th>' +\n        '</tr></thead><tbody>' +\n        d.promptVersionStats.map(p => {\n          const rateColor = p.successRate === null ? '#6b6b85' : (p.successRate >= 90 ? '#10b981' : (p.successRate >= 75 ? '#f59e0b' : '#f43f5e'));\n          const rateText = p.successRate === null ? '—' : (p.successRate + '%');\n          return '<tr style=\"border-bottom:1px solid #25253a\">' +\n            '<td style=\"padding:8px 6px;color:#f5f5fa\">' + p.version + '</td>' +\n            '<td style=\"padding:8px 6px;color:#a8a8c2;text-align:right\">' + p.uses + '</td>' +\n            '<td style=\"padding:8px 6px;color:#a8a8c2;text-align:right\">' + p.successes + '</td>' +\n            '<td style=\"padding:8px 6px;text-align:right;color:' + rateColor + ';font-weight:600\">' + rateText + '</td>' +\n          '</tr>';\n        }).join('') +\n      '</tbody></table>' +\n      (d.flaggedPromptCount > 0 ? ('<div style=\"margin-top:12px;padding:10px;background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.3);border-radius:8px;color:#f43f5e;font-size:12px\">⚠ ' + d.flaggedPromptCount + ' prompt(s) flagged — parse-success below 90%. Consider retuning or bumping the version.</div>') : '') +\n    '</div>'\n  ) : '') +\n  '<div style=\"text-align:center;margin-top:32px;padding-top:20px;border-top:1px solid #25253a;color:#6b6b85;font-size:11px;font-family:JetBrains Mono,monospace;letter-spacing:1px\">' +\n    'NSM · Built in Joburg · Prompt: ' + d.promptVersion +\n  '</div>' +\n'</div></body></html>';\n\n// Telegram twin — short Markdown summary\nconst tgLines = [];\ntgLines.push('*Bot Health Brief — ' + d.weekLabel + '*');\ntgLines.push('');\ntgLines.push(trendArrow + ' *' + d.totals.totalEventsWeek + '* events this week (' + (d.totals.weekTrendOverall >= 0 ? '+' : '') + d.totals.weekTrendOverall + '% vs last)');\ntgLines.push('');\ntgLines.push('_' + d.summary + '_');\nif (d.actions.length > 0) {\n  tgLines.push('');\n  tgLines.push('*Actions:*');\n  d.actions.forEach((a, i) => tgLines.push((i + 1) + '. ' + a));\n}\nif (d.flaggedPromptCount > 0) {\n  tgLines.push('');\n  tgLines.push('⚠️ Flagged prompts (parse <90%): ' + d.flaggedPrompts.map(p => p.version + ' ' + p.successRate + '%').join(', '));\n}\nif (d.totals.silentBots.length > 0) {\n  tgLines.push('');\n  tgLines.push('🟡 Silent: ' + d.totals.silentBots.join(', '));\n}\ntgLines.push('');\ntgLines.push('_Prompt: ' + d.promptVersion + '_');\n\nreturn {\n  ...d,\n  html,\n  telegramText: tgLines.join('\\n')\n};"
+      },
+      "id": "02b49b38-d19f-4e0c-b26b-39f01276cf7d",
+      "name": "Code — Build HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Parse Brief').item.json['ownerEmail'] }}",
+        "subject": "={{ $('Code — Parse Brief').item.json['subject'] }}",
+        "emailType": "html",
+        "message": "={{ $('Code — Build HTML').item.json['html'] }}",
+        "options": {}
+      },
+      "id": "ffb490b5-b366-46b1-a1df-242fad5b146a",
+      "name": "Gmail — Bot Health Brief",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        960,
+        -100
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "={{ $('Code — Build HTML').item.json['telegramText'] }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "93c4e075-13a3-4f3b-8042-cd0be954875e",
+      "name": "Telegram — Bot Health Summary",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1200,
+        -100
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ *B14 Bot Health Brief — Parse Failed*\\n\\nThe Groq narrative did not parse cleanly this week. The brief fell back to deterministic stats only.\\n\\nWeek: {{ $('Code — Aggregate Health Stats').item.json['weekLabel'] }}\\nEvents this week: {{ $('Code — Aggregate Health Stats').item.json['totals']['totalEventsWeek'] }}\\n\\n_Prompt: {{ $('Code — Parse Brief').item.json['promptVersion'] }}_",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "39c9ec8d-9965-4015-a382-82ecd44bb992",
+      "name": "Telegram — Parse Fail Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        100
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule — Mon 6am Weekly": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Setup": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read B2 Customers",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheets — Read B3 Bookings",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheets — Read B4 Invoices",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheets — Read B5 Reactivation Log",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheets — Read B6 Reputation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheets — Read B7 Referrals",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheets — Read B9 Tickets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheets — Read B10 Customers",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheets — Read B11 E-Comm",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheets — Read B11 Airbnb",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheets — Read B11 Requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read B2 Customers": {
+      "main": [
+        [
+          {
+            "node": "Code — Aggregate Health Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read B3 Bookings": {
+      "main": [
+        [
+          {
+            "node": "Code — Aggregate Health Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read B4 Invoices": {
+      "main": [
+        [
+          {
+            "node": "Code — Aggregate Health Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read B5 Reactivation Log": {
+      "main": [
+        [
+          {
+            "node": "Code — Aggregate Health Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read B6 Reputation": {
+      "main": [
+        [
+          {
+            "node": "Code — Aggregate Health Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read B7 Referrals": {
+      "main": [
+        [
+          {
+            "node": "Code — Aggregate Health Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read B9 Tickets": {
+      "main": [
+        [
+          {
+            "node": "Code — Aggregate Health Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read B10 Customers": {
+      "main": [
+        [
+          {
+            "node": "Code — Aggregate Health Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read B11 E-Comm": {
+      "main": [
+        [
+          {
+            "node": "Code — Aggregate Health Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read B11 Airbnb": {
+      "main": [
+        [
+          {
+            "node": "Code — Aggregate Health Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read B11 Requests": {
+      "main": [
+        [
+          {
+            "node": "Code — Aggregate Health Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Aggregate Health Stats": {
+      "main": [
+        [
+          {
+            "node": "Groq — Health Brief Narrative",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Health Brief Narrative": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — AI": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse Brief": {
+      "main": [
+        [
+          {
+            "node": "IF — Parse OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Parse OK": {
+      "main": [
+        [
+          {
+            "node": "Code — Build HTML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Parse Fail Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Build HTML": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Bot Health Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Bot Health Brief": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Bot Health Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b14-bot-health-brief-v1-003",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B14BotHealthBriefV1001",
+  "tags": []
+}

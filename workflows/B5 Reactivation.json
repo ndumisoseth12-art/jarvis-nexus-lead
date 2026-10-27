@@ -1,0 +1,697 @@
+{
+  "name": "B5 Reactivation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "reactivation-trigger",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "819af844-a8fc-45c2-a766-3d393848a74b",
+      "name": "Webhook — Trigger Reactivation",
+      "webhookId": "b5-reactivation-trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-trig-1",
+              "name": "campaignId",
+              "value": "=REACT-{{ $now.toFormat('yyyyMMdd-HHmmss') }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-trig-2",
+              "name": "ownerEmail",
+              "value": "={{ $json['body']['ownerEmail'] ?? 'ndumisoseth12@gmail.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-trig-3",
+              "name": "businessName",
+              "value": "={{ $json['body']['businessName'] ?? 'Your Business' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-trig-4",
+              "name": "incentive",
+              "value": "={{ $json['body']['incentive'] ?? '15% off your next order' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-trig-5",
+              "name": "minDaysSilent",
+              "value": "={{ $json['body']['minDaysSilent'] ?? 60 }}",
+              "type": "number"
+            },
+            {
+              "id": "ef-trig-6",
+              "name": "triggeredAt",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "caa7e47f-7810-4ee5-b85a-da8c7dbab7a3",
+      "name": "Edit Fields — Campaign Setup"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        0
+      ],
+      "id": "7d84adba-1b51-4051-8c04-2460567cefc1",
+      "name": "Sheets — Read Customer DB",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// B5 Reactivation — Filter for silent-60d+ customers\nconst items = $input.all();\nconst trig = $('Edit Fields — Campaign Setup').item.json;\nconst minDays = trig['minDaysSilent'] || 60;\nconst now = new Date();\n\nconst eligible = [];\n\nfor (const item of items) {\n  const c = item.json || {};\n  const lastPurchase = c['Last Purchase Date'] || c['Last Updated'];\n  if (!lastPurchase) continue;\n  const lastDate = new Date(lastPurchase);\n  if (isNaN(lastDate.getTime())) continue;\n  const daysSilent = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));\n  if (daysSilent < minDays) continue;\n\n  const tier = c['Tier'] || 'Bronze';\n  const ltv = parseFloat(c['Lifetime Value'] || c['Total Spend'] || 0);\n  const totalPurchases = parseInt(c['Total Purchases'] || 0);\n\n  // Skip very low-value customers — not worth the email\n  if (ltv < 500 || totalPurchases < 2) continue;\n\n  eligible.push({\n    customerEmail: c['Customer Email'] || '',\n    customerName: c['Customer Name'] || 'Customer',\n    firstName: (c['Customer Name'] || 'there').split(' ')[0],\n    tier,\n    ltv,\n    totalPurchases,\n    daysSilent,\n    lastProduct: c['Last Product'] || '',\n    businessName: trig['businessName'],\n    ownerEmail: trig['ownerEmail'],\n    incentive: trig['incentive'],\n    campaignId: trig['campaignId']\n  });\n}\n\n// Sort by LTV descending — highest-value silent customers first\neligible.sort((a, b) => b.ltv - a.ltv);\n\nreturn eligible.map(e => ({ json: e }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "566e06f5-4728-474f-820d-45e6844811f1",
+      "name": "Code — Filter Eligible Customers"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You write warm, personal reactivation emails for South African businesses. The customer was loyal once, but has been silent for a while. Your job: bring them back without being pushy.\\n\\n1. ADDRESS by first name only.\\n2. ACKNOWLEDGE the gap honestly without guilt-tripping.\\n3. PERSONALIZATION ANCHOR: if Last Product is present, reference it specifically and concretely (e.g. \\\"the espresso machine you picked up\\\", \\\"your weave appointment\\\", \\\"the wedding suit fitting\\\") — this is the single most important credibility signal. Generic \\\"we miss you\\\" emails do not work; product-specific recall does. If Last Product is empty, lean on the tier + days silent only.\\n4. PRESENT the incentive clearly but not desperately.\\n5. SIGN with the business name.\\n6. Under 90 words. Plain text. South African English.\\n\\nTone by tier:\\nVIP/Gold = warm, personal, premium feeling. They were valued.\\nSilver = friendly, casual reminder of why they liked you.\\nBronze = simple, direct, lead with the offer.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"subject\\\": \\\"short subject under 10 words\\\", \\\"body\\\": \\\"the email body\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"First Name: {{ $json['firstName'] }}\\nTier: {{ $json['tier'] }}\\nDays silent: {{ $json['daysSilent'] }}\\nLifetime value: R{{ $json['ltv'] }}\\nTotal past purchases: {{ $json['totalPurchases'] }}\\nLast product: {{ $json['lastProduct'] }}\\nBusiness: {{ $json['businessName'] }}\\nIncentive to mention: {{ $json['incentive'] }}\"\n    }\n  ],\n  \"temperature\": 0.6,\n  \"max_tokens\": 350\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        880,
+        0
+      ],
+      "id": "52060cf8-c274-4428-8f3f-312708260053",
+      "name": "Groq — Reactivation Writer",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef1-1",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1104,
+        0
+      ],
+      "id": "61e258cf-f659-426e-8bfc-0729f5a46705",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptVersion = 'b5-react-v1';\n// B5 Reactivation — Parse AI output, merge with customer data\nconst rawText = $input.item.json['rawAIText'] || '';\nconst c = $('Code — Filter Eligible Customers').item.json;\n\nconst cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\nlet parsed;\ntry { parsed = JSON.parse(cleaned); }\ncatch (e) {\n  const m = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) { parsed = null; } }\n}\nif (!parsed || !parsed['body']) {\n  parsed = {\n    subject: 'We miss you at ' + c['businessName'],\n    body: 'Hi ' + c['firstName'] + ', it has been a while since we last heard from you at ' + c['businessName'] + '. We would love to welcome you back — please enjoy ' + c['incentive'] + ' on your next order. Thank you for being part of our journey.'\n  };\n}\nconst parseSuccess = !!parsed['body'] && parsed['subject'] !== ('We miss you at ' + c['businessName']);\n\nreturn { ...c, promptVersion, subject: parsed['subject'], body: parsed['body'], parseSuccess, sentAt: $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        0
+      ],
+      "id": "95bf70e5-3d86-4b11-96da-1f5ccd688734",
+      "name": "Code — Parse Email"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['customerEmail'] }}",
+        "subject": "={{ $json['subject'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">{{ $json['businessName'] }}</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;white-space:pre-wrap;\">{{ $json['body'] }}</div>\n  <div style=\"background:#eef2ff;border:1px solid #c7d2fe;padding:20px;border-radius:8px;text-align:center;margin-bottom:24px;\">\n    <div style=\"font-size:11px;color:#6366f1;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:6px;\">Welcome back offer</div>\n    <div style=\"font-size:18px;color:#020208;font-weight:700;\">{{ $json['incentive'] }}</div>\n  </div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;\">Sent on behalf of {{ $json['businessName'] }} · Powered by NSM</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1792,
+        0
+      ],
+      "id": "c1e124ff-e377-49ab-9315-b104e42239e4",
+      "name": "Gmail — Send Reactivation",
+      "webhookId": "gmail-b5-react",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=1671001884",
+          "mode": "list",
+          "cachedResultName": "Reactivation Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit#gid=1671001884"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Campaign ID": "={{ $json['campaignId'] }}",
+            "Sent At": "={{ $json['sentAt'] }}",
+            "Customer Email": "={{ $json['customerEmail'] }}",
+            "Customer Name": "={{ $json['customerName'] }}",
+            "Tier": "={{ $json['tier'] }}",
+            "LTV": "={{ $json['ltv'] }}",
+            "Days Silent": "={{ $json['daysSilent'] }}",
+            "Subject": "={{ $json['subject'] }}",
+            "Status": "Sent",
+            "Recovered": "No",
+            "Prompt Version": "={{ $('Code — Parse Email').item.json['promptVersion'] }}",
+            "Parse Success": "={{ $('Code — Parse Email').item.json['parseSuccess'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Campaign ID",
+              "displayName": "Campaign ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sent At",
+              "displayName": "Sent At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tier",
+              "displayName": "Tier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LTV",
+              "displayName": "LTV",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Days Silent",
+              "displayName": "Days Silent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recovered",
+              "displayName": "Recovered",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prompt Version",
+              "displayName": "Prompt Version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Parse Success",
+              "displayName": "Parse Success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2000,
+        0
+      ],
+      "id": "8c5ad815-7df8-42a9-8e6a-3632c46bcbf9",
+      "name": "Sheets — Log Send",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 8
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2224,
+        0
+      ],
+      "id": "9241808f-79e0-4805-bed3-91bb6d6c63a2",
+      "name": "Wait — Gmail Rate Limit",
+      "webhookId": "wait-b5-throttle"
+    },
+    {
+      "parameters": {
+        "jsCode": "// B5 Reactivation — Aggregate campaign summary\nconst items = $input.all();\nconst total = items.length;\nif (total === 0) return [{ json: { campaignId: 'NONE', total: 0, summary: 'No eligible customers found.' } }];\n\nconst first = items[0].json;\nconst byTier = {};\nlet totalLTV = 0;\nfor (const i of items) {\n  const t = i.json['tier'] || 'Bronze';\n  byTier[t] = (byTier[t] || 0) + 1;\n  totalLTV += parseFloat(i.json['ltv']) || 0;\n}\n\nreturn [{\n  json: {\n    campaignId: first['campaignId'],\n    ownerEmail: first['ownerEmail'],\n    businessName: first['businessName'],\n    incentive: first['incentive'],\n    total,\n    totalLTV: Math.round(totalLTV),\n    byTier,\n    sentAtSAST: $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss')\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        0
+      ],
+      "id": "c6b7fbde-e17c-46e8-a06a-f8e88e1fe50e",
+      "name": "Code — Campaign Summary"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['ownerEmail'] }}",
+        "subject": "=✅ Reactivation campaign sent — {{ $json['total'] }} customers · {{ $json['campaignId'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:620px;margin:0 auto;padding:20px;background:#f4f4f4;\">\n  <div style=\"background:linear-gradient(135deg,#818cf8,#6366f1);padding:24px;border-radius:8px 8px 0 0;text-align:center;\">\n    <h1 style=\"color:white;margin:0;font-size:22px;\">📨 Reactivation Campaign Sent</h1>\n    <p style=\"color:rgba(255,255,255,0.85);margin:8px 0 0 0;font-size:13px;letter-spacing:1px;\">{{ $json['campaignId'] }}</p>\n  </div>\n  <div style=\"background:white;padding:25px;border-radius:0 0 8px 8px;\">\n    <p style=\"margin:0 0 18px 0;font-size:15px;color:#333;line-height:1.7;\">Your reactivation campaign just went out to <strong>{{ $json['total'] }} silent customers</strong> with a combined past lifetime value of <strong>R{{ $json['totalLTV'] }}</strong>. Each one received a personalised email with this offer: <em>\"{{ $json['incentive'] }}\"</em>.</p>\n    <div style=\"background:#fafafa;border:1px solid #f0f0f0;padding:18px;border-radius:6px;margin-bottom:20px;\">\n      <div style=\"font-size:11px;color:#666;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-bottom:10px;\">Breakdown by tier</div>\n      <div style=\"font-size:13.5px;color:#333;line-height:1.8;\">VIP: <strong>{{ $json['byTier']['VIP'] || 0 }}</strong> · Gold: <strong>{{ $json['byTier']['Gold'] || 0 }}</strong> · Silver: <strong>{{ $json['byTier']['Silver'] || 0 }}</strong> · Bronze: <strong>{{ $json['byTier']['Bronze'] || 0 }}</strong></div>\n    </div>\n    <div style=\"background:#eef2ff;border:1px solid #c7d2fe;padding:14px;border-radius:6px;\">\n      <p style=\"margin:0;font-size:13px;color:#333;\"><strong>What happens next:</strong> When any of these customers buys, log it through B10 Lifetime as normal. The bot will mark them as Recovered in the campaign log automatically.</p>\n    </div>\n  </div>\n  <p style=\"text-align:center;color:#999;font-size:11px;letter-spacing:1px;margin-top:14px;\">NSM · B5 REACTIVATION · {{ $json['sentAtSAST'] }}</p>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2672,
+        0
+      ],
+      "id": "29c4addf-2347-41fb-b573-999bb834bb1b",
+      "name": "Gmail — Campaign Summary",
+      "webhookId": "gmail-b5-summary",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=📨 REACTIVATION CAMPAIGN COMPLETE\n\nID: {{ $('Code — Campaign Summary').item.json['campaignId'] }}\n📧 Sent: {{ $('Code — Campaign Summary').item.json['total'] }} emails\n💰 Combined LTV: R{{ $('Code — Campaign Summary').item.json['totalLTV'] }}\n\n🏆 VIP: {{ $('Code — Campaign Summary').item.json['byTier']['VIP'] || 0 }} · Gold: {{ $('Code — Campaign Summary').item.json['byTier']['Gold'] || 0 }} · Silver: {{ $('Code — Campaign Summary').item.json['byTier']['Silver'] || 0 }} · Bronze: {{ $('Code — Campaign Summary').item.json['byTier']['Bronze'] || 0 }}\n\n⏰ {{ $('Code — Campaign Summary').item.json['sentAtSAST'] }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2880,
+        0
+      ],
+      "id": "4febcb70-14bc-402a-b1a3-a409eb75bd41",
+      "name": "Telegram — Campaign Summary",
+      "webhookId": "tg-b5-summary",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"campaignId\": \"={{ $('Code — Campaign Summary').item.json['campaignId'] }}\",\n  \"sent\": \"={{ $('Code — Campaign Summary').item.json['total'] }}\",\n  \"message\": \"Reactivation campaign complete\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3104,
+        0
+      ],
+      "id": "fa0ef47d-4070-44db-a260-b7526de96104",
+      "name": "Respond — Campaign Done"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-b5-parse",
+              "leftValue": "={{ $('Code — Parse Email').item.json['parseSuccess'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1552,
+        0
+      ],
+      "id": "b5a1b2c3-d4e5-f6a7-b8c9-d0e1f2b50015",
+      "name": "IF — Parse Success"
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ B5 Reactivation — AI parse failed for one customer; their email was skipped.\n\nCustomer: {{ $('Code — Parse Email').item.json['customerName'] ?? 'unknown' }}\nBusiness: {{ $('Edit Fields — Campaign Setup').item.json['businessName'] ?? 'unknown' }}\nTime: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}\n\nCampaign continues for remaining customers.\\n\\n_Prompt: {{ $('Code — Parse Email').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        200
+      ],
+      "id": "b5a1b2c3-d4e5-f6a7-b8c9-d0e1f2b50016",
+      "name": "Telegram — Parse Fail Alert",
+      "webhookId": "tg-b5-parsefail",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook — Trigger Reactivation": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Campaign Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Campaign Setup": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read Customer DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read Customer DB": {
+      "main": [
+        [
+          {
+            "node": "Code — Filter Eligible Customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Filter Eligible Customers": {
+      "main": [
+        [
+          {
+            "node": "Groq — Reactivation Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Reactivation Writer": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse Email": {
+      "main": [
+        [
+          {
+            "node": "IF — Parse Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Send Reactivation": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Log Send": {
+      "main": [
+        [
+          {
+            "node": "Wait — Gmail Rate Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait — Gmail Rate Limit": {
+      "main": [
+        [
+          {
+            "node": "Code — Campaign Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Campaign Summary": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Campaign Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Campaign Summary": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Campaign Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Campaign Summary": {
+      "main": [
+        [
+          {
+            "node": "Respond — Campaign Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Parse Success": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Send Reactivation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Parse Fail Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b5-reactivation-v3-007",
+  "meta": {
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B5ReactivationV3001",
+  "tags": []
+}

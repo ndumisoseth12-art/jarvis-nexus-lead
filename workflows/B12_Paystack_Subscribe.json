@@ -1,0 +1,291 @@
+{
+  "name": "B12 Paystack Subscribe",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "paystack-subscribe",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "390731fd-d0b5-405c-96bc-967e022cddc8",
+      "name": "Webhook — Paystack Subscribe",
+      "webhookId": "b12-paystack-subscribe"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ps-s-1",
+              "name": "tier",
+              "value": "={{ ($json['query']?.['tier'] ?? 'starter').toLowerCase() }}",
+              "type": "string"
+            },
+            {
+              "id": "ps-s-2",
+              "name": "email",
+              "value": "={{ $json['query']?.['email'] ?? '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ],
+      "id": "541f1f14-0da6-4d5b-8b43-7d70247bdf99",
+      "name": "Edit Fields — Setup"
+    },
+    {
+      "parameters": {
+        "jsCode": "// B12 Paystack Subscribe — Build the initialize-transaction request\n// Set PAYSTACK_SECRET_KEY env var in Railway. Use sk_test_xxx for sandbox, sk_live_xxx for live.\n// Pre-create plans on Paystack dashboard and set their codes as env vars:\n//   PAYSTACK_PLAN_STARTER, PAYSTACK_PLAN_OPERATOR, PAYSTACK_PLAN_COMMAND\n\nconst setup = $('Edit Fields — Setup').item.json;\nconst tier = (setup['tier'] || 'starter').toLowerCase();\nconst email = (setup['email'] || '').trim();\n\n// Validate email — Paystack requires it\nconst emailValid = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\n\n// Tier config — monthly recurring (no setup fee in v1; can add via separate one-off charge later)\nconst TIERS = {\n  starter:  { name: 'Starter',  amountZar: 1490 },\n  operator: { name: 'Operator', amountZar: 3990 },\n  command:  { name: 'Command',  amountZar: 9990 }\n};\nconst tierConfig = TIERS[tier] || TIERS.starter;\n\nconst planCode = $env['PAYSTACK_PLAN_' + tier.toUpperCase()] || '';\nconst reference = 'JN-' + Date.now() + '-' + Math.floor(Math.random() * 10000);\n\nconst RETURN_URL = 'https://jarvis-nexus-lead-jkon.vercel.app/thank-you?ref=' + reference;\nconst CALLBACK_URL = 'https://jarvis-nexus-lead-jkon.vercel.app/thank-you';\n\nconst body = {\n  email,\n  amount: tierConfig.amountZar * 100, // Paystack expects kobo (cents)\n  currency: 'ZAR',\n  reference,\n  callback_url: CALLBACK_URL,\n  metadata: { tier, tierName: tierConfig.name, source: 'jarvis-nexus-portal' }\n};\nif (planCode) body.plan = planCode;\n\nreturn [{\n  json: {\n    emailValid,\n    email,\n    tier,\n    tierName: tierConfig.name,\n    reference,\n    requestBody: body,\n    secretKey: $env['PAYSTACK_SECRET_KEY'] || ''\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "id": "c85af846-e0aa-43f8-89a5-c761f044c655",
+      "name": "Code — Prepare Init"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-email",
+              "leftValue": "={{ $json['emailValid'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        660,
+        0
+      ],
+      "id": "e65b8e0c-379a-43f6-901d-b65fa1b3dc29",
+      "name": "IF — Email Valid"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.paystack.co/transaction/initialize",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Code — Prepare Init').item.json['secretKey'] }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Code — Prepare Init').item.json['requestBody']) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        880,
+        -100
+      ],
+      "id": "fc61b38b-5611-49f7-a768-8b0dc2628bd6",
+      "name": "HTTP — Paystack Initialize",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "// B12 — Build the auto-redirect HTML using Paystack's authorization_url\nconst resp = $input.item.json;\nconst prep = $('Code — Prepare Init').item.json;\n\nconst authUrl = (resp && resp['data'] && resp['data']['authorization_url']) || '';\nconst reference = prep['reference'];\nconst tierName = prep['tierName'];\n\nif (!authUrl) {\n  // Paystack rejected the initialize — return an error page\n  const errMsg = (resp && resp['message']) || 'Paystack initialize failed. Check PAYSTACK_SECRET_KEY env var on Railway.';\n  const errHtml = '<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Checkout error</title>'\n    + '<style>body{font-family:Arial,sans-serif;background:#08080c;color:#f5f5fa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;}.card{text-align:center;max-width:480px;padding:40px;border:1px solid rgba(244,63,94,0.3);border-radius:12px;background:#1c1c28;}.label{color:#f43f5e;font-size:11px;letter-spacing:0.18em;font-family:monospace;margin-bottom:10px;}.msg{font-size:15px;color:#a8a8c2;line-height:1.6;}</style>'\n    + '</head><body><div class=\"card\"><div class=\"label\">// CHECKOUT ERROR</div><div class=\"msg\">' + errMsg + '</div></div></body></html>';\n  return [{ json: { html: errHtml, ok: false } }];\n}\n\nconst html = '<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><title>Redirecting to Paystack...</title>'\n  + '<style>body{font-family:-apple-system,Arial,sans-serif;background:#08080c;color:#f5f5fa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;}'\n  + '.card{text-align:center;padding:40px;max-width:480px;}'\n  + '.spinner{display:inline-block;width:36px;height:36px;border:3px solid rgba(99,102,241,0.2);border-top-color:#818cf8;border-radius:50%;animation:spin 800ms linear infinite;margin-bottom:24px;}'\n  + '@keyframes spin{to{transform:rotate(360deg);}}'\n  + '.label{font-family:monospace;font-size:11px;letter-spacing:0.18em;color:#818cf8;text-transform:uppercase;margin-bottom:10px;font-weight:600;}'\n  + '.text{font-size:20px;font-weight:600;margin-bottom:8px;letter-spacing:-0.01em;}'\n  + '.sub{font-size:13.5px;color:#a8a8c2;line-height:1.55;margin-bottom:24px;}'\n  + '.ref{font-family:monospace;font-size:11px;color:#6b6b85;letter-spacing:0.06em;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);}</style></head><body>'\n  + '<div class=\"card\"><div class=\"spinner\"></div>'\n  + '<div class=\"label\">// NSM &middot; ' + tierName.toUpperCase() + '</div>'\n  + '<div class=\"text\">Securing your checkout...</div>'\n  + '<div class=\"sub\">Redirecting you to Paystack to complete payment.</div>'\n  + '<div class=\"ref\">REF &middot; ' + reference + '</div></div>'\n  + '<script>window.location.replace(' + JSON.stringify(authUrl) + ');</script>'\n  + '<noscript><meta http-equiv=\"refresh\" content=\"0;url=' + authUrl + '\"></noscript>'\n  + '</body></html>';\n\nreturn [{ json: { html, ok: true, authUrl, reference } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        -100
+      ],
+      "id": "9fc0d556-144c-4446-95e8-12467acaa6d6",
+      "name": "Code — Build Redirect HTML"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json['html'] }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1320,
+        -100
+      ],
+      "id": "9de1cda9-28a7-4049-a8b4-7baa6a363547",
+      "name": "Respond — Redirect HTML"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Email required</title><style>body{font-family:Arial,sans-serif;background:#08080c;color:#f5f5fa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;}.card{text-align:center;max-width:480px;padding:40px;border:1px solid rgba(245,158,11,0.3);border-radius:12px;background:#1c1c28;}.label{color:#f59e0b;font-size:11px;letter-spacing:0.18em;font-family:monospace;margin-bottom:10px;}.msg{font-size:15px;color:#a8a8c2;line-height:1.6;}</style></head><body><div class='card'><div class='label'>// EMAIL REQUIRED</div><div class='msg'>Please provide your email address to subscribe. Go back to the pricing page and try again.</div></div></body></html>",
+        "options": {
+          "responseCode": 400,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        100
+      ],
+      "id": "afdee060-177b-41ad-aaa6-536de007e5a5",
+      "name": "Respond — Email Missing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook — Paystack Subscribe": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Setup": {
+      "main": [
+        [
+          {
+            "node": "Code — Prepare Init",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Prepare Init": {
+      "main": [
+        [
+          {
+            "node": "IF — Email Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Email Valid": {
+      "main": [
+        [
+          {
+            "node": "HTTP — Paystack Initialize",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond — Email Missing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP — Paystack Initialize": {
+      "main": [
+        [
+          {
+            "node": "Code — Build Redirect HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Build Redirect HTML": {
+      "main": [
+        [
+          {
+            "node": "Respond — Redirect HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b12-paystack-subscribe-v1-003",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B12PaystackSubscribeV1001",
+  "tags": []
+}

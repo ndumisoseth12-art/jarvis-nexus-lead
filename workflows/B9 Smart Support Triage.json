@@ -1,0 +1,1288 @@
+{
+  "name": "B9 Smart Support Triage",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "customer-support",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2768,
+        304
+      ],
+      "id": "3b105c38-c238-4989-ae58-d384452facb6",
+      "name": "Webhook — Support Intake",
+      "webhookId": "b9-support-intake"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert customer support manager for South African businesses. Analyse the customer message.\\n\\n1. CATEGORY: Complaint / Question / Refund / Compliment / Other.\\n2. URGENCY: High = angry, refund, order not received, damaged, threat to leave bad review (SLA 2 hours). Medium = general complaint, delivery delay, missing info (SLA 24 hours). Low = question, compliment, general inquiry (SLA 48 hours).\\n3. SENTIMENT: Positive / Neutral / Negative / Furious.\\n4. DRAFT REPLY: Address by first name. Acknowledge specific issue, never generic. Apologise sincerely if complaint or refund. Direct answer for questions. Warm thanks for compliments. Under 80 words. South African English. Plain text.\\n5. RECOMMENDED ACTION: One concrete next step.\\n6. ESCALATE: true if Furious sentiment OR refund over R5000 OR threatens public review OR mentions legal/lawyer/CCMA. Otherwise false.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"category\\\": \\\"Complaint\\\", \\\"urgency\\\": \\\"High\\\", \\\"sentiment\\\": \\\"Negative\\\", \\\"draft_reply\\\": \\\"...\\\", \\\"recommended_action\\\": \\\"...\\\", \\\"escalate\\\": false, \\\"resolution_time\\\": \\\"2 hours\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Customer Name: {{ $json['body']['fullName'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Full Name')?.['value'] ?? 'Unknown' }}\\nEmail: {{ $json['body']['email'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Email')?.['value'] ?? 'unknown@email.com' }}\\nOrder Number: {{ $json['body']['orderNumber'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Order Number')?.['value'] ?? 'N/A' }}\\nIssue Type: {{ $json['body']['issueType'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Issue Type')?.['value'] ?? 'N/A' }}\\nMessage: {{ $json['body']['issueDescription'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Issue Description')?.['value'] ?? '' }}\"\n    }\n  ],\n  \"temperature\": 0.4,\n  \"max_tokens\": 600\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -2544,
+        304
+      ],
+      "id": "d95b1b91-ba1c-46fc-ab08-76d40a721fd4",
+      "name": "Groq — Triage AI",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef1-1",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2336,
+        304
+      ],
+      "id": "45eaa4f1-1a71-4292-a71f-3e2bbdc78240",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptVersion = 'b9-triage-v1';\n// B9 Smart Support Triage — Parser + SLA + Routing\nconst rawText = $input.item.json['rawAIText'] || '';\nconst body = $('Webhook — Support Intake').item.json['body'] || {};\nconst fields = (body['data'] && body['data']['fields']) || [];\n\nfunction tallyVal(label) {\n  const f = fields.find(x => x['label'] === label);\n  if (!f) return null;\n  if (f['type'] === 'MULTIPLE_CHOICE' && f['options'] && f['value']) {\n    const sel = Array.isArray(f['value']) ? f['value'][0] : f['value'];\n    const opt = f['options'].find(o => o['id'] === sel);\n    return opt ? opt['text'] : null;\n  }\n  if (Array.isArray(f['value'])) return f['value'].join(', ');\n  return f['value'] || null;\n}\n\nconst fullName = body['fullName'] || tallyVal('Full Name') || 'Unknown';\nconst email = body['email'] || tallyVal('Email') || 'unknown@email.com';\nconst orderNumber = body['orderNumber'] || tallyVal('Order Number') || 'N/A';\nconst issueType = body['issueType'] || tallyVal('Issue Type') || 'N/A';\nconst issueDescription = body['issueDescription'] || tallyVal('Issue Description') || '';\nconst firstName = (fullName || 'there').split(' ')[0];\n\nconst cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\nlet parsed;\ntry { parsed = JSON.parse(cleaned); }\ncatch (e) {\n  const m = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) { parsed = null; } }\n}\nif (!parsed || !parsed['draft_reply']) {\n  parsed = {\n    category: 'Question', urgency: 'Medium', sentiment: 'Neutral',\n    draft_reply: 'Hi ' + firstName + ', thanks for getting in touch. We have received your message and will get back to you shortly.',\n    recommended_action: 'Manual review required — AI parse failed.',\n    escalate: false, resolution_time: '24 hours'\n  };\n}\nconst parseSuccess = parsed['recommended_action'] !== 'Manual review required — AI parse failed.';\n\nconst urgency = parsed['urgency'] || 'Medium';\nconst category = parsed['category'] || 'Question';\nconst sentiment = parsed['sentiment'] || 'Neutral';\nconst escalate = parsed['escalate'] === true;\n\nconst slaHours = urgency === 'High' ? 2 : (urgency === 'Medium' ? 24 : 48);\nconst slaWaitMs = slaHours * 60 * 60 * 1000;\nconst now = new Date();\nconst slaDeadline = new Date(now.getTime() + slaWaitMs);\n\nconst styling = {\n  High:   { borderColor: '#f43f5e', emoji: '🚨', prefix: '🚨 URGENT', responseTime: 'Respond within 2 hours' },\n  Medium: { borderColor: '#f59e0b', emoji: '⚠️', prefix: '⚠️ ATTENTION', responseTime: 'Respond within 24 hours' },\n  Low:    { borderColor: '#10b981', emoji: '✅', prefix: '✅ STANDARD', responseTime: 'Respond within 48 hours' }\n}[urgency] || { borderColor: '#6366f1', emoji: '📨', prefix: '📨 NEW', responseTime: 'Standard SLA' };\n\nconst categoryEmoji = { Complaint: '😠', Question: '❓', Refund: '💰', Compliment: '🎉', Other: '📨' }[category] || '📨';\nconst ticketId = 'TKT-' + Date.now().toString(36).toUpperCase();\n\nreturn { promptVersion,\n  ticketId, fullName, firstName, email, orderNumber, issueType, issueDescription,\n  category, urgency, sentiment, escalate,\n  draftReply: parsed['draft_reply'], recommendedAction: parsed['recommended_action'],\n  resolutionTime: parsed['resolution_time'] || styling.responseTime,\n  slaHours, slaWaitMs, slaDeadlineISO: slaDeadline.toISOString(),\n  borderColor: styling.borderColor, emailPrefix: styling.prefix,\n  categoryEmoji, responseTime: styling.responseTime,\n  parseSuccess,\n  submittedAt: now.toISOString(),\n  submittedAtSAST: now.toLocaleString('en-ZA', { timeZone: 'Africa/Johannesburg' })\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2112,
+        304
+      ],
+      "id": "a3671475-0bae-40ad-87af-21a804d0f794",
+      "name": "Code — Parse + SLA"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-parse-001",
+              "leftValue": "={{ $json['parseSuccess'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1888,
+        304
+      ],
+      "id": "4e4a9e7d-4ffd-4ec1-bde5-05578ab49c7c",
+      "name": "If — AI Parse OK"
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ B9 PARSE FALLBACK\n\nTicket: {{ $('Code — Parse + SLA').item.json['ticketId'] }}\nCustomer: {{ $('Code — Parse + SLA').item.json['fullName'] }} ({{ $('Code — Parse + SLA').item.json['email'] }})\n\nGroq output unparseable. Manual review needed. Time: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}\\n\\n_Prompt: {{ $('Code — Parse + SLA').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1664,
+        512
+      ],
+      "id": "0627f068-63bd-4225-9aae-8faf7ac61869",
+      "name": "Telegram — Parse Fallback",
+      "webhookId": "tg-b9-fallback",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID": "={{ $('Code — Parse + SLA').item.json['ticketId'] }}",
+            "Timestamp": "={{ $('Code — Parse + SLA').item.json['submittedAt'] }}",
+            "Name": "={{ $('Code — Parse + SLA').item.json['fullName'] }}",
+            "Email": "={{ $('Code — Parse + SLA').item.json['email'] }}",
+            "Order No": "={{ $('Code — Parse + SLA').item.json['orderNumber'] }}",
+            "Issue Type": "={{ $('Code — Parse + SLA').item.json['issueType'] }}",
+            "Category": "={{ $('Code — Parse + SLA').item.json['category'] }}",
+            "Urgency": "={{ $('Code — Parse + SLA').item.json['urgency'] }}",
+            "Sentiment": "={{ $('Code — Parse + SLA').item.json['sentiment'] }}",
+            "Draft Reply": "={{ $('Code — Parse + SLA').item.json['draftReply'] }}",
+            "Recommended Action": "={{ $('Code — Parse + SLA').item.json['recommendedAction'] }}",
+            "Resolution Time": "={{ $('Code — Parse + SLA').item.json['resolutionTime'] }}",
+            "SLA Deadline": "={{ $('Code — Parse + SLA').item.json['slaDeadlineISO'] }}",
+            "Status": "Open",
+            "Resolved At": "",
+            "Escalated": "={{ $('Code — Parse + SLA').item.json['escalate'] ? 'Yes' : 'No' }}",
+            "Satisfaction Triggered": "",
+            "Satisfaction Triggered At": ""
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Order No",
+              "displayName": "Order No",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue Type",
+              "displayName": "Issue Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgency",
+              "displayName": "Urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Draft Reply",
+              "displayName": "Draft Reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recommended Action",
+              "displayName": "Recommended Action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resolution Time",
+              "displayName": "Resolution Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SLA Deadline",
+              "displayName": "SLA Deadline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resolved At",
+              "displayName": "Resolved At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Escalated",
+              "displayName": "Escalated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Satisfaction Triggered",
+              "displayName": "Satisfaction Triggered",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Satisfaction Triggered At",
+              "displayName": "Satisfaction Triggered At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1664,
+        112
+      ],
+      "id": "f9dee61a-8916-4228-b55b-7f894f752da9",
+      "name": "Sheets — Log Ticket",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "={{ $('Code — Parse + SLA').item.json['emailPrefix'] }} — {{ $('Code — Parse + SLA').item.json['category'] }} from {{ $('Code — Parse + SLA').item.json['fullName'] }} [{{ $('Code — Parse + SLA').item.json['ticketId'] }}]",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:620px;margin:0 auto;padding:20px;background:#f4f4f4;\">\n  <div style=\"background:{{ $('Code — Parse + SLA').item.json['borderColor'] }};padding:20px;border-radius:8px 8px 0 0;text-align:center;\">\n    <h1 style=\"color:white;margin:0;font-size:22px;\">{{ $('Code — Parse + SLA').item.json['categoryEmoji'] }} {{ $('Code — Parse + SLA').item.json['emailPrefix'] }}</h1>\n    <p style=\"color:white;margin:8px 0 0 0;font-size:13px;letter-spacing:1px;\">{{ $('Code — Parse + SLA').item.json['responseTime'] }} · {{ $('Code — Parse + SLA').item.json['ticketId'] }}</p>\n  </div>\n  <div style=\"background:white;padding:25px;border-radius:0 0 8px 8px;\">\n    <div style=\"border-left:4px solid {{ $('Code — Parse + SLA').item.json['borderColor'] }};padding:15px;background:#f9f9f9;border-radius:4px;margin-bottom:20px;\">\n      <h3 style=\"margin:0 0 12px 0;\">👤 Customer</h3>\n      <p style=\"margin:4px 0;\"><strong>Name:</strong> {{ $('Code — Parse + SLA').item.json['fullName'] }}</p>\n      <p style=\"margin:4px 0;\"><strong>Email:</strong> {{ $('Code — Parse + SLA').item.json['email'] }}</p>\n      <p style=\"margin:4px 0;\"><strong>Order:</strong> {{ $('Code — Parse + SLA').item.json['orderNumber'] }}</p>\n      <p style=\"margin:4px 0;\"><strong>Issue Type:</strong> {{ $('Code — Parse + SLA').item.json['issueType'] }}</p>\n    </div>\n    <div style=\"background:#fafafa;padding:15px;border-radius:4px;margin-bottom:20px;\">\n      <h3 style=\"margin:0 0 12px 0;\">💬 Their message</h3>\n      <p style=\"margin:0;color:#333;font-style:italic;line-height:1.6;\">\"{{ $('Code — Parse + SLA').item.json['issueDescription'] }}\"</p>\n    </div>\n    <div style=\"display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;\">\n      <div style=\"background:#f0f0ff;padding:12px;border-radius:4px;text-align:center;\"><div style=\"font-size:10px;color:#666;letter-spacing:1px;text-transform:uppercase;\">Category</div><div style=\"font-weight:700;margin-top:4px;\">{{ $('Code — Parse + SLA').item.json['category'] }}</div></div>\n      <div style=\"background:#f0f0ff;padding:12px;border-radius:4px;text-align:center;\"><div style=\"font-size:10px;color:#666;letter-spacing:1px;text-transform:uppercase;\">Urgency</div><div style=\"font-weight:700;margin-top:4px;color:{{ $('Code — Parse + SLA').item.json['borderColor'] }};\">{{ $('Code — Parse + SLA').item.json['urgency'] }}</div></div>\n      <div style=\"background:#f0f0ff;padding:12px;border-radius:4px;text-align:center;\"><div style=\"font-size:10px;color:#666;letter-spacing:1px;text-transform:uppercase;\">Sentiment</div><div style=\"font-weight:700;margin-top:4px;\">{{ $('Code — Parse + SLA').item.json['sentiment'] }}</div></div>\n    </div>\n    <div style=\"background:#fff7ed;border:1px solid #fed7aa;padding:18px;border-radius:6px;margin-bottom:20px;\">\n      <h3 style=\"margin:0 0 10px 0;color:#92400e;\">✍️ AI-drafted reply (review before sending)</h3>\n      <p style=\"margin:0;color:#333;line-height:1.7;white-space:pre-wrap;\">{{ $('Code — Parse + SLA').item.json['draftReply'] }}</p>\n    </div>\n    <div style=\"background:#eef2ff;border:1px solid #c7d2fe;padding:14px;border-radius:6px;\">\n      <p style=\"margin:0;font-size:13px;\"><strong>Recommended action:</strong> {{ $('Code — Parse + SLA').item.json['recommendedAction'] }}</p>\n    </div>\n  </div>\n  <p style=\"text-align:center;color:#999;font-size:11px;letter-spacing:1px;margin-top:14px;\">NSM · B9 SMART SUPPORT TRIAGE</p>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1456,
+        112
+      ],
+      "id": "bbc3a953-2c58-4fba-a3fd-3fa5a06b800e",
+      "name": "Gmail — Owner Brief",
+      "webhookId": "gmail-b9-owner",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "={{ $('Code — Parse + SLA').item.json['emailPrefix'] }} {{ $('Code — Parse + SLA').item.json['ticketId'] }}\n\n👤 {{ $('Code — Parse + SLA').item.json['fullName'] }}\n📧 {{ $('Code — Parse + SLA').item.json['email'] }}\n📦 Order: {{ $('Code — Parse + SLA').item.json['orderNumber'] }}\n🏷 {{ $('Code — Parse + SLA').item.json['category'] }} · {{ $('Code — Parse + SLA').item.json['urgency'] }} · {{ $('Code — Parse + SLA').item.json['sentiment'] }}\n\n💬 \"{{ $('Code — Parse + SLA').item.json['issueDescription'] }}\"\n\n📋 Action: {{ $('Code — Parse + SLA').item.json['recommendedAction'] }}\n⏰ SLA: {{ $('Code — Parse + SLA').item.json['resolutionTime'] }}{{ $('Code — Parse + SLA').item.json['escalate'] ? '\\n\\n🚨 FLAGGED FOR ESCALATION — review immediately' : '' }}\\n\\n_Prompt: {{ $('Code — Parse + SLA').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1232,
+        112
+      ],
+      "id": "4929f263-047c-4731-b052-f187e6a841ea",
+      "name": "Telegram — Owner Alert",
+      "webhookId": "tg-b9-alert",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"ticketId\": \"={{ $('Code — Parse + SLA').item.json['ticketId'] }}\",\n  \"message\": \"Support ticket received and triaged\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1008,
+        112
+      ],
+      "id": "af2f0863-d033-4052-a3cb-594a97454800",
+      "name": "Respond — Triaged"
+    },
+    {
+      "parameters": {
+        "amount": "={{ $('Code — Parse + SLA').item.json['slaWaitMs'] }}",
+        "unit": "ms"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -784,
+        112
+      ],
+      "id": "ca5e0ace-60d5-432a-847d-d47dd108e85f",
+      "name": "Wait — SLA Window",
+      "webhookId": "wait-b9-sla"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Ticket ID",
+              "lookupValue": "={{ $('Code — Parse + SLA').item.json['ticketId'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -576,
+        112
+      ],
+      "id": "31478abd-8a78-4f57-9b17-252c483a01d9",
+      "name": "Sheets — SLA Status Check",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-still-open-001",
+              "leftValue": "={{ $json['Status'] }}",
+              "rightValue": "Open",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -352,
+        112
+      ],
+      "id": "21aced4a-01d8-45c5-9bc2-b831510220ee",
+      "name": "If — SLA Breach (still Open)"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID": "={{ $json['Ticket ID'] }}",
+            "Status": "Breached",
+            "Escalated": "Yes"
+          },
+          "matchingColumns": [
+            "Ticket ID"
+          ],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Escalated",
+              "displayName": "Escalated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -128,
+        0
+      ],
+      "id": "4ded204d-a6c9-45f5-a202-054cd2626a8a",
+      "name": "Sheets — Mark Breached",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🚨 SLA BREACHED — TICKET STILL OPEN\n\nTicket: {{ $json['Ticket ID'] }}\nCustomer: {{ $json['Name'] }}\nCategory: {{ $json['Category'] }} · {{ $json['Urgency'] }}\nSLA was: {{ $json['Resolution Time'] }}\n\n💬 \"{{ $json['Draft Reply'] }}\"\n\n⚠️ This ticket was not resolved within the SLA window. Marked as Breached. Reply to the customer NOW.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        96,
+        0
+      ],
+      "id": "d554d4f1-d1a4-49e3-9bd2-3b8f8763237d",
+      "name": "Telegram — SLA Escalation",
+      "webhookId": "tg-b9-escalate",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "support-resolve",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2768,
+        768
+      ],
+      "id": "1444b35a-728c-417f-af07-1462bdf94ad9",
+      "name": "Webhook — Mark Resolved",
+      "webhookId": "b9-mark-resolved"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID": "={{ $json['body']['ticketId'] }}",
+            "Status": "Resolved",
+            "Resolved At": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "Satisfaction Triggered": "No"
+          },
+          "matchingColumns": [
+            "Ticket ID"
+          ],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resolved At",
+              "displayName": "Resolved At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Satisfaction Triggered",
+              "displayName": "Satisfaction Triggered",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2560,
+        768
+      ],
+      "id": "861425e9-4af7-4a39-80b0-6a88099ce45e",
+      "name": "Sheets — Mark Resolved",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=✅ TICKET RESOLVED\n\n🎫 {{ $('Webhook — Mark Resolved').item.json['body']['ticketId'] }}\n📅 {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}\n\nSLA timer stopped. Status flipped to Resolved.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -2384,
+        768
+      ],
+      "id": "6197de8a-f3f0-4fe4-84f9-11a1e6cfaf18",
+      "name": "Telegram — Resolved",
+      "webhookId": "tg-b9-resolved",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Ticket marked resolved. SLA timer stopped.\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -2144,
+        768
+      ],
+      "id": "5a1cc74f-b171-4d1d-a0e4-3b339f86a9e5",
+      "name": "Respond — Resolved"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 11 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2768,
+        1100
+      ],
+      "id": "b9a1b2c3-d4e5-f6a7-b8c9-d0e1f2b90026",
+      "name": "Schedule — Daily Satisfaction Scanner"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ssc-1",
+              "name": "scanId",
+              "value": "=SATSCAN-{{ $now.toFormat('yyyyMMdd-HHmmss') }}",
+              "type": "string"
+            },
+            {
+              "id": "ssc-2",
+              "name": "nowIso",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            },
+            {
+              "id": "ssc-3",
+              "name": "todayDate",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2544,
+        1100
+      ],
+      "id": "b9a1b2c3-d4e5-f6a7-b8c9-d0e1f2b90027",
+      "name": "Edit Fields — Satisfaction Scanner Setup"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2320,
+        1100
+      ],
+      "id": "b9a1b2c3-d4e5-f6a7-b8c9-d0e1f2b90028",
+      "name": "Sheets — Read All Tickets",
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// B9 v3-003 — Find resolved tickets due for a satisfaction check (header-whitespace safe)\nconst trimKeys = (r) => { const out = {}; for (const [k, v] of Object.entries(r || {})) out[k.trim()] = v; return out; };\nconst rows = $input.all().map(i => trimKeys(i.json));\nconst setup = $('Edit Fields — Satisfaction Scanner Setup').item.json;\nconst now = new Date(setup['nowIso']);\n\nconst candidates = [];\nfor (const r of rows) {\n  if (!r['Ticket ID']) continue;\n  if (r['Status'] !== 'Resolved') continue;\n  if (r['Satisfaction Triggered'] === 'Yes') continue;\n  const resolvedAtStr = r['Resolved At'];\n  if (!resolvedAtStr) continue;\n  const resolvedAt = new Date(resolvedAtStr);\n  if (isNaN(resolvedAt.getTime())) continue;\n  const hoursSinceResolved = (now - resolvedAt) / (1000 * 60 * 60);\n  // Fire 48h+ after resolution, skip if >14 days stale\n  if (hoursSinceResolved < 48) continue;\n  if (hoursSinceResolved > 14 * 24) continue;\n  if (!r['Email']) continue;\n  if (!r['Name']) continue;\n  candidates.push({\n    ticketId: r['Ticket ID'],\n    customerName: r['Name'],\n    customerEmail: r['Email'],\n    orderNumber: r['Order No'] || '',\n    issueType: r['Issue Type'] || '',\n    category: r['Category'] || '',\n    originalSentiment: r['Sentiment'] || '',\n    resolvedAt: resolvedAtStr,\n    hoursSinceResolved: Math.round(hoursSinceResolved),\n    scanId: setup['scanId'],\n    nowIso: setup['nowIso']\n  });\n}\nreturn candidates.map(c => ({ json: c }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2096,
+        1100
+      ],
+      "id": "b9a1b2c3-d4e5-f6a7-b8c9-d0e1f2b90029",
+      "name": "Code — Filter Satisfaction Candidates"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n-production-71d9.up.railway.app/webhook/reputation-trigger",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"customerName\": \"{{ $json['customerName'] }}\",\n  \"customerEmail\": \"{{ $json['customerEmail'] }}\",\n  \"businessName\": \"NSM\",\n  \"ownerEmail\": \"ndumisoseth12@gmail.com\",\n  \"productService\": \"your recent support experience ({{ $json['category'] }})\",\n  \"publicReviewLink\": \"https://g.page/r/your-google-review-link\",\n  \"waitDays\": 0\n}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1872,
+        1100
+      ],
+      "id": "b9a1b2c3-d4e5-f6a7-b8c9-d0e1f2b90030",
+      "name": "HTTP — Post to B6 Reputation Trigger",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-b6-ok",
+              "leftValue": "={{ $json['statusCode'] }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1648,
+        1100
+      ],
+      "id": "b9a1b2c3-d4e5-f6a7-b8c9-d0e1f2b90031",
+      "name": "IF — B6 Success"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID": "={{ $('Code — Filter Satisfaction Candidates').item.json['ticketId'] }}",
+            "Satisfaction Triggered": "Yes",
+            "Satisfaction Triggered At": "={{ $('Code — Filter Satisfaction Candidates').item.json['nowIso'] }}"
+          },
+          "matchingColumns": [
+            "Ticket ID"
+          ],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Satisfaction Triggered",
+              "displayName": "Satisfaction Triggered",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Satisfaction Triggered At",
+              "displayName": "Satisfaction Triggered At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1424,
+        1020
+      ],
+      "id": "b9a1b2c3-d4e5-f6a7-b8c9-d0e1f2b90032",
+      "name": "Sheets — Mark Satisfaction Triggered",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ B9 → B6 satisfaction trigger failed\n\nTicket: {{ $('Code — Filter Satisfaction Candidates').item.json['ticketId'] }}\nCustomer: {{ $('Code — Filter Satisfaction Candidates').item.json['customerName'] }} ({{ $('Code — Filter Satisfaction Candidates').item.json['customerEmail'] }})\nCategory: {{ $('Code — Filter Satisfaction Candidates').item.json['category'] }}\nB6 status: {{ $json['statusCode'] || 'no response' }}\n\nRow not marked as triggered — tomorrow's scan will retry.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1424,
+        1180
+      ],
+      "id": "b9a1b2c3-d4e5-f6a7-b8c9-d0e1f2b90033",
+      "name": "Telegram — Satisfaction Fail Alert",
+      "webhookId": "tg-b9-satisfaction-fail",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook — Support Intake": {
+      "main": [
+        [
+          {
+            "node": "Groq — Triage AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Triage AI": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse + SLA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse + SLA": {
+      "main": [
+        [
+          {
+            "node": "If — AI Parse OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — AI Parse OK": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Parse Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Log Ticket": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Owner Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Owner Brief": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Owner Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Owner Alert": {
+      "main": [
+        [
+          {
+            "node": "Respond — Triaged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond — Triaged": {
+      "main": [
+        [
+          {
+            "node": "Wait — SLA Window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait — SLA Window": {
+      "main": [
+        [
+          {
+            "node": "Sheets — SLA Status Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — SLA Status Check": {
+      "main": [
+        [
+          {
+            "node": "If — SLA Breach (still Open)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — SLA Breach (still Open)": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Mark Breached",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Mark Breached": {
+      "main": [
+        [
+          {
+            "node": "Telegram — SLA Escalation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook — Mark Resolved": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Mark Resolved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Mark Resolved": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Resolved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Resolved": {
+      "main": [
+        [
+          {
+            "node": "Respond — Resolved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule — Daily Satisfaction Scanner": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Satisfaction Scanner Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Satisfaction Scanner Setup": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read All Tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read All Tickets": {
+      "main": [
+        [
+          {
+            "node": "Code — Filter Satisfaction Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Filter Satisfaction Candidates": {
+      "main": [
+        [
+          {
+            "node": "HTTP — Post to B6 Reputation Trigger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP — Post to B6 Reputation Trigger": {
+      "main": [
+        [
+          {
+            "node": "IF — B6 Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — B6 Success": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Mark Satisfaction Triggered",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Satisfaction Fail Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b9-smart-support-triage-v3-007",
+  "meta": {
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B9SmartSupportTriageV3001",
+  "tags": []
+}

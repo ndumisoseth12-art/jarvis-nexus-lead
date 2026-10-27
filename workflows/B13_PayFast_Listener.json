@@ -1,0 +1,776 @@
+{
+  "name": "B13 PayFast Listener",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "payfast-itn",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13001",
+      "name": "Webhook — PayFast ITN",
+      "webhookId": "b13-payfast-itn"
+    },
+    {
+      "parameters": {
+        "jsCode": "// B13 PayFast Listener — Build signature verification string + extract fields.\n// Hashing happens in the next node (Crypto).\n//\n// LIVE PASSPHRASE — read from Railway env var PAYFAST_PASSPHRASE.\n// Set it in Railway BEFORE flipping MODE to 'live'. If not set in live mode,\n// every signature check will fail and Seth gets a Telegram alert on the first ITN.\n\n// ============ MODE — must match B12 ============\nconst MODE = 'live'; // 'sandbox' (PayFast public test passphrase) or 'live' (Railway env)\n// ================================================\nconst PASSPHRASE = MODE === 'live'\n  ? ($env['PAYFAST_PASSPHRASE'] || '')\n  : 'jt7NOE43FZPn';\n\nconst body = $input.item.json['body'] || {};\n\n// PayFast URL encoding: must match PHP urlencode() exactly.\nfunction pfEncode(value) {\n  return encodeURIComponent(String(value).trim())\n    .replace(/%20/g, '+')\n    .replace(/!/g, '%21')\n    .replace(/'/g, '%27')\n    .replace(/\\(/g, '%28')\n    .replace(/\\)/g, '%29')\n    .replace(/\\*/g, '%2A')\n    .replace(/~/g, '%7E');\n}\n\nconst keys = Object.keys(body).filter(k => k !== 'signature');\nconst queryString = keys.map(k => k + '=' + pfEncode(body[k])).join('&');\nconst stringToHash = PASSPHRASE\n  ? queryString + '&passphrase=' + pfEncode(PASSPHRASE)\n  : queryString;\n\nconst providedSig = body['signature'] || '';\n\n// Extract useful fields for downstream nodes\nconst paymentStatus = body['payment_status'] || 'UNKNOWN';\nconst paymentId     = body['m_payment_id']   || '';\nconst pfPaymentId   = body['pf_payment_id']  || '';\nconst itemName      = body['item_name']      || '';\nconst tierKey       = body['custom_str1']    || '';\nconst amount        = body['amount_gross']   || body['amount'] || '0';\nconst customerEmail = body['email_address']  || 'ndumisoseth12@gmail.com';\nconst customerName  = (body['name_first'] || '') + (body['name_last'] ? ' ' + body['name_last'] : '');\nconst tokenId       = body['token']          || '';\nconst billingDate   = body['billing_date']   || '';\n\n// Renewal vs initial discriminator.\n// IMPORTANT: PayFast DOES send billing_date on the initial signup ITN too — it's the date\n// of the NEXT recurring charge, not a renewal marker. Originally we OR'd billing_date in,\n// which made every initial signup misfire to the renewal branch (welcome email never sent).\n// The only reliable signal is item_name: PayFast prepends 'Subscription payment for '\n// on recurring ITNs and leaves the merchant-supplied item_name untouched on the initial.\nconst isRenewal = /subscription payment for/i.test(itemName);\n\nreturn [{\n  json: {\n    stringToHash: stringToHash,\n    providedSig: providedSig,\n    paymentStatus: paymentStatus,\n    paymentId: paymentId,\n    pfPaymentId: pfPaymentId,\n    tierKey: tierKey,\n    tierLabel: tierKey ? (tierKey.charAt(0).toUpperCase() + tierKey.slice(1)) : 'Unknown',\n    itemName: itemName,\n    amount: amount,\n    customerEmail: customerEmail,\n    customerName: customerName.trim() || 'New Customer',\n    firstName: (customerName.split(' ')[0] || 'there').trim(),\n    tokenId: tokenId,\n    billingDate: billingDate,\n    isRenewal: isRenewal,\n    billingType: isRenewal ? 'renewal' : 'initial',\n    receivedAt: $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss')\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13002",
+      "name": "Code — Prepare Verification"
+    },
+    {
+      "parameters": {
+        "action": "hash",
+        "type": "MD5",
+        "value": "={{ $json['stringToHash'] }}",
+        "dataPropertyName": "expectedSig",
+        "encoding": "hex"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13003",
+      "name": "Crypto — Compute MD5"
+    },
+    {
+      "parameters": {
+        "jsCode": "// B13 — Compare expected signature with provided signature\n\nconst d = $input.item.json;\nconst signatureValid = d['expectedSig'] === d['providedSig'];\n\nreturn [{ json: { ...d, signatureValid: signatureValid } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13004",
+      "name": "Code — Compare Signatures"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "OK",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        -200
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13012",
+      "name": "Respond — 200 OK"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-sig",
+              "leftValue": "={{ $('Code — Compare Signatures').item.json['signatureValid'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        0
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13005",
+      "name": "IF — Signature Valid"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "sw-complete",
+                    "leftValue": "={{ $('Code — Compare Signatures').item.json['paymentStatus'] }}",
+                    "rightValue": "COMPLETE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Complete"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "sw-cancelled",
+                    "leftValue": "={{ $('Code — Compare Signatures').item.json['paymentStatus'] }}",
+                    "rightValue": "CANCELLED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cancelled"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "sw-failed",
+                    "leftValue": "={{ $('Code — Compare Signatures').item.json['paymentStatus'] }}",
+                    "rightValue": "FAILED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Failed"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1100,
+        0
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13006",
+      "name": "Switch — Status"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-renewal",
+              "leftValue": "={{ $('Code — Compare Signatures').item.json['isRenewal'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        -340
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13013",
+      "name": "IF — Renewal vs Initial"
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🔁 SUBSCRIPTION RENEWAL · {{ $('Code — Compare Signatures').item.json['tierLabel'] }}\n\n{{ $('Code — Compare Signatures').item.json['customerName'] }}\n📧 {{ $('Code — Compare Signatures').item.json['customerEmail'] }}\n\n💵 Renewed: R{{ $('Code — Compare Signatures').item.json['amount'] }}\n🏷 Plan: {{ $('Code — Compare Signatures').item.json['itemName'] }}\n🆔 Ref: {{ $('Code — Compare Signatures').item.json['paymentId'] }}\n🔑 Token: {{ $('Code — Compare Signatures').item.json['tokenId'] }}\n📅 Billing date: {{ $('Code — Compare Signatures').item.json['billingDate'] }}\n\n✅ Monthly recurring billing succeeded — no action needed.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1540,
+        -440
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13014",
+      "name": "Telegram — Renewal Receipt",
+      "webhookId": "tg-b13-renewal",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=💰 NEW CUSTOMER · {{ $('Code — Compare Signatures').item.json['tierLabel'] }} TIER\n\n{{ $('Code — Compare Signatures').item.json['customerName'] }}\n📧 {{ $('Code — Compare Signatures').item.json['customerEmail'] }}\n\n💵 Paid: R{{ $('Code — Compare Signatures').item.json['amount'] }}\n🏷 Plan: {{ $('Code — Compare Signatures').item.json['itemName'] }}\n🆔 Ref: {{ $('Code — Compare Signatures').item.json['paymentId'] }}\n🔑 PF ID: {{ $('Code — Compare Signatures').item.json['pfPaymentId'] }}\n\n✅ Subscription active. Welcome email sent. Now do the onboarding call within 24h.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1540,
+        -260
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13007",
+      "name": "Telegram — New Customer Alert",
+      "webhookId": "tg-b13-paid",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Compare Signatures').item.json['customerEmail'] }}",
+        "subject": "=Welcome to NSM, {{ $('Code — Compare Signatures').item.json['firstName'] }} 🎉",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:11px;font-family:'JetBrains Mono',monospace;color:#6366f1;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;margin-bottom:14px;\">// NSM</div>\n  <div style=\"font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:36px;color:#020208;line-height:1.05;margin-bottom:20px;letter-spacing:-0.02em;\">Welcome aboard, {{ $('Code — Compare Signatures').item.json['firstName'] }}.</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.7;margin-bottom:18px;\">Thank you for choosing the <strong>{{ $('Code — Compare Signatures').item.json['tierLabel'] }} plan</strong> — your subscription is active and your bots will be configured for your business this week.</div>\n  <div style=\"background:linear-gradient(135deg,rgba(129,140,248,0.10),rgba(99,102,241,0.04));border:1px solid #c7d2fe;border-radius:10px;padding:20px;margin:24px 0;\">\n    <div style=\"font-family:'JetBrains Mono',monospace;font-size:10px;color:#6366f1;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:10px;font-weight:700;\">What happens next</div>\n    <ol style=\"margin:0;padding-left:18px;color:#333;font-size:14px;line-height:1.8;\">\n      <li>Within 24 hours, Seth will reach out to schedule a 30-min onboarding call.</li>\n      <li>On the call, we'll configure your bots to your brand voice and your business workflow.</li>\n      <li>Within 7 days, your bots are live and your first automation runs.</li>\n    </ol>\n  </div>\n  <div style=\"text-align:center;margin:28px 0 20px;\">\n    <a href=\"https://cal.com/seth-mokone-limbt0/30min\" style=\"display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#818cf8,#6366f1);color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;\">Book your onboarding call →</a>\n  </div>\n  <div style=\"font-size:13px;color:#666;line-height:1.6;\">Questions before then? Reply to this email or WhatsApp Seth on <strong>+27 67 099 4163</strong>.</div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;margin-top:24px;font-family:'JetBrains Mono',monospace;letter-spacing:0.04em;\">REF · {{ $('Code — Compare Signatures').item.json['paymentId'] }} · BUILT IN JOBURG</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1540,
+        -100
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13008",
+      "name": "Gmail — Welcome Customer",
+      "webhookId": "gmail-b13-welcome",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ PayFast subscription CANCELLED\n\n{{ $('Code — Compare Signatures').item.json['customerName'] }}\n📧 {{ $('Code — Compare Signatures').item.json['customerEmail'] }}\n🏷 Plan: {{ $('Code — Compare Signatures').item.json['itemName'] }}\n🆔 Ref: {{ $('Code — Compare Signatures').item.json['paymentId'] }}\n\nThey clicked Cancel on the PayFast checkout page. Consider reaching out — they were a click away from buying.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1320,
+        80
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13009",
+      "name": "Telegram — Cancelled",
+      "webhookId": "tg-b13-cancel",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🚨 PayFast payment FAILED\n\n{{ $('Code — Compare Signatures').item.json['customerName'] }}\n📧 {{ $('Code — Compare Signatures').item.json['customerEmail'] }}\n🏷 Plan: {{ $('Code — Compare Signatures').item.json['itemName'] }}\n🆔 Ref: {{ $('Code — Compare Signatures').item.json['paymentId'] }}\n💵 Amount: R{{ $('Code — Compare Signatures').item.json['amount'] }}\n\nCard declined or bank rejected. They may try again — or reach out to see what went wrong.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1320,
+        240
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13010",
+      "name": "Telegram — Failed",
+      "webhookId": "tg-b13-failed",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=ℹ️ PayFast ITN · UNKNOWN STATUS\n\nStatus: {{ $('Code — Compare Signatures').item.json['paymentStatus'] }}\n\n{{ $('Code — Compare Signatures').item.json['customerName'] }}\n📧 {{ $('Code — Compare Signatures').item.json['customerEmail'] }}\n🏷 Plan: {{ $('Code — Compare Signatures').item.json['itemName'] }}\n🆔 Ref: {{ $('Code — Compare Signatures').item.json['paymentId'] }}\n\nNot Complete / Cancelled / Failed. Check PayFast dashboard for context — common values include PENDING.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1320,
+        400
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13015",
+      "name": "Telegram — Unknown Status",
+      "webhookId": "tg-b13-unknown",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🛑 PayFast ITN signature INVALID\n\nReceived ITN with a bad signature — possible spoof or passphrase mismatch.\n\n📊 Status: {{ $('Code — Compare Signatures').item.json['paymentStatus'] }}\n🆔 Ref: {{ $('Code — Compare Signatures').item.json['paymentId'] }}\n📧 Email: {{ $('Code — Compare Signatures').item.json['customerEmail'] }}\n\nDO NOT trust this notification. Check PayFast dashboard manually.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1100,
+        560
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13011",
+      "name": "Telegram — Signature Failed",
+      "webhookId": "tg-b13-sigfail",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/14pPPoaU49nZd5z-IFJiQ2Pd2yHlo_E_oO0aVwG-aPb4/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14pPPoaU49nZd5z-IFJiQ2Pd2yHlo_E_oO0aVwG-aPb4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $('Code — Compare Signatures').item.json['receivedAt'] }}",
+            "Payment ID": "={{ $('Code — Compare Signatures').item.json['paymentId'] }}",
+            "PF Payment ID": "={{ $('Code — Compare Signatures').item.json['pfPaymentId'] }}",
+            "Customer Name": "={{ $('Code — Compare Signatures').item.json['customerName'] }}",
+            "Customer Email": "={{ $('Code — Compare Signatures').item.json['customerEmail'] }}",
+            "Tier": "={{ $('Code — Compare Signatures').item.json['tierLabel'] }}",
+            "Amount": "={{ $('Code — Compare Signatures').item.json['amount'] }}",
+            "Item Name": "={{ $('Code — Compare Signatures').item.json['itemName'] }}",
+            "Status": "={{ $('Code — Compare Signatures').item.json['paymentStatus'] }}",
+            "Billing Type": "={{ $('Code — Compare Signatures').item.json['billingType'] }}",
+            "Token": "={{ $('Code — Compare Signatures').item.json['tokenId'] }}",
+            "Billing Date": "={{ $('Code — Compare Signatures').item.json['billingDate'] }}",
+            "Signature Valid": "={{ $('Code — Compare Signatures').item.json['signatureValid'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Payment ID",
+              "displayName": "Payment ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PF Payment ID",
+              "displayName": "PF Payment ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tier",
+              "displayName": "Tier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Item Name",
+              "displayName": "Item Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Billing Type",
+              "displayName": "Billing Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Token",
+              "displayName": "Token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Billing Date",
+              "displayName": "Billing Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Signature Valid",
+              "displayName": "Signature Valid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1760,
+        0
+      ],
+      "id": "b13a1b2c-d4e5-f6a7-b8c9-d0e1f2c13016",
+      "name": "Sheets — Log Payment",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook — PayFast ITN": {
+      "main": [
+        [
+          {
+            "node": "Code — Prepare Verification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Prepare Verification": {
+      "main": [
+        [
+          {
+            "node": "Crypto — Compute MD5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto — Compute MD5": {
+      "main": [
+        [
+          {
+            "node": "Code — Compare Signatures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Compare Signatures": {
+      "main": [
+        [
+          {
+            "node": "Respond — 200 OK",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF — Signature Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Signature Valid": {
+      "main": [
+        [
+          {
+            "node": "Switch — Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Signature Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch — Status": {
+      "main": [
+        [
+          {
+            "node": "IF — Renewal vs Initial",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Failed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Unknown Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Renewal vs Initial": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Renewal Receipt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — New Customer Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gmail — Welcome Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Renewal Receipt": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Welcome Customer": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Cancelled": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Failed": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Unknown Status": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Signature Failed": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b13-payfast-listener-v1-008",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B13PayFastListenerV1007",
+  "tags": []
+}

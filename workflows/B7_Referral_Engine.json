@@ -1,0 +1,1016 @@
+{
+  "name": "B7 Referral Engine",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "referral-ask",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2700,
+        0
+      ],
+      "id": "wh-ask-001",
+      "name": "Webhook — Trigger Referral Ask",
+      "webhookId": "b7-referral-ask"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-a-1",
+              "name": "referralCode",
+              "value": "=REF-{{ $now.toFormat('yyyyMMdd') }}-{{ Math.random().toString(36).substring(2, 8).toUpperCase() }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-a-2",
+              "name": "advocateName",
+              "value": "={{ $json['body']['customerName'] ?? 'Customer' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-a-3",
+              "name": "advocateEmail",
+              "value": "={{ $json['body']['customerEmail'] ?? 'unknown@email.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-a-4",
+              "name": "firstName",
+              "value": "={{ ($json['body']['customerName'] ?? 'there').split(' ')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-a-5",
+              "name": "businessName",
+              "value": "={{ $json['body']['businessName'] ?? 'Your Business' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-a-6",
+              "name": "ownerEmail",
+              "value": "={{ $json['body']['ownerEmail'] ?? 'ndumisoseth12@gmail.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-a-7",
+              "name": "advocateReward",
+              "value": "={{ $json['body']['advocateReward'] ?? 'R100 store credit' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-a-8",
+              "name": "friendOffer",
+              "value": "={{ $json['body']['friendOffer'] ?? '15% off their first order' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-a-9",
+              "name": "tier",
+              "value": "={{ $json['body']['tier'] ?? 'Silver' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-a-10",
+              "name": "lastProduct",
+              "value": "={{ $json['body']['lastProduct'] ?? '' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-a-11",
+              "name": "askedAt",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2480,
+        0
+      ],
+      "id": "ef-ask-001",
+      "name": "Edit Fields — Setup"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You write warm, personal referral-ask emails for South African businesses. The customer just had a positive experience and you want to ask them to refer a friend. Rules:\\n\\n1. ADDRESS by first name only.\\n2. ACKNOWLEDGE the relationship genuinely. Never desperate.\\n3. EXPLAIN what their friend gets, what they get back. Both rewards clearly.\\n4. ONE clear ask. No begging.\\n5. Reference their tier or last product if relevant.\\n6. SIGN with the business name.\\n7. Under 90 words. Plain text. South African English.\\n\\nTone by tier:\\nVIP/Gold = warm, premium, treat them as the connector they are.\\nSilver/Bronze = friendly, helpful, low-key ask.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"subject\\\": \\\"short subject under 10 words\\\", \\\"body\\\": \\\"the email body\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"First Name: {{ $json['firstName'] }}\\nTier: {{ $json['tier'] }}\\nBusiness: {{ $json['businessName'] }}\\nLast product: {{ $json['lastProduct'] }}\\nAdvocate gets: {{ $json['advocateReward'] }}\\nFriend gets: {{ $json['friendOffer'] }}\"\n    }\n  ],\n  \"temperature\": 0.6,\n  \"max_tokens\": 350\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -2260,
+        0
+      ],
+      "id": "http-groq-001",
+      "name": "Groq — Referral Writer",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef1-1",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2040,
+        0
+      ],
+      "id": "ef1-001",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptVersion = 'b7-referral-v1';\n// B7 Referral Engine — Parse AI output, merge with setup\nconst rawText = $input.item.json['rawAIText'] || '';\nconst d = $('Edit Fields — Setup').item.json;\n\nconst cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\nlet parsed;\ntry { parsed = JSON.parse(cleaned); }\ncatch (e) {\n  const m = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) { parsed = null; } }\n}\nif (!parsed || !parsed['body']) {\n  parsed = {\n    subject: 'A small thank-you and a favour from ' + d['businessName'],\n    body: 'Hi ' + d['firstName'] + ', thank you for being a great customer. If you know someone who would also enjoy ' + d['businessName'] + ', would you share us? They get ' + d['friendOffer'] + ' and you get ' + d['advocateReward'] + ' once they make their first purchase. Thanks for the support.'\n  };\n}\nconst parseSuccess = !!parsed['body'] && parsed['subject'] !== ('A small thank-you and a favour from ' + d['businessName']);\nreturn { ...d, promptVersion, subject: parsed['subject'], body: parsed['body'], parseSuccess };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1820,
+        0
+      ],
+      "id": "code-parse-001",
+      "name": "Code — Parse Email"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['advocateEmail'] }}",
+        "subject": "={{ $json['subject'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">{{ $json['businessName'] }}</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:24px;white-space:pre-wrap;\">{{ $json['body'] }}</div>\n  <div style=\"background:linear-gradient(135deg,rgba(129,140,248,0.10),rgba(99,102,241,0.05));border:1px solid #c7d2fe;padding:20px;border-radius:8px;margin-bottom:24px;\">\n    <div style=\"font-size:11px;color:#6366f1;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:10px;text-align:center;\">Your unique referral code</div>\n    <div style=\"font-family:'JetBrains Mono',monospace;font-size:18px;color:#020208;font-weight:700;letter-spacing:2px;text-align:center;background:#fff;padding:14px;border-radius:6px;border:1px dashed #6366f1;\">{{ $json['referralCode'] }}</div>\n    <div style=\"font-size:12.5px;color:#666;margin-top:14px;line-height:1.6;text-align:center;\">Share this code with a friend. They get <strong>{{ $json['friendOffer'] }}</strong>. Once they buy, you get <strong>{{ $json['advocateReward'] }}</strong>.</div>\n  </div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;\">Sent on behalf of {{ $json['businessName'] }} · Powered by NSM</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1360,
+        0
+      ],
+      "id": "gmail-ask-001",
+      "name": "Gmail — Send Referral Ask",
+      "webhookId": "gmail-b7-ask",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1NssT8zHU_ttlYklBQoaqyGmNu_y9stD9MgtBcCMmNX0/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NssT8zHU_ttlYklBQoaqyGmNu_y9stD9MgtBcCMmNX0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Referral Code": "={{ $('Code — Parse Email').item.json['referralCode'] }}",
+            "Asked At": "={{ $('Code — Parse Email').item.json['askedAt'] }}",
+            "Advocate Name": "={{ $('Code — Parse Email').item.json['advocateName'] }}",
+            "Advocate Email": "={{ $('Code — Parse Email').item.json['advocateEmail'] }}",
+            "Advocate Tier": "={{ $('Code — Parse Email').item.json['tier'] }}",
+            "Business Name": "={{ $('Code — Parse Email').item.json['businessName'] }}",
+            "Advocate Reward": "={{ $('Code — Parse Email').item.json['advocateReward'] }}",
+            "Friend Offer": "={{ $('Code — Parse Email').item.json['friendOffer'] }}",
+            "Status": "Asked",
+            "Friend Name": "",
+            "Friend Email": "",
+            "Converted At": "",
+            "Reward Sent": "No",
+            "Prompt Version": "={{ $('Code — Parse Email').item.json['promptVersion'] }}",
+            "Parse Success": "={{ $('Code — Parse Email').item.json['parseSuccess'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Referral Code",
+              "displayName": "Referral Code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Asked At",
+              "displayName": "Asked At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Advocate Name",
+              "displayName": "Advocate Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Advocate Email",
+              "displayName": "Advocate Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Advocate Tier",
+              "displayName": "Advocate Tier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business Name",
+              "displayName": "Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Advocate Reward",
+              "displayName": "Advocate Reward",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Friend Offer",
+              "displayName": "Friend Offer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Friend Name",
+              "displayName": "Friend Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Friend Email",
+              "displayName": "Friend Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Converted At",
+              "displayName": "Converted At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reward Sent",
+              "displayName": "Reward Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prompt Version",
+              "displayName": "Prompt Version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Parse Success",
+              "displayName": "Parse Success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1140,
+        0
+      ],
+      "id": "gs-log-ask-001",
+      "name": "Sheets — Log Referral Ask",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=📨 REFERRAL ASK SENT\n\n👤 To: {{ $('Code — Parse Email').item.json['advocateName'] }} ({{ $('Code — Parse Email').item.json['tier'] }})\n📧 {{ $('Code — Parse Email').item.json['advocateEmail'] }}\n🏢 From: {{ $('Code — Parse Email').item.json['businessName'] }}\n🎟 Code: {{ $('Code — Parse Email').item.json['referralCode'] }}\n\nReward: {{ $('Code — Parse Email').item.json['advocateReward'] }} when their friend converts.\\n\\n_Prompt: {{ $('Code — Parse Email').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -920,
+        0
+      ],
+      "id": "tg-ask-001",
+      "name": "Telegram — Ask Confirmation",
+      "webhookId": "tg-b7-ask",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"referralCode\": \"={{ $('Code — Parse Email').item.json['referralCode'] }}\",\n  \"message\": \"Referral ask sent and logged\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -700,
+        0
+      ],
+      "id": "rw-ask-001",
+      "name": "Respond — Ask Sent"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "referral-convert",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2700,
+        700
+      ],
+      "id": "wh-conv-001",
+      "name": "Webhook — Friend Converted",
+      "webhookId": "b7-friend-converted"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-c-1",
+              "name": "referralCode",
+              "value": "={{ $json['body']['referralCode'] ?? '' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-c-2",
+              "name": "friendName",
+              "value": "={{ $json['body']['friendName'] ?? 'Friend' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-c-3",
+              "name": "friendEmail",
+              "value": "={{ $json['body']['friendEmail'] ?? '' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-c-4",
+              "name": "convertedAt",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2480,
+        700
+      ],
+      "id": "ef-conv-001",
+      "name": "Edit Fields — Conversion"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1NssT8zHU_ttlYklBQoaqyGmNu_y9stD9MgtBcCMmNX0/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NssT8zHU_ttlYklBQoaqyGmNu_y9stD9MgtBcCMmNX0/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Referral Code",
+              "lookupValue": "={{ $('Edit Fields — Conversion').item.json['referralCode'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2260,
+        700
+      ],
+      "id": "gs-lookup-conv-001",
+      "name": "Sheets — Lookup Code",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1NssT8zHU_ttlYklBQoaqyGmNu_y9stD9MgtBcCMmNX0/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NssT8zHU_ttlYklBQoaqyGmNu_y9stD9MgtBcCMmNX0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Referral Code": "={{ $('Edit Fields — Conversion').item.json['referralCode'] }}",
+            "Friend Name": "={{ $('Edit Fields — Conversion').item.json['friendName'] }}",
+            "Friend Email": "={{ $('Edit Fields — Conversion').item.json['friendEmail'] }}",
+            "Converted At": "={{ $('Edit Fields — Conversion').item.json['convertedAt'] }}",
+            "Status": "Converted"
+          },
+          "matchingColumns": [
+            "Referral Code"
+          ],
+          "schema": [
+            {
+              "id": "Referral Code",
+              "displayName": "Referral Code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Friend Name",
+              "displayName": "Friend Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Friend Email",
+              "displayName": "Friend Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Converted At",
+              "displayName": "Converted At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2040,
+        700
+      ],
+      "id": "gs-mark-converted-001",
+      "name": "Sheets — Mark Converted",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Sheets — Lookup Code').item.json['Advocate Email'] }}",
+        "subject": "=🎉 Your referral worked — your reward from {{ $('Sheets — Lookup Code').item.json['Business Name'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">{{ $('Sheets — Lookup Code').item.json['Business Name'] }}</div>\n  <div style=\"text-align:center;margin-bottom:24px;\"><div style=\"font-size:48px;\">🎉</div></div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:24px;text-align:center;\">Hi {{ $('Sheets — Lookup Code').item.json['Advocate Name'].split(' ')[0] }},<br><br>Your friend <strong>{{ $('Edit Fields — Conversion').item.json['friendName'] }}</strong> just made their first purchase using your referral code. Thank you for the introduction — that means the world to us.</div>\n  <div style=\"background:linear-gradient(135deg,rgba(129,140,248,0.10),rgba(99,102,241,0.05));border:1px solid #c7d2fe;padding:24px;border-radius:8px;margin-bottom:24px;text-align:center;\">\n    <div style=\"font-size:11px;color:#6366f1;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:10px;\">Your reward</div>\n    <div style=\"font-size:22px;color:#020208;font-weight:700;\">{{ $('Sheets — Lookup Code').item.json['Advocate Reward'] }}</div>\n    <div style=\"font-size:12.5px;color:#666;margin-top:10px;\">Reply to this email and we'll sort it personally.</div>\n  </div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;\">Sent on behalf of {{ $('Sheets — Lookup Code').item.json['Business Name'] }} · Powered by NSM</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1820,
+        700
+      ],
+      "id": "gmail-reward-001",
+      "name": "Gmail — Reward Advocate",
+      "webhookId": "gmail-b7-reward",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1NssT8zHU_ttlYklBQoaqyGmNu_y9stD9MgtBcCMmNX0/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NssT8zHU_ttlYklBQoaqyGmNu_y9stD9MgtBcCMmNX0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Referral Code": "={{ $('Edit Fields — Conversion').item.json['referralCode'] }}",
+            "Reward Sent": "Yes"
+          },
+          "matchingColumns": [
+            "Referral Code"
+          ],
+          "schema": [
+            {
+              "id": "Referral Code",
+              "displayName": "Referral Code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reward Sent",
+              "displayName": "Reward Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1600,
+        700
+      ],
+      "id": "gs-mark-rewarded-001",
+      "name": "Sheets — Mark Rewarded",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🎉 REFERRAL CONVERTED\n\n🎟 Code: {{ $('Edit Fields — Conversion').item.json['referralCode'] }}\n👤 Advocate: {{ $('Sheets — Lookup Code').item.json['Advocate Name'] }}\n🤝 Friend: {{ $('Edit Fields — Conversion').item.json['friendName'] }}\n📧 {{ $('Edit Fields — Conversion').item.json['friendEmail'] }}\n\n💰 Advocate reward sent: {{ $('Sheets — Lookup Code').item.json['Advocate Reward'] }}\n\n⏰ {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1380,
+        700
+      ],
+      "id": "tg-conv-001",
+      "name": "Telegram — Conversion Alert",
+      "webhookId": "tg-b7-conv",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Referral marked converted, advocate rewarded\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1160,
+        700
+      ],
+      "id": "rw-conv-001",
+      "name": "Respond — Conversion Logged"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-b7-parse",
+              "leftValue": "={{ $('Code — Parse Email').item.json['parseSuccess'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1600,
+        0
+      ],
+      "id": "b7a1b2c3-d4e5-f6a7-b8c9-d0e1f2b70018",
+      "name": "IF — Parse Success"
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ B7 Referral Engine — AI parse failed, fallback email used.\n\nAdvocate: {{ $('Edit Fields — Setup').item.json['customerName'] }}\nBusiness: {{ $('Edit Fields — Setup').item.json['businessName'] }}\nTime: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}\n\nReferral ask still went out using safe defaults.\\n\\n_Prompt: {{ $('Code — Parse Email').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1380,
+        200
+      ],
+      "id": "b7a1b2c3-d4e5-f6a7-b8c9-d0e1f2b70019",
+      "name": "Telegram — Parse Fail Alert",
+      "webhookId": "tg-b7-parsefail",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook — Trigger Referral Ask": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Setup": {
+      "main": [
+        [
+          {
+            "node": "Groq — Referral Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Referral Writer": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse Email": {
+      "main": [
+        [
+          {
+            "node": "IF — Parse Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Send Referral Ask": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Referral Ask",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Log Referral Ask": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Ask Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Ask Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Respond — Ask Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook — Friend Converted": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Conversion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Conversion": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Lookup Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Lookup Code": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Mark Converted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Mark Converted": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Reward Advocate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Reward Advocate": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Mark Rewarded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Mark Rewarded": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Conversion Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Conversion Alert": {
+      "main": [
+        [
+          {
+            "node": "Respond — Conversion Logged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Parse Success": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Send Referral Ask",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Parse Fail Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Parse Fail Alert": {
+      "main": [
+        [
+          {
+            "node": "Respond — Ask Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b7-referral-engine-v3-007",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B7ReferralEngineV3002",
+  "tags": []
+}

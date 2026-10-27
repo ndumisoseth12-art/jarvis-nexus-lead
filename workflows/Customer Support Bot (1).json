@@ -1,0 +1,670 @@
+{
+  "name": "Customer Support Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "customer-support",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "9c4e8513-ff66-4264-9ce1-94e3d148fe3c",
+      "name": "Webhook",
+      "webhookId": "ae8bf98c-5d51-4108-8245-0a71f07ddb8b"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert customer support manager for South African businesses. Analyze the customer message and respond following these rules:\\n\\n1. CATEGORY RULES:\\nComplaint = customer unhappy with product or service.\\nQuestion = customer needs information.\\nRefund = customer wants money back.\\nCompliment = customer is happy.\\n\\n2. URGENCY RULES:\\nHigh = angry customer, refund request, order not received, damaged product. Resolve within 2 hours.\\nMedium = general complaint, delivery delay. Resolve within 24 hours.\\nLow = question, compliment, general inquiry. Resolve within 48 hours.\\n\\n3. DRAFT REPLY RULES:\\nAlways address customer by name.\\nAcknowledge their specific issue — never be generic.\\nFor complaints and refunds — apologize sincerely and offer a clear next step.\\nFor questions — answer directly and helpfully.\\nFor compliments — be warm and grateful.\\nKeep reply under 80 words.\\nUse South African English.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"category\\\": \\\"Complaint\\\", \\\"urgency\\\": \\\"High\\\", \\\"sentiment\\\": \\\"Negative\\\", \\\"draft_reply\\\": \\\"professional reply here\\\", \\\"recommended_action\\\": \\\"Refund customer immediately\\\", \\\"resolution_time\\\": \\\"Within 2 hours\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Customer Name: {{ $json['body']['data']['fields'].find(f => f['label'] === 'Full Name')?.['value'] ?? 'Unknown' }}\\nEmail: {{ $json['body']['data']['fields'].find(f => f['label'] === 'Email Address')?.['value'] ?? 'Unknown' }}\\nOrder Number: {{ $json['body']['data']['fields'].find(f => f['label'] === 'Order Number')?.['value'] ?? 'Not provided' }}\\nIssue Type: {{ $json['body']['data']['fields'].find(f => f['label'] === 'What can we help you with?')?.['options']?.find(o => o['id'] === $json['body']['data']['fields'].find(f => f['label'] === 'What can we help you with?')?.['value']?.[0])?.['text'] ?? 'Not provided' }}\\nMessage: {{ $json['body']['data']['fields'].find(f => f['label'] === 'Describe your issue')?.['value'] ?? 'No message provided' }}\"\n    }\n  ],\n  \"temperature\": 0.3,\n  \"max_tokens\": 512\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "2b56ff3e-7cd5-41a9-9bde-ecbea9a9ed97",
+      "name": "HTTP Request",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6017e10d-67b7-4cf0-8656-d99c63c9adfc",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "97e9fb53-aace-4a8e-b9c8-13c1eec197c0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fields = $('Webhook').item.json['body']['data']['fields'];\n\nfunction getFieldValue(label) {\n  const field = fields.find(f => f['label'] === label);\n  if (!field) return 'Not provided';\n  \n  if (field['type'] === 'MULTIPLE_CHOICE' && field['options'] && field['value']) {\n    const selectedId = Array.isArray(field['value']) ? field['value'][0] : field['value'];\n    const selectedOption = field['options'].find(o => o['id'] === selectedId);\n    return selectedOption ? selectedOption['text'] : 'Not provided';\n  }\n  \n  if (Array.isArray(field['value'])) {\n    return field['value'].join(', ') || 'Not provided';\n  }\n  \n  return field['value'] || 'Not provided';\n}\n\nconst body = $('Webhook').item.json['body'];\nconst fullName = body['fullName'] || 'Not provided';\nconst email = body['email'] || 'Not provided';\nconst orderNumber = body['orderNumber'] || 'Not provided';\nconst issueType = body['issueType'] || 'Not provided';\nconst issueDescription = body['issueDescription'] || 'Not provided';\n\nconst cleanedText = rawText\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleanedText);\n} catch(e) {\n  parsed = {\n    category: \"Question\",\n    urgency: \"Medium\",\n    sentiment: \"Neutral\",\n    draft_reply: \"Thank you for contacting us. We have received your message and will get back to you shortly.\",\n    recommended_action: \"Follow up within 24 hours\",\n    resolution_time: \"Within 24 hours\"\n  };\n}\n\nconst urgency = parsed['urgency'] || 'Medium';\nconst category = parsed['category'] || 'Question';\n\nlet borderColor;\nlet emailPrefix;\nlet categoryEmoji;\nlet responseTime;\n\nif (urgency === 'High') {\n  borderColor = '#e74c3c';\n  emailPrefix = '🔴 URGENT Support Ticket';\n  categoryEmoji = '🚨';\n  responseTime = 'Respond within 2 hours';\n} else if (urgency === 'Medium') {\n  borderColor = '#f39c12';\n  emailPrefix = '🟡 Support Ticket';\n  categoryEmoji = '⚠️';\n  responseTime = 'Respond within 24 hours';\n} else {\n  borderColor = '#2ecc71';\n  emailPrefix = '🟢 Support Ticket';\n  categoryEmoji = '✅';\n  responseTime = 'Respond within 48 hours';\n}\n\nif (category === 'Complaint') {\n  categoryEmoji = '😠';\n} else if (category === 'Refund') {\n  categoryEmoji = '💰';\n} else if (category === 'Compliment') {\n  categoryEmoji = '😊';\n  borderColor = '#2ecc71';\n  emailPrefix = '🟢 Compliment Received';\n  responseTime = 'Respond within 48 hours';\n} else {\n  categoryEmoji = '❓';\n}\n\nreturn {\n  fullName: fullName,\n  email: email,\n  orderNumber: orderNumber,\n  issueType: issueType,\n  issueDescription: issueDescription,\n  category: category,\n  urgency: urgency,\n  sentiment: parsed['sentiment'] || 'Neutral',\n  draftReply: parsed['draft_reply'] || 'Thank you for contacting us.',\n  recommendedAction: parsed['recommended_action'] || 'Follow up',\n  resolutionTime: parsed['resolution_time'] || 'Within 24 hours',\n  borderColor: borderColor,\n  emailPrefix: emailPrefix,\n  categoryEmoji: categoryEmoji,\n  responseTime: responseTime,\n  submittedAt: new Date().toLocaleString('en-ZA', { timeZone: 'Africa/Johannesburg' })\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "15d2e38d-0b07-4bd7-a9b7-c37918fc3076",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "231d0a22-6e2b-42df-b0c0-cb2a865aed25",
+              "leftValue": "={{ $json['urgency'] }}",
+              "rightValue": "High",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        0
+      ],
+      "id": "1715a164-66f8-4469-b912-f20cc1fa6e21",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "={{ $('Code in JavaScript').item.json['emailPrefix'] }} — {{ $('Code in JavaScript').item.json['category'] }} from {{ $('Code in JavaScript').item.json['fullName'] }}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; padding: 20px; background: #f4f4f4;\">    <div style=\"background: {{ $('Code in JavaScript').item.json['borderColor'] }}; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;\">     <h1 style=\"color: white; margin: 0; font-size: 24px;\">       {{ $('Code in JavaScript').item.json['categoryEmoji'] }} {{ $('Code in JavaScript').item.json['emailPrefix'] }}     </h1>     <p style=\"color: white; margin: 8px 0 0 0;\">       {{ $('Code in JavaScript').item.json['responseTime'] }}     </p>   </div>    <div style=\"background: white; padding: 25px; border-radius: 0 0 8px 8px;\">      <div style=\"border-left: 4px solid {{ $('Code in JavaScript').item.json['borderColor'] }}; padding: 15px; background: #f9f9f9; border-radius: 4px; margin-bottom: 20px;\">       <h3 style=\"margin: 0 0 12px 0;\">👤 Customer Details</h3>       <p><strong>Name:</strong> {{ $('Code in JavaScript').item.json['fullName'] }}</p>       <p><strong>Email:</strong> {{ $('Code in JavaScript').item.json['email'] }}</p>       <p><strong>Order Number:</strong> {{ $('Code in JavaScript').item.json['orderNumber'] }}</p>       <p><strong>Issue Type:</strong> {{ $('Code in JavaScript').item.json['issueType'] }}</p>       <p><strong>Message:</strong> {{ $('Code in JavaScript').item.json['issueDescription'] }}</p>     </div>      <div style=\"border-left: 4px solid #2ecc71; padding: 15px; background: #eafaf1; border-radius: 4px; margin-bottom: 20px;\">       <h3 style=\"margin: 0 0 12px 0;\">✅ AI Drafted Reply</h3>       <p style=\"font-size: 15px; line-height: 1.7;\">{{ $('Code in JavaScript').item.json['draftReply'] }}</p>       <div style=\"margin-top: 15px; padding: 10px; background: white; border-radius: 4px; text-align: center;\">         <p style=\"margin: 0; color: #888; font-size: 12px;\">Copy this reply and send it to the customer</p>       </div>     </div>      <div style=\"border-left: 4px solid #3498db; padding: 15px; background: #ebf5fb; border-radius: 4px; margin-bottom: 20px;\">       <h3 style=\"margin: 0 0 12px 0;\">🤖 AI Analysis</h3>       <p><strong>Category:</strong> {{ $('Code in JavaScript').item.json['category'] }}</p>       <p><strong>Urgency:</strong> {{ $('Code in JavaScript').item.json['urgency'] }}</p>       <p><strong>Sentiment:</strong> {{ $('Code in JavaScript').item.json['sentiment'] }}</p>       <p><strong>Recommended Action:</strong> {{ $('Code in JavaScript').item.json['recommendedAction'] }}</p>       <p><strong>Resolution Time:</strong> <strong>{{ $('Code in JavaScript').item.json['resolutionTime'] }}</strong></p>     </div>      <div style=\"text-align: center; padding-top: 15px; border-top: 1px solid #eee;\">       <p style=\"color: #aaa; font-size: 11px;\">Powered by Your AI Customer Support Bot</p>     </div>    </div> </div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        -96
+      ],
+      "id": "5c6c6c64-7608-4a35-a09d-127ec0f59816",
+      "name": "Send a message",
+      "webhookId": "62783108-f346-4b40-ba1d-6e3309b73ba9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "={{ $('Code in JavaScript').item.json['emailPrefix'] }} — {{ $('Code in JavaScript').item.json['category'] }} from {{ $('Code in JavaScript').item.json['fullName'] }}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; padding: 20px; background: #f4f4f4;\">    <div style=\"background: {{ $('Code in JavaScript').item.json['borderColor'] }}; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;\">     <h1 style=\"color: white; margin: 0; font-size: 24px;\">       {{ $('Code in JavaScript').item.json['categoryEmoji'] }} {{ $('Code in JavaScript').item.json['emailPrefix'] }}     </h1>     <p style=\"color: white; margin: 8px 0 0 0;\">       {{ $('Code in JavaScript').item.json['responseTime'] }}     </p>   </div>    <div style=\"background: white; padding: 25px; border-radius: 0 0 8px 8px;\">      <div style=\"border-left: 4px solid {{ $('Code in JavaScript').item.json['borderColor'] }}; padding: 15px; background: #f9f9f9; border-radius: 4px; margin-bottom: 20px;\">       <h3 style=\"margin: 0 0 12px 0;\">👤 Customer Details</h3>       <p><strong>Name:</strong> {{ $('Code in JavaScript').item.json['fullName'] }}</p>       <p><strong>Email:</strong> {{ $('Code in JavaScript').item.json['email'] }}</p>       <p><strong>Order Number:</strong> {{ $('Code in JavaScript').item.json['orderNumber'] }}</p>       <p><strong>Issue Type:</strong> {{ $('Code in JavaScript').item.json['issueType'] }}</p>       <p><strong>Message:</strong> {{ $('Code in JavaScript').item.json['issueDescription'] }}</p>     </div>      <div style=\"border-left: 4px solid #2ecc71; padding: 15px; background: #eafaf1; border-radius: 4px; margin-bottom: 20px;\">       <h3 style=\"margin: 0 0 12px 0;\">✅ AI Drafted Reply</h3>       <p style=\"font-size: 15px; line-height: 1.7;\">{{ $('Code in JavaScript').item.json['draftReply'] }}</p>       <div style=\"margin-top: 15px; padding: 10px; background: white; border-radius: 4px; text-align: center;\">         <p style=\"margin: 0; color: #888; font-size: 12px;\">Copy this reply and send it to the customer</p>       </div>     </div>      <div style=\"border-left: 4px solid #3498db; padding: 15px; background: #ebf5fb; border-radius: 4px; margin-bottom: 20px;\">       <h3 style=\"margin: 0 0 12px 0;\">🤖 AI Analysis</h3>       <p><strong>Category:</strong> {{ $('Code in JavaScript').item.json['category'] }}</p>       <p><strong>Urgency:</strong> {{ $('Code in JavaScript').item.json['urgency'] }}</p>       <p><strong>Sentiment:</strong> {{ $('Code in JavaScript').item.json['sentiment'] }}</p>       <p><strong>Recommended Action:</strong> {{ $('Code in JavaScript').item.json['recommendedAction'] }}</p>       <p><strong>Resolution Time:</strong> <strong>{{ $('Code in JavaScript').item.json['resolutionTime'] }}</strong></p>     </div>      <div style=\"text-align: center; padding-top: 15px; border-top: 1px solid #eee;\">       <p style=\"color: #aaa; font-size: 11px;\">Powered by Your AI Customer Support Bot</p>     </div>    </div> </div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        96
+      ],
+      "id": "986cbe65-11ec-4f59-96a6-fafaba77b736",
+      "name": "Send a message1",
+      "webhookId": "62783108-f346-4b40-ba1d-6e3309b73ba9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $('Code in JavaScript').item.json['submittedAt'] }}",
+            "Name": "={{ $('Code in JavaScript').item.json['fullName'] }}",
+            "Email": "={{ $('Code in JavaScript').item.json['email'] }}",
+            "Order No": "={{ $('Code in JavaScript').item.json['orderNumber'] }}",
+            "Issue Type": "={{ $('Code in JavaScript').item.json['issueType'] }}",
+            "Category": "={{ $('Code in JavaScript').item.json['category'] }}",
+            "Urgency": "={{ $('Code in JavaScript').item.json['urgency'] }}",
+            "Draft Reply": "={{ $('Code in JavaScript').item.json['draftReply'] }}",
+            "Resolution Time": "={{ $('Code in JavaScript').item.json['resolutionTime'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Order No",
+              "displayName": "Order No",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Issue Type",
+              "displayName": "Issue Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Urgency",
+              "displayName": "Urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Draft Reply",
+              "displayName": "Draft Reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Resolution Time",
+              "displayName": "Resolution Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1248,
+        -160
+      ],
+      "id": "e00404b8-bc4e-4dac-b206-58d187c3934f",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XeLXhHTA_nbmp0KWijdCzB75vUIt8Xl-bjGnDK1wE_Q/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $('Code in JavaScript').item.json['submittedAt'] }}",
+            "Name": "={{ $('Code in JavaScript').item.json['fullName'] }}",
+            "Email": "={{ $('Code in JavaScript').item.json['email'] }}",
+            "Order No": "={{ $('Code in JavaScript').item.json['orderNumber'] }}",
+            "Issue Type": "={{ $('Code in JavaScript').item.json['issueType'] }}",
+            "Category": "={{ $('Code in JavaScript').item.json['category'] }}",
+            "Urgency": "={{ $('Code in JavaScript').item.json['urgency'] }}",
+            "Draft Reply": "={{ $('Code in JavaScript').item.json['draftReply'] }}",
+            "Resolution Time": "={{ $('Code in JavaScript').item.json['resolutionTime'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Order No",
+              "displayName": "Order No",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Issue Type",
+              "displayName": "Issue Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Urgency",
+              "displayName": "Urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Draft Reply",
+              "displayName": "Draft Reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Resolution Time",
+              "displayName": "Resolution Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1216,
+        144
+      ],
+      "id": "b49a8b27-5b8f-4841-a518-26a0812f7469",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Support ticket received and processed\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1664,
+        -192
+      ],
+      "id": "62793ce2-27d4-4912-a3ec-87dc42f910fc",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Support ticket received and processed\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1664,
+        192
+      ],
+      "id": "7bd0aa38-d677-42cf-95f3-476bdbe98827",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=✅ Support Bot Success!\n\nCustomer: {{ $('Code in JavaScript').item.json['fullName'] }}\nCategory: {{ $('Code in JavaScript').item.json['category'] }}\nUrgency: {{ $('Code in JavaScript').item.json['urgency'] }}\nTime: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1472,
+        -176
+      ],
+      "id": "e5362173-3641-44d1-9c7b-fff49617aca7",
+      "name": "Send a text message",
+      "webhookId": "c6b621a3-0624-4f6e-a282-4fa52ac78fc1",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=✅ Support Bot Success!\n\nCustomer: {{ $('Code in JavaScript').item.json['fullName'] }}\nCategory: {{ $('Code in JavaScript').item.json['category'] }}\nUrgency: {{ $('Code in JavaScript').item.json['urgency'] }}\nTime: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1456,
+        176
+      ],
+      "id": "899987e2-f604-49b0-9c02-c258142e9ee7",
+      "name": "Send a text message1",
+      "webhookId": "c6b621a3-0624-4f6e-a282-4fa52ac78fc1",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "timezone": "Africa/Johannesburg",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "f5510bf4-c6d2-4cf8-8c41-05fe644a3e30",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "m5epMZNjZwVTa9g7",
+  "tags": []
+}

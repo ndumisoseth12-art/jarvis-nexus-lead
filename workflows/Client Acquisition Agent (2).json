@@ -1,0 +1,573 @@
+{
+  "name": "Client Acquisition Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a Business Development Agent for NSM (South Africa). Your task: find exactly 10 high-quality potential clients per day. Follow ALL rules. Output ONLY valid JSON.\n\nTARGET INDUSTRIES:\nRestaurants & Cafés\nE-commerce Stores\nAirbnb Hosts\nReal Estate Agents\nCoaches & Consultants\n\nPRIORITY CITIES:\nJohannesburg, Cape Town, Durban, Pretoria.\n\nFOR EACH BUSINESS:\n1. Collect:\n- businessName\n- location (city)\n- industry\n- contactDetails (email OR WhatsApp OR Instagram)\nIf no contact found → skip.\n\n2. Identify ONE specific pain point using visible online evidence:\nRestaurants:\n- unanswered Google reviews\n- low rating\n- repeated complaints about wait time or service\nE-commerce:\n- unanswered product reviews\n- complaints about shipping, delays or refunds\nAirbnb:\n- reviews risking Superhost status\n- slow communication concerns\nReal Estate:\n- unanswered buyer enquiries\n- slow follow-ups → leads lost to competitors\nCoaches:\n- too many unqualified enquiries\n- wasted time on low-intent discovery calls\n\n3. Score fit (1–10):\n10 = perfect pain point + clear need\n7–9 = good fit\nBelow 7 = skip\nOnly return businesses scoring 7 or above.\n\n4. Recommend solution:\n- Review Responder Bot\n- Lead Qualifier Bot\n- Customer Support Bot\n- Airbnb Review Bot\n\nOUTREACH MESSAGE RULES:\nWrite a message with max 3 sentences.\nTone: soft, human, calm, helpful.\nNever mention AI, automation, tools, systems, or bots.\nStructure:\n1. Soft observation about their specific pain point\n2. Light consequence\n3. Curious question\n\nNiche outreach style:\nRestaurants → mention reviews affecting walk-ins.\nE-commerce → mention trust + repeat sales dropping.\nAirbnb → mention Superhost status + booking rate.\nReal Estate → mention hot leads going to competitors.\nCoaches → mention wasted time on unqualified calls.\n\nExamples (for style only, do NOT copy directly):\n“Hey — I noticed a few recent Google reviews mentioning issues that haven’t been responded to. That kind of thing can affect walk-ins because customers check ratings first. Are you currently handling the reviews manually?”\n“I saw some product reviews mentioning delays that haven’t been replied to yet. Small things like that can quietly affect repeat sales. Are you handling customer enquiries yourself?”\n“I noticed a couple of guest reviews that could impact Superhost status if they add up. Those usually affect booking rates more than people expect. Do you manage all guest communication manually?”\n\nOUTPUT FORMAT (MANDATORY):\nReturn ONLY a JSON array of exactly 10 items:\n\n[\n  {\n    \"businessName\": \"\",\n    \"industry\": \"\",\n    \"location\": \"\",\n    \"painPoint\": \"\",\n    \"contactDetails\": \"\",\n    \"contactType\": \"\",\n    \"recommendedBot\": \"\",\n    \"fitScore\": 7,\n    \"outreachMessage\": \"\"\n  }\n]\n\nNo explanation. No extra text. Only the JSON array.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        400,
+        -16
+      ],
+      "id": "8dd22119-8f09-45ee-8a43-a03f1801ca78",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "waitBetweenTries": 60
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "client-acquisition-agent",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "36d0ec4e-0cb5-4d92-8b8e-759779625e24",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        0
+      ],
+      "id": "7759971c-439e-4dbd-8267-217909e9b850",
+      "name": "Schedule Trigger",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst results = [];\n\nfor (const item of items) {\n  const data = item.json;\n\n  // Serper returns results under 'organic'\n  const organic = data['organic'] || data['organic_results'] || [];\n\n  for (const r of organic) {\n    const title   = r['title']   || '';\n    const link    = r['link']    || '';\n    const snippet = r['snippet'] || '';\n    const domain  = r['domain']  || (link ? new URL(link).hostname : '');\n\n    // Skip irrelevant results\n    if (!link || !title) continue;\n\n    // Skip directories and aggregators\n    const skipDomains = [\n      'facebook.com','twitter.com','instagram.com','linkedin.com',\n      'youtube.com','wikipedia.org','gov.za','news24.com',\n      'timeslive.co.za','sowetanlive.co.za','businesstech.co.za'\n    ];\n    if (skipDomains.some(d => domain.includes(d))) continue;\n\n    // Extract business name from title\n    const businessName = title.split('|')[0].split('-')[0].trim();\n\n    // Extract location from snippet\n    const locationMatch = snippet.match(\n      /(johannesburg|joburg|cape town|durban|pretoria|sandton|rosebank|soweto|midrand)/i\n    );\n    const location = locationMatch ? locationMatch[0] : 'South Africa';\n\n    // Extract email if present in snippet\n    const emailMatch = snippet.match(\n      /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/\n    );\n    const email = emailMatch ? emailMatch[0] : '';\n\n    // Extract phone if present\n    const phoneMatch = snippet.match(\n      /(\\+27|0)[0-9\\s]{8,12}/\n    );\n    const phone = phoneMatch ? phoneMatch[0].trim() : '';\n\n    // Determine industry from title and snippet\n    const text = (title + ' ' + snippet).toLowerCase();\n    let industry = 'Business';\n    if (text.match(/restaurant|cafe|food|eat|dining|braai/))    industry = 'Restaurant';\n    else if (text.match(/airbnb|guesthouse|lodge|accommodation/)) industry = 'Airbnb Host';\n    else if (text.match(/salon|hair|beauty|spa|nail/))           industry = 'Beauty & Wellness';\n    else if (text.match(/estate|property|real estate|realty/))   industry = 'Real Estate';\n    else if (text.match(/retail|shop|store|boutique|clothing/))  industry = 'Retail';\n    else if (text.match(/gym|fitness|training|crossfit/))        industry = 'Fitness';\n    else if (text.match(/dental|doctor|medical|clinic|health/))  industry = 'Healthcare';\n\n    // Fit score based on how targetable they are\n    let fitScore = 5;\n    if (email)                        fitScore += 2;\n    if (phone)                        fitScore += 1;\n    if (location !== 'South Africa')  fitScore += 1;\n    if (industry !== 'Business')      fitScore += 1;\n\n    // Only include if fit score is 7 or above\n    if (fitScore < 7) continue;\n\n    // Determine contact type\n    const contactType = email ? 'email' : 'manual';\n    const contactDetails = email || link;\n\n    // Build outreach message\n    const painPoints = {\n      'Restaurant':       'unanswered Google reviews costing you bookings',\n      'Airbnb Host':      'guest reviews going unresponded and hurting your Superhost status',\n      'Beauty & Wellness':'missed customer reviews lowering your Google ranking',\n      'Real Estate':      'slow lead response losing you qualified buyers',\n      'Retail':           'customer complaints going unanswered online',\n      'Fitness':          'Google reviews not being responded to',\n      'Healthcare':       'patient reviews going unaddressed',\n      'Business':         'slow customer response times'\n    };\n\n    const pain = painPoints[industry] || painPoints['Business'];\n\n    const outreachMessage = `Hi,\n\nI noticed ${businessName} has been getting customer reviews online but some are going unanswered — specifically around ${pain}.\n\nI help South African businesses automate their customer responses using AI. Every review, lead and support query gets a professional response in under 10 seconds — 24/7, without any manual work from your team.\n\nWould it be worth a 10-minute call to show you how it works using your actual reviews?\n\nSeth\nNSM\n+27 67 099 4163`;\n\n    results.push({\n      businessName,\n      domain,\n      link,\n      location,\n      industry,\n      email,\n      phone,\n      fitScore,\n      contactType,\n      contactDetails,\n      snippet,\n      outreachMessage,\n      painPoint: pain\n    });\n  }\n}\n\n// Sort by fit score descending\nresults.sort((a, b) => b.fitScore - a.fitScore);\n\nif (!results.length) {\n  return [{ json: { message: 'No qualifying prospects found in this batch.' } }];\n}\n\nreturn results.map(r => ({ json: r }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        0
+      ],
+      "id": "eddb0135-e60b-484d-92ba-950344cc3743",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1ZB7extELzuZd2ku-QRKRpV894z2n7BaB1gjV7L5EYSU/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZB7extELzuZd2ku-QRKRpV894z2n7BaB1gjV7L5EYSU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "         Date": "={{ $('Code in JavaScript').item.json['date'] }}",
+            "    Business Name": "={{ $('Code in JavaScript').item.json['businessName'] }}",
+            "           Industry": "={{ $('Code in JavaScript').item.json['industry'] }}",
+            "           Location  ": "={{ $('Code in JavaScript').item.json['location'] }}",
+            "         Pain Point ": "={{ $('Code in JavaScript').item.json['painPoint'] }}",
+            "       Contact": "='{{ $('Code in JavaScript').item.json['contactDetails'] }}",
+            "  Recommended Bot": "={{ $('Code in JavaScript').item.json['recommendedBot'] }}",
+            "             Outreach Message": "={{ $('Code in JavaScript').item.json['outreachMessage'] }}",
+            "                 Status": "🆕 New",
+            "       Fit Score": "={{ $('Code in JavaScript').item.json['fitScore'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "         Date",
+              "displayName": "         Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "    Business Name",
+              "displayName": "    Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "           Industry",
+              "displayName": "           Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "           Location  ",
+              "displayName": "           Location  ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "         Pain Point ",
+              "displayName": "         Pain Point ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "       Contact",
+              "displayName": "       Contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "       Fit Score",
+              "displayName": "       Fit Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "  Recommended Bot",
+              "displayName": "  Recommended Bot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "             Outreach Message",
+              "displayName": "             Outreach Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "                 Status",
+              "displayName": "                 Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        976,
+        0
+      ],
+      "id": "8feab24c-6318-4546-8ffe-174f15045822",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=🎯 Daily Prospect Report — {{ $('Code in JavaScript').item.json['$now'] }}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; background: #09080c; color: #e8eaf0; border-radius: 16px; overflow: hidden;\">\n  <div style=\"background: #c8ff00; padding: 28px 40px;\">\n    <div style=\"font-size: 24px; letter-spacing: 4px; color: #09080c; font-weight: 900;\">NSM</div>\n    <div style=\"font-size: 11px; letter-spacing: 2px; color: #09080c; opacity: 0.7; margin-top: 4px;\">DAILY PROSPECT REPORT</div>\n  </div>\n  <div style=\"padding: 40px;\">\n    <h2 style=\"font-size: 18px; font-weight: 600; margin-bottom: 24px; color: #e8eaf0;\">New Prospect Found Today</h2>\n    <div style=\"background: #141420; border: 1px solid rgba(200,255,0,0.15); border-radius: 12px; padding: 24px; margin-bottom: 24px;\">\n      <p style=\"margin: 6px 0; font-size: 14px; color: #8a8aaa;\"><strong style=\"color: #e8eaf0;\">Business:</strong> {{ $('Code in JavaScript').item.json['businessName'] }}</p>\n      <p style=\"margin: 6px 0; font-size: 14px; color: #8a8aaa;\"><strong style=\"color: #e8eaf0;\">Industry:</strong> {{ $('Code in JavaScript').item.json['industry'] }}</p>\n      <p style=\"margin: 6px 0; font-size: 14px; color: #8a8aaa;\"><strong style=\"color: #e8eaf0;\">Location:</strong> {{ $('Code in JavaScript').item.json['location'] }}</p>\n      <p style=\"margin: 6px 0; font-size: 14px; color: #8a8aaa;\"><strong style=\"color: #e8eaf0;\">Fit Score:</strong> {{ $('Code in JavaScript').item.json['fitScore'] }}/10</p>\n      <p style=\"margin: 6px 0; font-size: 14px; color: #8a8aaa;\"><strong style=\"color: #e8eaf0;\">Pain Point:</strong> {{ $('Code in JavaScript').item.json['painPoint'] }}</p>\n      <p style=\"margin: 6px 0; font-size: 14px; color: #8a8aaa;\"><strong style=\"color: #e8eaf0;\">Contact:</strong> {{ $('Code in JavaScript').item.json['contactDetails'] }}</p>\n      <p style=\"margin: 6px 0; font-size: 14px; color: #8a8aaa;\"><strong style=\"color: #e8eaf0;\">Recommended Bot:</strong> {{ $('Code in JavaScript').item.json['recommendedBot'] }}</p>\n    </div>\n    <div style=\"background: #1a2010; border: 1px solid rgba(200,255,0,0.1); border-radius: 12px; padding: 20px; margin-bottom: 24px;\">\n      <div style=\"font-size: 10px; letter-spacing: 2px; color: #c8ff00; margin-bottom: 10px;\">OUTREACH MESSAGE</div>\n      <p style=\"font-size: 14px; color: #8a8aaa; line-height: 1.7;\">{{ $('Code in JavaScript').item.json['outreachMessage'] }}</p>\n    </div>\n    <div style=\"text-align: center;\">\n      <a href=\"https://docs.google.com/spreadsheets\" style=\"display: inline-block; background: #c8ff00; color: #09080c; font-weight: 700; font-size: 12px; letter-spacing: 2px; padding: 14px 28px; border-radius: 10px; text-decoration: none;\">VIEW FULL PIPELINE →</a>\n    </div>\n  </div>\n  <div style=\"padding: 20px 40px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center;\">\n    <p style=\"font-size: 11px; color: #3a3a5a; letter-spacing: 1px;\">NSM // CLIENT ACQUISITION AGENT // ZA</p>\n  </div>\n</div>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1888,
+        16
+      ],
+      "id": "4967d134-bf50-49f5-aa90-d907fe5b52c5",
+      "name": "Send a message",
+      "webhookId": "eaf7ac8c-a266-4f1b-80de-09b42fa7b166",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 60
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "51252a08-6259-4232-b8ae-aebc62d80953",
+      "name": "Wait",
+      "webhookId": "2e831a59-7f4b-48c0-b530-2766a6987fdc"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        400,
+        224
+      ],
+      "id": "144dd67a-1432-4501-be39-2b2767177f35",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "M4RuOjibUlYvd4Ht",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        912,
+        144
+      ],
+      "id": "f483fe4b-05bd-4c53-a2f5-2a7532928b0e",
+      "name": "Wait1",
+      "webhookId": "f7ff3bf6-665f-4d69-a774-d39598e793be"
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🎯 New Prospect Found!\n\nBusiness: {{ $('Code in JavaScript').item.json['businessName'] }}\nIndustry: {{ $('Code in JavaScript').item.json['industry'] }}\nLocation: {{ $('Code in JavaScript').item.json['location'] }}\nFit Score: {{ $('Code in JavaScript').item.json['fitScore'] }}/10\nPain Point: {{ $('Code in JavaScript').item.json['painPoint'] }}\nContact: {{ $('Code in JavaScript').item.json['contactDetails'] }} ({{ $('Code in JavaScript').item.json['contactType'] }})\nBot: {{ $('Code in JavaScript').item.json['recommendedBot'] }}\n\n📝 Outreach Message:\n{{ $('Code in JavaScript').item.json['outreachMessage'] }}\n\n{{ $('Code in JavaScript').item.json['contactType'] === 'email' ? '✅ Email sent automatically' : '⚠️ Send manually on ' + $('Code in JavaScript').item.json['contactType'] }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1728,
+        16
+      ],
+      "id": "b0681550-ab6c-4119-8c37-65b4279ceb93",
+      "name": "Send a text message",
+      "webhookId": "c6b621a3-0624-4f6e-a282-4fa52ac78fc1",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a051bee2-b973-418d-8fd5-8039e94ae85e",
+              "leftValue": "={{ $('Code in JavaScript').item.json['contactType'] }}",
+              "rightValue": "email",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1184,
+        0
+      ],
+      "id": "f357d3f5-61c5-4048-b1d5-538df6848655",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['contactDetails'] }}",
+        "subject": "=Quick question about {{ $json['businessName'] }}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #333; background: #ffffff; padding: 40px; border-radius: 12px;\">\n\n  <p style=\"font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 20px;\">\n    Hi {{ $json['businessName'] }},\n  </p>\n\n  <p style=\"font-size: 15px; line-height: 1.8; color: #555; margin-bottom: 20px;\">\n    I won't take your time — I noticed something small that might help you.\n  </p>\n\n  <p style=\"font-size: 15px; line-height: 1.8; color: #555; margin-bottom: 20px;\">\n    {{ $json['outreachMessage'] }}\n  </p>\n\n  <p style=\"font-size: 15px; line-height: 1.8; color: #555; margin-bottom: 28px;\">\n    In SA, customers judge response speed more than star ratings. If you want, I can show you a simple way to handle this automatically — no tech knowledge needed.\n  </p>\n\n  <p style=\"font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 4px;\">\n    <strong>Should I send through a quick example?</strong>\n  </p>\n\n  <p style=\"font-size: 14px; color: #555; margin-top: 28px; line-height: 1.6;\">\n    Seth<br>\n    <strong>NSM</strong><br>\n    <span style=\"font-size: 12px; color: #999;\">AI Automation for SA Businesses</span>\n  </p>\n\n  <p style=\"font-size: 11px; color: #bbb; margin-top: 32px; border-top: 1px solid #eee; padding-top: 16px;\">\n    You received this because your business was identified as a potential fit for our service. \n    Reply STOP to unsubscribe.\n  </p>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1360,
+        -112
+      ],
+      "id": "638e550a-67b6-41b3-8ccf-bcf097784c25",
+      "name": "Send a message1",
+      "webhookId": "31d7bb1b-0dd6-42f2-b20a-da8491c106bc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        16
+      ],
+      "id": "f5ff8782-884e-4320-9d31-649d48ef6752",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        576,
+        208
+      ],
+      "id": "672c09c9-d28b-4ed6-a71e-65f7c2a61d39",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "GzhGOI4WnXFBovwu",
+          "name": "SerpAPI account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        []
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "timezone": "Africa/Johannesburg",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "54413166-4620-401d-a46a-695f4270b306",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "3bxixNuuQpVJRaDg",
+  "tags": []
+}

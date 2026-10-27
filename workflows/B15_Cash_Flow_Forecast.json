@@ -1,0 +1,408 @@
+{
+  "name": "B15 Cash Flow Forecast",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6 * * 5"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1840,
+        320
+      ],
+      "id": "c89406ed-d692-44b4-812c-7b917982a1ac",
+      "name": "Schedule — Friday Forecast"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fc-s-1",
+              "name": "todayIso",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "fc-s-2",
+              "name": "todayDisplay",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('cccc, d LLLL yyyy') }}",
+              "type": "string"
+            },
+            {
+              "id": "fc-s-3",
+              "name": "in7Iso",
+              "value": "={{ $now.setZone('Africa/Johannesburg').plus({ days: 7 }).toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "fc-s-4",
+              "name": "in14Iso",
+              "value": "={{ $now.setZone('Africa/Johannesburg').plus({ days: 14 }).toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "fc-s-5",
+              "name": "in30Iso",
+              "value": "={{ $now.setZone('Africa/Johannesburg').plus({ days: 30 }).toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "fc-s-6",
+              "name": "ownerEmail",
+              "value": "ndumisoseth12@gmail.com",
+              "type": "string"
+            },
+            {
+              "id": "fc-s-7",
+              "name": "runAtSAST",
+              "value": "=$now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss')",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1616,
+        320
+      ],
+      "id": "302a28fc-b6ae-4d53-88ff-c32bf7f3c001",
+      "name": "Edit Fields — Forecast Setup"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hvf4B8lymXbfZQ99y7FRX6DjDzzJPkzLE3FS7CEwceg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1392,
+        192
+      ],
+      "id": "1a621626-0e25-4d0f-93a7-201854e3f9e2",
+      "name": "Sheets — Read B4 Invoices",
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/14pPPoaU49nZd5z-IFJiQ2Pd2yHlo_E_oO0aVwG-aPb4/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14pPPoaU49nZd5z-IFJiQ2Pd2yHlo_E_oO0aVwG-aPb4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1392,
+        448
+      ],
+      "id": "5d071765-3460-406e-9962-97cefe49926c",
+      "name": "Sheets — Read Recurring Log",
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// B15 Cash Flow Forecast — Aggregator\nconst setup = $('Edit Fields — Forecast Setup').item.json;\nconst todayIso = setup['todayIso'];\nconst in7 = setup['in7Iso'];\nconst in14 = setup['in14Iso'];\nconst in30 = setup['in30Iso'];\n\nconst trimKeys = (r) => { const o = {}; for (const [k, v] of Object.entries(r || {})) o[k.trim()] = v; return o; };\nconst safeRead = (name) => { try { return $(name).all().map(i => trimKeys(i.json)); } catch (e) { return []; } };\nconst toNum = (v) => { if (v == null) return 0; const n = parseFloat(String(v).replace(/[^0-9.-]/g, '')); return isNaN(n) ? 0 : n; };\nconst dateOnly = (v) => v ? String(v).slice(0, 10) : '';\nconst fmtR = (n) => 'R' + Math.round(n).toLocaleString('en-ZA');\n\nconst invoices = safeRead('Sheets — Read B4 Invoices');\nconst recurring = safeRead('Sheets — Read Recurring Log');\n\n// --- Open invoices (not yet paid) ---\nconst openInvoices = invoices.filter(r => {\n  const status = String(r['Status'] || '').toLowerCase();\n  return status !== 'paid' && status !== 'recovered';\n});\n\n// --- Bucket by window ---\nconst inWindow = (dueDate, end) => {\n  const d = dateOnly(dueDate);\n  return d && d <= end;\n};\nconst sumWindow = (end) => openInvoices.reduce((acc, r) => inWindow(r['Due Date'], end) ? acc + toNum(r['Invoice Amount']) : acc, 0);\n\nconst exp7 = sumWindow(in7);\nconst exp14 = sumWindow(in14);\nconst exp30 = sumWindow(in30);\n\n// --- Recurring revenue (paid, with Billing Date in window) ---\nconst recurringInWindow = (end) => {\n  const seen = new Set();\n  let total = 0;\n  for (const r of recurring) {\n    const status = String(r['Status'] || '').toUpperCase();\n    const billing = dateOnly(r['Billing Date']);\n    const token = r['Token'] || r['Payment ID'];\n    if (status !== 'COMPLETE' || !billing || billing < todayIso || billing > end) continue;\n    if (seen.has(token)) continue;\n    seen.add(token);\n    total += toNum(r['Amount']);\n  }\n  return total;\n};\nconst rec7 = recurringInWindow(in7);\nconst rec14 = recurringInWindow(in14);\nconst rec30 = recurringInWindow(in30);\n\n// --- Risk flags ---\nconst overdue30 = openInvoices.filter(r => toNum(r['Days Overdue']) > 30);\nconst overdueAny = openInvoices.filter(r => toNum(r['Days Overdue']) > 0);\nconst totalOverdue = overdueAny.reduce((a, r) => a + toNum(r['Invoice Amount']), 0);\n\n// --- Concentration (single debtor > 50% of 14-day expected) ---\nconst byDebtor = {};\nfor (const r of openInvoices) {\n  if (!inWindow(r['Due Date'], in14)) continue;\n  const k = r['Debtor Name'] || 'Unknown';\n  byDebtor[k] = (byDebtor[k] || 0) + toNum(r['Invoice Amount']);\n}\nlet concentration = null;\nconst total14 = exp14 || 1;\nfor (const [name, amt] of Object.entries(byDebtor)) {\n  if (amt / total14 > 0.5) { concentration = { name, amt, pct: Math.round((amt / total14) * 100) }; break; }\n}\n\n// --- Recommended action: highest-R overdue invoice not at Stage 3 ---\nlet topAction = null;\nconst ranked = overdueAny\n  .filter(r => String(r['Stage'] || '').toLowerCase() !== 'stage 3')\n  .sort((a, b) => toNum(b['Invoice Amount']) - toNum(a['Invoice Amount']));\nif (ranked.length > 0) {\n  const top = ranked[0];\n  const nextStage = String(top['Stage'] || 'Stage 1').toLowerCase().includes('1') ? 'Stage 2' : 'Stage 3';\n  topAction = {\n    text: 'Send ' + nextStage + ' chase to ' + (top['Debtor Name'] || 'unknown') + ' (' + (top['Invoice Number'] || '?') + ') — ' + fmtR(toNum(top['Invoice Amount'])) + ', ' + toNum(top['Days Overdue']) + ' days overdue.',\n    invoiceNumber: top['Invoice Number'],\n    debtor: top['Debtor Name'],\n    amount: toNum(top['Invoice Amount']),\n    daysOverdue: toNum(top['Days Overdue'])\n  };\n} else if (openInvoices.length === 0 && recurring.length === 0) {\n  topAction = { text: 'No open invoices and no recurring revenue logged. Add invoices via /portal/recovery or onboard your first paying client.' };\n} else {\n  topAction = { text: 'All invoices on schedule. Focus on lead generation this week — try B7 referral asks for your top 3 customers.' };\n}\n\nconst hasData = openInvoices.length > 0 || recurring.length > 0;\n\nreturn {\n  hasData,\n  todayDisplay: setup['todayDisplay'],\n  runAtSAST: setup['runAtSAST'],\n  ownerEmail: setup['ownerEmail'],\n  exp7, exp14, exp30,\n  rec7, rec14, rec30,\n  total7: exp7 + rec7, total14: exp14 + rec14, total30: exp30 + rec30,\n  exp7Fmt: fmtR(exp7), exp14Fmt: fmtR(exp14), exp30Fmt: fmtR(exp30),\n  rec7Fmt: fmtR(rec7), rec14Fmt: fmtR(rec14), rec30Fmt: fmtR(rec30),\n  total7Fmt: fmtR(exp7 + rec7), total14Fmt: fmtR(exp14 + rec14), total30Fmt: fmtR(exp30 + rec30),\n  openInvoiceCount: openInvoices.length,\n  overdue30Count: overdue30.length,\n  overdueAnyCount: overdueAny.length,\n  totalOverdueFmt: fmtR(totalOverdue),\n  concentration,\n  topAction,\n  topActionText: topAction.text,\n  riskRows: overdueAny.slice(0, 8).map(r => ({\n    debtor: r['Debtor Name'],\n    invoice: r['Invoice Number'],\n    amount: fmtR(toNum(r['Invoice Amount'])),\n    days: toNum(r['Days Overdue']),\n    stage: r['Stage'],\n    severity: toNum(r['Days Overdue']) > 30 ? 'high' : (toNum(r['Days Overdue']) > 14 ? 'med' : 'low')\n  }))\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1168,
+        320
+      ],
+      "id": "f6c9313b-7d21-46de-a79c-56b9e5718d27",
+      "name": "Code — Compute Forecast"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-fc-1",
+              "leftValue": "={{ $json['hasData'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -944,
+        320
+      ],
+      "id": "fe8e9033-63be-4811-992d-ae9e5ad7269f",
+      "name": "IF — Has Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "// B15 — Build Operator-design-system HTML for the Forecast email\nconst d = $input.item.json;\n\nconst sevColor = { high: '#f43f5e', med: '#f59e0b', low: '#10b981' };\n\nconst riskRowsHtml = (d.riskRows || []).map(r => `\n  <tr>\n    <td style=\"padding:8px 12px;border-bottom:1px solid #25253a;color:#f5f5fa;\">${r.debtor}</td>\n    <td style=\"padding:8px 12px;border-bottom:1px solid #25253a;color:#a8a8c2;font-family:'JetBrains Mono',monospace;font-size:12px;\">${r.invoice || '—'}</td>\n    <td style=\"padding:8px 12px;border-bottom:1px solid #25253a;color:#f5f5fa;text-align:right;\">${r.amount}</td>\n    <td style=\"padding:8px 12px;border-bottom:1px solid #25253a;text-align:center;\"><span style=\"color:${sevColor[r.severity]};font-weight:600;\">${r.days}d</span></td>\n    <td style=\"padding:8px 12px;border-bottom:1px solid #25253a;color:#a8a8c2;font-size:12px;\">${r.stage || '—'}</td>\n  </tr>`).join('') || '<tr><td colspan=\"5\" style=\"padding:16px;text-align:center;color:#6b6b85;\">No overdue invoices 🎉</td></tr>';\n\nconst concentrationCard = d.concentration ? `\n  <div style=\"background:#1c1c28;border:1px solid rgba(245,158,11,0.30);border-radius:12px;padding:16px;margin-bottom:16px;\">\n    <p style=\"margin:0 0 4px 0;color:#f59e0b;font-size:11px;letter-spacing:1px;font-weight:700;\">⚠ CONCENTRATION RISK</p>\n    <p style=\"margin:0;color:#f5f5fa;font-size:14px;line-height:1.5;\">\n      <strong>${d.concentration.name}</strong> represents <strong>${d.concentration.pct}%</strong> of your 14-day expected receipts (R${Math.round(d.concentration.amt).toLocaleString('en-ZA')}). One missed payment = a rough week.\n    </p>\n  </div>` : '';\n\nconst html = `<!DOCTYPE html><html><body style=\"margin:0;padding:0;background:#08080c;font-family:'Helvetica Neue',Arial,sans-serif;\">\n<div style=\"max-width:680px;margin:0 auto;background:#0e0e15;\">\n  <div style=\"background:linear-gradient(135deg,#818cf8 0%,#6366f1 50%,#4f46e5 100%);padding:32px 28px;text-align:center;\">\n    <p style=\"margin:0;color:rgba(255,255,255,0.85);font-size:11px;letter-spacing:3px;font-weight:600;\">NSM · B15 CASH FLOW</p>\n    <h1 style=\"margin:8px 0 4px 0;color:white;font-family:'Georgia',serif;font-style:italic;font-weight:400;font-size:28px;\">Cash Flow Forecast</h1>\n    <p style=\"margin:0;color:rgba(255,255,255,0.75);font-size:13px;\">${d.todayDisplay}</p>\n  </div>\n\n  <div style=\"padding:28px;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin-bottom:24px;\"><tr>\n      <td style=\"padding:0 6px;width:33%;\">\n        <div style=\"background:#14141d;border:1px solid rgba(99,102,241,0.25);border-radius:12px;padding:18px 14px;text-align:center;\">\n          <p style=\"margin:0 0 6px 0;color:#a8a8c2;font-size:10px;letter-spacing:2px;font-weight:600;\">NEXT 7 DAYS</p>\n          <p style=\"margin:0;color:#f5f5fa;font-size:24px;font-weight:700;\">${d.total7Fmt}</p>\n          <p style=\"margin:4px 0 0 0;color:#6b6b85;font-size:11px;\">Inv ${d.exp7Fmt} + Rec ${d.rec7Fmt}</p>\n        </div>\n      </td>\n      <td style=\"padding:0 6px;width:33%;\">\n        <div style=\"background:#14141d;border:1px solid rgba(99,102,241,0.25);border-radius:12px;padding:18px 14px;text-align:center;\">\n          <p style=\"margin:0 0 6px 0;color:#a8a8c2;font-size:10px;letter-spacing:2px;font-weight:600;\">NEXT 14 DAYS</p>\n          <p style=\"margin:0;color:#f5f5fa;font-size:24px;font-weight:700;\">${d.total14Fmt}</p>\n          <p style=\"margin:4px 0 0 0;color:#6b6b85;font-size:11px;\">Inv ${d.exp14Fmt} + Rec ${d.rec14Fmt}</p>\n        </div>\n      </td>\n      <td style=\"padding:0 6px;width:33%;\">\n        <div style=\"background:#14141d;border:1px solid rgba(99,102,241,0.25);border-radius:12px;padding:18px 14px;text-align:center;\">\n          <p style=\"margin:0 0 6px 0;color:#a8a8c2;font-size:10px;letter-spacing:2px;font-weight:600;\">NEXT 30 DAYS</p>\n          <p style=\"margin:0;color:#f5f5fa;font-size:24px;font-weight:700;\">${d.total30Fmt}</p>\n          <p style=\"margin:4px 0 0 0;color:#6b6b85;font-size:11px;\">Inv ${d.exp30Fmt} + Rec ${d.rec30Fmt}</p>\n        </div>\n      </td>\n    </tr></table>\n\n    ${concentrationCard}\n\n    <div style=\"background:#1c1c28;border:1px solid #6366f1;border-radius:12px;padding:20px;margin-bottom:24px;\">\n      <p style=\"margin:0 0 8px 0;color:#818cf8;font-size:11px;letter-spacing:2px;font-weight:700;\">⚡ RECOMMENDED ACTION</p>\n      <p style=\"margin:0;color:#f5f5fa;font-size:15px;line-height:1.6;\">${d.topActionText}</p>\n    </div>\n\n    <h2 style=\"margin:24px 0 12px 0;color:#f5f5fa;font-size:14px;letter-spacing:2px;font-weight:600;\">OVERDUE INVOICES (${d.overdueAnyCount}, ${d.totalOverdueFmt} total)</h2>\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#14141d;border-radius:12px;overflow:hidden;border:1px solid #25253a;\">\n      <thead><tr style=\"background:#1c1c28;\">\n        <th style=\"padding:10px 12px;text-align:left;color:#a8a8c2;font-size:11px;letter-spacing:1px;font-weight:600;\">DEBTOR</th>\n        <th style=\"padding:10px 12px;text-align:left;color:#a8a8c2;font-size:11px;letter-spacing:1px;font-weight:600;\">INVOICE</th>\n        <th style=\"padding:10px 12px;text-align:right;color:#a8a8c2;font-size:11px;letter-spacing:1px;font-weight:600;\">AMOUNT</th>\n        <th style=\"padding:10px 12px;text-align:center;color:#a8a8c2;font-size:11px;letter-spacing:1px;font-weight:600;\">OVERDUE</th>\n        <th style=\"padding:10px 12px;text-align:left;color:#a8a8c2;font-size:11px;letter-spacing:1px;font-weight:600;\">STAGE</th>\n      </tr></thead>\n      <tbody>${riskRowsHtml}</tbody>\n    </table>\n  </div>\n\n  <div style=\"padding:18px 28px;border-top:1px solid #25253a;text-align:center;\">\n    <p style=\"margin:0;color:#6b6b85;font-size:11px;letter-spacing:1px;\">NSM · BUILT IN JOBURG · LAST UPDATED ${d.runAtSAST}</p>\n  </div>\n</div>\n</body></html>`;\n\nreturn { ...d, subject: '💰 Cash Flow — ' + d.total7Fmt + ' next 7d · ' + d.total14Fmt + ' next 14d', html };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -720,
+        192
+      ],
+      "id": "bca79129-112d-455e-a6d6-248a72c8547b",
+      "name": "Code — Build HTML"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Compute Forecast').item.json['ownerEmail'] }}",
+        "subject": "={{ $('Code — Build HTML').item.json['subject'] }}",
+        "message": "={{ $('Code — Build HTML').item.json['html'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -496,
+        192
+      ],
+      "id": "9f4101df-eda2-4a7c-ae3b-7deb0ded3efb",
+      "name": "Gmail — Forecast Brief",
+      "webhookId": "gmail-b15-forecast",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=💰 *B15 Cash Flow* — {{ $('Code — Compute Forecast').item.json['todayDisplay'] }}\n\nNext 7d: *{{ $('Code — Compute Forecast').item.json['total7Fmt'] }}*\nNext 14d: *{{ $('Code — Compute Forecast').item.json['total14Fmt'] }}*\nOverdue: {{ $('Code — Compute Forecast').item.json['overdueAnyCount'] }} invoices, {{ $('Code — Compute Forecast').item.json['totalOverdueFmt'] }}\n\n⚡ {{ $('Code — Compute Forecast').item.json['topActionText'] }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -272,
+        192
+      ],
+      "id": "011ee52e-9283-4f9b-af29-23db2a93970f",
+      "name": "Telegram — Forecast Alert",
+      "webhookId": "tg-b15-forecast",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Compute Forecast').item.json['ownerEmail'] }}",
+        "subject": "=💤 Cash Flow — quiet week ahead",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;background:#0e0e15;color:#f5f5fa;padding:28px;max-width:600px;margin:0 auto;\"><h2 style=\"color:#818cf8;font-family:'Georgia',serif;font-style:italic;\">Quiet week ahead</h2><p style=\"color:#a8a8c2;line-height:1.6;\">No open invoices and no recurring revenue logged. Either you're caught up, or it's time to add your first paying client.</p><p style=\"color:#6b6b85;font-size:11px;letter-spacing:1px;margin-top:24px;\">NSM · BUILT IN JOBURG · {{ $('Code — Compute Forecast').item.json['runAtSAST'] }}</p></div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -496,
+        448
+      ],
+      "id": "00affa1b-1296-4545-9907-f71068e251fe",
+      "name": "Gmail — Quiet Week",
+      "webhookId": "gmail-b15-quiet",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule — Friday Forecast": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Forecast Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Forecast Setup": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read B4 Invoices",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Sheets — Read Recurring Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read B4 Invoices": {
+      "main": [
+        [
+          {
+            "node": "Code — Compute Forecast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read Recurring Log": {
+      "main": [
+        [
+          {
+            "node": "Code — Compute Forecast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Compute Forecast": {
+      "main": [
+        [
+          {
+            "node": "IF — Has Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Has Data": {
+      "main": [
+        [
+          {
+            "node": "Code — Build HTML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail — Quiet Week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Build HTML": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Forecast Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Forecast Brief": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Forecast Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b15-cash-flow-forecast-v1-002",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B15CashFlowForecastV1001",
+  "tags": []
+}

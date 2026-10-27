@@ -1,0 +1,1784 @@
+{
+  "name": "B3 No-Show Rescue",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "noshow-book",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30001",
+      "name": "Webhook — noshow-book",
+      "webhookId": "b3-noshow-book"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-s-1",
+              "name": "bookingId",
+              "value": "=BK-{{ $now.toFormat('yyyyMMdd-HHmmss') }}-{{ Math.floor(Math.random() * 9000 + 1000) }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-2",
+              "name": "customerName",
+              "value": "={{ $json['body']['customerName'] ?? 'Customer' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-3",
+              "name": "customerEmail",
+              "value": "={{ $json['body']['customerEmail'] ?? 'unknown@email.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-4",
+              "name": "firstName",
+              "value": "={{ ($json['body']['customerName'] ?? 'there').split(' ')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-5",
+              "name": "businessName",
+              "value": "={{ $json['body']['businessName'] ?? 'Your Business' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-6",
+              "name": "ownerEmail",
+              "value": "={{ $json['body']['ownerEmail'] ?? 'ndumisoseth12@gmail.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-7",
+              "name": "service",
+              "value": "={{ $json['body']['service'] ?? 'your appointment' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-8",
+              "name": "appointmentTime",
+              "value": "={{ $json['body']['appointmentTime'] ?? new Date(Date.now() + 3600000).toISOString() }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-9",
+              "name": "rebookLink",
+              "value": "={{ $json['body']['rebookLink'] ?? 'https://cal.com/seth-mokone-limbt0/30min' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-10",
+              "name": "reminderTime",
+              "value": "={{ new Date(new Date($json['body']['appointmentTime']).getTime() - 60 * 60 * 1000).toISOString() }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-11",
+              "name": "checkTime",
+              "value": "={{ new Date(new Date($json['body']['appointmentTime']).getTime() + 30 * 60 * 1000).toISOString() }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-s-12",
+              "name": "createdAt",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30002",
+      "name": "Edit Fields — Setup"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Booking ID": "={{ $('Edit Fields — Setup').item.json['bookingId'] }}",
+            "Created At": "={{ $('Edit Fields — Setup').item.json['createdAt'] }}",
+            "Customer Name": "={{ $('Edit Fields — Setup').item.json['customerName'] }}",
+            "Customer Email": "={{ $('Edit Fields — Setup').item.json['customerEmail'] }}",
+            "Business Name": "={{ $('Edit Fields — Setup').item.json['businessName'] }}",
+            "Service": "={{ $('Edit Fields — Setup').item.json['service'] }}",
+            "Appointment Time": "={{ $('Edit Fields — Setup').item.json['appointmentTime'] }}",
+            "Reminder Time": "={{ $('Edit Fields — Setup').item.json['reminderTime'] }}",
+            "Status": "Booked",
+            "Reminder Sent": "No",
+            "No-Show": "No",
+            "Rescue Sent": "No",
+            "Rebooked": "No",
+            "Rescue Sent At": "",
+            "Touches Sent": "0",
+            "Last Touch At": "",
+            "Rebook Link": "={{ $('Edit Fields — Setup').item.json['rebookLink'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Booking ID",
+              "displayName": "Booking ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Created At",
+              "displayName": "Created At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business Name",
+              "displayName": "Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Service",
+              "displayName": "Service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Appointment Time",
+              "displayName": "Appointment Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reminder Time",
+              "displayName": "Reminder Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reminder Sent",
+              "displayName": "Reminder Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "No-Show",
+              "displayName": "No-Show",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rescue Sent",
+              "displayName": "Rescue Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rebooked",
+              "displayName": "Rebooked",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rescue Sent At",
+              "displayName": "Rescue Sent At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Touches Sent",
+              "displayName": "Touches Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Touch At",
+              "displayName": "Last Touch At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rebook Link",
+              "displayName": "Rebook Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        440,
+        0
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30003",
+      "name": "Sheets — Log Booking",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"success\",\n  \"bookingId\": \"{{ $('Edit Fields — Setup').item.json['bookingId'] }}\",\n  \"message\": \"Booking logged — reminder scheduled\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        660,
+        0
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30004",
+      "name": "Respond — Booking Confirmed"
+    },
+    {
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ $('Edit Fields — Setup').item.json['reminderTime'] }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        0
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30005",
+      "name": "Wait — Until Reminder",
+      "webhookId": "wait-b3-reminder"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields — Setup').item.json['customerEmail'] }}",
+        "subject": "=Reminder: your {{ $('Edit Fields — Setup').item.json['service'] }} appointment today with {{ $('Edit Fields — Setup').item.json['businessName'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">{{ $('Edit Fields — Setup').item.json['businessName'] }}</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:24px;\">Hi {{ $('Edit Fields — Setup').item.json['firstName'] }},<br><br>Just a friendly reminder — your <strong>{{ $('Edit Fields — Setup').item.json['service'] }}</strong> appointment is coming up today. We're looking forward to seeing you!<br><br>If your plans have changed, please let us know as soon as possible so we can offer your slot to someone else.</div>\n  <div style=\"text-align:center;margin-bottom:28px;\">\n    <a href=\"{{ $('Edit Fields — Setup').item.json['rebookLink'] }}\" style=\"display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#818cf8,#6366f1);color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;\">Manage my booking →</a>\n  </div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;\">Sent on behalf of {{ $('Edit Fields — Setup').item.json['businessName'] }} · Powered by NSM</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        0
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30006",
+      "name": "Gmail — Reminder Email",
+      "webhookId": "gmail-b3-reminder",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Booking ID": "={{ $('Edit Fields — Setup').item.json['bookingId'] }}",
+            "Reminder Sent": "Yes",
+            "Status": "Reminder Sent"
+          },
+          "matchingColumns": [
+            "Booking ID"
+          ],
+          "schema": [
+            {
+              "id": "Booking ID",
+              "displayName": "Booking ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reminder Sent",
+              "displayName": "Reminder Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1320,
+        0
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30007",
+      "name": "Sheets — Mark Reminder Sent",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ $('Edit Fields — Setup').item.json['checkTime'] }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1540,
+        0
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30008",
+      "name": "Wait — Until Check Time",
+      "webhookId": "wait-b3-check"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Booking ID",
+              "lookupValue": "={{ $('Edit Fields — Setup').item.json['bookingId'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1760,
+        0
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30009",
+      "name": "Sheets — Read Booking",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-noshow",
+              "leftValue": "={{ $('Sheets — Read Booking').item.json['No-Show'] }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1980,
+        0
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30010",
+      "name": "IF — Was No-Show"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You write short, warm rescue emails for South African businesses when a customer misses an appointment. Goal: get them to rebook easily — no guilt, no shame.\\n\\nRules:\\n1. Address by first name only.\\n2. Acknowledge they missed — soft and understanding. Life happens.\\n3. ONE clear rebook invite with the link.\\n4. Under 75 words. Plain text. South African English.\\n5. Sign with the business name.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"subject\\\": \\\"short subject under 10 words\\\", \\\"body\\\": \\\"the email body\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"First Name: {{ $('Edit Fields — Setup').item.json['firstName'] }}\\nBusiness: {{ $('Edit Fields — Setup').item.json['businessName'] }}\\nService: {{ $('Edit Fields — Setup').item.json['service'] }}\\nAppointment was: {{ $('Edit Fields — Setup').item.json['appointmentTime'] }}\\nRebook link: {{ $('Edit Fields — Setup').item.json['rebookLink'] }}\"\n    }\n  ],\n  \"temperature\": 0.6,\n  \"max_tokens\": 300\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2200,
+        -120
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30011",
+      "name": "Groq — Rescue Writer",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef1-1",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2420,
+        -120
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30012",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptVersion = 'b3-rescue-v1';\n// B3 No-Show Rescue — parse AI rescue email\nconst rawText = $input.item.json['rawAIText'] || '';\nconst d = $('Edit Fields — Setup').item.json;\n\nconst cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\nlet parsed;\ntry { parsed = JSON.parse(cleaned); }\ncatch (e) {\n  const m = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) { parsed = null; } }\n}\nif (!parsed || !parsed['body']) {\n  parsed = {\n    subject: 'We missed you today — let\\'s find a new time',\n    body: 'Hi ' + d['firstName'] + ', we noticed you missed your ' + d['service'] + ' appointment today. No worries at all — life happens. Whenever you\\'re ready, we\\'d love to see you: ' + d['rebookLink'] + '\\n\\n' + d['businessName']\n  };\n}\nconst parseSuccess = !!parsed['body'] && parsed['subject'] !== 'We missed you today — let\\'s find a new time';\nreturn { ...d, promptVersion, subject: parsed['subject'], body: parsed['body'], parseSuccess };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        -120
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30013",
+      "name": "Code — Parse Rescue"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-parse",
+              "leftValue": "={{ $('Code — Parse Rescue').item.json['parseSuccess'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2860,
+        -120
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30014",
+      "name": "IF — Parse OK"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Parse Rescue').item.json['customerEmail'] }}",
+        "subject": "={{ $('Code — Parse Rescue').item.json['subject'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">{{ $('Code — Parse Rescue').item.json['businessName'] }}</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:24px;white-space:pre-wrap;\">{{ $('Code — Parse Rescue').item.json['body'] }}</div>\n  <div style=\"text-align:center;margin-bottom:28px;\">\n    <a href=\"{{ $('Code — Parse Rescue').item.json['rebookLink'] }}\" style=\"display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#818cf8,#6366f1);color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;\">Book a new time →</a>\n  </div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;\">Sent on behalf of {{ $('Code — Parse Rescue').item.json['businessName'] }} · Powered by NSM</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3080,
+        -240
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30015",
+      "name": "Gmail — Rescue Email",
+      "webhookId": "gmail-b3-rescue",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🚨 NO-SHOW ALERT\n\n{{ $('Code — Parse Rescue').item.json['customerName'] }} missed their {{ $('Code — Parse Rescue').item.json['service'] }} appointment.\n\n📧 {{ $('Code — Parse Rescue').item.json['customerEmail'] }}\n🏢 {{ $('Code — Parse Rescue').item.json['businessName'] }}\n🆔 {{ $('Code — Parse Rescue').item.json['bookingId'] }}\n\n✅ Rescue email sent. Watch for a rebook.\\n\\n_Prompt: {{ $('Code — Parse Rescue').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3300,
+        -240
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30016",
+      "name": "Telegram — Owner No-Show Alert",
+      "webhookId": "tg-b3-noshow",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Booking ID": "={{ $('Code — Parse Rescue').item.json['bookingId'] }}",
+            "Status": "No-Show — Rescued",
+            "Rescue Sent": "Yes",
+            "Rescue Sent At": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "Touches Sent": "1",
+            "Last Touch At": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "Prompt Version": "={{ $('Code — Parse Rescue').item.json['promptVersion'] }}",
+            "Parse Success": "={{ $('Code — Parse Rescue').item.json['parseSuccess'] }}"
+          },
+          "matchingColumns": [
+            "Booking ID"
+          ],
+          "schema": [
+            {
+              "id": "Booking ID",
+              "displayName": "Booking ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rescue Sent",
+              "displayName": "Rescue Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rescue Sent At",
+              "displayName": "Rescue Sent At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Touches Sent",
+              "displayName": "Touches Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Touch At",
+              "displayName": "Last Touch At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prompt Version",
+              "displayName": "Prompt Version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Parse Success",
+              "displayName": "Parse Success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3520,
+        -240
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30017",
+      "name": "Sheets — Mark Rescue Sent",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ B3 No-Show Rescue — AI parse failed\nBooking ID: {{ $('Edit Fields — Setup').item.json['bookingId'] }}\nCustomer: {{ $('Edit Fields — Setup').item.json['customerName'] }}\nManual rescue needed.\\n\\n_Prompt: {{ $('Code — Parse Rescue').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3080,
+        0
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30018",
+      "name": "Telegram — Parse Fail Alert",
+      "webhookId": "tg-b3-fail",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "noshow-mark",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        400
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30019",
+      "name": "Webhook — noshow-mark",
+      "webhookId": "b3-noshow-mark"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-mk-1",
+              "name": "bookingId",
+              "value": "={{ $json['body']['bookingId'] ?? '' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-mk-2",
+              "name": "markedAt",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        400
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30020",
+      "name": "Edit Fields — Mark Setup"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Booking ID",
+              "lookupValue": "={{ $('Edit Fields — Mark Setup').item.json['bookingId'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        440,
+        400
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30021",
+      "name": "Sheets — Find Booking",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-found",
+              "leftValue": "={{ $json['Booking ID'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        400
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30022",
+      "name": "IF — Booking Found"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Booking ID": "={{ $('Edit Fields — Mark Setup').item.json['bookingId'] }}",
+            "No-Show": "Yes",
+            "Status": "No-Show"
+          },
+          "matchingColumns": [
+            "Booking ID"
+          ],
+          "schema": [
+            {
+              "id": "Booking ID",
+              "displayName": "Booking ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "No-Show",
+              "displayName": "No-Show",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        880,
+        300
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30023",
+      "name": "Sheets — Mark No-Show",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Booking marked as no-show\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1100,
+        300
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30024",
+      "name": "Respond — Marked Success"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"error\",\n  \"message\": \"Booking ID not found\"\n}",
+        "options": {
+          "responseCode": 404
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        500
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30025",
+      "name": "Respond — Not Found"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        800
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30026",
+      "name": "Schedule — Daily Touch Scanner"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "sc-1",
+              "name": "scanId",
+              "value": "=SCAN-{{ $now.toFormat('yyyyMMdd-HHmmss') }}",
+              "type": "string"
+            },
+            {
+              "id": "sc-2",
+              "name": "nowIso",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            },
+            {
+              "id": "sc-3",
+              "name": "todayDate",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        800
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30027",
+      "name": "Edit Fields — Scanner Setup"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        440,
+        800
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30028",
+      "name": "Sheets — Read All Bookings",
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// B3 v3-003 — Filter bookings needing Touch 2 or Touch 3 (header-whitespace safe)\nconst trimKeys = (r) => { const out = {}; for (const [k, v] of Object.entries(r || {})) out[k.trim()] = v; return out; };\nconst rows = $input.all().map(i => trimKeys(i.json));\nconst setup = $('Edit Fields — Scanner Setup').item.json;\nconst now = new Date(setup['nowIso']);\n\nconst candidates = [];\nfor (const r of rows) {\n  if (!r['Booking ID']) continue;\n  if (r['Rebooked'] === 'Yes') continue;\n  if (r['Rescue Sent'] !== 'Yes') continue;\n  const touchesSent = parseInt(r['Touches Sent'] || '1');\n  if (touchesSent >= 3) continue;\n  const lastTouchAtStr = r['Last Touch At'] || r['Rescue Sent At'] || r['Created At'];\n  if (!lastTouchAtStr) continue;\n  const lastTouchAt = new Date(lastTouchAtStr);\n  if (isNaN(lastTouchAt.getTime())) continue;\n  const daysSinceLastTouch = (now - lastTouchAt) / (1000 * 60 * 60 * 24);\n  // Touch 2 fires 3+ days after touch 1; Touch 3 fires 4+ days after touch 2\n  const requiredDays = touchesSent === 1 ? 3 : 4;\n  if (daysSinceLastTouch < requiredDays) continue;\n  // Don't try to touch a >30-day-old failure — graveyard\n  if (daysSinceLastTouch > 30) continue;\n  candidates.push({\n    bookingId: r['Booking ID'],\n    customerName: r['Customer Name'] || 'Customer',\n    customerEmail: r['Customer Email'] || '',\n    firstName: (r['Customer Name'] || 'there').split(' ')[0],\n    businessName: r['Business Name'] || 'Your Business',\n    service: r['Service'] || 'your appointment',\n    appointmentTime: r['Appointment Time'] || '',\n    rebookLink: r['Rebook Link'] || 'https://cal.com/seth-mokone-limbt0/30min',\n    rescueOriginalAt: r['Rescue Sent At'] || r['Created At'],\n    lastTouchAt: lastTouchAtStr,\n    daysSinceLastTouch: Math.round(daysSinceLastTouch),\n    nextTouch: touchesSent + 1,\n    stage: touchesSent + 1,\n    scanId: setup['scanId'],\n    nowIso: setup['nowIso']\n  });\n}\nreturn candidates.map(c => ({ json: c }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        800
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30029",
+      "name": "Code — Filter Touch Candidates"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You write short follow-up rescue emails for South African businesses when a customer who missed an appointment hasn\\u2019t rebooked yet, despite a first rescue email already being sent.\\n\\nYou will receive a STAGE value:\\n- Stage 2 (3 days after first rescue): Friendly nudge. Tone: light, casual, \\u201cjust checking, slot still open\\u201d. Reference (lightly) that we tried already. No pressure.\\n- Stage 3 (7 days after first rescue, FINAL attempt): Soft last chance. Tone: warm, dignified, \\u201cwe will keep your file open for one more week\\u201d. No guilt, no urgency theatre.\\n\\nRules for both stages:\\n1. Address by first name only.\\n2. ONE clear rebook invite with the link \\u2014 no second CTA.\\n3. Under 70 words. Plain text. South African English.\\n4. Sign with the business name as a personal signature.\\n5. Never use guilt or shame. Never imply they did anything wrong.\\n6. Subject line varies per stage \\u2014 stage 2 sounds curious, stage 3 sounds final but warm.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"subject\\\": \\\"short subject under 10 words\\\", \\\"body\\\": \\\"the email body\\\", \\\"stage_used\\\": <NUMBER>}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"STAGE: {{ $json['stage'] }}\\nFirst Name: {{ $json['firstName'] }}\\nBusiness: {{ $json['businessName'] }}\\nService: {{ $json['service'] }}\\nDays since original rescue: {{ $json['daysSinceLastTouch'] }}\\nRebook link: {{ $json['rebookLink'] }}\"\n    }\n  ],\n  \"temperature\": 0.65,\n  \"max_tokens\": 300\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        880,
+        800
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30030",
+      "name": "Groq — Touch Writer",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef3-1",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1100,
+        800
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30031",
+      "name": "Edit Fields — Touch AI"
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptVersion = 'b3-touch-v1';\n// B3 v3-002 — Parse Touch AI response (per-item)\nconst rawText = $input.item.json['rawAIText'] || '';\nconst d = $('Code — Filter Touch Candidates').item.json;\n\nconst cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\nlet parsed;\ntry { parsed = JSON.parse(cleaned); }\ncatch (e) {\n  const m = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) { parsed = null; } }\n}\n\nif (!parsed || !parsed['body']) {\n  const isStage3 = d['stage'] === 3;\n  parsed = {\n    subject: isStage3 ? 'One last note from ' + d['businessName'] : 'Still here when you are, ' + d['firstName'],\n    body: isStage3\n      ? 'Hi ' + d['firstName'] + \", we know you haven't had a chance to rebook yet — totally understand. We'll keep your file open for one more week. If you change your mind, the door is open: \" + d['rebookLink'] + '\\n\\n' + d['businessName']\n      : 'Hi ' + d['firstName'] + \", just checking in — your \" + d['service'] + \" slot is still here for you whenever you are ready: \" + d['rebookLink'] + '\\n\\n' + d['businessName']\n  };\n}\n\nconst parseSuccess = !!parsed['body'] && !!parsed['subject'];\nreturn { ...d, promptVersion, subject: parsed['subject'], body: parsed['body'], parseSuccess };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        800
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30032",
+      "name": "Code — Parse Touch"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-touch-parse",
+              "leftValue": "={{ $('Code — Parse Touch').item.json['parseSuccess'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1540,
+        800
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30033",
+      "name": "IF — Touch Parse OK"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Parse Touch').item.json['customerEmail'] }}",
+        "subject": "={{ $('Code — Parse Touch').item.json['subject'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">{{ $('Code — Parse Touch').item.json['businessName'] }}</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:24px;white-space:pre-wrap;\">{{ $('Code — Parse Touch').item.json['body'] }}</div>\n  <div style=\"text-align:center;margin-bottom:28px;\">\n    <a href=\"{{ $('Code — Parse Touch').item.json['rebookLink'] }}\" style=\"display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#818cf8,#6366f1);color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;\">Book a new time →</a>\n  </div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;\">Sent on behalf of {{ $('Code — Parse Touch').item.json['businessName'] }} · Powered by NSM · This is the {{ $('Code — Parse Touch').item.json['stage'] === 3 ? 'final' : 'second' }} follow-up · You can ignore it if you've already rebooked.</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        720
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30034",
+      "name": "Gmail — Touch Email",
+      "webhookId": "gmail-b3-touch",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1asV7Oy2gIY5n9dHM9KaBlNe_plRhHo3DSOptPyA2LLc/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Booking ID": "={{ $('Code — Parse Touch').item.json['bookingId'] }}",
+            "Touches Sent": "={{ $('Code — Parse Touch').item.json['stage'] }}",
+            "Last Touch At": "={{ $('Code — Parse Touch').item.json['nowIso'] }}",
+            "Status": "={{ $('Code — Parse Touch').item.json['stage'] === 3 ? 'No-Show — Touch 3 Sent (final)' : 'No-Show — Touch 2 Sent' }}",
+            "Prompt Version": "={{ $('Code — Parse Touch').item.json['promptVersion'] }}",
+            "Parse Success": "={{ $('Code — Parse Touch').item.json['parseSuccess'] }}"
+          },
+          "matchingColumns": [
+            "Booking ID"
+          ],
+          "schema": [
+            {
+              "id": "Booking ID",
+              "displayName": "Booking ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Touches Sent",
+              "displayName": "Touches Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Touch At",
+              "displayName": "Last Touch At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prompt Version",
+              "displayName": "Prompt Version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Parse Success",
+              "displayName": "Parse Success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1980,
+        720
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30035",
+      "name": "Sheets — Update Touch Tracking",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ B3 Touch Sequence — AI parse failed\nBooking ID: {{ $('Code — Parse Touch').item.json['bookingId'] }}\nCustomer: {{ $('Code — Parse Touch').item.json['customerName'] }}\nStage: {{ $('Code — Parse Touch').item.json['stage'] }}\nFallback message was used — check Gmail to verify it landed.\\n\\n_Prompt: {{ $('Code — Parse Touch').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        880
+      ],
+      "id": "b3a1b2c3-d4e5-f6a7-b8c9-d0e1f2a30036",
+      "name": "Telegram — Touch Parse Fail Alert",
+      "webhookId": "tg-b3-touch-fail",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook — noshow-book": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Setup": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Log Booking": {
+      "main": [
+        [
+          {
+            "node": "Respond — Booking Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond — Booking Confirmed": {
+      "main": [
+        [
+          {
+            "node": "Wait — Until Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait — Until Reminder": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Reminder Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Reminder Email": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Mark Reminder Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Mark Reminder Sent": {
+      "main": [
+        [
+          {
+            "node": "Wait — Until Check Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait — Until Check Time": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read Booking": {
+      "main": [
+        [
+          {
+            "node": "IF — Was No-Show",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Was No-Show": {
+      "main": [
+        [
+          {
+            "node": "Groq — Rescue Writer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Groq — Rescue Writer": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse Rescue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse Rescue": {
+      "main": [
+        [
+          {
+            "node": "IF — Parse OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Parse OK": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Rescue Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Parse Fail Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Rescue Email": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Owner No-Show Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Owner No-Show Alert": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Mark Rescue Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook — noshow-mark": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Mark Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Mark Setup": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Find Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Find Booking": {
+      "main": [
+        [
+          {
+            "node": "IF — Booking Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Booking Found": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Mark No-Show",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond — Not Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Mark No-Show": {
+      "main": [
+        [
+          {
+            "node": "Respond — Marked Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule — Daily Touch Scanner": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Scanner Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Scanner Setup": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read All Bookings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read All Bookings": {
+      "main": [
+        [
+          {
+            "node": "Code — Filter Touch Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Filter Touch Candidates": {
+      "main": [
+        [
+          {
+            "node": "Groq — Touch Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Touch Writer": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Touch AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Touch AI": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse Touch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse Touch": {
+      "main": [
+        [
+          {
+            "node": "IF — Touch Parse OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Touch Parse OK": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Touch Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Touch Parse Fail Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Touch Email": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Update Touch Tracking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b3-no-show-rescue-v3-007",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B3NoShowRescueV3001",
+  "tags": []
+}

@@ -1,0 +1,878 @@
+{
+  "name": "Master Router",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "master-router",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e2f6ffda-8451-4e96-8074-b271adb0e4f4",
+      "name": "Webhook",
+      "webhookId": "e0ca0a83-012f-4954-9f68-9f41a27c23c8"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0c6751e-98cb-46b2-b177-28d2eb860d15",
+              "name": "name",
+              "value": "={{ $json['body']['name'] ?? $json['name'] ?? 'Unknown' }}",
+              "type": "string"
+            },
+            {
+              "id": "c57b7426-ba9d-45bb-97f0-e25c05e341c3",
+              "name": "email",
+              "value": "={{ $json['body']['email'] ?? $json['email'] ?? 'unknown@email.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "63a7f744-76fa-45a7-a5b4-f442e871571e",
+              "name": "message",
+              "value": "={{ $json['body']['message'] ?? $json['message'] ?? 'No message' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "614f6a7e-9a42-4b6c-91f8-fd87da094e19",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=={{ 'Classify this message into ONE category.\\n\\nCategories:\\n- review: mentions reviews, Google reviews, ratings, testimonials, review response\\n- lead: new customer enquiry, pricing, wants to sign up, join NSM\\n- support: existing customer needs help, has an issue, technical problem\\n- airbnb: Airbnb guest review, host review, holiday rental\\n- reactivation: win back, lost customer, dormant customers, been a while, silent\\n- reputation: post-sale feedback, unhappy customer, complaints, bad experience, service recovery\\n- referral: refers a friend, referral programme, earn credit, invite\\n- noshow: appointment, booking, missed appointment, no-show, rescheduling\\n- general: anything else\\n\\nRespond ONLY with this exact JSON, no markdown:\\n{\"category\": \"review\", \"urgency\": \"high\", \"summary\": \"one sentence\"}\\n\\nName: ' + $json['name'] + '\\nEmail: ' + $json['email'] + '\\nMessage: ' + $json['message'] }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        640,
+        0
+      ],
+      "id": "b9f43be2-ccec-49e0-9064-818b280a320e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        592,
+        176
+      ],
+      "id": "ff6f1899-f839-42f7-bcf1-ff5538d87d93",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "M4RuOjibUlYvd4Ht",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const name = $('Edit Fields').item.json['name'] || 'Unknown';\nconst email = $('Edit Fields').item.json['email'] || 'unknown@email.com';\nconst message = $('Edit Fields').item.json['message'] || 'No message';\n\nconst rawText = $input.item.json['output'] || '';\n\nconst cleaned = rawText\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch(e) {\n  const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (match) {\n    try { parsed = JSON.parse(match[0]); }\n    catch(e2) { parsed = { category: 'general', urgency: 'low', summary: 'Parse error' }; }\n  } else {\n    parsed = { category: 'general', urgency: 'low', summary: 'Parse error' };\n  }\n}\n\nreturn {\n  name: name,\n  email: email,\n  message: message,\n  category: parsed['category'] || 'general',\n  urgency: parsed['urgency'] || 'low',\n  summary: parsed['summary'] || 'No summary'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        0
+      ],
+      "id": "4e84d759-5ce3-4cbc-99e8-d7ce17ed663a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Code in JavaScript').item.json['category'] }}",
+                    "rightValue": "review",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "04628d43-fa95-4355-b21a-546fff8051b4"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Review"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c24ef5c6-6f2d-4588-92cc-ac8cf5586c55",
+                    "leftValue": "={{ $('Code in JavaScript').item.json['category'] }}",
+                    "rightValue": "lead",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Lead"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "7984774d-62e5-41dc-bf27-637c8d98a8e5",
+                    "leftValue": "={{ $('Code in JavaScript').item.json['category'] }}",
+                    "rightValue": "support",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Support"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d03edf63-2854-40d2-a4b5-2aa9e8eb6b69",
+                    "leftValue": "={{ $('Code in JavaScript').item.json['category'] }}",
+                    "rightValue": "airbnb",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Airbnb"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "94b4d4c7-0c32-46c3-aa00-25d4c68eb0a2",
+                    "leftValue": "={{ $('Code in JavaScript').item.json['category'] }}",
+                    "rightValue": "general",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "General"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "mr-sw-reactivation",
+                    "leftValue": "={{ $('Code in JavaScript').item.json['category'] }}",
+                    "rightValue": "reactivation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Reactivation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "mr-sw-reputation",
+                    "leftValue": "={{ $('Code in JavaScript').item.json['category'] }}",
+                    "rightValue": "reputation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Reputation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "mr-sw-referral",
+                    "leftValue": "={{ $('Code in JavaScript').item.json['category'] }}",
+                    "rightValue": "referral",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Referral"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "mr-sw-noshow",
+                    "leftValue": "={{ $('Code in JavaScript').item.json['category'] }}",
+                    "rightValue": "noshow",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "No-Show"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1168,
+        -48
+      ],
+      "id": "a052962f-5767-4d42-8925-aa03a84f3d6e",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=🌟 Review Request — {{ $('Code in JavaScript').item.json['name'] }}",
+        "emailType": "text",
+        "message": "={{ $('Code in JavaScript').item.json['name'] }} needs help with a review response.\n\nEmail: {{ $('Code in JavaScript').item.json['email'] }}\nMessage: {{ $('Code in JavaScript').item.json['message'] }}\nCategory: {{ $('Code in JavaScript').item.json['category'] }}\n\nSend them to: jarvis-nexus-lead-jkon.vercel.app/reviews",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1408,
+        -352
+      ],
+      "id": "3a8fdd96-44ac-44de-bad5-798e531a9277",
+      "name": "Send a message",
+      "webhookId": "78e26b0d-7552-4f75-9c3e-2e438c243aaa",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=🎯 New Lead — {{ $('Code in JavaScript').item.json['name'] }}",
+        "emailType": "text",
+        "message": "={{ $('Code in JavaScript').item.json['name'] }} submitted a lead enquiry.\n\nEmail: {{ $('Code in JavaScript').item.json['email'] }}\nMessage: {{ $('Code in JavaScript').item.json['message'] }}\nCategory: {{ $('Code in JavaScript').item.json['category'] }}\n\nSend them to: jarvis-nexus-lead-jkon.vercel.app/leads",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1408,
+        -176
+      ],
+      "id": "5cda73d0-c97b-437e-8af0-9db61a24a735",
+      "name": "Send a message1",
+      "webhookId": "89096043-38d3-41a5-8076-7b2f4882b1a6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=🎧 Support Request — {{ $('Code in JavaScript').item.json['name'] }}",
+        "emailType": "text",
+        "message": "={{ $('Code in JavaScript').item.json['name'] }} needs support.\n\nEmail: {{ $('Code in JavaScript').item.json['email'] }}\nMessage: {{ $('Code in JavaScript').item.json['message'] }}\nCategory: {{ $('Code in JavaScript').item.json['category'] }}\n\nSend them to: jarvis-nexus-lead-jkon.vercel.app/support",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1408,
+        -16
+      ],
+      "id": "66210567-eb20-440e-a255-a875405f1db5",
+      "name": "Send a message2",
+      "webhookId": "89e177e8-4471-4b80-bdeb-9d9ecb4c572a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=🏠 Airbnb Request — {{ $('Code in JavaScript').item.json['name'] }}",
+        "emailType": "text",
+        "message": "={{ $('Code in JavaScript').item.json['name'] }} needs help with a guest review.\n\nEmail: {{ $('Code in JavaScript').item.json['email'] }}\nMessage: {{ $('Code in JavaScript').item.json['message'] }}\nCategory: {{ $('Code in JavaScript').item.json['category'] }}\n\nSend them to: jarvis-nexus-lead-jkon.vercel.app/airbnb",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1408,
+        144
+      ],
+      "id": "d22dd472-a7ee-4ba8-98cd-9c85c70215e4",
+      "name": "Send a message3",
+      "webhookId": "f2d995e9-216c-465d-bcaa-4e53429dd4d5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=📬 General Enquiry — {{ $('Code in JavaScript').item.json['name'] }}",
+        "emailType": "text",
+        "message": "={{ $('Code in JavaScript').item.json['name'] }} sent a general enquiry.\n\nEmail: {{ $('Code in JavaScript').item.json['email'] }}\nMessage: {{ $('Code in JavaScript').item.json['message'] }}\nCategory: {{ $('Code in JavaScript').item.json['category'] }}\n\nReply to them directly.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1408,
+        304
+      ],
+      "id": "b9974163-716b-4004-afb6-d7f935e4a205",
+      "name": "Send a message4",
+      "webhookId": "8b26a091-3923-4634-bc4b-5c3a200bdb7e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=🔄 Reactivation Enquiry — {{ $('Code in JavaScript').item.json['name'] }}",
+        "emailType": "text",
+        "message": "={{ $('Code in JavaScript').item.json['name'] }} is asking about winning back silent customers.\n\nEmail: {{ $('Code in JavaScript').item.json['email'] }}\nMessage: {{ $('Code in JavaScript').item.json['message'] }}\n\nSend them to: jarvis-nexus-lead-jkon.vercel.app/reactivation",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1408,
+        464
+      ],
+      "id": "mr-gmail-reactivation-001",
+      "name": "Send a message5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=🛡 Reputation Enquiry — {{ $('Code in JavaScript').item.json['name'] }}",
+        "emailType": "text",
+        "message": "={{ $('Code in JavaScript').item.json['name'] }} is asking about managing customer feedback and reviews.\n\nEmail: {{ $('Code in JavaScript').item.json['email'] }}\nMessage: {{ $('Code in JavaScript').item.json['message'] }}\n\nSend them to: jarvis-nexus-lead-jkon.vercel.app/reputation",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1408,
+        624
+      ],
+      "id": "mr-gmail-reputation-001",
+      "name": "Send a message6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=🤝 Referral Enquiry — {{ $('Code in JavaScript').item.json['name'] }}",
+        "emailType": "text",
+        "message": "={{ $('Code in JavaScript').item.json['name'] }} is asking about a referral programme.\n\nEmail: {{ $('Code in JavaScript').item.json['email'] }}\nMessage: {{ $('Code in JavaScript').item.json['message'] }}\n\nSend them to: jarvis-nexus-lead-jkon.vercel.app/referral",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1408,
+        784
+      ],
+      "id": "mr-gmail-referral-001",
+      "name": "Send a message7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=📅 No-Show Enquiry — {{ $('Code in JavaScript').item.json['name'] }}",
+        "emailType": "text",
+        "message": "={{ $('Code in JavaScript').item.json['name'] }} is asking about managing missed appointments.\n\nEmail: {{ $('Code in JavaScript').item.json['email'] }}\nMessage: {{ $('Code in JavaScript').item.json['message'] }}\n\nSend them to: jarvis-nexus-lead-jkon.vercel.app/noshow",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1408,
+        944
+      ],
+      "id": "mr-gmail-noshow-001",
+      "name": "Send a message8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        -32
+      ],
+      "id": "34cd7926-cd68-4948-a05f-d5f620b4fbd8",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🔀 Master Router Activated!\n\nFrom: {{ $('Code in JavaScript').item.json['name'] }}\nEmail: {{ $('Code in JavaScript').item.json['email'] }}\nCategory: {{ $('Code in JavaScript').item.json['category'] }}\nUrgency: {{ $('Code in JavaScript').item.json['urgency'] }}\nSummary: {{ $('Code in JavaScript').item.json['summary'] }}\n\n✅ Routed successfully",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1888,
+        -32
+      ],
+      "id": "10f01982-2224-4bac-83d9-d635f29baddb",
+      "name": "Send a text message",
+      "webhookId": "58a6e70e-9b61-4304-a075-93ac44404fac",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"success\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2096,
+        -32
+      ],
+      "id": "c91629f6-0897-4a02-89ad-b50582e39616",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message2": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message3": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message4": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message5": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message6": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message7": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message8": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "master-router-v3-004",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "7ez2HjPB4mKCwGdu",
+  "tags": []
+}

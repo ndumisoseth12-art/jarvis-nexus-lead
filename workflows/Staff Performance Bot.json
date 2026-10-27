@@ -1,0 +1,778 @@
+{
+  "name": "Staff Performance Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": " staff-feedback",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e748ee63-bacc-419a-b34c-045cb40cc45f",
+      "name": "Webhook",
+      "webhookId": "a5e81af5-9af5-4a8f-8d90-688ad21b8bab"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e3ff8365-d77b-486b-bd49-88fb7219846a",
+              "name": "businessName",
+              "value": "={{ $json['body']['businessName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "4eae2086-6462-49ee-8ee6-a3c9cd7dc4ce",
+              "name": "ownerEmail",
+              "value": "={{ $json['body']['ownerEmail'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ae711cdf-65f6-491b-b805-2e6486c74b10",
+              "name": "=customerName",
+              "value": "={{ $json['body']['customerName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "b24dd986-a378-4e81-9df7-9b35514df41d",
+              "name": "staffMember",
+              "value": "={{ $json['body']['staffMember'] }}",
+              "type": "string"
+            },
+            {
+              "id": "3a423804-f708-432e-a178-9a1f691f1e54",
+              "name": "service",
+              "value": "={{ $json['body']['service'] }}",
+              "type": "string"
+            },
+            {
+              "id": "24c425c4-01ef-40e0-a897-292ddca372ca",
+              "name": "overallRating",
+              "value": "={{ $json['body']['overallRating'] }}",
+              "type": "string"
+            },
+            {
+              "id": "0a977a4b-f042-4d9a-8837-6e90bdf8d5a4",
+              "name": "staffFeedback",
+              "value": "={{ $json['body']['staffFeedback'] }}",
+              "type": "string"
+            },
+            {
+              "id": "87e481de-e67c-4e3e-9522-4188a84fedd0",
+              "name": "wouldReturn",
+              "value": "={{ $json['body']['wouldReturn'] }}",
+              "type": "string"
+            },
+            {
+              "id": "bdfee3ef-654c-4cab-a6c2-f33f9cc893b9",
+              "name": "dateSubmitted",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            },
+            {
+              "id": "f73688be-e3ed-47b3-a47a-7256bcb751a0",
+              "name": "weekNumber",
+              "value": "= {{ Math.ceil(new Date().getDate() / 7) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        160,
+        0
+      ],
+      "id": "0334f04e-a8c7-4438-bb7f-922931690523",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": " https://api.groq.com/openai/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a staff performance analyst for South African service businesses. Analyse customer feedback about a staff member and return ONLY a valid JSON object with no markdown, no extra text. Format: {\\\"score\\\": 8, \\\"summary\\\": \\\"one sentence summary\\\", \\\"flag\\\": false, \\\"training_tip\\\": \\\"one actionable tip\\\"} Score is 1-10. Flag is true if score is below 6.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Staff member: {{ $('Edit Fields').item.json['staffMember'] }}\\nService: {{ $('Edit Fields').item.json['service'] }}\\nOverall rating: {{ $('Edit Fields').item.json['overallRating'] }}/5\\nCustomer feedback: {{ $('Edit Fields').item.json['staffFeedback'] }}\\nWould return: {{ $('Edit Fields').item.json['wouldReturn'] }}\"\n    }\n  ],\n  \"temperature\": 0.3,\n  \"max_tokens\": 150\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        320,
+        0
+      ],
+      "id": "aef16812-90ce-4aa5-bb8d-516ac19b8857",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Edit Fields').item.json;\nconst raw = $input.first().json['choices'][0]['message']['content'];\n\nlet parsed;\ntry {\n  parsed = JSON.parse(raw);\n} catch (e) {\n  parsed = { score: 5, summary: 'Unable to parse feedback', flag: false, training_tip: 'Review feedback manually' };\n}\n\nconst score = parsed.score || 5;\nconst summary = parsed.summary || '';\nconst flag = parsed.flag || score < 6;\nconst trainingTip = parsed.training_tip || '';\n\nreturn [{\n  json: {\n    ...d,\n    aiScore: score,\n    aiSummary: summary,\n    flagged: flag,\n    trainingTip,\n    flagLabel: flag ? 'FLAGGED' : 'OK'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "id": "7b4e5379-e607-4e91-a608-af6a830f3495",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1rIGxRzOjaTEUxyOLX2XK4YNc475pfevBGuqxj78ORXs/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rIGxRzOjaTEUxyOLX2XK4YNc475pfevBGuqxj78ORXs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json['dateSubmitted'] }}",
+            "Business Name": "={{ $json['businessName'] }}",
+            "Owner Email": "= {{ $json['ownerEmail'] }}",
+            "Customer Name": "={{ $json['customerName'] }}",
+            "Staff Member": "={{ $json['staffMember'] }}",
+            "Service ": "={{ $json['service'] }}",
+            "Overall Rating ": "={{ $json['overallRating'] }}",
+            "Staff Feedback": "={{ $json['staffFeedback'] }}",
+            "Would Return": "={{ $json['wouldReturn'] }}",
+            "AI Score ": "={{ $json['aiScore'] }}",
+            "AI Summary": "={{ $json['aiSummary'] }}",
+            "Flag": "={{ $json['flagLabel'] }}",
+            "Week Number": "={{ $json['weekNumber'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business Name",
+              "displayName": "Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Owner Email",
+              "displayName": "Owner Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Staff Member",
+              "displayName": "Staff Member",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Service ",
+              "displayName": "Service ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Overall Rating ",
+              "displayName": "Overall Rating ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Staff Feedback",
+              "displayName": "Staff Feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Would Return",
+              "displayName": "Would Return",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Score ",
+              "displayName": "AI Score ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Summary",
+              "displayName": "AI Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Flag",
+              "displayName": "Flag",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Week Number",
+              "displayName": "Week Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        640,
+        0
+      ],
+      "id": "abb64d09-9cdd-40c6-9d1d-cddad43733d6",
+      "name": "Staff Performance Database",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4ec9926f-bfed-45d3-b22b-e74a96fe566b",
+              "leftValue": "= {{ $json['flagged'] }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        816,
+        0
+      ],
+      "id": "7811f399-5c6b-4ac1-848d-df6d4b8652e4",
+      "name": " IF — Poor Performance"
+    },
+    {
+      "parameters": {
+        "sendTo": " Gmail — Staff Flag Alert",
+        "subject": "= 🚨 Staff Performance Alert — {{ $json['staffMember'] }} — {{ $json['businessName'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:600px;margin:40px auto;background:#020208;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);\">   <div style=\"padding:32px 40px;background:linear-gradient(135deg,#f43f5e,#f97316);\">     <div style=\"font-size:11px;color:rgba(255,255,255,0.8);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;\">NSM — Staff Performance Bot</div>     <div style=\"font-size:24px;font-weight:800;color:#fff;\">🚨 Performance Alert</div>     <div style=\"font-size:14px;color:rgba(255,255,255,0.8);margin-top:6px;\">{{ $json['businessName'] }} — Immediate Attention Required</div>   </div>   <div style=\"padding:36px 40px;\">     <div style=\"background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.2);border-radius:14px;padding:22px;margin-bottom:24px;\">       <div style=\"font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f43f5e;margin-bottom:12px;\">Staff Member Flagged</div>       <div style=\"font-size:22px;font-weight:800;color:#fff;margin-bottom:4px;\">{{ $json['staffMember'] }}</div>       <div style=\"font-size:13px;color:#a0a0c0;\">Service: {{ $json['service'] }} · Rated by: {{ $json['customerName'] }}</div>       <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;\">         <div style=\"background:rgba(255,255,255,0.04);border-radius:10px;padding:14px;text-align:center;\">           <div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Customer Rating</div>           <div style=\"font-size:24px;font-weight:800;color:#f43f5e;\">{{ $json['overallRating'] }}/5</div>         </div>         <div style=\"background:rgba(255,255,255,0.04);border-radius:10px;padding:14px;text-align:center;\">           <div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">AI Score</div>           <div style=\"font-size:24px;font-weight:800;color:#f43f5e;\">{{ $json['aiScore'] }}/10</div>         </div>       </div>     </div>     <div style=\"background:rgba(255,255,255,0.04);border-radius:14px;padding:22px;margin-bottom:20px;\">       <div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;\">Customer Feedback</div>       <div style=\"font-size:15px;color:#e8e8ff;line-height:1.7;font-style:italic;\">\"{{ $json['staffFeedback'] }}\"</div>     </div>     <div style=\"background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:14px;padding:22px;\">       <div style=\"font-size:10px;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;\">💡 AI Training Tip</div>       <div style=\"font-size:14px;color:#e8e8ff;line-height:1.65;\">{{ $json['trainingTip'] }}</div>     </div>   </div> </div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1024,
+        -96
+      ],
+      "id": "d44ddc52-b452-48f7-8438-4c6a3464500c",
+      "name": " Gmail — Staff Flag Alert",
+      "webhookId": "6cb3c707-b04e-463f-a6bf-d7d3e925e145",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🚨 STAFF PERFORMANCE FLAG  🏢 {{ $json['businessName'] }} 👤 Staff: {{ $json['staffMember'] }} ⭐ Customer Rating: {{ $json['overallRating'] }}/5 🤖 AI Score: {{ $json['aiScore'] }}/10 📝 \"{{ $json['staffFeedback'] }}\" 💡 Tip: {{ $json['trainingTip'] }}  Owner alerted via email.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1216,
+        -96
+      ],
+      "id": "4db2ed3f-d4ce-47ed-a8ec-60fd5a641410",
+      "name": " Telegram (Flag Alert)",
+      "webhookId": "085e788c-2d65-45f1-881d-3e9ceedba8e9",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=✅ STAFF FEEDBACK LOGGED  🏢 {{ $json['businessName'] }} 👤 Staff: {{ $json['staffMember'] }} ⭐ Rating: {{ $json['overallRating'] }}/5 🤖 AI Score: {{ $json['aiScore'] }}/10 📊 Status: {{ $json['flagLabel'] }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1024,
+        96
+      ],
+      "id": "3e5603f2-39ef-40ab-917a-20a69fb8ca84",
+      "name": " Telegram (Standard Log)",
+      "webhookId": "3ad670a6-03ea-4113-b1c8-e82901ee987d",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": " { \"status\": \"success\" }",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1392,
+        -96
+      ],
+      "id": "92dfb6aa-a3ba-418d-b924-d0717c3021c3",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": " { \"status\": \"success\" }",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1216,
+        96
+      ],
+      "id": "595d3f36-2249-482f-bbb6-b62cd54788bc",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                5
+              ],
+              "triggerAtHour": 16
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        352
+      ],
+      "id": "3a9a6203-2f07-4eb6-87fd-37d4e045e74f",
+      "name": "Schedule — Weekly Staff Report"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/1rIGxRzOjaTEUxyOLX2XK4YNc475pfevBGuqxj78ORXs/edit?usp=drivesdk",
+          "__regex": "https:\\/\\/(?:drive|docs)\\.google\\.com(?:\\/.*|)\\/d\\/([0-9a-zA-Z\\-_]+)(?:\\/.*|)"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rIGxRzOjaTEUxyOLX2XK4YNc475pfevBGuqxj78ORXs/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        352
+      ],
+      "id": "6e2e997a-5023-4acd-8962-ec3c0fb1a4a3",
+      "name": "Google Sheets (Read This Week's Feedback)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all();\nconst now = new Date();\nconst weekNum = Math.ceil(now.getDate() / 7);\n\n// Filter this week only\nconst thisWeek = rows.filter(r =>\n  parseInt(r.json['Week Number']) === weekNum\n);\n\nif (!thisWeek.length) {\n  return [{ json: { hasData: false, message: 'No feedback this week.' } }];\n}\n\n// Group by staff member\nconst staffMap = {};\nthisWeek.forEach(r => {\n  const name = r.json['Staff Member'] || 'Unknown';\n  if (!staffMap[name]) {\n    staffMap[name] = { scores: [], feedbacks: [], flags: 0, ratings: [] };\n  }\n  staffMap[name].scores.push(parseFloat(r.json['AI Score']) || 0);\n  staffMap[name].ratings.push(parseFloat(r.json['Overall Rating']) || 0);\n  staffMap[name].feedbacks.push(r.json['Staff Feedback'] || '');\n  if (r.json['Flag'] === 'FLAGGED') staffMap[name].flags++;\n});\n\n// Calculate averages\nconst staffResults = Object.entries(staffMap).map(([name, data]) => {\n  const avgScore = (data.scores.reduce((a, b) => a + b, 0) / data.scores.length).toFixed(1);\n  const avgRating = (data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length).toFixed(1);\n  return { name, avgScore: parseFloat(avgScore), avgRating: parseFloat(avgRating), flags: data.flags, totalFeedback: data.scores.length };\n});\n\n// Sort by score\nstaffResults.sort((a, b) => b.avgScore - a.avgScore);\n\nconst topPerformer = staffResults[0];\nconst lowestPerformer = staffResults[staffResults.length - 1];\nconst totalFlags = thisWeek.filter(r => r.json['Flag'] === 'FLAGGED').length;\nconst totalFeedback = thisWeek.length;\n\nconst summary = staffResults.map(s =>\n  s.name + ': AI score ' + s.avgScore + '/10, customer rating ' + s.avgRating + '/5, ' + s.totalFeedback + ' reviews, ' + s.flags + ' flags'\n).join('. ');\n\nconst businessName = thisWeek[0]?.json['Business Name'] || 'Your Business';\nconst ownerEmail = thisWeek[0]?.json['Owner Email'] || '';\n\nreturn [{\n  json: {\n    hasData: true,\n    businessName,\n    ownerEmail,\n    staffResults,\n    topPerformer,\n    lowestPerformer,\n    totalFlags,\n    totalFeedback,\n    summary\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        352
+      ],
+      "id": "1902b32d-8b00-4838-a18b-8ebef4d61733",
+      "name": " Code in JavaScript (Calculate Weekly Stats)"
+    },
+    {
+      "parameters": {
+        "url": " https://api.groq.com/openai/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a business performance analyst for South African service businesses. Write a warm, honest weekly staff performance summary for a business owner. Highlight the top performer, address any concerns about the lowest scorer, and give one specific coaching tip. Under 150 words. Plain text only.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Business: {{ $json['businessName'] }}\\nWeek summary: {{ $json['summary'] }}\\nTop performer: {{ $json['topPerformer']['name'] }} ({{ $json['topPerformer']['avgScore'] }}/10)\\nNeeds attention: {{ $json['lowestPerformer']['name'] }} ({{ $json['lowestPerformer']['avgScore'] }}/10)\\nTotal flags this week: {{ $json['totalFlags'] }}\"\n    }\n  ],\n  \"temperature\": 0.5,\n  \"max_tokens\": 250\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        624,
+        352
+      ],
+      "id": "e88816b4-e4bb-42ba-bfcc-b8556bbdbc30",
+      "name": "HTTP Request (Groq — Weekly Narrative)"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['ownerEmail'] }}",
+        "subject": "=📊 Weekly Staff Performance Report — {{ $json['businessName'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:600px;margin:40px auto;background:#020208;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);\">\n  <div style=\"padding:32px 40px;background:linear-gradient(135deg,#8b5cf6,#3b82f6);\">\n    <div style=\"font-size:11px;color:rgba(255,255,255,0.8);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;\">NSM — Staff Performance Bot</div>\n    <div style=\"font-size:24px;font-weight:800;color:#fff;\">Weekly Staff Report</div>\n    <div style=\"font-size:14px;color:rgba(255,255,255,0.8);margin-top:6px;\">{{ $json['businessName'] }} · Friday Digest</div>\n  </div>\n  <div style=\"padding:36px 40px;\">\n    <div style=\"display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:28px;\">\n      <div style=\"background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:16px;text-align:center;\">\n        <div style=\"font-size:10px;color:#10b981;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Reviews</div>\n        <div style=\"font-size:28px;font-weight:800;color:#10b981;\">{{ $json['totalFeedback'] }}</div>\n      </div>\n      <div style=\"background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.2);border-radius:12px;padding:16px;text-align:center;\">\n        <div style=\"font-size:10px;color:#f43f5e;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Flags</div>\n        <div style=\"font-size:28px;font-weight:800;color:#f43f5e;\">{{ $json['totalFlags'] }}</div>\n      </div>\n      <div style=\"background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:16px;text-align:center;\">\n        <div style=\"font-size:10px;color:#8b5cf6;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Staff Scored</div>\n        <div style=\"font-size:28px;font-weight:800;color:#8b5cf6;\">{{ $json['staffResults'].length }}</div>\n      </div>\n    </div>\n    <div style=\"background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:14px;padding:20px;margin-bottom:16px;\">\n      <div style=\"font-size:10px;color:#10b981;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;\">🏆 Top Performer This Week</div>\n      <div style=\"font-size:18px;font-weight:700;color:#fff;\">{{ $json['topPerformer']['name'] }}</div>\n      <div style=\"font-size:13px;color:#a0a0c0;margin-top:4px;\">AI Score: {{ $json['topPerformer']['avgScore'] }}/10 · Customer Rating: {{ $json['topPerformer']['avgRating'] }}/5</div>\n    </div>\n    <div style=\"background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.15);border-radius:14px;padding:20px;margin-bottom:24px;\">\n      <div style=\"font-size:10px;color:#f43f5e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;\">⚠️ Needs Coaching</div>\n      <div style=\"font-size:18px;font-weight:700;color:#fff;\">{{ $json['lowestPerformer']['name'] }}</div>\n      <div style=\"font-size:13px;color:#a0a0c0;margin-top:4px;\">AI Score: {{ $json['lowestPerformer']['avgScore'] }}/10 · Customer Rating: {{ $json['lowestPerformer']['avgRating'] }}/5</div>\n    </div>\n    <div style=\"background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:14px;padding:20px;\">\n      <div style=\"font-size:10px;color:#8b5cf6;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;\">AI Weekly Analysis</div>\n      <div style=\"font-size:14px;color:#e8e8ff;line-height:1.75;\">{{ $json['choices'][0]['message']['content'] }}</div>\n    </div>\n  </div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        352
+      ],
+      "id": "d08335ba-cc84-4d3f-8744-fab5a22bf219",
+      "name": "Gmail — Weekly Staff Report",
+      "webhookId": "62b75981-3e2b-415f-80c6-bead82a5d3f1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "= 📊 Staff Report Copy — {{ $json['businessName'] }}",
+        "message": "=Weekly staff report sent to {{ $json['ownerEmail'] }}.\n\nBusiness: {{ $json['businessName'] }}\nTotal feedback: {{ $json['totalFeedback'] }}\nTotal flags: {{ $json['totalFlags'] }}\nTop performer: {{ $json['topPerformer']['name'] }} ({{ $json['topPerformer']['avgScore'] }}/10)\nNeeds coaching: {{ $json['lowestPerformer']['name'] }} ({{ $json['lowestPerformer']['avgScore'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        352
+      ],
+      "id": "db3e8403-f926-4544-8da4-562b97d89bd0",
+      "name": " Gmail — Weekly Report Copy to Seth",
+      "webhookId": "f2e8949e-3c91-48c5-a125-f029e3fa65a2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=📊 WEEKLY STAFF REPORT SENT  🏢 {{ $json['businessName'] }} 👥 Staff scored: {{ $json['staffResults'].length }} 📝 Total feedback: {{ $json['totalFeedback'] }} 🚨 Flags this week: {{ $json['totalFlags'] }} 🏆 Top: {{ $json['topPerformer']['name'] }} ({{ $json['topPerformer']['avgScore'] }}/10) ⚠️ Needs work: {{ $json['lowestPerformer']['name'] }} ({{ $json['lowestPerformer']['avgScore'] }}/10)  Report emailed to owner.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1248,
+        352
+      ],
+      "id": "a2a1b551-2ee2-49d3-88a2-34708c30c508",
+      "name": " Telegram (Weekly Summary)",
+      "webhookId": "3c468b5b-0dd2-47b0-b220-062b75b1cf4f",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Staff Performance Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Staff Performance Database": {
+      "main": [
+        [
+          {
+            "node": " IF — Poor Performance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " IF — Poor Performance": {
+      "main": [
+        [
+          {
+            "node": " Gmail — Staff Flag Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": " Telegram (Standard Log)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Gmail — Staff Flag Alert": {
+      "main": [
+        [
+          {
+            "node": " Telegram (Flag Alert)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Telegram (Standard Log)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Telegram (Flag Alert)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule — Weekly Staff Report": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets (Read This Week's Feedback)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets (Read This Week's Feedback)": {
+      "main": [
+        [
+          {
+            "node": " Code in JavaScript (Calculate Weekly Stats)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Code in JavaScript (Calculate Weekly Stats)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (Groq — Weekly Narrative)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request (Groq — Weekly Narrative)": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Weekly Staff Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Weekly Staff Report": {
+      "main": [
+        [
+          {
+            "node": " Gmail — Weekly Report Copy to Seth",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Gmail — Weekly Report Copy to Seth": {
+      "main": [
+        [
+          {
+            "node": " Telegram (Weekly Summary)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "685e7fce-af90-496f-8d22-ad6084eab680",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "8xeDubsbdNVe3VOR",
+  "tags": []
+}

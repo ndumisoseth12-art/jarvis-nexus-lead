@@ -1,0 +1,311 @@
+{
+  "name": "Monthly Report Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5451fc4e-c6b7-4c2c-aadf-a35c5bd1607f",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all();\n\nconst STAR_KEY = \"1\";\nconst TIMESTAMP_KEY = \"2026-03-13T03:26:52.607+02:00\";\nconst BUSINESS_KEY = \"Cape Town\";\nconst REVIEWER_KEY = \"Bonginkosi Kubheka\";\nconst REVIEW_KEY = \"I was not happy with the delivery of the product. Took longer than expected. Customer services was not good. \";\nconst RESPONSE_KEY = \"Thank you, Bonginkosi Kubheka, for sharing your concerns about your recent experience with Cape Town. We apologize for the delay in delivery and the subpar customer service you received, which fell short of our standards. We will review our processes to prevent such instances in the future. We hope you will give us another chance to serve you better, and we look forward to your return.\";\nconst TONE_KEY = \"Apologetic\";\nconst PRIORITY_KEY = \"High\";\n\nconst reviews = rows.map(row => {\n  const d = row.json;\n  return {\n    timestamp:    d[TIMESTAMP_KEY] || '',\n    businessName: d[BUSINESS_KEY]  || '',\n    reviewerName: d[REVIEWER_KEY]  || '',\n    starRating:   parseInt(d[STAR_KEY]) || 0,\n    reviewText:   d[REVIEW_KEY]    || '',\n    aiResponse:   d[RESPONSE_KEY]  || '',\n    tone:         d[TONE_KEY]      || '',\n    priority:     d[PRIORITY_KEY]  || ''\n  };\n});\n\nconst now = new Date();\nconst monthName = now.toLocaleString('en-ZA', { month: 'long' });\nconst year = now.getFullYear();\n\nconst total = reviews.length;\nconst totalReviews = total;\n\nconst ratings = reviews.map(r => r.starRating).filter(r => r > 0);\nconst avgRating = ratings.length\n  ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)\n  : '0.0';\nconst averageRating = avgRating;\n\nconst fiveStar  = ratings.filter(r => r === 5).length;\nconst fourStar  = ratings.filter(r => r === 4).length;\nconst threeStar = ratings.filter(r => r === 3).length;\nconst twoStar   = ratings.filter(r => r === 2).length;\nconst oneStar   = ratings.filter(r => r === 1).length;\n\nconst positive = reviews.filter(r =>\n  (r.tone || '').toLowerCase() === 'positive'\n).length;\n\nconst neutral = reviews.filter(r =>\n  ['neutral', 'appreciative'].includes((r.tone || '').toLowerCase())\n).length;\n\nconst negative = reviews.filter(r =>\n  ['negative', 'apologetic'].includes((r.tone || '').toLowerCase())\n).length;\n\nconst responseRate = total > 0\n  ? ((reviews.filter(r => r.aiResponse && r.aiResponse.trim().length > 0).length / total) * 100).toFixed(0) + '%'\n  : '0%';\n\nconst tones = {};\nreviews.forEach(r => {\n  const t = r.tone || 'Unknown';\n  tones[t] = (tones[t] || 0) + 1;\n});\nconst toneBreakdown = Object.entries(tones)\n  .map(([tone, count]) => tone + ': ' + count)\n  .join(' | ');\n\nconst highPriority = reviews.filter(r => (r.priority || '').toLowerCase() === 'high').length;\nconst medPriority  = reviews.filter(r => (r.priority || '').toLowerCase() === 'medium').length;\nconst lowPriority  = reviews.filter(r => (r.priority || '').toLowerCase() === 'low').length;\n\nconst businesses = {};\nreviews.forEach(r => {\n  const b = (r.businessName || 'Unknown').trim();\n  businesses[b] = (businesses[b] || 0) + 1;\n});\nconst topBusiness      = Object.entries(businesses).sort((a, b) => b[1] - a[1])[0];\nconst topBusinessName  = topBusiness ? topBusiness[0] : 'N/A';\nconst topBusinessCount = topBusiness ? topBusiness[1] : 0;\nconst businessName     = topBusinessName;\n\nconst recentSample = reviews.slice(-3).map(r =>\n  r.reviewerName + ' (' + r.starRating + ' stars) said: ' + r.reviewText.substring(0, 80)\n).join(' | ');\n\nconst cleanSummary = [\n  'Total Reviews: ' + total,\n  'Average Star Rating: ' + avgRating + ' out of 5',\n  '5 Stars: ' + fiveStar + ', 4 Stars: ' + fourStar + ', 3 Stars: ' + threeStar + ', 2 Stars: ' + twoStar + ', 1 Star: ' + oneStar,\n  'Tone Breakdown: ' + toneBreakdown,\n  'Positive Reviews: ' + positive + ', Neutral: ' + neutral + ', Negative: ' + negative,\n  'Response Rate: ' + responseRate,\n  'High Priority: ' + highPriority + ', Medium Priority: ' + medPriority + ', Low Priority: ' + lowPriority,\n  'Most Active Business: ' + topBusinessName + ' with ' + topBusinessCount + ' reviews',\n  'Recent Reviews: ' + recentSample\n].join('. ');\n\nreturn [{\n  json: {\n    monthName,\n    year,\n    total,\n    totalReviews,\n    avgRating,\n    averageRating,\n    fiveStar,\n    fourStar,\n    threeStar,\n    twoStar,\n    oneStar,\n    positive,\n    neutral,\n    negative,\n    responseRate,\n    toneBreakdown,\n    highPriority,\n    medPriority,\n    lowPriority,\n    topBusinessName,\n    topBusinessCount,\n    businessName,\n    recentSample,\n    summary: cleanSummary\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "90fba1fd-92a6-4eaa-9e1c-608a6ee22d0a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ca4a23a4-8aa4-4c53-bdad-c3a1d9687359",
+              "name": "aiReport",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            },
+            {
+              "id": "431021cd-85e5-4b81-80aa-7c6ebb099b76",
+              "name": "monthName",
+              "value": "={{ $('Code in JavaScript').item.json['monthName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "a51ef751-aa5d-4e10-8724-000ac0a4ba01",
+              "name": "year",
+              "value": "={{ $('Code in JavaScript').item.json['year'] }}",
+              "type": "string"
+            },
+            {
+              "id": "9005435e-d606-4582-b9c9-049ed13760f8",
+              "name": "totalReviews",
+              "value": "={{ $('Code in JavaScript').item.json['totalReviews'] }}",
+              "type": "string"
+            },
+            {
+              "id": "88c0a943-dda1-4bb7-bf1c-072c164233f0",
+              "name": "averageRating",
+              "value": "={{ $('Code in JavaScript').item.json['averageRating'] }}",
+              "type": "string"
+            },
+            {
+              "id": "395ffc8d-d09e-4ab0-9567-e55a5782b96a",
+              "name": "positive",
+              "value": "={{ $('Code in JavaScript').item.json['positive'] }}",
+              "type": "string"
+            },
+            {
+              "id": "c5cc50db-ff7a-440a-8773-546acaf7e6d2",
+              "name": "neutral",
+              "value": "={{ $('Code in JavaScript').item.json['neutral'] }}",
+              "type": "string"
+            },
+            {
+              "id": "2827889d-f5a6-43c7-ba5c-0236e2e37ef5",
+              "name": "negative",
+              "value": "={{ $('Code in JavaScript').item.json['negative'] }}",
+              "type": "string"
+            },
+            {
+              "id": "876ef0fa-2d8b-4b5c-9c47-7b995429d22b",
+              "name": "responseRate",
+              "value": "={{ $('Code in JavaScript').item.json['responseRate'] }}",
+              "type": "string"
+            },
+            {
+              "id": "bbb27246-62af-46eb-b5ab-b382391da62c",
+              "name": "businessName",
+              "value": "={{ $('Code in JavaScript').item.json['businessName'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        0
+      ],
+      "id": "c894b43a-8afb-4a5e-9ea7-33518c21bf04",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=Here's what your bot did this month — {{ $('Edit Fields').item.json['monthName'] }} {{ $('Edit Fields').item.json['year'] }}",
+        "message": "=Total Reviews:     {{ $('Code in JavaScript').item.json['total'] }}\nAverage Rating:    {{ $('Code in JavaScript').item.json['avgRating'] }}\n5 Star Reviews:    {{ $('Code in JavaScript').item.json['fiveStar'] }}\nHigh Priority:     {{ $('Code in JavaScript').item.json['highPriority'] }}\nTop Business:      {{ $('Code in JavaScript').item.json['topBusinessName'] }}\nAI Narrative:      {{ $('Edit Fields').item.json['aiReport'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "2b538637-7f01-4226-97eb-b77853f5f487",
+      "name": "Send a message",
+      "webhookId": "88fa57b3-d138-4999-9e62-8947bd7b77c6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=📊 Monthly Report Sent!\n\nBusiness: {{ $('Edit Fields').item.json['businessName'] }}\nMonth: {{ $('Edit Fields').item.json['monthName'] }} {{ $('Edit Fields').item.json['year'] }}\nTotal Reviews: {{ $('Edit Fields').item.json['totalReviews'] }}\nAverage Rating: {{ $('Edit Fields').item.json['averageRating'] }}/5\nPositive: {{ $('Edit Fields').item.json['positive'] }}\nNeutral: {{ $('Edit Fields').item.json['neutral'] }}\nNegative: {{ $('Edit Fields').item.json['negative'] }}\nTime: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}\n\nReport emailed successfully ✅",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "7ea247f2-790f-44c8-86b3-d2642ba1c1bc",
+      "name": "Send a text message",
+      "webhookId": "fa51650d-55f5-4232-8102-e34923068c95",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/1uzMTxVilA8LXhd_TnT_IY52j_PA4XaiEqfZkzuRssXM/edit?usp=drivesdk",
+          "__regex": "https:\\/\\/(?:drive|docs)\\.google\\.com(?:\\/.*|)\\/d\\/([0-9a-zA-Z\\-_]+)(?:\\/.*|)"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uzMTxVilA8LXhd_TnT_IY52j_PA4XaiEqfZkzuRssXM/edit#gid=0"
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "specifyRangeA1",
+              "range": "A2:H100"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "8a52964d-197c-4f5a-94f1-9e4c17a7965d",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a business analytics assistant for a South African AI automation agency. Write a warm, professional monthly review performance narrative for a business owner. Keep it under 200 words. Focus on wins, trends and one actionable tip. Write in plain English, no bullet points, no headers.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $('Code in JavaScript').item.json['summary'] }}\"\n    }\n  ],\n  \"temperature\": 0.4,\n  \"max_tokens\": 400\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        608,
+        0
+      ],
+      "id": "907ebb64-e4e1-4034-b596-1d914e469280",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "6c2ea398-a8ef-45e9-a6c9-814dde46a96d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "Qn2P4KcAB6hiSq7A",
+  "tags": []
+}

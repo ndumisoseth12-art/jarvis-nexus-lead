@@ -1,0 +1,363 @@
+{
+  "name": "Review Request Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "review-request",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d19655db-400c-42ca-b8fb-cb1b987ed6b4",
+      "name": "Webhook",
+      "webhookId": "25817ad5-f004-49b0-9966-711a1be98814"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "17737037-3111-42b5-94b6-f9141ded135c",
+              "name": "clientName",
+              "value": "={{ $json['body']['clientName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "2b8d0db9-1752-4bca-8e03-7119fb23766d",
+              "name": "businessName",
+              "value": "={{ $json['body']['businessName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "76a08265-e076-44e7-9ab5-8a5d23a6279e",
+              "name": "customerName",
+              "value": "={{ $json['body']['customerName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "fc8bc82f-7fd8-4ac5-b0bc-9ca76fcd606a",
+              "name": "customerEmail",
+              "value": "={{ $json['body']['customerEmail'] }}",
+              "type": "string"
+            },
+            {
+              "id": "fbe9c7c2-5241-4511-a2e6-3ab96fa267c4",
+              "name": "platform",
+              "value": "={{ $json['body']['platform'] }}",
+              "type": "string"
+            },
+            {
+              "id": "812c8a31-2314-46b3-a761-80365c548068",
+              "name": "googleLink",
+              "value": "={{ $json['body']['googleLink'] }}",
+              "type": "string"
+            },
+            {
+              "id": "a6d75599-84d6-417b-9dc3-0bf01cc08b8c",
+              "name": "dateSent",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "06d0928f-bbda-48cb-91ec-806b7ce7a88b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a warm, friendly South African business assistant. Write a short, genuine review request message from a business owner to a happy customer. Rules: 1. Address the customer by first name. 2. Mention the business name naturally. 3. Ask them to leave a Google review — never beg. 4. Keep it under 60 words. 5. Warm, human tone — not corporate. 6. End with the business owner's first name. Respond with plain text only.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Business: {{ $('Edit Fields').item.json['businessName'] }}\\nCustomer: {{ $('Edit Fields').item.json['customerName'] }}\\nPlatform: {{ $('Edit Fields').item.json['platform'] }}\"\n    }\n  ],\n  \"temperature\": 0.7,\n  \"max_tokens\": 150\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "38ab92f1-5fb4-40c2-abc7-bca71aa5d4a2",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "Response Code: 200\nBody: { \"status\": \"success\" }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "c457d9d9-2be8-4483-b9a3-09b4a4e91923",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json['customerEmail'] }}",
+        "subject": "=Quick favour — {{ $('Edit Fields').item.json['customerName'] }}?",
+        "message": "=<div style=\"font-family:sans-serif;max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:24px;\">   {{ $('Edit Fields').item.json['businessName'] }} </div>  <div style=\"font-size:16px;color:#333;line-height:1.8;margin-bottom:28px;\">   {{ $json['choices'][0]['message']['content'] }} </div>  <a href=\"{{ $('Edit Fields').item.json['googleLink'] }}\" style=\"display:inline-block;background:linear-gradient(135deg,#8b5cf6,#22d3ee);color:#fff;font-weight:700;padding:14px 28px;border-radius:12px;text-decoration:none;font-size:14px;margin-bottom:28px;\">   Leave a Google Review → </a>  <div style=\"font-size:12px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;line-height:1.6;\">   This email was sent on behalf of {{ $('Edit Fields').item.json['businessName'] }}.<br>   Powered by NSM AI Automation. </div>  </div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "0877c3fc-4e12-4605-9389-2ada702d4766",
+      "name": "Gmail — Review Request",
+      "webhookId": "b2ac6957-f04b-4e99-9f78-dff9a52442e1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⭐ REVIEW REQUEST SENT  🏢 {{ $('Edit Fields').item.json['businessName'] }} 👤 Sent to: {{ $('Edit Fields').item.json['customerName'] }} 📧 {{ $('Edit Fields').item.json['customerEmail'] }} 🔗 Platform: {{ $('Edit Fields').item.json['platform'] }}  Logged in Review Request Tracker.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "0a56caf0-3af0-4c71-bc29-2fbe598442a1",
+      "name": "Telegram — Review Request Alert",
+      "webhookId": "7f3ca152-a966-4c2c-8cc7-1a499853abd4",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1sHKbBLGNdJ2X4Iy4jcii1VyMNVCVfgkIpx2KVuBIDsM/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sHKbBLGNdJ2X4Iy4jcii1VyMNVCVfgkIpx2KVuBIDsM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date Sent": "={{ $('Edit Fields').item.json['dateSent'] }}",
+            "Client Name": "={{ $('Edit Fields').item.json['clientName'] }}",
+            "Business Name": "={{ $('Edit Fields').item.json['businessName'] }}",
+            "Customer Name": "={{ $('Edit Fields').item.json['customerName'] }}",
+            "Customer Email": "={{ $('Edit Fields').item.json['customerEmail'] }}",
+            "Platform": "={{ $('Edit Fields').item.json['platform'] }}",
+            "Status": "Sent ",
+            "Follow Up Sent": "No"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date Sent",
+              "displayName": "Date Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Client Name",
+              "displayName": "Client Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business Name",
+              "displayName": "Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Platform",
+              "displayName": "Platform",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Follow Up Sent",
+              "displayName": "Follow Up Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        832,
+        0
+      ],
+      "id": "6d83cd47-c258-404c-a60c-7dbbf2691e13",
+      "name": "Google Sheets — Review Request Tracker",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Review Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Review Request": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets — Review Request Tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram — Review Request Alert": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets — Review Request Tracker": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Review Request Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "28ea8a91-698a-46df-bd1f-4a675a861fa8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "XbddjG0AbbmlqlcR",
+  "tags": []
+}

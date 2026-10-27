@@ -1,0 +1,1320 @@
+{
+  "name": "B10 Lifetime & Next Action",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lifetime-log-purchase",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2240,
+        16
+      ],
+      "id": "c98f423e-55ca-41c0-b06a-078d489e5f0a",
+      "name": "Webhook — Log Purchase",
+      "webhookId": "lifetime-log-purchase-001"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-log-1",
+              "name": "customerName",
+              "value": "={{ $json['body']['customerName'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Customer Name')?.['value'] ?? 'Unknown' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-log-2",
+              "name": "customerEmail",
+              "value": "={{ $json['body']['customerEmail'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Customer Email')?.['value'] ?? 'unknown@email.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-log-3",
+              "name": "businessName",
+              "value": "={{ $json['body']['businessName'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Business Name')?.['value'] ?? 'Unknown' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-log-4",
+              "name": "ownerEmail",
+              "value": "={{ $json['body']['ownerEmail'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Owner Email')?.['value'] ?? 'ndumisoseth12@gmail.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-log-5",
+              "name": "purchaseAmount",
+              "value": "={{ $json['body']['purchaseAmount'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Purchase Amount')?.['value'] ?? 0 }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-log-6",
+              "name": "purchaseDate",
+              "value": "={{ $json['body']['purchaseDate'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Purchase Date')?.['value'] ?? $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss').split('T')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-log-7",
+              "name": "productService",
+              "value": "={{ $json['body']['productService'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Product or Service')?.['value'] ?? 'Purchase' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-log-8",
+              "name": "notes",
+              "value": "={{ $json['body']['notes'] ?? $json['body']['data']['fields'].find(f => f['label'] === 'Notes')?.['value'] ?? '' }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-log-9",
+              "name": "loggedAt",
+              "value": "={{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2032,
+        16
+      ],
+      "id": "fc119023-8d5d-4e2d-8b27-9f3fd9044188",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Customer Email",
+              "lookupValue": "={{ $('Edit Fields').item.json['customerEmail'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1808,
+        16
+      ],
+      "id": "0e8523e8-fadf-48b6-9d71-60fafdc0ea80",
+      "name": "Sheets — Find Customer",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// B10 — Lifetime & Next Action: RFV scoring + tier + milestone detection\nconst d = $('Edit Fields').item.json;\nconst existing = $input.all();\nconst now = new Date();\n\nconst purchaseAmount = parseFloat(d['purchaseAmount']) || 0;\n\nlet totalPurchases = 1;\nlet totalSpend = purchaseAmount;\nlet firstPurchaseDate = d['purchaseDate'];\nlet previousTier = 'None';\nlet isNewCustomer = true;\nlet recentAmounts = [purchaseAmount];\n\nif (existing.length > 0 && existing[0].json['Customer Name']) {\n  const rec = existing[0].json;\n  isNewCustomer = false;\n  totalPurchases = (parseInt(rec['Total Purchases']) || 0) + 1;\n  totalSpend = (parseFloat(rec['Total Spend']) || 0) + purchaseAmount;\n  firstPurchaseDate = rec['First Purchase Date'] || d['purchaseDate'];\n  previousTier = rec['Tier'] || 'None';\n  // Track last 3 purchase amounts as comma-separated string\n  const prev = (rec['Recent Amounts'] || '').split(',').map(s => parseFloat(s)).filter(n => !isNaN(n));\n  recentAmounts = [purchaseAmount, ...prev].slice(0, 3);\n}\n\nconst avgOrderValue = totalSpend / totalPurchases;\nconst lifetimeValue = totalSpend;\n\n// Tier assignment\nlet tier = 'Bronze';\nlet vipFlag = false;\nif (lifetimeValue >= 50000) { tier = 'VIP'; vipFlag = true; }\nelse if (lifetimeValue >= 20000) { tier = 'Gold'; }\nelse if (lifetimeValue >= 8000) { tier = 'Silver'; }\n\n// Tier change detection\nconst tierOrder = { 'None': 0, 'Bronze': 1, 'Silver': 2, 'Gold': 3, 'VIP': 4 };\nconst tierUpgraded = tierOrder[tier] > tierOrder[previousTier];\nconst tierChanged = tier !== previousTier && previousTier !== 'None';\n\n// Milestone detection — celebrate round-number purchases\nconst milestones = [5, 10, 25, 50, 100];\nconst isMilestone = milestones.includes(totalPurchases);\nconst milestoneNumber = isMilestone ? totalPurchases : 0;\n\n// Spend trajectory — comparing latest vs avg of previous\nlet trajectory = 'stable';\nif (recentAmounts.length >= 2) {\n  const latest = recentAmounts[0];\n  const prevAvg = recentAmounts.slice(1).reduce((a,b) => a+b, 0) / (recentAmounts.length - 1);\n  if (latest > prevAvg * 1.25) trajectory = 'up';\n  else if (latest < prevAvg * 0.7) trajectory = 'down';\n}\n\n// Should we celebrate? Tier upgrade OR milestone\nconst shouldCelebrate = tierUpgraded || isMilestone;\n\nconst formatRand = n => 'R' + n.toLocaleString('en-ZA', { minimumFractionDigits: 2 });\nconst firstName = (d['customerName'] || 'there').split(' ')[0];\n\n// Build celebration reason for AI prompt\nlet celebrationReason = '';\nif (tierUpgraded && isMilestone) {\n  celebrationReason = `Reached ${totalPurchases} purchases AND just upgraded to ${tier} tier`;\n} else if (tierUpgraded) {\n  celebrationReason = `Just upgraded to ${tier} tier (was ${previousTier})`;\n} else if (isMilestone) {\n  celebrationReason = `Just reached ${totalPurchases} total purchases — a milestone`;\n}\n\nreturn [{\n  json: {\n    ...d,\n    totalPurchases, totalSpend, avgOrderValue, lifetimeValue,\n    tier, vipFlag, tierChanged, tierUpgraded, previousTier,\n    isNewCustomer, isMilestone, milestoneNumber, shouldCelebrate,\n    celebrationReason,\n    firstPurchaseDate,\n    recentAmounts: recentAmounts.join(','),\n    trajectory,\n    firstName,\n    lifetimeValueFormatted: formatRand(lifetimeValue),\n    avgOrderFormatted: formatRand(avgOrderValue),\n    purchaseAmountFormatted: formatRand(purchaseAmount),\n    runAt: $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss')\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1584,
+        16
+      ],
+      "id": "fca8cbcc-acc3-4ebb-99b6-6ca63736eae5",
+      "name": "Code — RFV Scoring & Tier"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer Email": "={{ $json['customerEmail'] }}",
+            "Customer Name": "={{ $json['customerName'] }}",
+            "Business Name": "={{ $json['businessName'] }}",
+            "Owner Email": "={{ $json['ownerEmail'] }}",
+            "First Purchase Date": "={{ $json['firstPurchaseDate'] }}",
+            "Last Purchase Date": "={{ $json['purchaseDate'] }}",
+            "Total Purchases": "={{ $json['totalPurchases'] }}",
+            "Total Spend": "={{ $json['totalSpend'] }}",
+            "Average Order Value": "={{ $json['avgOrderValue'] }}",
+            "Lifetime Value": "={{ $json['lifetimeValue'] }}",
+            "Tier": "={{ $json['tier'] }}",
+            "Previous Tier": "={{ $json['previousTier'] }}",
+            "Recent Amounts": "={{ $json['recentAmounts'] }}",
+            "Trajectory": "={{ $json['trajectory'] }}",
+            "Last Updated": "={{ $json['loggedAt'] }}",
+            "Last Product": "={{ $json['productService'] }}"
+          },
+          "matchingColumns": [
+            "Customer Email"
+          ],
+          "schema": [
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business Name",
+              "displayName": "Business Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Owner Email",
+              "displayName": "Owner Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "First Purchase Date",
+              "displayName": "First Purchase Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Purchase Date",
+              "displayName": "Last Purchase Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Purchases",
+              "displayName": "Total Purchases",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Spend",
+              "displayName": "Total Spend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Average Order Value",
+              "displayName": "Average Order Value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lifetime Value",
+              "displayName": "Lifetime Value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tier",
+              "displayName": "Tier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Previous Tier",
+              "displayName": "Previous Tier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recent Amounts",
+              "displayName": "Recent Amounts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Trajectory",
+              "displayName": "Trajectory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated",
+              "displayName": "Last Updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Product",
+              "displayName": "Last Product",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1360,
+        16
+      ],
+      "id": "1fd22470-b37b-42ef-be7e-43b3b644b654",
+      "name": "Sheets — Upsert Customer Record",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Purchase logged\",\n  \"tier\": \"={{ $('Code — RFV Scoring & Tier').item.json['tier'] }}\",\n  \"lifetimeValue\": \"={{ $('Code — RFV Scoring & Tier').item.json['lifetimeValueFormatted'] }}\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1152,
+        16
+      ],
+      "id": "c0ca3209-a468-48dd-831e-c99757249569",
+      "name": "Respond — Logged"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-celebrate-001",
+              "leftValue": "={{ $('Code — RFV Scoring & Tier').item.json['shouldCelebrate'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -928,
+        16
+      ],
+      "id": "4b8a96ea-72fe-4419-9bcd-5aab97acf4d9",
+      "name": "If — Should Celebrate"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a warm South African business owner writing a genuine celebration message to a loyal customer who just hit a milestone or tier upgrade. CRITICAL RULES:\\n\\n1. Address customer by FIRST NAME ONLY.\\n2. Celebrate the specific reason given — be specific, not generic.\\n3. Make them feel genuinely valued, not corporate.\\n4. Mention their new tier or milestone directly.\\n5. NO discount language unless it's a VIP upgrade — this is about appreciation, not promotion.\\n6. Sign off with the business name.\\n7. South African English. Conversational. Real human tone.\\n8. STRICT WORD LIMIT: under 80 words.\\n9. Plain text only.\\n\\nRespond ONLY with a valid JSON object in this exact format with no markdown and no extra text: {\\\"subject\\\": \\\"short personal subject line under 10 words\\\", \\\"body\\\": \\\"the message body here\\\", \\\"tone_used\\\": \\\"Celebratory\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Customer First Name: {{ $('Code — RFV Scoring & Tier').item.json['firstName'] }}\\nBusiness: {{ $('Code — RFV Scoring & Tier').item.json['businessName'] }}\\nReason for celebration: {{ $('Code — RFV Scoring & Tier').item.json['celebrationReason'] }}\\nNew Tier: {{ $('Code — RFV Scoring & Tier').item.json['tier'] }}\\nTotal Purchases: {{ $('Code — RFV Scoring & Tier').item.json['totalPurchases'] }}\\nLifetime Value: {{ $('Code — RFV Scoring & Tier').item.json['lifetimeValueFormatted'] }}\"\n    }\n  ],\n  \"temperature\": 0.6,\n  \"max_tokens\": 350\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -704,
+        -80
+      ],
+      "id": "01369d49-dae8-41fa-8889-5e381ba0662b",
+      "name": "Groq — Celebration",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef1-cel-1",
+              "name": "rawAIText",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -480,
+        -80
+      ],
+      "id": "0995151d-f875-4245-859c-e1c03210e34d",
+      "name": "Edit Fields1 — Celebrate"
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptVersion = 'b10-celebrate-v1';\n// B10 — Celebration AI Parse\nconst rawText = $input.item.json['rawAIText'] || '';\nconst d = $('Code — RFV Scoring & Tier').item.json;\n\nconst cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n\nlet parsed;\ntry { parsed = JSON.parse(cleaned); }\ncatch (e) {\n  const m = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { parsed = JSON.parse(m[0]); } catch (e2) { parsed = null; } }\n}\n\nif (!parsed || !parsed['body']) {\n  parsed = {\n    subject: 'A quick thank-you from ' + d['businessName'],\n    body: 'Hi ' + d['firstName'] + ', just a quick note to say thank you. ' + d['celebrationReason'] + '. We genuinely appreciate your support. — ' + d['businessName'],\n    tone_used: 'Fallback'\n  };\n}\n\nreturn {\n  ...d, promptVersion,\n  subject: parsed['subject'],\n  body: parsed['body'],\n  toneUsed: parsed['tone_used'] || 'Celebratory',\n  parseSuccess: parsed['tone_used'] !== 'Fallback'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -272,
+        -80
+      ],
+      "id": "256171db-7a2f-4aa6-a592-b966898b7b72",
+      "name": "Code — Parse Celebration"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "if-parse-cel-001",
+              "leftValue": "={{ $json['parseSuccess'] }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -48,
+        -80
+      ],
+      "id": "07c2b9a2-e6fa-4f32-919a-6d426ffea756",
+      "name": "If — Celebration Parse OK"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code — Parse Celebration').item.json['customerEmail'] }}",
+        "subject": "={{ $('Code — Parse Celebration').item.json['subject'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;padding:40px;border:1px solid #f0f0f0;\">\n  <div style=\"font-size:22px;font-weight:800;color:#020208;margin-bottom:16px;\">{{ $('Code — Parse Celebration').item.json['businessName'] }}</div>\n  <div style=\"display:inline-block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#818cf8,#6366f1);color:#fff;padding:6px 12px;border-radius:6px;margin-bottom:20px;\">{{ $('Code — Parse Celebration').item.json['tier'] }} TIER</div>\n  <div style=\"font-size:15px;color:#333;line-height:1.8;margin-bottom:28px;white-space:pre-wrap;\">{{ $('Code — Parse Celebration').item.json['body'] }}</div>\n  <div style=\"background:#f8f9ff;border:1px solid #e8e8ff;border-radius:12px;padding:24px;margin-bottom:28px;\">\n    <div style=\"font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6366f1;margin-bottom:14px;\">Your Loyalty</div>\n    <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\"><span style=\"font-size:13px;color:#666;\">Total purchases</span><span style=\"font-size:14px;font-weight:700;color:#020208;\">{{ $('Code — Parse Celebration').item.json['totalPurchases'] }}</span></div>\n    <div style=\"display:flex;justify-content:space-between;margin-bottom:8px;\"><span style=\"font-size:13px;color:#666;\">Lifetime value</span><span style=\"font-size:14px;font-weight:700;color:#020208;\">{{ $('Code — Parse Celebration').item.json['lifetimeValueFormatted'] }}</span></div>\n    <div style=\"display:flex;justify-content:space-between;\"><span style=\"font-size:13px;color:#666;\">Member since</span><span style=\"font-size:13px;font-weight:600;color:#020208;\">{{ $('Code — Parse Celebration').item.json['firstPurchaseDate'] }}</span></div>\n  </div>\n  <div style=\"font-size:11px;color:#999;border-top:1px solid #f0f0f0;padding-top:16px;text-align:center;\">Sent on behalf of {{ $('Code — Parse Celebration').item.json['businessName'] }} · Powered by NSM</div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        -192
+      ],
+      "id": "bc738087-4f29-4707-a1b3-1326c33c6d42",
+      "name": "Gmail — Celebration Email",
+      "webhookId": "gmail-celebrate-001",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=⚠️ AI PARSE FALLBACK — CELEBRATION\n\nCustomer: {{ $('Code — Parse Celebration').item.json['customerName'] }}\nBusiness: {{ $('Code — Parse Celebration').item.json['businessName'] }}\nReason: {{ $('Code — Parse Celebration').item.json['celebrationReason'] }}\n\nFallback email used. Time: {{ $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss') }}\\n\\n_Prompt: {{ $('Code — Parse Celebration').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        16
+      ],
+      "id": "507782ed-e6c1-40fd-aa07-10db989f348f",
+      "name": "Telegram — Celebration Fallback",
+      "webhookId": "tg-fb-cel",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🏆 CELEBRATION FIRED\n\n👤 {{ $('Code — Parse Celebration').item.json['customerName'] }}\n🎖 New tier: {{ $('Code — Parse Celebration').item.json['tier'] }} (was {{ $('Code — Parse Celebration').item.json['previousTier'] }})\n📦 Purchase #{{ $('Code — Parse Celebration').item.json['totalPurchases'] }}\n💰 LTV: {{ $('Code — Parse Celebration').item.json['lifetimeValueFormatted'] }}\n📈 Trajectory: {{ $('Code — Parse Celebration').item.json['trajectory'] }}\n🎉 Reason: {{ $('Code — Parse Celebration').item.json['celebrationReason'] }}\n\nCelebration email sent to {{ $('Code — Parse Celebration').item.json['customerEmail'] }}\\n\\n_Prompt: {{ $('Code — Parse Celebration').item.json['promptVersion'] }}_",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        -192
+      ],
+      "id": "291a08b0-09f1-44b9-9708-d4e89d3320d4",
+      "name": "Telegram — Celebration Alert",
+      "webhookId": "tg-cel-alert",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -2272,
+        432
+      ],
+      "id": "303feb2b-a756-4be2-b26a-5d55c57b3ea1",
+      "name": "Schedule — Mon 8am Next Actions"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2048,
+        432
+      ],
+      "id": "9d011c4b-6b17-4e60-bafe-57a484c62553",
+      "name": "Sheets — Read All Customers (Weekly)",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// B10 — Top 5 Next Actions: RFV scoring + per-customer recommendation\nconst rows = $input.all();\nconst now = new Date();\n\nif (!rows.length) {\n  return [{ json: { hasData: false, summary: 'No customer data to analyse this week.' } }];\n}\n\nconst customers = rows\n  .map(r => r.json)\n  .filter(r => r['Customer Email'] && r['Customer Name']);\n\nif (!customers.length) {\n  return [{ json: { hasData: false, summary: 'No valid customer records found.' } }];\n}\n\nconst formatRand = n => 'R' + n.toLocaleString('en-ZA', { minimumFractionDigits: 2 });\n\n// Calculate RFV score for each customer\nconst scored = customers.map(c => {\n  const ltv = parseFloat(c['Lifetime Value']) || 0;\n  const purchases = parseInt(c['Total Purchases']) || 0;\n  const lastPurchase = c['Last Purchase Date'] ? new Date(c['Last Purchase Date']) : null;\n  const daysSinceLast = lastPurchase && !isNaN(lastPurchase.getTime())\n    ? Math.floor((now - lastPurchase) / 86400000) : 999;\n  const tier = c['Tier'] || 'Bronze';\n  const trajectory = c['Trajectory'] || 'stable';\n\n  // Recency score (lower days = higher score, capped at 90 days)\n  const recencyScore = Math.max(0, 100 - (daysSinceLast / 90 * 100));\n  // Frequency score (more purchases = higher score)\n  const freqScore = Math.min(100, purchases * 5);\n  // Value score (LTV normalized)\n  const valueScore = Math.min(100, ltv / 500);\n\n  // Weighted RFV — Value matters most\n  const rfv = (recencyScore * 0.25) + (freqScore * 0.25) + (valueScore * 0.50);\n\n  // Determine next action recommendation\n  let action = 'Keep nurturing';\n  let actionReason = '';\n\n  if (tier === 'VIP' && daysSinceLast > 30) {\n    action = 'White-glove check-in';\n    actionReason = `VIP customer silent for ${daysSinceLast} days. Personal call or hand-written note.`;\n  } else if (tier === 'VIP' && trajectory === 'up') {\n    action = 'Premium upsell';\n    actionReason = `VIP spending trending up — offer your highest-value product or experience.`;\n  } else if (tier === 'Gold' && trajectory === 'up') {\n    action = 'Tier-up nudge to VIP';\n    actionReason = `Gold customer trending up — one big purchase pushes them to VIP. Suggest premium offer.`;\n  } else if (tier === 'Bronze' && purchases >= 3 && trajectory === 'up') {\n    action = 'Tier-up offer to Silver';\n    actionReason = `Loyal Bronze on the rise. A bundled offer could push them to Silver.`;\n  } else if (daysSinceLast > 60 && tier !== 'Bronze') {\n    action = 'Win-back attempt';\n    actionReason = `${tier} customer hasn't bought in ${daysSinceLast} days. Personal re-engagement before they churn.`;\n  } else if (trajectory === 'down') {\n    action = 'Trajectory check-in';\n    actionReason = `Spending dropping. Friendly check-in to find out what changed.`;\n  } else if (purchases >= 5 && daysSinceLast < 14) {\n    action = 'Ask for a referral';\n    actionReason = `Loyal, recent buyer. Best moment to ask for a referral or review.`;\n  }\n\n  return {\n    name: c['Customer Name'], email: c['Customer Email'],\n    tier, ltv, ltvFormatted: formatRand(ltv),\n    purchases, daysSinceLast, trajectory,\n    rfv: rfv.toFixed(1), action, actionReason,\n    lastProduct: c['Last Product'] || 'unknown'\n  };\n});\n\n// Sort by RFV, take top 5\nscored.sort((a, b) => parseFloat(b.rfv) - parseFloat(a.rfv));\nconst top5 = scored.slice(0, 5);\n\n// Build summary for AI\nconst top5Summary = top5.map((c, i) =>\n  `${i+1}. ${c.name} (${c.tier}, ${c.purchases} purchases, ${c.ltvFormatted} LTV, ${c.daysSinceLast}d since last) — ACTION: ${c.action}. ${c.actionReason}`\n).join('\\n');\n\nconst byTier = {\n  VIP: scored.filter(c => c.tier === 'VIP').length,\n  Gold: scored.filter(c => c.tier === 'Gold').length,\n  Silver: scored.filter(c => c.tier === 'Silver').length,\n  Bronze: scored.filter(c => c.tier === 'Bronze').length\n};\n\nconst summary = `Total customers: ${customers.length}. Tier breakdown: VIP ${byTier.VIP}, Gold ${byTier.Gold}, Silver ${byTier.Silver}, Bronze ${byTier.Bronze}. Top 5 by RFV score this week:\\n${top5Summary}`;\n\nreturn [{\n  json: {\n    hasData: true,\n    totalCustomers: customers.length,\n    byTier,\n    top5,\n    top5Summary,\n    summary,\n    reportDate: now.toLocaleDateString('en-ZA', { timeZone: 'Africa/Johannesburg' })\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1824,
+        432
+      ],
+      "id": "e3df1cd6-24c9-4d1c-8886-f17e9b18a75e",
+      "name": "Code — Top 5 RFV + Next Actions"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a senior customer success strategist for a South African business owner. You have been given a list of the top 5 customers ranked by RFV score, each with a recommended action. Your job: write the owner's Monday morning brief. Lead with the single most-valuable opportunity. Use the customer names. Keep it actionable and direct. End with ONE concrete suggestion the owner should do TODAY. Hard limit 150 words. Plain text. No bullets. No headers. Use Rand currency. South African English.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json['summary'] }}\"\n    }\n  ],\n  \"temperature\": 0.4,\n  \"max_tokens\": 400\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1616,
+        432
+      ],
+      "id": "93d93e60-558a-41d5-95bf-b868a5383f56",
+      "name": "Groq — Next Actions Narrative",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-na-1",
+              "name": "aiNarrative",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-na-2",
+              "name": "totalCustomers",
+              "value": "={{ $('Code — Top 5 RFV + Next Actions').item.json['totalCustomers'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-na-3",
+              "name": "vipCount",
+              "value": "={{ $('Code — Top 5 RFV + Next Actions').item.json['byTier']['VIP'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-na-4",
+              "name": "goldCount",
+              "value": "={{ $('Code — Top 5 RFV + Next Actions').item.json['byTier']['Gold'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-na-5",
+              "name": "silverCount",
+              "value": "={{ $('Code — Top 5 RFV + Next Actions').item.json['byTier']['Silver'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-na-6",
+              "name": "bronzeCount",
+              "value": "={{ $('Code — Top 5 RFV + Next Actions').item.json['byTier']['Bronze'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-na-7",
+              "name": "top5Json",
+              "value": "={{ JSON.stringify($('Code — Top 5 RFV + Next Actions').item.json['top5']) }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-na-8",
+              "name": "reportDate",
+              "value": "={{ $('Code — Top 5 RFV + Next Actions').item.json['reportDate'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1408,
+        432
+      ],
+      "id": "5ee8429e-af79-40ca-8383-991f0ee662a1",
+      "name": "Edit Fields — Next Actions"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build HTML rows for top 5 customers\nconst d = $input.item.json;\nconst top5 = JSON.parse(d['top5Json'] || '[]');\n\nconst tierColor = (t) => {\n  if (t === 'VIP') return 'linear-gradient(135deg,#818cf8,#6366f1)';\n  if (t === 'Gold') return '#f59e0b';\n  if (t === 'Silver') return '#a8a8c2';\n  return '#92400e';\n};\n\nconst html = top5.map((c, i) => `\n  <tr>\n    <td style=\"padding:14px 12px;border-bottom:1px solid rgba(255,255,255,0.05);font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b6b85;width:32px;\">${String(i+1).padStart(2,'0')}</td>\n    <td style=\"padding:14px 12px;border-bottom:1px solid rgba(255,255,255,0.05);\">\n      <div style=\"font-size:14px;font-weight:600;color:#f5f5fa;margin-bottom:3px;\">${c.name}</div>\n      <div style=\"font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6b6b85;letter-spacing:0.04em;\">${c.purchases} purchases · ${c.ltvFormatted} · ${c.daysSinceLast}d ago</div>\n    </td>\n    <td style=\"padding:14px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:right;\">\n      <div style=\"display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:0.1em;background:${tierColor(c.tier)};color:#fff;padding:3px 8px;border-radius:4px;\">${c.tier.toUpperCase()}</div>\n      <div style=\"font-size:13px;color:#a8a8c2;margin-top:6px;font-weight:500;\">${c.action}</div>\n      <div style=\"font-size:11.5px;color:#6b6b85;margin-top:3px;line-height:1.4;\">${c.actionReason}</div>\n    </td>\n  </tr>\n`).join('');\n\nreturn { ...d, top5Html: html };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1184,
+        432
+      ],
+      "id": "59359114-0ba6-4ec2-9fe5-e84a48dbcdc0",
+      "name": "Code — Build NA HTML"
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=🎯 Top 5 Next Actions — Week of {{ $('Edit Fields — Next Actions').item.json['reportDate'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:680px;margin:40px auto;background:#08080c;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);\">\n  <div style=\"padding:32px 40px;background:linear-gradient(135deg,#818cf8,#6366f1,#4f46e5);\">\n    <div style=\"font-size:11px;color:rgba(255,255,255,0.85);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;\">NSM — Lifetime &amp; Next Action</div>\n    <div style=\"font-size:28px;font-weight:800;color:#fff;letter-spacing:-0.02em;\">Your Top 5 This Week</div>\n    <div style=\"font-size:14px;color:rgba(255,255,255,0.85);margin-top:6px;\">{{ $('Edit Fields — Next Actions').item.json['reportDate'] }}</div>\n  </div>\n  <div style=\"padding:32px 40px;\">\n    <div style=\"display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:28px;\">\n      <div style=\"background:rgba(99,102,241,0.10);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:12px;text-align:center;\">\n        <div style=\"font-size:9.5px;color:#818cf8;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px;\">VIP</div>\n        <div style=\"font-size:20px;font-weight:700;color:#818cf8;\">{{ $('Edit Fields — Next Actions').item.json['vipCount'] }}</div>\n      </div>\n      <div style=\"background:rgba(245,158,11,0.10);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:12px;text-align:center;\">\n        <div style=\"font-size:9.5px;color:#f59e0b;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px;\">Gold</div>\n        <div style=\"font-size:20px;font-weight:700;color:#f59e0b;\">{{ $('Edit Fields — Next Actions').item.json['goldCount'] }}</div>\n      </div>\n      <div style=\"background:rgba(168,168,194,0.08);border:1px solid rgba(168,168,194,0.2);border-radius:10px;padding:12px;text-align:center;\">\n        <div style=\"font-size:9.5px;color:#a8a8c2;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px;\">Silver</div>\n        <div style=\"font-size:20px;font-weight:700;color:#a8a8c2;\">{{ $('Edit Fields — Next Actions').item.json['silverCount'] }}</div>\n      </div>\n      <div style=\"background:rgba(146,64,14,0.10);border:1px solid rgba(146,64,14,0.2);border-radius:10px;padding:12px;text-align:center;\">\n        <div style=\"font-size:9.5px;color:#a8a8c2;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px;\">Bronze</div>\n        <div style=\"font-size:20px;font-weight:700;color:#a8a8c2;\">{{ $('Edit Fields — Next Actions').item.json['bronzeCount'] }}</div>\n      </div>\n    </div>\n    <table style=\"width:100%;border-collapse:collapse;margin-bottom:28px;\">{{ $('Code — Build NA HTML').item.json['top5Html'] }}</table>\n    <div style=\"background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:22px;\">\n      <div style=\"font-size:10px;color:#818cf8;text-transform:uppercase;letter-spacing:0.16em;margin-bottom:10px;\">AI Strategist Brief</div>\n      <div style=\"font-size:14px;color:#e8e8ff;line-height:1.75;white-space:pre-wrap;\">{{ $('Edit Fields — Next Actions').item.json['aiNarrative'] }}</div>\n    </div>\n    <div style=\"font-size:10px;color:#5a5a7a;letter-spacing:2px;text-align:center;margin-top:24px;text-transform:uppercase;\">NSM // Lifetime &amp; Next Action // South Africa</div>\n  </div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -992,
+        432
+      ],
+      "id": "d0db0e12-da83-4600-b5a0-613951f3a5e0",
+      "name": "Gmail — Top 5 Next Actions",
+      "webhookId": "gmail-na",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=🎯 TOP 5 NEXT ACTIONS — {{ $('Edit Fields — Next Actions').item.json['reportDate'] }}\n\n👥 Total: {{ $('Edit Fields — Next Actions').item.json['totalCustomers'] }} customers\n💎 VIP: {{ $('Edit Fields — Next Actions').item.json['vipCount'] }}\n🥇 Gold: {{ $('Edit Fields — Next Actions').item.json['goldCount'] }}\n🥈 Silver: {{ $('Edit Fields — Next Actions').item.json['silverCount'] }}\n🥉 Bronze: {{ $('Edit Fields — Next Actions').item.json['bronzeCount'] }}\n\nFull brief with the top 5 customers + suggested actions in your inbox.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -784,
+        432
+      ],
+      "id": "78c89cca-7bca-41f0-8bdb-f7816bdaf02e",
+      "name": "Telegram — Next Actions",
+      "webhookId": "tg-na",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -2256,
+        800
+      ],
+      "id": "b8cdf312-1cf3-4d85-af45-0ad2e67e2150",
+      "name": "Schedule — 1st of Month 9am"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1180o-fmk-hSyyV_RQ9KyTP-cEVsHZjC3WLI4yYzZ0Jw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2032,
+        800
+      ],
+      "id": "8a0605bb-7d9b-46f4-b6d9-cd5f98e68c7c",
+      "name": "Sheets — Read All Customers (Monthly)",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "X1XkpxwR8nnjGE9f",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// B10 — Monthly LTV Aggregator\nconst rows = $input.all();\nif (!rows.length) return [{ json: { hasData: false } }];\n\nconst customers = rows.map(r => r.json).filter(r => r['Customer Email']);\nif (!customers.length) return [{ json: { hasData: false } }];\n\nconst formatRand = n => 'R' + n.toLocaleString('en-ZA', { minimumFractionDigits: 2 });\n\nconst total = customers.length;\nconst vipCount = customers.filter(r => r['Tier'] === 'VIP').length;\nconst goldCount = customers.filter(r => r['Tier'] === 'Gold').length;\nconst silverCount = customers.filter(r => r['Tier'] === 'Silver').length;\nconst bronzeCount = customers.filter(r => r['Tier'] === 'Bronze').length;\n\nconst totalLTV = customers.reduce((acc, r) => acc + (parseFloat(r['Lifetime Value']) || 0), 0);\nconst avgLTV = totalLTV / total;\n\n// Top customer by LTV\nconst sorted = [...customers].sort((a,b) => (parseFloat(b['Lifetime Value']) || 0) - (parseFloat(a['Lifetime Value']) || 0));\nconst top = sorted[0] || {};\nconst topName = top['Customer Name'] || 'N/A';\nconst topLTV = formatRand(parseFloat(top['Lifetime Value']) || 0);\n\n// Trajectory breakdown\nconst trajUp = customers.filter(r => r['Trajectory'] === 'up').length;\nconst trajDown = customers.filter(r => r['Trajectory'] === 'down').length;\nconst trajStable = customers.filter(r => r['Trajectory'] === 'stable' || !r['Trajectory']).length;\n\nconst monthName = $now.setZone('Africa/Johannesburg').toFormat('yyyy-MM-dd HH:mm:ss');\nconst year = new Date().getFullYear();\n\nconst summary = [\n  'Total customers: ' + total,\n  'Tier: VIP ' + vipCount + ', Gold ' + goldCount + ', Silver ' + silverCount + ', Bronze ' + bronzeCount,\n  'Total LTV: ' + formatRand(totalLTV),\n  'Average LTV: ' + formatRand(avgLTV),\n  'Top customer: ' + topName + ' at ' + topLTV,\n  'Trajectory: ' + trajUp + ' rising, ' + trajStable + ' stable, ' + trajDown + ' declining'\n].join('. ');\n\nreturn [{\n  json: {\n    hasData: true, total, vipCount, goldCount, silverCount, bronzeCount,\n    totalLTV: formatRand(totalLTV), avgLTV: formatRand(avgLTV),\n    topName, topLTV, trajUp, trajDown, trajStable,\n    monthName, year, summary\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1808,
+        800
+      ],
+      "id": "d0e989b6-930e-4717-9a9f-f778b916086f",
+      "name": "Code — Monthly Aggregator"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a customer analytics strategist for South African businesses. Write a warm, insightful monthly customer lifetime value report for a business owner. Highlight tier breakdown, top performer, and ONE strategic recommendation for next month. Hard limit 130 words. Plain text. No bullets. No headers. Use Rand currency.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json['summary'] }}\"\n    }\n  ],\n  \"temperature\": 0.4,\n  \"max_tokens\": 350\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1616,
+        800
+      ],
+      "id": "09e9bb5c-bc5f-4c27-94e3-4206df2c6205",
+      "name": "Groq — Monthly Narrative",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wKxM02yG3jIytQhH",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef-mon-1",
+              "name": "aiNarrative",
+              "value": "={{ $json['choices'][0]['message']['content'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-mon-2",
+              "name": "total",
+              "value": "={{ $('Code — Monthly Aggregator').item.json['total'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-mon-3",
+              "name": "vipCount",
+              "value": "={{ $('Code — Monthly Aggregator').item.json['vipCount'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-mon-4",
+              "name": "goldCount",
+              "value": "={{ $('Code — Monthly Aggregator').item.json['goldCount'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-mon-5",
+              "name": "silverCount",
+              "value": "={{ $('Code — Monthly Aggregator').item.json['silverCount'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-mon-6",
+              "name": "bronzeCount",
+              "value": "={{ $('Code — Monthly Aggregator').item.json['bronzeCount'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-mon-7",
+              "name": "totalLTV",
+              "value": "={{ $('Code — Monthly Aggregator').item.json['totalLTV'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-mon-8",
+              "name": "avgLTV",
+              "value": "={{ $('Code — Monthly Aggregator').item.json['avgLTV'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-mon-9",
+              "name": "topName",
+              "value": "={{ $('Code — Monthly Aggregator').item.json['topName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-mon-10",
+              "name": "topLTV",
+              "value": "={{ $('Code — Monthly Aggregator').item.json['topLTV'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-mon-11",
+              "name": "monthName",
+              "value": "={{ $('Code — Monthly Aggregator').item.json['monthName'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ef-mon-12",
+              "name": "year",
+              "value": "={{ $('Code — Monthly Aggregator').item.json['year'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1424,
+        800
+      ],
+      "id": "b4f63c59-ae7e-4117-b751-4820ac033fa2",
+      "name": "Edit Fields — Monthly"
+    },
+    {
+      "parameters": {
+        "sendTo": "ndumisoseth12@gmail.com",
+        "subject": "=📊 LTV Monthly Report — {{ $('Edit Fields — Monthly').item.json['monthName'] }} {{ $('Edit Fields — Monthly').item.json['year'] }}",
+        "message": "=<div style=\"font-family:'Helvetica Neue',Arial,sans-serif;max-width:600px;margin:40px auto;background:#08080c;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);\">\n  <div style=\"padding:32px 40px;background:linear-gradient(135deg,#818cf8,#6366f1,#4f46e5);\">\n    <div style=\"font-size:11px;color:rgba(255,255,255,0.85);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;\">NSM — Lifetime &amp; Next Action</div>\n    <div style=\"font-size:24px;font-weight:800;color:#fff;\">Monthly LTV Report</div>\n    <div style=\"font-size:14px;color:rgba(255,255,255,0.85);margin-top:6px;\">{{ $('Edit Fields — Monthly').item.json['monthName'] }} {{ $('Edit Fields — Monthly').item.json['year'] }}</div>\n  </div>\n  <div style=\"padding:36px 40px;\">\n    <div style=\"display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px;\">\n      <div style=\"background:rgba(99,102,241,0.10);border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:14px;text-align:center;\"><div style=\"font-size:10px;color:#818cf8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;\">VIP</div><div style=\"font-size:24px;font-weight:800;color:#818cf8;\">{{ $('Edit Fields — Monthly').item.json['vipCount'] }}</div></div>\n      <div style=\"background:rgba(245,158,11,0.10);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:14px;text-align:center;\"><div style=\"font-size:10px;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;\">Gold</div><div style=\"font-size:24px;font-weight:800;color:#f59e0b;\">{{ $('Edit Fields — Monthly').item.json['goldCount'] }}</div></div>\n      <div style=\"background:rgba(168,168,194,0.08);border:1px solid rgba(168,168,194,0.2);border-radius:12px;padding:14px;text-align:center;\"><div style=\"font-size:10px;color:#a8a8c2;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;\">Silver</div><div style=\"font-size:24px;font-weight:800;color:#a8a8c2;\">{{ $('Edit Fields — Monthly').item.json['silverCount'] }}</div></div>\n      <div style=\"background:rgba(146,64,14,0.10);border:1px solid rgba(146,64,14,0.2);border-radius:12px;padding:14px;text-align:center;\"><div style=\"font-size:10px;color:#a8a8c2;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;\">Bronze</div><div style=\"font-size:24px;font-weight:800;color:#a8a8c2;\">{{ $('Edit Fields — Monthly').item.json['bronzeCount'] }}</div></div>\n    </div>\n    <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;\">\n      <div style=\"background:rgba(255,255,255,0.04);border-radius:12px;padding:18px;\"><div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Total LTV</div><div style=\"font-size:22px;font-weight:800;color:#10b981;\">{{ $('Edit Fields — Monthly').item.json['totalLTV'] }}</div></div>\n      <div style=\"background:rgba(255,255,255,0.04);border-radius:12px;padding:18px;\"><div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Average LTV</div><div style=\"font-size:22px;font-weight:800;color:#818cf8;\">{{ $('Edit Fields — Monthly').item.json['avgLTV'] }}</div></div>\n    </div>\n    <div style=\"background:rgba(255,255,255,0.04);border-radius:12px;padding:18px;margin-bottom:24px;\">\n      <div style=\"font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;\">Top Customer</div>\n      <div style=\"font-size:18px;font-weight:700;color:#f5f5fa;\">{{ $('Edit Fields — Monthly').item.json['topName'] }}</div>\n      <div style=\"font-size:14px;color:#10b981;font-weight:600;margin-top:2px;\">{{ $('Edit Fields — Monthly').item.json['topLTV'] }} lifetime value</div>\n    </div>\n    <div style=\"background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:22px;\">\n      <div style=\"font-size:10px;color:#818cf8;text-transform:uppercase;letter-spacing:0.16em;margin-bottom:10px;\">AI Monthly Analysis</div>\n      <div style=\"font-size:14px;color:#e8e8ff;line-height:1.75;white-space:pre-wrap;\">{{ $('Edit Fields — Monthly').item.json['aiNarrative'] }}</div>\n    </div>\n    <div style=\"font-size:10px;color:#5a5a7a;letter-spacing:2px;text-align:center;margin-top:24px;text-transform:uppercase;\">NSM // Lifetime &amp; Next Action // South Africa</div>\n  </div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1216,
+        800
+      ],
+      "id": "57e5ade5-c4e2-4915-a001-0ab589380153",
+      "name": "Gmail — Monthly LTV Report",
+      "webhookId": "gmail-monthly-ltv",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yKRKJsP6QcscTAqG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6243464274",
+        "text": "=📊 MONTHLY LTV REPORT — {{ $('Edit Fields — Monthly').item.json['monthName'] }} {{ $('Edit Fields — Monthly').item.json['year'] }}\n\n👥 Total customers: {{ $('Edit Fields — Monthly').item.json['total'] }}\n💎 VIP: {{ $('Edit Fields — Monthly').item.json['vipCount'] }} | 🥇 Gold: {{ $('Edit Fields — Monthly').item.json['goldCount'] }}\n🥈 Silver: {{ $('Edit Fields — Monthly').item.json['silverCount'] }} | 🥉 Bronze: {{ $('Edit Fields — Monthly').item.json['bronzeCount'] }}\n\n💰 Total LTV: {{ $('Edit Fields — Monthly').item.json['totalLTV'] }}\n📈 Avg LTV: {{ $('Edit Fields — Monthly').item.json['avgLTV'] }}\n🏆 Top: {{ $('Edit Fields — Monthly').item.json['topName'] }} ({{ $('Edit Fields — Monthly').item.json['topLTV'] }})\n\nFull report in your inbox.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -976,
+        800
+      ],
+      "id": "1768f0ff-ac76-4770-9ab2-3eb4f2d5babb",
+      "name": "Telegram — Monthly LTV",
+      "webhookId": "tg-monthly-ltv",
+      "credentials": {
+        "telegramApi": {
+          "id": "DcbBCytPeXahm63B",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook — Log Purchase": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Find Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Find Customer": {
+      "main": [
+        [
+          {
+            "node": "Code — RFV Scoring & Tier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — RFV Scoring & Tier": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Upsert Customer Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Upsert Customer Record": {
+      "main": [
+        [
+          {
+            "node": "Respond — Logged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond — Logged": {
+      "main": [
+        [
+          {
+            "node": "If — Should Celebrate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — Should Celebrate": {
+      "main": [
+        [
+          {
+            "node": "Groq — Celebration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Celebration": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1 — Celebrate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1 — Celebrate": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse Celebration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse Celebration": {
+      "main": [
+        [
+          {
+            "node": "If — Celebration Parse OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If — Celebration Parse OK": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Celebration Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram — Celebration Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Celebration Email": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Celebration Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule — Mon 8am Next Actions": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read All Customers (Weekly)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read All Customers (Weekly)": {
+      "main": [
+        [
+          {
+            "node": "Code — Top 5 RFV + Next Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Top 5 RFV + Next Actions": {
+      "main": [
+        [
+          {
+            "node": "Groq — Next Actions Narrative",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Next Actions Narrative": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Next Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Next Actions": {
+      "main": [
+        [
+          {
+            "node": "Code — Build NA HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Build NA HTML": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Top 5 Next Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Top 5 Next Actions": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Next Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule — 1st of Month 9am": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Read All Customers (Monthly)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Read All Customers (Monthly)": {
+      "main": [
+        [
+          {
+            "node": "Code — Monthly Aggregator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Monthly Aggregator": {
+      "main": [
+        [
+          {
+            "node": "Groq — Monthly Narrative",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq — Monthly Narrative": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields — Monthly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields — Monthly": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Monthly LTV Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Monthly LTV Report": {
+      "main": [
+        [
+          {
+            "node": "Telegram — Monthly LTV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "tCPKWW0HMiCXUriY",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "Africa/Johannesburg"
+  },
+  "versionId": "b10-lifetime-next-action-v3-005",
+  "meta": {
+    "instanceId": "a6e26104685ff5012a6e3ff6e2749801790ac7cbaad26874511304834b3cf3f6"
+  },
+  "id": "B10LifetimeNextActionV3001",
+  "tags": []
+}
