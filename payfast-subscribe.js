@@ -1,18 +1,17 @@
-// api/payfast-subscribe.js
-// Jarvis Nexus — PayFast recurring subscription handler
-// Deploy path: api/payfast-subscribe.js in your GitHub repo root
-// Vercel auto-exposes this as /api/payfast-subscribe
-// ─────────────────────────────────────────────────────────────────────────────
-
 const crypto = require('crypto');
+
+// Secrets live in Vercel → Project → Settings → Environment Variables.
+// Never paste them into this file: the repo and site are publicly readable.
+//   PAYFAST_MERCHANT_ID   (optional, defaults to the account ID below)
+//   PAYFAST_MERCHANT_KEY  (required)
+//   PAYFAST_PASSPHRASE    (required)
+//   PAYFAST_NOTIFY_URL    (optional, defaults to the B13 PayFast Listener webhook)
 
 module.exports = function handler(req, res) {
 
-  // 1. Read tier + email from query string
   const tier  = (req.query.tier  || 'starter').toLowerCase().trim();
   const email = (req.query.email || '').trim();
 
-  // 2. Tier to amount mapping (ZAR)
   const AMOUNTS = {
     starter:  '1990.00',
     operator: '3990.00',
@@ -23,22 +22,23 @@ module.exports = function handler(req, res) {
     return;
   }
 
+  const MERCHANT_ID  = process.env.PAYFAST_MERCHANT_ID || '34985035';
+  const MERCHANT_KEY = process.env.PAYFAST_MERCHANT_KEY;
+  const PASSPHRASE   = process.env.PAYFAST_PASSPHRASE;
+
+  if (!MERCHANT_KEY || !PASSPHRASE) {
+    res.status(500).send('Checkout is not configured yet. Please book a call instead: https://cal.com/seth-mokone-limbt0/30min');
+    return;
+  }
+
   const amount   = AMOUNTS[tier];
-  const itemName = 'Jarvis Nexus ' + tier.charAt(0).toUpperCase() + tier.slice(1);
+  const itemName = 'NSM ' + tier.charAt(0).toUpperCase() + tier.slice(1);
 
-  // 3. Credentials
-  const MERCHANT_ID  = '34985035';
-  const MERCHANT_KEY = 'wzhdqeeo1ndjn';
-  const PASSPHRASE   = 'LoveGod120304';
-
-  // 4. URLs
   const BASE       = 'https://jarvis-nexus-lead-jkon.vercel.app';
   const RETURN_URL = BASE + '/thank-you';
   const CANCEL_URL = BASE + '/#pricing';
-  const NOTIFY_URL = 'https://n8n-production-71d9.up.railway.app/webhook/payfast-ipn';
-
-  // 5. Build payment data (order matters for PayFast signature)
-  const today = new Date().toISOString().split('T')[0];
+  // B13 PayFast Listener listens on /webhook/payfast-itn
+  const NOTIFY_URL = process.env.PAYFAST_NOTIFY_URL || 'https://n8n-production-71d9.up.railway.app/webhook/payfast-itn';
 
   const data = {
     merchant_id:       MERCHANT_ID,
@@ -50,37 +50,30 @@ module.exports = function handler(req, res) {
     amount:            amount,
     item_name:         itemName,
     subscription_type: '1',
-    billing_date:      today,
     recurring_amount:  amount,
     frequency:         '3',
     cycles:            '0',
   };
 
-  // 6. Generate MD5 signature
-  const paramString = Object.keys(data)
-    .map(function (k) {
-      return k + '=' + encodeURIComponent(data[k]).replace(/%20/g, '+');
+  var sigString = Object.keys(data)
+    .map(function(k) {
+      return k + '=' + encodeURIComponent(data[k].trim()).replace(/%20/g, '+');
     })
     .join('&')
-    + '&passphrase=' + encodeURIComponent(PASSPHRASE).replace(/%20/g, '+');
+    + '&passphrase=' + encodeURIComponent(PASSPHRASE.trim()).replace(/%20/g, '+');
 
-  const signature = crypto
-    .createHash('md5')
-    .update(paramString)
-    .digest('hex');
+  var signature = crypto.createHash('md5').update(sigString).digest('hex');
 
-  data.signature = signature;
+  var allParams = Object.assign({}, data, { signature: signature });
 
-  // 7. Build PayFast redirect URL
-  const queryString = Object.keys(data)
-    .map(function (k) {
-      return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]);
+  var queryString = Object.keys(allParams)
+    .map(function(k) {
+      return encodeURIComponent(k) + '=' + encodeURIComponent(allParams[k]);
     })
     .join('&');
 
-  const PAYFAST_URL = 'https://www.payfast.co.za/eng/process?' + queryString;
-
-  // 8. Redirect to PayFast
-  res.writeHead(302, { Location: PAYFAST_URL });
+  res.writeHead(302, {
+    Location: 'https://www.payfast.co.za/eng/process?' + queryString
+  });
   res.end();
 };
